@@ -1,0 +1,66 @@
+@import 'tailwindcss';
+
+/* Tailwind ignores external workspace packages unless their sources are explicit. */
+@source '../../../packages/ui-web/src';
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-highlight: var(--highlight);
+  --font-sans: 'Manrope', 'Aptos', 'Segoe UI', sans-serif;
+  --font-display: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+}
+
+:root {
+  color-scheme: light;
+  --canvas: #f3f0e7;
+  --surface: #fbf9f2;
+  --surface-strong: #ffffff;
+  --ink: #182019;
+  --ink-muted: #586158;
+  --border: #ccd0c6;
+  --accent: #26745b;
+  --accent-strong: #175442;
+  --highlight: #d8a94f;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at 15% 5%, rgb(216 169 79 / 18%), transparent 28rem),
+    linear-gradient(180deg, #f8f5ed 0%, var(--canvas) 75%);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgb(38 116 91 / 20%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

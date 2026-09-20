@@ -1,0 +1,20 @@
+{
+  "name": "@ergon/workbench",
+  "version": "0.0.1",
+  "private": true,
+  "imports": {
+    "#components/*": "./src/components/*.tsx",
+    "#hooks/*": "./src/hooks/*.ts",
+    "#lib/*": "./src/lib/*.ts"
+  },
+  "dependencies": {
+    "@ergon/ui-web": "workspace:*"
+  },
+  "nx": {
+    "tags": [
+      "type:app",
+      "scope:workbench",
+      "platform:web"
+    ]
+  }
+}
