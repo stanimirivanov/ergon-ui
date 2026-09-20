@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/ergon-workbench-e2e"
+    },
+    {
+      "path": "./apps/ergon-workbench"
+    },
+    {
+      "path": "./packages/ui-web"
+    }
+  ],
+  "compilerOptions": {}
+}
