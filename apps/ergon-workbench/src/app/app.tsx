@@ -54,7 +54,7 @@ export function App() {
             </span>
           </a>
           <span className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 text-xs font-bold tracking-wide text-accent-strong uppercase">
-            Foundation
+            Session boundary
           </span>
         </div>
       </header>
@@ -78,11 +78,11 @@ export function App() {
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <Button asChild>
-                <a href="#foundation">Review the foundation</a>
+                <a href="#foundation">Review the session boundary</a>
               </Button>
               <p className="max-w-xs text-sm leading-6 text-ink-muted">
-                Live case data arrives with the first authenticated resolver
-                slice.
+                Resolver data remains closed until the control plane verifies a
+                tenant-scoped actor.
               </p>
             </div>
           </div>
@@ -100,25 +100,25 @@ export function App() {
               Current capability
             </p>
             <h2 id="foundation-title" className="mt-4 font-display text-3xl">
-              Workbench shell ready
+              Session gate ready
             </h2>
             <p className="mt-4 leading-7 text-white/70">
-              The UI now has a versioned Nx workspace, a web-only design-system
-              boundary, deterministic verification, and room for native clients
-              without coupling them to the DOM.
+              RTK Query owns request state while Effect acquires credentials,
+              executes the request, bounds retries and timeouts, and validates
+              every response before it enters the cache.
             </p>
             <dl className="mt-10 grid grid-cols-2 gap-6 border-t border-white/15 pt-6">
               <div>
                 <dt className="text-xs tracking-wide text-white/55 uppercase">
                   Runtime
                 </dt>
-                <dd className="mt-1 text-lg font-semibold">React 19.3</dd>
+                <dd className="mt-1 text-lg font-semibold">React + Redux</dd>
               </div>
               <div>
                 <dt className="text-xs tracking-wide text-white/55 uppercase">
                   Workspace
                 </dt>
-                <dd className="mt-1 text-lg font-semibold">Nx + pnpm</dd>
+                <dd className="mt-1 text-lg font-semibold">Effect boundary</dd>
               </div>
             </dl>
           </aside>

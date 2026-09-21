@@ -11,7 +11,7 @@ native UI, application state, and authentication adapters platform-specific.
 
 | Deployable        | Audience and responsibility                                        | Status                            |
 | :---------------- | :----------------------------------------------------------------- | :-------------------------------- |
-| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Implemented shell                 |
+| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Shell and session boundary        |
 | `ergon-requester` | External adaptive resolution canvas                                | Deferred to first requester slice |
 | widget SDK        | Embeddable headless client and web components                      | Deferred                          |
 | native clients    | Selected requester or resolver workflows                           | Deferred until required           |
@@ -50,11 +50,11 @@ DOM, Tailwind, and shadcn boundary; it is not a React Native design system.
 | Component-local interaction                                      | React state         |
 | HTTP execution, decoding, timeout, typed failure mapping         | Effect              |
 
-These libraries are introduced by the first behavior that needs them. Effect
-will execute inside a custom RTK Query base query or exceptional endpoint
-`queryFn`; it will not create another remote cache. RTK Query cancellation must
-interrupt the Effect program. Automatic retries apply only to classified
-transient reads or mutations whose idempotency contract permits replay.
+RTK Query and Effect were introduced by current-actor resolution. Effect
+executes inside RTK Query's endpoint `queryFn`; it does not create another
+remote cache. RTK Query cancellation interrupts the Effect program. Automatic
+retries apply only to classified transient reads or mutations whose idempotency
+contract permits replay.
 
 ## Routing and rendering
 
@@ -64,9 +64,10 @@ pages. RTK Query, once introduced, owns API data; route loaders must not create
 a second cache for the same resource.
 
 The static artifact reads only public runtime configuration. Secrets never
-enter JavaScript bundles. Production ingress should expose a same-origin API
-path so cross-origin policy is deliberate rather than an accidental Vite
-development setting.
+enter JavaScript bundles. Production ingress exposes a same-origin `/api` path;
+local Vite development proxies that path to the control plane. Token acquisition
+remains behind an injected provider and unavailable until a separate security
+decision chooses OIDC or a BFF.
 
 ## API and trust boundary
 

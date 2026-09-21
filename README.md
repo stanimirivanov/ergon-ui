@@ -3,10 +3,10 @@
 ## TL;DR
 
 Ergon UI is the browser workspace for Ergon's evidence-led resolution
-experiences. The repository currently contains the resolver workbench shell and
-a web-only UI package. The requester application, React Native clients, API
-runtime, Redux, Effect, forms, and animation enter only with a slice that uses
-them.
+experiences. The repository contains the resolver workbench, a typed
+current-actor session boundary, and a web-only UI package. The requester
+application, React Native clients, forms, and animation enter only with a slice
+that uses them.
 
 ## Current status
 
@@ -15,13 +15,17 @@ The first foundation provides:
 - React 19.3 in an Nx and pnpm workspace;
 - one Vite-built `ergon-workbench` application using React Router Data Mode;
 - Tailwind CSS and a shadcn-compatible `@ergon/ui-web` source package;
+- RTK Query request state backed by an Effect HTTP, timeout, retry, decoding,
+  and typed-error pipeline;
+- a fail-closed tenant session route over the public current-actor contract;
 - Vitest component tests and a Chromium Playwright smoke path;
 - enforced project tags and an accepted application-topology decision; and
 - a contributor, security, issue, pull-request, and CI harness.
 
-No backend API or authentication flow is connected yet. The next slice will
-establish an authenticated Ergon human-actor session before resolver data is
-displayed. See [current state](docs/development/current-state.md).
+The control-plane contract is connected, but token acquisition intentionally
+remains unavailable until an OIDC-or-BFF decision is accepted. The session
+route therefore fails closed in the default composition and never exposes
+resolver data. See [current state](docs/development/current-state.md).
 
 ## Prerequisites
 

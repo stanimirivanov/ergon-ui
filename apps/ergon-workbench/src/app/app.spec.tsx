@@ -21,7 +21,7 @@ describe('App', () => {
         name: /evidence in\.\s*verified outcomes out\./i,
       }),
     ).toBeTruthy();
-    expect(screen.getByText('Workbench shell ready')).toBeTruthy();
+    expect(screen.getByText('Session gate ready')).toBeTruthy();
   });
 
   it('renders a recovery path for unknown routes', () => {

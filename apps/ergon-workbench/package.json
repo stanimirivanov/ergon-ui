@@ -8,7 +8,10 @@
     "#lib/*": "./src/lib/*.ts"
   },
   "dependencies": {
-    "@ergon/ui-web": "workspace:*"
+    "@ergon/ui-web": "workspace:*",
+    "@reduxjs/toolkit": "2.12.0",
+    "effect": "3.22.2",
+    "react-redux": "9.3.0"
   },
   "nx": {
     "tags": [

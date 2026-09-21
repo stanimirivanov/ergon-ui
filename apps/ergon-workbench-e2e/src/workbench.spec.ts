@@ -11,7 +11,7 @@ test('presents the workbench foundation', async ({ page }) => {
       name: /Evidence in\.\s*Verified outcomes out\./i,
     }),
   ).toBeVisible();
-  await expect(page.getByText('Workbench shell ready')).toBeVisible();
+  await expect(page.getByText('Session gate ready')).toBeVisible();
 
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
@@ -29,4 +29,23 @@ test('offers a recovery path for an unknown route', async ({ page }) => {
   await expect(
     page.getByRole('link', { name: 'Return to the workbench' }),
   ).toHaveAttribute('href', '/');
+});
+
+test('keeps tenant work closed until authentication is connected', async ({
+  page,
+}) => {
+  await page.goto('/tenants/9ad66e9b-e81a-4b61-8d8f-5708312772d8');
+
+  await expect(
+    page.getByRole('heading', {
+      level: 1,
+      name: 'Authentication is required.',
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/no resolver data has been loaded/i),
+  ).toBeVisible();
+
+  const accessibility = await new AxeBuilder({ page }).analyze();
+  expect(accessibility.violations).toEqual([]);
 });
