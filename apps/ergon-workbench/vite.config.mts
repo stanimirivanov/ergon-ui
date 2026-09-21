@@ -9,6 +9,12 @@ export default defineConfig(() => ({
   server: {
     port: 4200,
     host: 'localhost',
+    proxy: {
+      '/api': {
+        target:
+          process.env['ERGON_CONTROL_PLANE_URL'] ?? 'http://localhost:8090',
+      },
+    },
   },
   preview: {
     port: 4300,
