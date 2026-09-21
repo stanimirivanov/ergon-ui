@@ -1,41 +1,30 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  createCurrentActorClient,
-  type AccessTokenProvider,
-} from './current-actor-client';
+import { createCurrentActorClient } from './current-actor-client';
 
 const TENANT_ID = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
 const ACTOR_ID = '741bcdba-9521-4e96-bfcc-7a5a2830eec8';
 
-const tokenProvider: AccessTokenProvider = {
-  async getAccessToken() {
-    return 'short-lived-token';
-  },
-};
-
 describe('current actor client', () => {
-  it('sends the bearer credential and decodes a valid actor', async () => {
+  it('sends the same-origin session cookie and decodes a valid actor', async () => {
     let requestedUrl: string | undefined;
-    let authorization: string | null = null;
+    let credentials: unknown;
 
     async function fetchStub(
       input: Parameters<typeof fetch>[0],
       init?: Parameters<typeof fetch>[1],
     ) {
       requestedUrl = input.toString();
-      authorization = new Headers(init?.headers).get('Authorization');
+      credentials = init?.credentials;
       return jsonResponse({
         actorId: ACTOR_ID,
         identityProvider: 'workforce-sso',
-        subject: 'employee-42',
         registeredAt: '2026-09-20T12:34:56.123456Z',
         recordedAt: '2026-09-20T12:34:57Z',
       });
     }
 
     const client = createCurrentActorClient({
-      accessTokenProvider: tokenProvider,
       fetch: fetchStub,
     });
 
@@ -53,23 +42,25 @@ describe('current actor client', () => {
         recordedAt: '2026-09-20T12:34:57Z',
       },
     });
-    expect(requestedUrl).toBe(`/api/v1/tenants/${TENANT_ID}/human-actor`);
-    expect(authorization).toBe('Bearer short-lived-token');
+    expect(requestedUrl).toBe(`/bff/v1/tenants/${TENANT_ID}/session`);
+    expect(credentials).toBe('same-origin');
   });
 
-  it('fails closed without invoking HTTP when no token is available', async () => {
-    let requestCount = 0;
+  it('accepts only the expected local sign-in path from an authentication problem', async () => {
     async function fetchStub() {
-      requestCount += 1;
-      return jsonResponse({});
+      return jsonResponse(
+        {
+          type: 'urn:ergon:problem:browser-authentication-required',
+          title: 'Browser authentication required',
+          status: 401,
+          detail: 'An authenticated browser session is required',
+          signInPath: '/bff/login',
+        },
+        401,
+      );
     }
 
     const client = createCurrentActorClient({
-      accessTokenProvider: {
-        async getAccessToken() {
-          return null;
-        },
-      },
       fetch: fetchStub,
     });
 
@@ -80,9 +71,67 @@ describe('current actor client', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: { kind: 'authentication-required' },
+      error: {
+        kind: 'authentication-required',
+        signInPath: '/bff/login',
+      },
     });
-    expect(requestCount).toBe(0);
+  });
+
+  it('does not expose an untrusted sign-in location', async () => {
+    async function fetchStub() {
+      return jsonResponse(
+        {
+          type: 'urn:ergon:problem:browser-authentication-required',
+          title: 'Browser authentication required',
+          status: 401,
+          detail: 'An authenticated browser session is required',
+          signInPath: 'https://attacker.example/collect',
+        },
+        401,
+      );
+    }
+
+    const client = createCurrentActorClient({ fetch: fetchStub });
+
+    const result = await client.resolve(
+      TENANT_ID,
+      new AbortController().signal,
+    );
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'unexpected-response', status: 401 },
+    });
+  });
+
+  it('does not retry a deliberately disabled browser boundary', async () => {
+    let requestCount = 0;
+    async function fetchStub() {
+      requestCount += 1;
+      return jsonResponse(
+        {
+          type: 'urn:ergon:problem:browser-authentication-unavailable',
+          title: 'Browser authentication unavailable',
+          status: 503,
+          detail: 'Browser authentication is not configured',
+        },
+        503,
+      );
+    }
+
+    const client = createCurrentActorClient({ fetch: fetchStub });
+
+    const result = await client.resolve(
+      TENANT_ID,
+      new AbortController().signal,
+    );
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'authentication-unavailable' },
+    });
+    expect(requestCount).toBe(1);
   });
 
   it('maps an unregistered actor problem without exposing its detail', async () => {
@@ -99,7 +148,6 @@ describe('current actor client', () => {
     }
 
     const client = createCurrentActorClient({
-      accessTokenProvider: tokenProvider,
       fetch: fetchStub,
     });
 
@@ -120,7 +168,6 @@ describe('current actor client', () => {
     }
 
     const client = createCurrentActorClient({
-      accessTokenProvider: tokenProvider,
       fetch: fetchStub,
     });
 
@@ -153,14 +200,12 @@ describe('current actor client', () => {
       return jsonResponse({
         actorId: ACTOR_ID,
         identityProvider: 'workforce-sso',
-        subject: 'employee-42',
         registeredAt: '2026-09-20T12:34:56Z',
         recordedAt: '2026-09-20T12:34:57Z',
       });
     }
 
     const client = createCurrentActorClient({
-      accessTokenProvider: tokenProvider,
       fetch: fetchStub,
     });
 
@@ -188,7 +233,6 @@ describe('current actor client', () => {
     }
 
     const client = createCurrentActorClient({
-      accessTokenProvider: tokenProvider,
       fetch: fetchStub,
       requestTimeout: 5,
     });

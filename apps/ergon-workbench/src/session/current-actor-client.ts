@@ -7,7 +7,6 @@ const utcInstant = Schema.String.pipe(
 const currentActorResponseSchema = Schema.Struct({
   actorId: Schema.UUID,
   identityProvider: Schema.NonEmptyString,
-  subject: Schema.NonEmptyString,
   registeredAt: utcInstant,
   recordedAt: utcInstant,
 });
@@ -18,7 +17,10 @@ const problemDetailSchema = Schema.Struct({
   status: Schema.Number,
   detail: Schema.String,
   instance: Schema.optional(Schema.String),
+  signInPath: Schema.optional(Schema.String),
 });
+
+const BROWSER_SIGN_IN_PATH = '/bff/login' as const;
 
 export interface CurrentActor {
   readonly actorId: string;
@@ -28,7 +30,11 @@ export interface CurrentActor {
 }
 
 export type CurrentActorFailure =
-  | { readonly kind: 'authentication-required' }
+  | {
+      readonly kind: 'authentication-required';
+      readonly signInPath: typeof BROWSER_SIGN_IN_PATH;
+    }
+  | { readonly kind: 'authentication-unavailable' }
   | { readonly kind: 'actor-not-registered' }
   | { readonly kind: 'identity-rejected' }
   | { readonly kind: 'forbidden' }
@@ -43,25 +49,15 @@ export type CurrentActorResult =
   | { readonly ok: true; readonly actor: CurrentActor }
   | { readonly ok: false; readonly error: CurrentActorFailure };
 
-/**
- * Supplies a short-lived bearer token without exposing it to Redux state or the
- * query cache. Implementations must not persist tokens in browser storage.
- */
-export interface AccessTokenProvider {
-  getAccessToken(signal: AbortSignal): Promise<string | null>;
-}
-
 export interface CurrentActorClient {
   resolve(tenantId: string, signal: AbortSignal): Promise<CurrentActorResult>;
 }
 
 interface CurrentActorClientOptions {
-  readonly accessTokenProvider: AccessTokenProvider;
   readonly fetch: typeof globalThis.fetch;
   readonly requestTimeout?: number;
 }
 
-const NO_TOKEN: CurrentActorFailure = { kind: 'authentication-required' };
 const TRANSPORT_FAILURE: CurrentActorFailure = { kind: 'transport' };
 const INVALID_RESPONSE: CurrentActorFailure = { kind: 'invalid-response' };
 const REQUEST_CANCELLED: CurrentActorFailure = { kind: 'request-cancelled' };
@@ -69,27 +65,23 @@ const REQUEST_CANCELLED: CurrentActorFailure = { kind: 'request-cancelled' };
 /**
  * Creates the current-actor HTTP boundary.
  *
- * The returned client executes token acquisition, cancellation, one bounded
- * retry for transient failures, timeout enforcement, and schema decoding as an
- * Effect program. Its promise result is deliberately serializable for RTK Query.
+ * The returned client executes same-origin session HTTP, cancellation, one
+ * bounded retry for transient failures, timeout enforcement, and schema
+ * decoding as an Effect program. Its promise result is deliberately
+ * serializable for RTK Query and contains no provider credentials.
  */
 export function createCurrentActorClient({
-  accessTokenProvider,
   fetch,
   requestTimeout = 5_000,
 }: CurrentActorClientOptions): CurrentActorClient {
   return {
     async resolve(tenantId, signal) {
-      const program = Effect.flatMap(
-        readAccessToken(accessTokenProvider),
-        (accessToken) =>
-          requestCurrentActor(fetch, tenantId, accessToken).pipe(
-            Effect.timeoutFail({
-              duration: requestTimeout,
-              onTimeout: () => ({ kind: 'timeout' }) as const,
-            }),
-            Effect.retry({ times: 1, while: isRetryable }),
-          ),
+      const program = requestCurrentActor(fetch, tenantId).pipe(
+        Effect.timeoutFail({
+          duration: requestTimeout,
+          onTimeout: () => ({ kind: 'timeout' }) as const,
+        }),
+        Effect.retry({ times: 1, while: isRetryable }),
       );
 
       try {
@@ -109,31 +101,15 @@ export function createCurrentActorClient({
   };
 }
 
-function readAccessToken(provider: AccessTokenProvider) {
-  return Effect.tryPromise({
-    try: (signal) => provider.getAccessToken(signal),
-    catch: () => TRANSPORT_FAILURE,
-  }).pipe(
-    Effect.flatMap((accessToken) => {
-      const normalized = accessToken?.trim();
-      return normalized ? Effect.succeed(normalized) : Effect.fail(NO_TOKEN);
-    }),
-  );
-}
-
-function requestCurrentActor(
-  fetch: typeof globalThis.fetch,
-  tenantId: string,
-  accessToken: string,
-) {
+function requestCurrentActor(fetch: typeof globalThis.fetch, tenantId: string) {
   return Effect.tryPromise({
     try: (signal) =>
-      fetch(`/api/v1/tenants/${encodeURIComponent(tenantId)}/human-actor`, {
+      fetch(`/bff/v1/tenants/${encodeURIComponent(tenantId)}/session`, {
         method: 'GET',
         headers: {
           Accept: 'application/json, application/problem+json',
-          Authorization: `Bearer ${accessToken}`,
         },
+        credentials: 'same-origin',
         signal,
       }),
     catch: () => TRANSPORT_FAILURE,
@@ -144,8 +120,6 @@ function decodeResponse(response: Response) {
   if (response.ok) {
     return readJson(response).pipe(
       Effect.flatMap(Schema.decodeUnknown(currentActorResponseSchema)),
-      // The opaque provider subject is validated at the wire boundary but is
-      // intentionally excluded from RTK Query's browser-resident cache.
       Effect.map((actor): CurrentActor => ({
         actorId: actor.actorId,
         identityProvider: actor.identityProvider,
@@ -158,7 +132,7 @@ function decodeResponse(response: Response) {
 
   return readOptionalProblem(response).pipe(
     Effect.flatMap((problem) =>
-      Effect.fail(mapHttpFailure(response.status, problem?.type)),
+      Effect.fail(mapHttpFailure(response.status, problem)),
     ),
   );
 }
@@ -185,26 +159,43 @@ function readOptionalProblem(response: Response) {
 
 function mapHttpFailure(
   status: number,
-  problemType?: string,
+  problem?: {
+    readonly type: string;
+    readonly signInPath?: string | undefined;
+  },
 ): CurrentActorFailure {
-  if (status === 401) {
-    return NO_TOKEN;
+  if (
+    status === 401 &&
+    problem?.type === 'urn:ergon:problem:browser-authentication-required' &&
+    problem.signInPath === BROWSER_SIGN_IN_PATH
+  ) {
+    return {
+      kind: 'authentication-required',
+      signInPath: BROWSER_SIGN_IN_PATH,
+    };
   }
   if (
     status === 403 &&
-    problemType === 'urn:ergon:problem:human-actor-not-registered'
+    problem?.type === 'urn:ergon:problem:human-actor-not-registered'
   ) {
     return { kind: 'actor-not-registered' };
   }
   if (
     status === 403 &&
-    (problemType === 'urn:ergon:problem:untrusted-human-identity-issuer' ||
-      problemType === 'urn:ergon:problem:invalid-authenticated-human-identity')
+    (problem?.type === 'urn:ergon:problem:untrusted-human-identity-issuer' ||
+      problem?.type ===
+        'urn:ergon:problem:invalid-authenticated-human-identity')
   ) {
     return { kind: 'identity-rejected' };
   }
   if (status === 403) {
     return { kind: 'forbidden' };
+  }
+  if (
+    status === 503 &&
+    problem?.type === 'urn:ergon:problem:browser-authentication-unavailable'
+  ) {
+    return { kind: 'authentication-unavailable' };
   }
   if (status >= 500) {
     return { kind: 'service-unavailable', status };

@@ -10,10 +10,15 @@ export default defineConfig(() => ({
     port: 4200,
     host: 'localhost',
     proxy: {
-      '/api': {
-        target:
-          process.env['ERGON_CONTROL_PLANE_URL'] ?? 'http://localhost:8090',
-      },
+      ...Object.fromEntries(
+        ['/bff', '/oauth2', '/login/oauth2'].map((path) => [
+          path,
+          {
+            target:
+              process.env['ERGON_CONTROL_PLANE_URL'] ?? 'http://localhost:8090',
+          },
+        ]),
+      ),
     },
   },
   preview: {

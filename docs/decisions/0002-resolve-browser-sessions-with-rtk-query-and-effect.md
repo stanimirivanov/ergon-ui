@@ -1,6 +1,6 @@
 # ADR 0002: Resolve browser sessions with RTK Query and Effect
 
-- Status: Accepted
+- Status: Superseded by [ADR 0003](0003-consume-confidential-bff-sessions.md)
 - Date: 2026-09-20
 - Milestone: M05 - Human follow-up and resolver console
 

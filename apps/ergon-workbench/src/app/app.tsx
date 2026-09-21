@@ -103,9 +103,9 @@ export function App() {
               Session gate ready
             </h2>
             <p className="mt-4 leading-7 text-white/70">
-              RTK Query owns request state while Effect acquires credentials,
-              executes the request, bounds retries and timeouts, and validates
-              every response before it enters the cache.
+              RTK Query owns request state while Effect executes the same-origin
+              BFF request, bounds retries and timeouts, and validates every
+              response before it enters the cache.
             </p>
             <dl className="mt-10 grid grid-cols-2 gap-6 border-t border-white/15 pt-6">
               <div>

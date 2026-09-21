@@ -56,7 +56,10 @@ describe('current actor page', () => {
       `/tenants/${TENANT_ID}`,
       clientReturning({
         ok: false,
-        error: { kind: 'authentication-required' },
+        error: {
+          kind: 'authentication-required',
+          signInPath: '/bff/login',
+        },
       }),
     );
 
@@ -67,6 +70,30 @@ describe('current actor page', () => {
       }),
     ).toBeTruthy();
     expect(screen.getByText(/no resolver data has been loaded/i)).toBeTruthy();
+    expect(
+      screen.getByRole('link', { name: 'Sign in to Ergon' }),
+    ).toHaveProperty(
+      'href',
+      expect.stringContaining(`/bff/login?returnTo=%2Ftenants%2F${TENANT_ID}`),
+    );
+  });
+
+  it('distinguishes disabled browser authentication from a transient outage', async () => {
+    renderSession(
+      `/tenants/${TENANT_ID}`,
+      clientReturning({
+        ok: false,
+        error: { kind: 'authentication-unavailable' },
+      }),
+    );
+
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'Browser sign-in is not configured.',
+      }),
+    ).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
   });
 
   it('distinguishes an unregistered actor from missing authentication', async () => {
