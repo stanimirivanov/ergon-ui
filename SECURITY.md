@@ -35,5 +35,10 @@ tokens, authority evidence, or case payloads in local storage; authorize from a
 tenant URL; or inject raw model, evidence, or Markdown HTML. Production browser
 code must not depend on Ergon's `/internal/v1` development endpoints.
 
+The workbench authenticates through the same-origin confidential BFF. Provider
+tokens and OIDC client secrets must remain server-side. Treat problem-document
+redirect fields as untrusted input, retain Secure and HttpOnly session-cookie
+settings, and introduce no mutating BFF call without a reviewed CSRF contract.
+
 Follow [AGENTS.md](AGENTS.md), [CONTRIBUTING.md](CONTRIBUTING.md), and the
 [engineering standards](docs/development/engineering-standards.md).

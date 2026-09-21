@@ -64,10 +64,9 @@ pages. RTK Query, once introduced, owns API data; route loaders must not create
 a second cache for the same resource.
 
 The static artifact reads only public runtime configuration. Secrets never
-enter JavaScript bundles. Production ingress exposes a same-origin `/api` path;
-local Vite development proxies that path to the control plane. Token acquisition
-remains behind an injected provider and unavailable until a separate security
-decision chooses OIDC or a BFF.
+enter JavaScript bundles. The workbench consumes the confidential BFF through
+same-origin `/bff`, `/oauth2`, and `/login/oauth2` paths; local Vite development
+proxies those paths to the control plane. Provider tokens remain server-side.
 
 ## API and trust boundary
 

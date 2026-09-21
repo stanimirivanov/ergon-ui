@@ -3,9 +3,9 @@
 ## TL;DR
 
 The repository contains a verified resolver-workbench shell, a fail-closed
-current-actor session boundary, and a web-only UI package. It has no token
-acquisition adapter, resolver inbox, case data, form workflow, Motion animation,
-requester app, or native app.
+confidential-BFF session boundary, and a web-only UI package. It has no resolver
+inbox, case data, logout flow, form workflow, Motion animation, requester app,
+or native app.
 
 ## Implemented
 
@@ -14,9 +14,10 @@ requester app, or native app.
 - Vite-built workbench with React Router Data Mode;
 - Tailwind CSS theme tokens and one shadcn-compatible button primitive;
 - accessible home and unknown-route recovery screens;
-- tenant route validation and public current-actor contract consumption;
+- tenant route validation and confidential BFF session consumption;
 - RTK Query cache ownership with Effect-based HTTP, timeout, bounded retry,
   cancellation, schema decoding, and typed failure mapping;
+- explicit local sign-in navigation from the validated BFF problem contract;
 - explicit authentication-required, unregistered-actor, rejected-identity,
   transient-failure, invalid-response, and verified-session UI states;
 - strict TypeScript, ESLint project boundaries, Prettier, Vitest, and Playwright;
@@ -25,14 +26,14 @@ requester app, or native app.
 
 ## Deliberate limits
 
-- The default composition has no token acquisition adapter and fails closed.
-- No OIDC client, BFF, login redirect, logout, refresh, or revocation flow exists.
-- The provider subject is validated at the wire boundary but not cached or shown.
+- OIDC client credentials and provider tokens remain entirely server-side.
+- No logout, refresh, or revocation UI exists.
+- The BFF session contains no provider subject, and none is cached or shown.
 - No production deployment configuration or ingress exists.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.
 
-The next security slice should choose and connect the workbench's OIDC-or-BFF
-token acquisition model. Resolver data must remain behind the verified actor
-boundary.
+The next resolver slice may consume a reviewed browser-facing follow-up contract
+behind this verified actor boundary. Existing `/internal/v1` routes remain
+ineligible for production UI use.

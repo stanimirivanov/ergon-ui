@@ -76,8 +76,8 @@ function CurrentActorSession({ tenantId }: { readonly tenantId: string }) {
             </div>
           </dl>
           <p className="mt-5 text-sm leading-6 text-ink-muted">
-            Provider subjects and bearer credentials are intentionally not
-            rendered or stored in Redux.
+            Provider subjects and credentials remain behind the server-side
+            session boundary and never enter Redux.
           </p>
         </section>
       </WorkbenchFrame>
@@ -86,6 +86,16 @@ function CurrentActorSession({ tenantId }: { readonly tenantId: string }) {
 
   const failure = normalizeFailure(session.error);
   const copy = failureCopy(failure);
+  const action =
+    failure.kind === 'authentication-required' ? (
+      <Button asChild>
+        <a href={signInHref(failure.signInPath, tenantId)}>Sign in to Ergon</a>
+      </Button>
+    ) : copy.canRetry ? (
+      <Button type="button" onClick={() => session.refetch()}>
+        Try again
+      </Button>
+    ) : undefined;
 
   return (
     <WorkbenchFrame statusLabel={copy.statusLabel}>
@@ -93,13 +103,7 @@ function CurrentActorSession({ tenantId }: { readonly tenantId: string }) {
         eyebrow="Identity boundary"
         title={copy.title}
         description={copy.description}
-        action={
-          copy.canRetry ? (
-            <Button type="button" onClick={() => session.refetch()}>
-              Try again
-            </Button>
-          ) : undefined
-        }
+        action={action}
       />
     </WorkbenchFrame>
   );
@@ -158,6 +162,10 @@ function normalizeFailure(error: unknown): CurrentActorFailure {
   ) {
     switch (error.kind) {
       case 'authentication-required':
+        return 'signInPath' in error && error.signInPath === '/bff/login'
+          ? { kind: error.kind, signInPath: error.signInPath }
+          : { kind: 'invalid-response' };
+      case 'authentication-unavailable':
       case 'actor-not-registered':
       case 'identity-rejected':
       case 'forbidden':
@@ -187,7 +195,15 @@ function failureCopy(failure: CurrentActorFailure) {
         statusLabel: 'Sign-in required',
         title: 'Authentication is required.',
         description:
-          'Ergon did not receive a valid sign-in credential. No resolver data has been loaded.',
+          'Sign in through the Ergon control plane to open this tenant workspace. No resolver data has been loaded.',
+        canRetry: false,
+      };
+    case 'authentication-unavailable':
+      return {
+        statusLabel: 'Sign-in unavailable',
+        title: 'Browser sign-in is not configured.',
+        description:
+          'The control plane has not enabled its browser session boundary. Ask an operator to configure workbench authentication.',
         canRetry: false,
       };
     case 'actor-not-registered':
@@ -228,4 +244,11 @@ function failureCopy(failure: CurrentActorFailure) {
         canRetry: true,
       };
   }
+}
+
+function signInHref(signInPath: '/bff/login', tenantId: string) {
+  const parameters = new URLSearchParams({
+    returnTo: `/tenants/${tenantId}`,
+  });
+  return `${signInPath}?${parameters.toString()}`;
 }
