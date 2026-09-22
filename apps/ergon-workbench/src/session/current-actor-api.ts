@@ -6,10 +6,6 @@ import type {
   CurrentActorFailure,
 } from './current-actor-client';
 
-export interface WorkbenchDependencies {
-  readonly currentActorClient: CurrentActorClient;
-}
-
 export interface CurrentActorQuery {
   readonly tenantId: string;
 }

@@ -11,7 +11,7 @@ native UI, application state, and authentication adapters platform-specific.
 
 | Deployable        | Audience and responsibility                                        | Status                            |
 | :---------------- | :----------------------------------------------------------------- | :-------------------------------- |
-| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Shell and session boundary        |
+| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Read-only shared follow-up inbox  |
 | `ergon-requester` | External adaptive resolution canvas                                | Deferred to first requester slice |
 | widget SDK        | Embeddable headless client and web components                      | Deferred                          |
 | native clients    | Selected requester or resolver workflows                           | Deferred until required           |
@@ -55,6 +55,10 @@ executes inside RTK Query's endpoint `queryFn`; it does not create another
 remote cache. RTK Query cancellation interrupts the Effect program. Automatic
 retries apply only to classified transient reads or mutations whose idempotency
 contract permits replay.
+
+The resolver queue filter is shareable URL state. Keyset page traversal remains
+component-local while each requested page is cached by RTK Query; the UI keeps
+the cursor timestamp and work-item ID together as one immutable value.
 
 ## Routing and rendering
 

@@ -4,9 +4,9 @@
 
 Ergon UI is the browser workspace for Ergon's evidence-led resolution
 experiences. The repository contains the resolver workbench, a typed
-confidential-BFF session boundary, and a web-only UI package. The requester
-application, React Native clients, forms, and animation enter only with a slice
-that uses them.
+confidential-BFF boundary, a read-only human follow-up inbox, and a web-only UI
+package. The requester application, React Native clients, forms, and animation
+enter only with a slice that uses them.
 
 ## Current status
 
@@ -19,13 +19,16 @@ The first foundation provides:
   and typed-error pipeline;
 - a fail-closed tenant session route over the confidential BFF contract;
 - explicit sign-in navigation that never exposes provider tokens to React;
+- a schema-decoded resolver inbox with shareable queue filtering and bounded
+  keyset pagination;
 - Vitest component tests and a Chromium Playwright smoke path;
 - enforced project tags and an accepted application-topology decision; and
 - a contributor, security, issue, pull-request, and CI harness.
 
-The control-plane contract is connected through same-origin cookies. A live
-login requires an OIDC-enabled control plane and identity provider; resolver
-data remains deferred. See [current state](docs/development/current-state.md).
+The control-plane contracts are connected through same-origin cookies. A live
+login and inbox require an OIDC-enabled control plane, identity provider, actor
+binding, and current resolver authority. See
+[current state](docs/development/current-state.md).
 
 ## Prerequisites
 

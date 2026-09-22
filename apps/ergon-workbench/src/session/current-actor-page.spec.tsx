@@ -4,6 +4,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createWorkbenchStore } from '../app/store';
+import type { HumanFollowUpClient } from '../follow-up/human-follow-up-client';
 import type {
   CurrentActorClient,
   CurrentActorResult,
@@ -44,7 +45,7 @@ describe('current actor page', () => {
     expect(
       await screen.findByRole('heading', {
         level: 1,
-        name: 'Session verified.',
+        name: 'Human follow-up inbox',
       }),
     ).toBeTruthy();
     expect(screen.getByText('workforce-sso')).toBeTruthy();
@@ -135,7 +136,7 @@ describe('current actor page', () => {
     expect(
       await screen.findByRole('heading', {
         level: 1,
-        name: 'Session verified.',
+        name: 'Human follow-up inbox',
       }),
     ).toBeTruthy();
   });
@@ -148,7 +149,10 @@ function renderSession(path: string, currentActorClient: CurrentActorClient) {
       initialEntries: [path],
     },
   );
-  const store = createWorkbenchStore({ currentActorClient });
+  const store = createWorkbenchStore({
+    currentActorClient,
+    humanFollowUpClient: emptyHumanFollowUpClient,
+  });
 
   return render(
     <Provider store={store}>
@@ -156,6 +160,12 @@ function renderSession(path: string, currentActorClient: CurrentActorClient) {
     </Provider>,
   );
 }
+
+const emptyHumanFollowUpClient: HumanFollowUpClient = {
+  async listOpen() {
+    return { ok: true, page: { items: [], nextCursor: null } };
+  },
+};
 
 function clientReturning(result: CurrentActorResult): CurrentActorClient {
   return {
