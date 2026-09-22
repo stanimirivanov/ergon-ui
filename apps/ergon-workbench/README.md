@@ -3,9 +3,10 @@
 ## TL;DR
 
 This application is Ergon's internal browser experience. It delivers the
-accessible shell and a typed, fail-closed current-actor session boundary.
-It consumes the control plane's confidential BFF without exposing provider
-tokens to browser code. Resolver data is a deliberate follow-up slice.
+accessible shell, a typed fail-closed current-actor session boundary, and the
+read-only shared resolver inbox. It consumes the control plane's confidential
+BFF without exposing provider tokens or internal API representations to
+browser code.
 
 ## Commands
 
@@ -30,6 +31,13 @@ pnpm nx e2e @ergon/workbench-e2e
 owns request state and caching; Effect owns HTTP, timeout, bounded transient
 retry, response decoding, and typed errors. Provider subjects and credentials
 never enter the response or browser cache.
+
+After session verification, the same route requests the browser follow-up
+resource. The `queue` URL parameter owns the optional shareable queue filter;
+local state owns reversible keyset navigation. Each page is decoded before RTK
+Query caches it. An empty page is deliberately neutral because the control
+plane uses it both for no visible work and for non-disclosure when current
+resolver authority is absent.
 
 Local Vite development proxies `/bff`, `/oauth2`, and `/login/oauth2` to
 `http://localhost:8090`. Override the target with the server-side

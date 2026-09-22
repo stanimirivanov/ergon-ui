@@ -3,6 +3,8 @@ import { Schema } from 'effect';
 import { useParams } from 'react-router';
 
 import { WorkbenchFrame } from '../app/workbench-frame';
+import { HumanFollowUpInbox } from '../follow-up/human-follow-up-inbox';
+import { browserSignInHref } from './browser-session-navigation';
 import { useCurrentActorQuery } from './current-actor-api';
 import type { CurrentActorFailure } from './current-actor-client';
 
@@ -44,41 +46,37 @@ function CurrentActorSession({ tenantId }: { readonly tenantId: string }) {
 
   if (session.data !== undefined) {
     return (
-      <WorkbenchFrame statusLabel="Session verified">
-        <section className="mx-auto max-w-4xl px-6 py-20 lg:px-10 lg:py-28">
+      <WorkbenchFrame statusLabel="Resolver inbox">
+        <section className="mx-auto max-w-6xl px-6 py-16 lg:px-10 lg:py-20">
           <p className="text-sm font-bold tracking-[0.18em] text-accent-strong uppercase">
-            Identity boundary
+            Resolver workbench
           </p>
           <h1 className="mt-5 font-display text-5xl tracking-[-0.035em] text-ink sm:text-6xl">
-            Session verified.
+            Human follow-up inbox
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-ink-muted">
-            The control plane recognized your immutable actor binding for this
-            tenant. Resolver capabilities can now be introduced behind this
-            boundary.
+            Review the oldest unclaimed work that is visible under your current
+            tenant authority.
           </p>
-          <dl className="mt-10 grid gap-5 rounded-[2rem] border border-border bg-surface p-7 shadow-[0_24px_70px_rgb(24_32_25_/_10%)] sm:grid-cols-2">
+          <dl className="mt-8 flex flex-col gap-4 rounded-2xl border border-border bg-surface px-5 py-4 text-sm shadow-[0_12px_35px_rgb(24_32_25_/_6%)] sm:flex-row sm:items-center sm:justify-between">
             <div>
               <dt className="text-xs font-bold tracking-wide text-ink-muted uppercase">
-                Actor ID
+                Verified actor
               </dt>
-              <dd className="mt-2 break-all font-mono text-sm">
+              <dd className="mt-1 break-all font-mono text-xs">
                 {session.data.actorId}
               </dd>
             </div>
-            <div>
+            <div className="sm:text-right">
               <dt className="text-xs font-bold tracking-wide text-ink-muted uppercase">
                 Identity provider
               </dt>
-              <dd className="mt-2 text-sm font-semibold">
+              <dd className="mt-1 font-semibold">
                 {session.data.identityProvider}
               </dd>
             </div>
           </dl>
-          <p className="mt-5 text-sm leading-6 text-ink-muted">
-            Provider subjects and credentials remain behind the server-side
-            session boundary and never enter Redux.
-          </p>
+          <HumanFollowUpInbox tenantId={tenantId} />
         </section>
       </WorkbenchFrame>
     );
@@ -89,7 +87,7 @@ function CurrentActorSession({ tenantId }: { readonly tenantId: string }) {
   const action =
     failure.kind === 'authentication-required' ? (
       <Button asChild>
-        <a href={signInHref(failure.signInPath, tenantId)}>Sign in to Ergon</a>
+        <a href={browserSignInHref(tenantId)}>Sign in to Ergon</a>
       </Button>
     ) : copy.canRetry ? (
       <Button type="button" onClick={() => session.refetch()}>
@@ -244,11 +242,4 @@ function failureCopy(failure: CurrentActorFailure) {
         canRetry: true,
       };
   }
-}
-
-function signInHref(signInPath: '/bff/login', tenantId: string) {
-  const parameters = new URLSearchParams({
-    returnTo: `/tenants/${tenantId}`,
-  });
-  return `${signInPath}?${parameters.toString()}`;
 }

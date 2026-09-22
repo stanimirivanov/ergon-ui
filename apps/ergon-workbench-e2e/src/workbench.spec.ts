@@ -69,7 +69,7 @@ test('offers the local BFF sign-in path without revealing tenant work', async ({
   expect(accessibility.violations).toEqual([]);
 });
 
-test('reveals the tenant actor after the BFF session is verified', async ({
+test('reveals visible follow-up work after the BFF session is verified', async ({
   page,
 }) => {
   await page.route('**/bff/v1/tenants/*/session', async (route) => {
@@ -84,13 +84,42 @@ test('reveals the tenant actor after the BFF session is verified', async ({
       }),
     });
   });
+  await page.route('**/bff/v1/tenants/*/human-follow-ups?*', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        items: [
+          {
+            workItemId: '11111111-1111-4111-8111-111111111111',
+            caseId: '22222222-2222-4222-8222-222222222222',
+            runId: '33333333-3333-4333-8333-333333333333',
+            escalationEventId: '44444444-4444-4444-8444-444444444444',
+            reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
+            queueKey: 'access-restoration',
+            status: 'OPEN',
+            openedAt: '2026-09-21T09:30:00Z',
+            recordedAt: '2026-09-21T09:30:01Z',
+          },
+        ],
+        nextCursor: null,
+      }),
+    });
+  });
 
   await page.goto('/tenants/9ad66e9b-e81a-4b61-8d8f-5708312772d8');
 
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Session verified.' }),
+    page.getByRole('heading', { level: 1, name: 'Human follow-up inbox' }),
   ).toBeVisible();
   await expect(page.getByText('workforce-sso')).toBeVisible();
+  await expect(
+    page.getByRole('heading', {
+      level: 3,
+      name: 'Retry attempt limit reached',
+    }),
+  ).toBeVisible();
+  await expect(page.getByText('access-restoration')).toBeVisible();
   await expect(page.getByText('employee-42')).toHaveCount(0);
 
   const accessibility = await new AxeBuilder({ page }).analyze();
