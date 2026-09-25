@@ -11,7 +11,7 @@ native UI, application state, and authentication adapters platform-specific.
 
 | Deployable        | Audience and responsibility                                        | Status                            |
 | :---------------- | :----------------------------------------------------------------- | :-------------------------------- |
-| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Read-only shared follow-up inbox  |
+| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Shared inbox with claiming        |
 | `ergon-requester` | External adaptive resolution canvas                                | Deferred to first requester slice |
 | widget SDK        | Embeddable headless client and web components                      | Deferred                          |
 | native clients    | Selected requester or resolver workflows                           | Deferred until required           |
@@ -58,7 +58,9 @@ contract permits replay.
 
 The resolver queue filter is shareable URL state. Keyset page traversal remains
 component-local while each requested page is cached by RTK Query; the UI keeps
-the cursor timestamp and work-item ID together as one immutable value.
+the cursor timestamp and work-item ID together as one immutable value. Claim
+success and stale-item conflicts invalidate every cached inbox page for that
+tenant rather than attempting to repair filtered keyset pages optimistically.
 
 ## Routing and rendering
 
@@ -71,6 +73,8 @@ The static artifact reads only public runtime configuration. Secrets never
 enter JavaScript bundles. The workbench consumes the confidential BFF through
 same-origin `/bff`, `/oauth2`, and `/login/oauth2` paths; local Vite development
 proxies those paths to the control plane. Provider tokens remain server-side.
+Session-bound CSRF values exist only in the in-memory HTTP client and never in
+Redux, a URL, or persistent browser storage.
 
 ## API and trust boundary
 

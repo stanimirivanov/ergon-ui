@@ -24,12 +24,23 @@ const pageSchema = Schema.Struct({
   items: Schema.Array(workItemSchema),
   nextCursor: Schema.NullOr(cursorSchema),
 });
+const csrfTokenSchema = Schema.Struct({
+  headerName: Schema.Literal('X-CSRF-TOKEN'),
+  token: Schema.NonEmptyString,
+});
+const claimSchema = Schema.Struct({
+  claimId: Schema.UUID,
+  workItemId: Schema.UUID,
+  claimedAt: utcInstant,
+  recordedAt: utcInstant,
+});
 const problemDetailSchema = Schema.Struct({
   type: Schema.String,
   signInPath: Schema.optional(Schema.String),
 });
 
 const BROWSER_SIGN_IN_PATH = '/bff/login' as const;
+const CSRF_TOKEN_PATH = '/bff/v1/csrf' as const;
 
 /** Exact oldest-first keyset position; both values must travel together. */
 export interface HumanFollowUpCursor {
@@ -62,6 +73,19 @@ export interface HumanFollowUpQuery {
   readonly cursor?: HumanFollowUpCursor;
 }
 
+/** Idempotent ownership request for one tenant-scoped follow-up item. */
+export interface HumanFollowUpClaimCommand {
+  readonly tenantId: string;
+  readonly workItemId: string;
+}
+
+export interface HumanFollowUpClaim {
+  readonly claimId: string;
+  readonly workItemId: string;
+  readonly claimedAt: string;
+  readonly recordedAt: string;
+}
+
 export type HumanFollowUpFailure =
   | {
       readonly kind: 'authentication-required';
@@ -84,11 +108,47 @@ export type HumanFollowUpResult =
   | { readonly ok: true; readonly page: HumanFollowUpPage }
   | { readonly ok: false; readonly error: HumanFollowUpFailure };
 
+export type HumanFollowUpClaimFailure =
+  | {
+      readonly kind: 'authentication-required';
+      readonly signInPath: typeof BROWSER_SIGN_IN_PATH;
+    }
+  | { readonly kind: 'authentication-unavailable' }
+  | { readonly kind: 'actor-not-registered' }
+  | { readonly kind: 'identity-rejected' }
+  | { readonly kind: 'resolver-authority-required' }
+  | { readonly kind: 'csrf-rejected' }
+  | { readonly kind: 'already-claimed' }
+  | { readonly kind: 'not-found' }
+  | { readonly kind: 'forbidden' }
+  | { readonly kind: 'timeout' }
+  | { readonly kind: 'transport' }
+  | { readonly kind: 'service-unavailable'; readonly status: number }
+  | { readonly kind: 'unexpected-response'; readonly status: number }
+  | { readonly kind: 'invalid-response' }
+  | { readonly kind: 'request-cancelled' };
+
+export type HumanFollowUpClaimResult =
+  | { readonly ok: true; readonly claim: HumanFollowUpClaim }
+  | { readonly ok: false; readonly error: HumanFollowUpClaimFailure };
+
+/**
+ * Same-origin browser boundary for visible and claimable follow-up work.
+ *
+ * Implementations must decode responses before returning them and keep CSRF
+ * state out of callers. Claim failures are not automatically replayed because
+ * the resolver must be told when the result is ambiguous.
+ */
 export interface HumanFollowUpClient {
   listOpen(
     query: HumanFollowUpQuery,
     signal: AbortSignal,
   ): Promise<HumanFollowUpResult>;
+
+  claim(
+    command: HumanFollowUpClaimCommand,
+    signal: AbortSignal,
+  ): Promise<HumanFollowUpClaimResult>;
 }
 
 interface HumanFollowUpClientOptions {
@@ -101,19 +161,36 @@ const INVALID_RESPONSE: HumanFollowUpFailure = { kind: 'invalid-response' };
 const REQUEST_CANCELLED: HumanFollowUpFailure = {
   kind: 'request-cancelled',
 };
+const CLAIM_TRANSPORT_FAILURE: HumanFollowUpClaimFailure = {
+  kind: 'transport',
+};
+const CLAIM_INVALID_RESPONSE: HumanFollowUpClaimFailure = {
+  kind: 'invalid-response',
+};
+const CLAIM_REQUEST_CANCELLED: HumanFollowUpClaimFailure = {
+  kind: 'request-cancelled',
+};
+
+interface BrowserCsrfToken {
+  readonly headerName: 'X-CSRF-TOKEN';
+  readonly token: string;
+}
 
 /**
- * Creates the HTTP boundary for the shared human follow-up inbox.
+ * Creates the HTTP boundary for the shared inbox and idempotent claim command.
  *
  * The client validates the complete browser DTO before returning it, retains
- * both keyset values as one cursor, and retries only transient reads. Its
- * serializable result is safe for RTK Query and excludes identity-provider
- * data and credentials.
+ * both keyset values as one cursor, and retries only transient reads. The CSRF
+ * value remains in this client closure and is discarded after rejection. Its
+ * serializable results are safe for RTK Query and exclude identity-provider
+ * data, credentials, and authority evidence.
  */
 export function createHumanFollowUpClient({
   fetch,
   requestTimeout = 5_000,
 }: HumanFollowUpClientOptions): HumanFollowUpClient {
+  let csrfToken: BrowserCsrfToken | undefined;
+
   return {
     async listOpen(query, signal) {
       const program = requestHumanFollowUps(fetch, query).pipe(
@@ -138,6 +215,44 @@ export function createHumanFollowUpClient({
         return { ok: false, error: REQUEST_CANCELLED };
       }
     },
+    async claim(command, signal) {
+      const tokenProgram =
+        csrfToken === undefined
+          ? requestCsrfToken(fetch).pipe(
+              Effect.retry({ times: 1, while: isClaimSetupRetryable }),
+              Effect.tap((token) =>
+                Effect.sync(() => {
+                  csrfToken = token;
+                }),
+              ),
+            )
+          : Effect.succeed(csrfToken);
+      const program = tokenProgram.pipe(
+        Effect.flatMap((token) => requestClaim(fetch, command, token)),
+        Effect.timeoutFail({
+          duration: requestTimeout,
+          onTimeout: () => ({ kind: 'timeout' }) as const,
+        }),
+      );
+
+      try {
+        const result = await Effect.runPromise(Effect.either(program), {
+          signal,
+        });
+        if (Either.isLeft(result) && result.left.kind === 'csrf-rejected') {
+          csrfToken = undefined;
+        }
+        return Either.match(result, {
+          onLeft: (error): HumanFollowUpClaimResult => ({
+            ok: false,
+            error,
+          }),
+          onRight: (claim): HumanFollowUpClaimResult => ({ ok: true, claim }),
+        });
+      } catch {
+        return { ok: false, error: CLAIM_REQUEST_CANCELLED };
+      }
+    },
   };
 }
 
@@ -159,6 +274,41 @@ function requestHumanFollowUps(
   }).pipe(Effect.flatMap(decodeResponse));
 }
 
+function requestCsrfToken(fetch: typeof globalThis.fetch) {
+  return Effect.tryPromise({
+    try: (signal) =>
+      fetch(CSRF_TOKEN_PATH, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json, application/problem+json',
+        },
+        credentials: 'same-origin',
+        signal,
+      }),
+    catch: () => CLAIM_TRANSPORT_FAILURE,
+  }).pipe(Effect.flatMap(decodeCsrfResponse));
+}
+
+function requestClaim(
+  fetch: typeof globalThis.fetch,
+  command: HumanFollowUpClaimCommand,
+  csrfToken: BrowserCsrfToken,
+) {
+  return Effect.tryPromise({
+    try: (signal) =>
+      fetch(claimUrl(command), {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json, application/problem+json',
+          [csrfToken.headerName]: csrfToken.token,
+        },
+        credentials: 'same-origin',
+        signal,
+      }),
+    catch: () => CLAIM_TRANSPORT_FAILURE,
+  }).pipe(Effect.flatMap(decodeClaimResponse));
+}
+
 function inboxUrl(query: HumanFollowUpQuery) {
   const parameters = new URLSearchParams({ limit: String(query.limit) });
   if (query.queueKey !== undefined) {
@@ -169,6 +319,10 @@ function inboxUrl(query: HumanFollowUpQuery) {
     parameters.set('afterWorkItemId', query.cursor.afterWorkItemId);
   }
   return `/bff/v1/tenants/${encodeURIComponent(query.tenantId)}/human-follow-ups?${parameters.toString()}`;
+}
+
+function claimUrl(command: HumanFollowUpClaimCommand) {
+  return `/bff/v1/tenants/${encodeURIComponent(command.tenantId)}/human-follow-ups/${encodeURIComponent(command.workItemId)}/claims`;
 }
 
 function decodeResponse(response: Response) {
@@ -186,6 +340,38 @@ function decodeResponse(response: Response) {
   return readOptionalProblem(response).pipe(
     Effect.flatMap((problem) =>
       Effect.fail(mapHttpFailure(response.status, problem)),
+    ),
+  );
+}
+
+function decodeCsrfResponse(response: Response) {
+  if (response.status === 200) {
+    return readJson(response).pipe(
+      Effect.flatMap(Schema.decodeUnknown(csrfTokenSchema)),
+      Effect.map((token): BrowserCsrfToken => token),
+      Effect.mapError(() => CLAIM_INVALID_RESPONSE),
+    );
+  }
+
+  return readOptionalProblem(response).pipe(
+    Effect.flatMap((problem) =>
+      Effect.fail(mapClaimHttpFailure(response.status, problem)),
+    ),
+  );
+}
+
+function decodeClaimResponse(response: Response) {
+  if (response.status === 200 || response.status === 201) {
+    return readJson(response).pipe(
+      Effect.flatMap(Schema.decodeUnknown(claimSchema)),
+      Effect.map((claim): HumanFollowUpClaim => claim),
+      Effect.mapError(() => CLAIM_INVALID_RESPONSE),
+    );
+  }
+
+  return readOptionalProblem(response).pipe(
+    Effect.flatMap((problem) =>
+      Effect.fail(mapClaimHttpFailure(response.status, problem)),
     ),
   );
 }
@@ -265,10 +451,85 @@ function mapHttpFailure(
   return { kind: 'unexpected-response', status };
 }
 
+function mapClaimHttpFailure(
+  status: number,
+  problem?: {
+    readonly type: string;
+    readonly signInPath?: string | undefined;
+  },
+): HumanFollowUpClaimFailure {
+  if (
+    status === 401 &&
+    problem?.type === 'urn:ergon:problem:browser-authentication-required' &&
+    problem.signInPath === BROWSER_SIGN_IN_PATH
+  ) {
+    return {
+      kind: 'authentication-required',
+      signInPath: BROWSER_SIGN_IN_PATH,
+    };
+  }
+  if (
+    status === 403 &&
+    problem?.type === 'urn:ergon:problem:invalid-browser-csrf-token'
+  ) {
+    return { kind: 'csrf-rejected' };
+  }
+  if (
+    status === 403 &&
+    problem?.type ===
+      'urn:ergon:problem:human-follow-up-resolver-authority-required'
+  ) {
+    return { kind: 'resolver-authority-required' };
+  }
+  if (
+    status === 403 &&
+    problem?.type === 'urn:ergon:problem:human-actor-not-registered'
+  ) {
+    return { kind: 'actor-not-registered' };
+  }
+  if (
+    status === 403 &&
+    (problem?.type === 'urn:ergon:problem:untrusted-human-identity-issuer' ||
+      problem?.type ===
+        'urn:ergon:problem:invalid-authenticated-human-identity')
+  ) {
+    return { kind: 'identity-rejected' };
+  }
+  if (
+    status === 409 &&
+    problem?.type === 'urn:ergon:problem:human-follow-up-already-claimed'
+  ) {
+    return { kind: 'already-claimed' };
+  }
+  if (
+    status === 404 &&
+    problem?.type === 'urn:ergon:problem:human-follow-up-work-item-not-found'
+  ) {
+    return { kind: 'not-found' };
+  }
+  if (
+    status === 503 &&
+    problem?.type === 'urn:ergon:problem:browser-authentication-unavailable'
+  ) {
+    return { kind: 'authentication-unavailable' };
+  }
+  if (status === 403) {
+    return { kind: 'forbidden' };
+  }
+  if (status >= 500) {
+    return { kind: 'service-unavailable', status };
+  }
+  return { kind: 'unexpected-response', status };
+}
+
 function isRetryable(failure: HumanFollowUpFailure): boolean {
   return (
     failure.kind === 'transport' ||
     failure.kind === 'timeout' ||
     failure.kind === 'service-unavailable'
   );
+}
+
+function isClaimSetupRetryable(failure: HumanFollowUpClaimFailure): boolean {
+  return failure.kind === 'transport' || failure.kind === 'service-unavailable';
 }

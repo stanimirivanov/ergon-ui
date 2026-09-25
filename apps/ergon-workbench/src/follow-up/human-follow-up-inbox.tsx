@@ -3,8 +3,12 @@ import { useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { browserSignInHref } from '../session/browser-session-navigation';
-import { useHumanFollowUpsQuery } from './human-follow-up-api';
+import {
+  useClaimHumanFollowUpMutation,
+  useHumanFollowUpsQuery,
+} from './human-follow-up-api';
 import type {
+  HumanFollowUpClaimFailure,
   HumanFollowUpCursor,
   HumanFollowUpFailure,
   HumanFollowUpQuery,
@@ -18,6 +22,14 @@ const openedAtFormatter = new Intl.DateTimeFormat('en-GB', {
   timeStyle: 'short',
   timeZone: 'UTC',
 });
+
+type ClaimNotice =
+  | { readonly kind: 'success'; readonly item: HumanFollowUpWorkItem }
+  | {
+      readonly kind: 'failure';
+      readonly item: HumanFollowUpWorkItem;
+      readonly failure: HumanFollowUpClaimFailure;
+    };
 
 export function HumanFollowUpInbox({
   tenantId,
@@ -145,6 +157,8 @@ function InboxPage({
     readonly cursor?: HumanFollowUpCursor;
     readonly history: readonly (HumanFollowUpCursor | null)[];
   }>({ history: [] });
+  const [claimNotice, setClaimNotice] = useState<ClaimNotice>();
+  const [claimHumanFollowUp, claimRequest] = useClaimHumanFollowUpMutation();
   const query: HumanFollowUpQuery = {
     tenantId,
     limit: PAGE_SIZE,
@@ -152,6 +166,23 @@ function InboxPage({
     ...(position.cursor === undefined ? {} : { cursor: position.cursor }),
   };
   const followUps = useHumanFollowUpsQuery(query);
+
+  async function claim(item: HumanFollowUpWorkItem) {
+    setClaimNotice(undefined);
+    const result = await claimHumanFollowUp({
+      tenantId,
+      workItemId: item.workItemId,
+    });
+    setClaimNotice(
+      'data' in result
+        ? { kind: 'success', item }
+        : {
+            kind: 'failure',
+            item,
+            failure: normalizeClaimFailure(result.error),
+          },
+    );
+  }
 
   if (
     followUps.isLoading ||
@@ -203,6 +234,14 @@ function InboxPage({
   const { items, nextCursor } = followUps.data;
   return (
     <div className="pt-7" aria-busy={followUps.isFetching}>
+      {claimNotice === undefined ? null : (
+        <ClaimResultNotice
+          notice={claimNotice}
+          tenantId={tenantId}
+          onRetry={claim}
+        />
+      )}
+
       {items.length === 0 ? (
         <InboxMessage
           title="No open work in this view."
@@ -216,7 +255,15 @@ function InboxPage({
         <ol className="grid gap-4" aria-label="Open human follow-ups">
           {items.map((item) => (
             <li key={item.workItemId}>
-              <WorkItem item={item} />
+              <WorkItem
+                item={item}
+                claimIsPending={
+                  claimRequest.isLoading &&
+                  claimRequest.originalArgs?.workItemId === item.workItemId
+                }
+                anotherClaimIsPending={claimRequest.isLoading}
+                onClaim={claim}
+              />
             </li>
           ))}
         </ol>
@@ -270,7 +317,18 @@ function InboxPage({
   );
 }
 
-function WorkItem({ item }: { readonly item: HumanFollowUpWorkItem }) {
+function WorkItem({
+  item,
+  claimIsPending,
+  anotherClaimIsPending,
+  onClaim,
+}: {
+  readonly item: HumanFollowUpWorkItem;
+  readonly claimIsPending: boolean;
+  readonly anotherClaimIsPending: boolean;
+  readonly onClaim: (item: HumanFollowUpWorkItem) => Promise<void>;
+}) {
+  const reason = humanizeReason(item.reason);
   return (
     <article className="rounded-2xl border border-border bg-surface p-5 shadow-[0_12px_35px_rgb(24_32_25_/_6%)] sm:p-6">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
@@ -278,9 +336,7 @@ function WorkItem({ item }: { readonly item: HumanFollowUpWorkItem }) {
           <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
             {item.queueKey}
           </p>
-          <h3 className="mt-2 text-lg font-bold text-ink">
-            {humanizeReason(item.reason)}
-          </h3>
+          <h3 className="mt-2 text-lg font-bold text-ink">{reason}</h3>
           <p className="mt-3 text-sm text-ink-muted">
             Case{' '}
             <span className="break-all font-mono text-xs text-ink">
@@ -298,9 +354,73 @@ function WorkItem({ item }: { readonly item: HumanFollowUpWorkItem }) {
               {formatOpenedAt(item.openedAt)}
             </time>
           </p>
+          <Button
+            type="button"
+            className="mt-4"
+            disabled={anotherClaimIsPending}
+            aria-label={`Claim ${reason} follow-up`}
+            onClick={() => void onClaim(item)}
+          >
+            {claimIsPending ? 'Claiming…' : 'Claim work'}
+          </Button>
         </div>
       </div>
     </article>
+  );
+}
+
+function ClaimResultNotice({
+  notice,
+  tenantId,
+  onRetry,
+}: {
+  readonly notice: ClaimNotice;
+  readonly tenantId: string;
+  readonly onRetry: (item: HumanFollowUpWorkItem) => Promise<void>;
+}) {
+  if (notice.kind === 'success') {
+    return (
+      <div
+        role="status"
+        aria-label="Follow-up claimed"
+        className="mb-5 rounded-2xl border border-accent/40 bg-accent/10 p-5"
+      >
+        <p className="font-bold text-ink">Follow-up claimed.</p>
+        <p className="mt-1 text-sm leading-6 text-ink-muted">
+          Ownership was recorded. The shared inbox is refreshing now.
+        </p>
+      </div>
+    );
+  }
+
+  const copy = claimFailureCopy(notice.failure);
+  const action =
+    notice.failure.kind === 'authentication-required' ? (
+      <Button asChild>
+        <a href={browserSignInHref(tenantId)}>Sign in again</a>
+      </Button>
+    ) : copy.canRetry ? (
+      <Button
+        type="button"
+        variant="quiet"
+        onClick={() => void onRetry(notice.item)}
+      >
+        Try claim again
+      </Button>
+    ) : undefined;
+
+  return (
+    <div
+      role="alert"
+      aria-label={copy.title}
+      className="mb-5 rounded-2xl border border-highlight/60 bg-highlight/10 p-5"
+    >
+      <p className="font-bold text-ink">{copy.title}</p>
+      <p className="mt-1 text-sm leading-6 text-ink-muted">
+        {copy.description}
+      </p>
+      {action === undefined ? null : <div className="mt-4">{action}</div>}
+    </div>
   );
 }
 
@@ -358,6 +478,45 @@ function normalizeFailure(error: unknown): HumanFollowUpFailure {
       case 'forbidden':
       case 'invalid-filter':
       case 'invalid-page':
+      case 'timeout':
+      case 'transport':
+      case 'invalid-response':
+      case 'request-cancelled':
+        return { kind: error.kind };
+      case 'service-unavailable':
+      case 'unexpected-response':
+        return {
+          kind: error.kind,
+          status:
+            'status' in error && typeof error.status === 'number'
+              ? error.status
+              : 0,
+        };
+    }
+  }
+  return { kind: 'invalid-response' };
+}
+
+function normalizeClaimFailure(error: unknown): HumanFollowUpClaimFailure {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'kind' in error &&
+    typeof error.kind === 'string'
+  ) {
+    switch (error.kind) {
+      case 'authentication-required':
+        return 'signInPath' in error && error.signInPath === '/bff/login'
+          ? { kind: error.kind, signInPath: error.signInPath }
+          : { kind: 'invalid-response' };
+      case 'authentication-unavailable':
+      case 'actor-not-registered':
+      case 'identity-rejected':
+      case 'resolver-authority-required':
+      case 'csrf-rejected':
+      case 'already-claimed':
+      case 'not-found':
+      case 'forbidden':
       case 'timeout':
       case 'transport':
       case 'invalid-response':
@@ -438,6 +597,85 @@ function failureCopy(failure: HumanFollowUpFailure) {
         title: 'The resolver inbox could not be loaded.',
         description:
           'The response was not safe to display. Try again or contact an operator.',
+        canRetry: true,
+      };
+  }
+}
+
+function claimFailureCopy(failure: HumanFollowUpClaimFailure) {
+  switch (failure.kind) {
+    case 'authentication-required':
+      return {
+        title: 'Your browser session has expired.',
+        description: 'Sign in again before claiming resolver work.',
+        canRetry: false,
+      };
+    case 'authentication-unavailable':
+      return {
+        title: 'Browser sign-in is not configured.',
+        description:
+          'Ask an operator to configure the workbench authentication boundary.',
+        canRetry: false,
+      };
+    case 'actor-not-registered':
+      return {
+        title: 'Your resolver access is no longer provisioned.',
+        description:
+          'Ask a tenant administrator to confirm your actor binding before continuing.',
+        canRetry: false,
+      };
+    case 'resolver-authority-required':
+      return {
+        title: 'Current resolver authority is required.',
+        description:
+          'Your authority changed before ownership could be recorded. The work was not claimed.',
+        canRetry: false,
+      };
+    case 'identity-rejected':
+    case 'forbidden':
+      return {
+        title: 'This identity cannot claim follow-up work.',
+        description:
+          'The control plane rejected the current tenant identity. No ownership was recorded.',
+        canRetry: false,
+      };
+    case 'csrf-rejected':
+      return {
+        title: 'The browser security check expired.',
+        description:
+          'Retry to obtain a fresh session-bound security token before claiming this work.',
+        canRetry: true,
+      };
+    case 'already-claimed':
+      return {
+        title: 'Another resolver claimed this work.',
+        description:
+          'The shared inbox is refreshing so the stale item can be removed.',
+        canRetry: false,
+      };
+    case 'not-found':
+      return {
+        title: 'This follow-up is no longer available.',
+        description:
+          'The shared inbox is refreshing so the stale item can be removed.',
+        canRetry: false,
+      };
+    case 'timeout':
+    case 'transport':
+    case 'service-unavailable':
+      return {
+        title: 'The claim result is not yet known.',
+        description:
+          'Retrying is safe: if the first request succeeded, the control plane returns your existing claim.',
+        canRetry: true,
+      };
+    case 'unexpected-response':
+    case 'invalid-response':
+    case 'request-cancelled':
+      return {
+        title: 'The claim result could not be verified.',
+        description:
+          'The response was not safe to use. Retrying is safe because your claim is idempotent.',
         canRetry: true,
       };
   }

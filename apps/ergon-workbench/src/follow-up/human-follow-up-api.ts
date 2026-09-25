@@ -1,6 +1,9 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import type {
+  HumanFollowUpClaim,
+  HumanFollowUpClaimCommand,
+  HumanFollowUpClaimFailure,
   HumanFollowUpClient,
   HumanFollowUpFailure,
   HumanFollowUpPage,
@@ -9,7 +12,8 @@ import type {
 
 export const humanFollowUpApi = createApi({
   reducerPath: 'humanFollowUpApi',
-  baseQuery: fakeBaseQuery<HumanFollowUpFailure>(),
+  baseQuery: fakeBaseQuery<HumanFollowUpFailure | HumanFollowUpClaimFailure>(),
+  tagTypes: ['HumanFollowUpInbox'],
   endpoints: (build) => ({
     humanFollowUps: build.query<HumanFollowUpPage, HumanFollowUpQuery>({
       async queryFn(query, queryApi) {
@@ -17,11 +21,29 @@ export const humanFollowUpApi = createApi({
         const result = await client.listOpen(query, queryApi.signal);
         return result.ok ? { data: result.page } : { error: result.error };
       },
+      providesTags: (_result, _error, query) => [
+        { type: 'HumanFollowUpInbox', id: query.tenantId },
+      ],
+    }),
+    claimHumanFollowUp: build.mutation<
+      HumanFollowUpClaim,
+      HumanFollowUpClaimCommand
+    >({
+      async queryFn(command, queryApi) {
+        const client = humanFollowUpClientFrom(queryApi.extra);
+        const result = await client.claim(command, queryApi.signal);
+        return result.ok ? { data: result.claim } : { error: result.error };
+      },
+      invalidatesTags: (result, error, command) =>
+        result !== undefined || invalidatesStaleInbox(error)
+          ? [{ type: 'HumanFollowUpInbox', id: command.tenantId }]
+          : [],
     }),
   }),
 });
 
-export const { useHumanFollowUpsQuery } = humanFollowUpApi;
+export const { useClaimHumanFollowUpMutation, useHumanFollowUpsQuery } =
+  humanFollowUpApi;
 
 function humanFollowUpClientFrom(extra: unknown): HumanFollowUpClient {
   if (
@@ -40,6 +62,14 @@ function isHumanFollowUpClient(value: unknown): value is HumanFollowUpClient {
     typeof value === 'object' &&
     value !== null &&
     'listOpen' in value &&
-    typeof value.listOpen === 'function'
+    typeof value.listOpen === 'function' &&
+    'claim' in value &&
+    typeof value.claim === 'function'
   );
+}
+
+function invalidatesStaleInbox(
+  error: HumanFollowUpFailure | HumanFollowUpClaimFailure | undefined,
+): boolean {
+  return error?.kind === 'already-claimed' || error?.kind === 'not-found';
 }

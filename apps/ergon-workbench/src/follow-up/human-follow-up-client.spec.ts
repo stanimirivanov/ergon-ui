@@ -123,6 +123,106 @@ describe('human follow-up client', () => {
     expect(result.ok).toBe(true);
     expect(requestCount).toBe(2);
   });
+
+  it('obtains an ephemeral CSRF token before claiming with the same-origin session', async () => {
+    const requests: Array<{
+      readonly url: string;
+      readonly method: string | undefined;
+      readonly csrf: string | null;
+      readonly credentials: RequestInit['credentials'];
+    }> = [];
+    async function fetchStub(
+      input: Parameters<typeof fetch>[0],
+      init?: Parameters<typeof fetch>[1],
+    ) {
+      requests.push({
+        url: input.toString(),
+        method: init?.method,
+        csrf: new Headers(init?.headers).get('X-CSRF-TOKEN'),
+        credentials: init?.credentials,
+      });
+      return input.toString() === '/bff/v1/csrf'
+        ? jsonResponse({ headerName: 'X-CSRF-TOKEN', token: 'token-1' })
+        : jsonResponse(validClaim(), 201);
+    }
+    const client = createHumanFollowUpClient({ fetch: fetchStub });
+
+    const result = await client.claim(
+      { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
+      new AbortController().signal,
+    );
+
+    expect(result).toEqual({ ok: true, claim: validClaim() });
+    expect(requests).toEqual([
+      {
+        url: '/bff/v1/csrf',
+        method: 'GET',
+        csrf: null,
+        credentials: 'same-origin',
+      },
+      {
+        url: `/bff/v1/tenants/${TENANT_ID}/human-follow-ups/${WORK_ITEM_ID}/claims`,
+        method: 'POST',
+        csrf: 'token-1',
+        credentials: 'same-origin',
+      },
+    ]);
+  });
+
+  it('discards a rejected CSRF token and obtains a replacement on explicit retry', async () => {
+    let requestCount = 0;
+    async function fetchStub(input: Parameters<typeof fetch>[0]) {
+      requestCount += 1;
+      if (input.toString() === '/bff/v1/csrf') {
+        return jsonResponse({
+          headerName: 'X-CSRF-TOKEN',
+          token: requestCount === 1 ? 'stale-token' : 'fresh-token',
+        });
+      }
+      return requestCount === 2
+        ? jsonResponse(
+            { type: 'urn:ergon:problem:invalid-browser-csrf-token' },
+            403,
+          )
+        : jsonResponse(validClaim());
+    }
+    const client = createHumanFollowUpClient({ fetch: fetchStub });
+
+    const first = await client.claim(
+      { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
+      new AbortController().signal,
+    );
+    const retry = await client.claim(
+      { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
+      new AbortController().signal,
+    );
+
+    expect(first).toEqual({ ok: false, error: { kind: 'csrf-rejected' } });
+    expect(retry).toEqual({ ok: true, claim: validClaim() });
+    expect(requestCount).toBe(4);
+  });
+
+  it('does not automatically retry a competing ownership conflict', async () => {
+    let requestCount = 0;
+    async function fetchStub(input: Parameters<typeof fetch>[0]) {
+      requestCount += 1;
+      return input.toString() === '/bff/v1/csrf'
+        ? jsonResponse({ headerName: 'X-CSRF-TOKEN', token: 'token-1' })
+        : jsonResponse(
+            { type: 'urn:ergon:problem:human-follow-up-already-claimed' },
+            409,
+          );
+    }
+    const client = createHumanFollowUpClient({ fetch: fetchStub });
+
+    const result = await client.claim(
+      { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
+      new AbortController().signal,
+    );
+
+    expect(result).toEqual({ ok: false, error: { kind: 'already-claimed' } });
+    expect(requestCount).toBe(2);
+  });
 });
 
 function validPage() {
@@ -144,6 +244,15 @@ function validPage() {
       afterOpenedAt: '2026-09-21T09:30:00Z',
       afterWorkItemId: WORK_ITEM_ID,
     },
+  };
+}
+
+function validClaim() {
+  return {
+    claimId: '77777777-7777-4777-8777-777777777777',
+    workItemId: WORK_ITEM_ID,
+    claimedAt: '2026-09-22T10:15:00Z',
+    recordedAt: '2026-09-22T10:15:01Z',
   };
 }
 

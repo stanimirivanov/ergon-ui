@@ -4,9 +4,9 @@
 
 Ergon UI is the browser workspace for Ergon's evidence-led resolution
 experiences. The repository contains the resolver workbench, a typed
-confidential-BFF boundary, a read-only human follow-up inbox, and a web-only UI
-package. The requester application, React Native clients, forms, and animation
-enter only with a slice that uses them.
+confidential-BFF boundary, a human follow-up inbox with CSRF-protected claiming,
+and a web-only UI package. The requester application, React Native clients,
+forms, and animation enter only with a slice that uses them.
 
 ## Current status
 
@@ -21,6 +21,8 @@ The first foundation provides:
 - explicit sign-in navigation that never exposes provider tokens to React;
 - a schema-decoded resolver inbox with shareable queue filtering and bounded
   keyset pagination;
+- an accessible claim interaction with ephemeral CSRF handling, typed
+  failures, explicit safe retry, and tenant inbox invalidation;
 - Vitest component tests and a Chromium Playwright smoke path;
 - enforced project tags and an accepted application-topology decision; and
 - a contributor, security, issue, pull-request, and CI harness.
