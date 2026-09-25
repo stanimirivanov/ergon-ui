@@ -64,6 +64,9 @@ tenant rather than attempting to repair filtered keyset pages optimistically.
 Owned-work pages use a separate tenant-and-cursor cache. Successful claims also
 invalidate that cache so active ownership is recovered from server truth; stale
 shared-inbox conflicts do not imply a change to the current resolver's claims.
+Owned case summaries use a tenant-and-work-item cache key and are mounted only
+while their local disclosure is open. The URL and persistent storage do not
+retain this short-lived resolver context.
 
 ## Routing and rendering
 
@@ -86,6 +89,11 @@ types do not validate remote data; each consumed payload must be decoded before
 entering application state. Tagged UI errors distinguish authentication,
 authorization, absence, conflict, invalid input, timeout, network failure,
 invalid response, and unexpected defects.
+
+Owned case context is a read-only confidential-BFF projection. The browser
+checks response identity, positive revisions, pinned-contract consistency,
+evidence bounds, and observation order before caching it. Evidence text remains
+untrusted content and is rendered only through React text nodes.
 
 A tenant selected in the URL is navigation context only. The backend remains
 authoritative for subject mapping, authority evidence, tenant isolation, and

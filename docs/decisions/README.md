@@ -13,6 +13,7 @@ decision whose context or outcome changes.
 | [0004](0004-consume-read-only-resolver-inbox.md)                   | Accepted   | Consume the read-only resolver follow-up inbox                |
 | [0005](0005-claim-follow-up-with-ephemeral-csrf-tokens.md)         | Accepted   | Claim follow-up work with ephemeral CSRF tokens               |
 | [0006](0006-recover-resolver-owned-follow-up-work.md)              | Accepted   | Recover active claims from the confidential BFF               |
+| [0007](0007-render-owned-follow-up-case-context.md)                | Accepted   | Render server-authorized context inside owned follow-ups      |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

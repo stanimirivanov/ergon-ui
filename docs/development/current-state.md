@@ -5,8 +5,9 @@
 The repository contains a verified resolver-workbench shell, a fail-closed
 confidential-BFF session boundary, a shared resolver inbox, and a web-only UI
 package. Resolvers can claim visible work with an ephemeral session-bound CSRF
-token and recover their active claims. It has no case detail, release action,
-logout flow, form workflow, Motion animation, requester app, or native app.
+token, recover their active claims, and inspect server-authorized case context.
+It has no release action, resolution action, logout flow, form workflow, Motion
+animation, requester app, or native app.
 
 ## Implemented
 
@@ -30,6 +31,9 @@ logout flow, form workflow, Motion animation, requester app, or native app.
 - tenant-wide inbox invalidation after successful or stale-item claim results;
 - browser-owned work decoding, neutral empty-state handling, reversible exact
   claim-cursor pagination, and post-claim cache refresh;
+- lazy owned-follow-up case context with contract/run consistency checks,
+  evidence-boundary validation, neutral absence handling, and plain-text
+  observation rendering;
 - strict TypeScript, ESLint project boundaries, Prettier, Vitest, and Playwright;
 - GitHub verification workflow and contributor harness; and
 - accepted workbench/requester topology decision.
@@ -38,14 +42,14 @@ logout flow, form workflow, Motion animation, requester app, or native app.
 
 - OIDC client credentials and provider tokens remain entirely server-side.
 - No logout, refresh, or revocation UI exists.
-- Claimed work is recoverable, but there is no release, resolution,
-  reassignment, or case-detail action yet.
+- Claimed work includes read-only case context, but there is no release,
+  resolution, reassignment, or dedicated case route yet.
 - The BFF session contains no provider subject, and none is cached or shown.
 - No production deployment configuration or ingress exists.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.
 
-The next resolver slice should add useful case context or an explicit ownership
-lifecycle operation after a reviewed browser contract exists. Existing
-`/internal/v1` routes remain ineligible for production UI use.
+The next resolver slice should add an explicit ownership lifecycle operation
+after a reviewed browser contract exists. Existing `/internal/v1` routes remain
+ineligible for production UI use.

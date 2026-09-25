@@ -10,12 +10,23 @@ import type {
   HumanFollowUpQuery,
   ResolverOwnedHumanFollowUpPage,
   ResolverOwnedHumanFollowUpQuery,
+  ResolverFollowUpCaseSummary,
+  ResolverFollowUpCaseSummaryFailure,
+  ResolverFollowUpCaseSummaryQuery,
 } from './human-follow-up-client';
 
 export const humanFollowUpApi = createApi({
   reducerPath: 'humanFollowUpApi',
-  baseQuery: fakeBaseQuery<HumanFollowUpFailure | HumanFollowUpClaimFailure>(),
-  tagTypes: ['HumanFollowUpInbox', 'ResolverOwnedHumanFollowUps'],
+  baseQuery: fakeBaseQuery<
+    | HumanFollowUpFailure
+    | HumanFollowUpClaimFailure
+    | ResolverFollowUpCaseSummaryFailure
+  >(),
+  tagTypes: [
+    'HumanFollowUpInbox',
+    'ResolverOwnedHumanFollowUps',
+    'ResolverFollowUpCaseSummary',
+  ],
   endpoints: (build) => ({
     humanFollowUps: build.query<HumanFollowUpPage, HumanFollowUpQuery>({
       async queryFn(query, queryApi) {
@@ -38,6 +49,24 @@ export const humanFollowUpApi = createApi({
       },
       providesTags: (_result, _error, query) => [
         { type: 'ResolverOwnedHumanFollowUps', id: query.tenantId },
+      ],
+    }),
+    resolverFollowUpCaseSummary: build.query<
+      ResolverFollowUpCaseSummary,
+      ResolverFollowUpCaseSummaryQuery
+    >({
+      serializeQueryArgs: ({ endpointName, queryArgs }) =>
+        `${endpointName}:${queryArgs.tenantId}:${queryArgs.workItemId}`,
+      async queryFn(query, queryApi) {
+        const client = humanFollowUpClientFrom(queryApi.extra);
+        const result = await client.getOwnedCaseSummary(query, queryApi.signal);
+        return result.ok ? { data: result.summary } : { error: result.error };
+      },
+      providesTags: (_result, _error, query) => [
+        {
+          type: 'ResolverFollowUpCaseSummary',
+          id: `${query.tenantId}:${query.workItemId}`,
+        },
       ],
     }),
     claimHumanFollowUp: build.mutation<
@@ -70,6 +99,7 @@ export const humanFollowUpApi = createApi({
 export const {
   useClaimHumanFollowUpMutation,
   useHumanFollowUpsQuery,
+  useResolverFollowUpCaseSummaryQuery,
   useResolverOwnedHumanFollowUpsQuery,
 } = humanFollowUpApi;
 
@@ -93,6 +123,8 @@ function isHumanFollowUpClient(value: unknown): value is HumanFollowUpClient {
     typeof value.listOpen === 'function' &&
     'listOwned' in value &&
     typeof value.listOwned === 'function' &&
+    'getOwnedCaseSummary' in value &&
+    typeof value.getOwnedCaseSummary === 'function' &&
     'claim' in value &&
     typeof value.claim === 'function'
   );

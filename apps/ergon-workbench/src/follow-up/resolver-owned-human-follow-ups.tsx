@@ -9,6 +9,7 @@ import type {
   ResolverOwnedHumanFollowUpQuery,
   ResolverOwnedHumanFollowUpWork,
 } from './human-follow-up-client';
+import { ResolverFollowUpCaseSummary } from './resolver-follow-up-case-summary';
 
 const PAGE_SIZE = 25;
 const claimedAtFormatter = new Intl.DateTimeFormat('en-GB', {
@@ -116,7 +117,7 @@ function OwnedWorkPage({ tenantId }: { readonly tenantId: string }) {
         <ol className="grid gap-4" aria-label="Your active human follow-ups">
           {items.map((item) => (
             <li key={item.claim.claimId}>
-              <OwnedWorkItem item={item} />
+              <OwnedWorkItem tenantId={tenantId} item={item} />
             </li>
           ))}
         </ol>
@@ -171,11 +172,15 @@ function OwnedWorkPage({ tenantId }: { readonly tenantId: string }) {
 }
 
 function OwnedWorkItem({
+  tenantId,
   item,
 }: {
+  readonly tenantId: string;
   readonly item: ResolverOwnedHumanFollowUpWork;
 }) {
+  const [isContextOpen, setContextOpen] = useState(false);
   const reason = humanizeReason(item.workItem.reason);
+  const regionId = `case-context-${item.workItem.workItemId}`;
   return (
     <article className="rounded-2xl border border-accent/35 bg-surface p-5 shadow-[0_12px_35px_rgb(24_32_25_/_6%)] sm:p-6">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
@@ -203,6 +208,26 @@ function OwnedWorkItem({
           </p>
         </div>
       </div>
+      <div className="mt-5">
+        <Button
+          type="button"
+          variant="quiet"
+          aria-expanded={isContextOpen}
+          aria-controls={regionId}
+          onClick={() => setContextOpen((current) => !current)}
+        >
+          {isContextOpen ? 'Hide case context' : 'Review case context'}
+        </Button>
+      </div>
+      {isContextOpen ? (
+        <ResolverFollowUpCaseSummary
+          tenantId={tenantId}
+          workItemId={item.workItem.workItemId}
+          caseId={item.workItem.caseId}
+          runId={item.workItem.runId}
+          regionId={regionId}
+        />
+      ) : null}
     </article>
   );
 }

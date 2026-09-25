@@ -145,6 +145,65 @@ test('reveals visible follow-up work after the BFF session is verified', async (
       });
     },
   );
+  await page.route(
+    '**/bff/v1/tenants/*/human-follow-ups/*/case-summary',
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          followUp: {
+            workItemId: '11111111-1111-4111-8111-111111111111',
+            queueKey: 'access-restoration',
+            escalationReason: 'RETRY_ATTEMPT_LIMIT_REACHED',
+            openedAt: '2026-09-21T09:30:00Z',
+            claimedAt: '2026-09-22T10:15:00Z',
+          },
+          case: {
+            caseId: '22222222-2222-4222-8222-222222222222',
+            goal: 'Restore access to the customer workspace',
+            status: 'OPEN',
+            streamVersion: 4,
+            resolutionContract: {
+              key: 'access-restoration',
+              revision: 2,
+            },
+          },
+          observations: [
+            {
+              streamVersion: 1,
+              eventType: 'SourceObservationRecorded',
+              summary: 'Customer cannot sign in',
+              observationId: '88888888-8888-4888-8888-888888888888',
+              originType: 'EMAIL',
+              provider: 'support-mailbox',
+              reference: 'message-42',
+              content: 'The sign-in link returns an expired-token message.',
+              occurredAt: '2026-09-21T09:20:00Z',
+              recordedAt: '2026-09-21T09:20:01Z',
+            },
+          ],
+          resolutionRun: {
+            runId: '33333333-3333-4333-8333-333333333333',
+            caseEvidenceStreamVersion: 4,
+            contractKey: 'access-restoration',
+            contractRevision: 2,
+            policyRevision: 'policy-7',
+            stepId: 'verify-account-owner',
+            capability: 'identity.lookup',
+            effectiveRisk: 'HIGH',
+            requiredApproval: 'RESOLVER',
+            attemptNumber: 2,
+            predecessorRunId: null,
+            state: 'ESCALATED',
+            stateVersion: 3,
+            stateUpdatedAt: '2026-09-21T09:30:00Z',
+            recordedAt: '2026-09-21T09:30:01Z',
+          },
+        }),
+      });
+    },
+  );
   await page.route('**/bff/v1/csrf', async (route) => {
     await route.fulfill({
       status: 200,
@@ -213,6 +272,18 @@ test('reveals visible follow-up work after the BFF session is verified', async (
       }),
   ).toBeVisible();
   expect(submittedCsrfToken).toBe('browser-session-token');
+
+  await page.getByRole('button', { name: 'Review case context' }).click();
+  await expect(
+    page.getByRole('heading', {
+      level: 4,
+      name: 'Restore access to the customer workspace',
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText('The sign-in link returns an expired-token message.'),
+  ).toBeVisible();
+  await expect(page.getByText('HIGH risk')).toBeVisible();
 
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
