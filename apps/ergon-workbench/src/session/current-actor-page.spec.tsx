@@ -168,6 +168,9 @@ const emptyHumanFollowUpClient: HumanFollowUpClient = {
   async listOwned() {
     return { ok: true, page: { items: [], nextCursor: null } };
   },
+  async getOwnedCaseSummary() {
+    throw new Error('Case context is not used by this test');
+  },
   async claim() {
     throw new Error('Claiming is not used by this test');
   },

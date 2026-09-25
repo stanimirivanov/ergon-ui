@@ -26,6 +26,8 @@ The first foundation provides:
   failures, explicit safe retry, and tenant inbox invalidation;
 - a schema-decoded active-work view with exact claim-cursor pagination and
   post-claim cache refresh;
+- lazy, server-authorized case context for owned follow-ups, including the
+  pinned resolution contract, escalated run, and bounded observation evidence;
 - Vitest component tests and a Chromium Playwright smoke path;
 - enforced project tags and an accepted application-topology decision; and
 - a contributor, security, issue, pull-request, and CI harness.

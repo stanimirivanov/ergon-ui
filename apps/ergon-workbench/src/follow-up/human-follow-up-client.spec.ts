@@ -176,6 +176,143 @@ describe('human follow-up client', () => {
     });
   });
 
+  it('loads owned case context through the same-origin browser session', async () => {
+    let requestedUrl: string | undefined;
+    let credentials: unknown;
+    async function fetchStub(
+      input: Parameters<typeof fetch>[0],
+      init?: Parameters<typeof fetch>[1],
+    ) {
+      requestedUrl = input.toString();
+      credentials = init?.credentials;
+      return jsonResponse(validCaseSummary());
+    }
+    const client = createHumanFollowUpClient({ fetch: fetchStub });
+
+    const result = await client.getOwnedCaseSummary(
+      {
+        tenantId: TENANT_ID,
+        workItemId: WORK_ITEM_ID,
+        caseId: CASE_ID,
+        runId: RUN_ID,
+      },
+      new AbortController().signal,
+    );
+
+    expect(result).toEqual({ ok: true, summary: validCaseSummary() });
+    expect(requestedUrl).toBe(
+      `/bff/v1/tenants/${TENANT_ID}/human-follow-ups/${WORK_ITEM_ID}/case-summary`,
+    );
+    expect(credentials).toBe('same-origin');
+  });
+
+  it('rejects case context whose pinned contract contradicts the run', async () => {
+    async function fetchStub() {
+      const summary = validCaseSummary();
+      return jsonResponse({
+        ...summary,
+        case: {
+          ...summary.case,
+          resolutionContract: { key: 'other-contract', revision: 2 },
+        },
+      });
+    }
+    const client = createHumanFollowUpClient({ fetch: fetchStub });
+
+    const result = await client.getOwnedCaseSummary(
+      {
+        tenantId: TENANT_ID,
+        workItemId: WORK_ITEM_ID,
+        caseId: CASE_ID,
+        runId: RUN_ID,
+      },
+      new AbortController().signal,
+    );
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'invalid-response' },
+    });
+  });
+
+  it('rejects case context associated with a different owned case', async () => {
+    async function fetchStub() {
+      const summary = validCaseSummary();
+      return jsonResponse({
+        ...summary,
+        case: {
+          ...summary.case,
+          caseId: '99999999-9999-4999-8999-999999999999',
+        },
+      });
+    }
+    const client = createHumanFollowUpClient({ fetch: fetchStub });
+
+    const result = await client.getOwnedCaseSummary(
+      {
+        tenantId: TENANT_ID,
+        workItemId: WORK_ITEM_ID,
+        caseId: CASE_ID,
+        runId: RUN_ID,
+      },
+      new AbortController().signal,
+    );
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'invalid-response' },
+    });
+  });
+
+  it('maps unavailable owned case context without disclosing its cause', async () => {
+    async function fetchStub() {
+      return jsonResponse(
+        {
+          type: 'urn:ergon:problem:resolver-follow-up-case-summary-not-found',
+          detail: 'internal ownership detail',
+        },
+        404,
+      );
+    }
+    const client = createHumanFollowUpClient({ fetch: fetchStub });
+
+    const result = await client.getOwnedCaseSummary(
+      {
+        tenantId: TENANT_ID,
+        workItemId: WORK_ITEM_ID,
+        caseId: CASE_ID,
+        runId: RUN_ID,
+      },
+      new AbortController().signal,
+    );
+
+    expect(result).toEqual({ ok: false, error: { kind: 'not-found' } });
+  });
+
+  it('retries one transient owned case-context read', async () => {
+    let requestCount = 0;
+    async function fetchStub() {
+      requestCount += 1;
+      return requestCount === 1
+        ? jsonResponse({ type: 'urn:ergon:problem:temporary' }, 503)
+        : jsonResponse(validCaseSummary());
+    }
+    const client = createHumanFollowUpClient({ fetch: fetchStub });
+
+    const result = await client.getOwnedCaseSummary(
+      {
+        tenantId: TENANT_ID,
+        workItemId: WORK_ITEM_ID,
+        caseId: CASE_ID,
+        runId: RUN_ID,
+      },
+      new AbortController().signal,
+    );
+
+    expect(result.ok).toBe(true);
+    expect(requestCount).toBe(2);
+  });
+
   it('obtains an ephemeral CSRF token before claiming with the same-origin session', async () => {
     const requests: Array<{
       readonly url: string;
@@ -314,6 +451,56 @@ function validOwnedPage() {
     nextCursor: {
       afterClaimedAt: '2026-09-22T10:15:00Z',
       afterClaimId: '77777777-7777-4777-8777-777777777777',
+    },
+  };
+}
+
+function validCaseSummary() {
+  return {
+    followUp: {
+      workItemId: WORK_ITEM_ID,
+      queueKey: 'access-restoration',
+      escalationReason: 'RETRY_ATTEMPT_LIMIT_REACHED',
+      openedAt: '2026-09-21T09:30:00Z',
+      claimedAt: '2026-09-22T10:15:00Z',
+    },
+    case: {
+      caseId: CASE_ID,
+      goal: 'Restore access to the customer workspace',
+      status: 'OPEN' as const,
+      streamVersion: 4,
+      resolutionContract: { key: 'access-restoration', revision: 2 },
+    },
+    observations: [
+      {
+        streamVersion: 1,
+        eventType: 'SourceObservationRecorded',
+        summary: 'Customer cannot sign in',
+        observationId: '88888888-8888-4888-8888-888888888888',
+        originType: 'EMAIL',
+        provider: 'support-mailbox',
+        reference: 'message-42',
+        content: 'The sign-in link returns an expired-token message.',
+        occurredAt: '2026-09-21T09:20:00Z',
+        recordedAt: '2026-09-21T09:20:01Z',
+      },
+    ],
+    resolutionRun: {
+      runId: RUN_ID,
+      caseEvidenceStreamVersion: 4,
+      contractKey: 'access-restoration',
+      contractRevision: 2,
+      policyRevision: 'policy-7',
+      stepId: 'verify-account-owner',
+      capability: 'identity.lookup',
+      effectiveRisk: 'HIGH' as const,
+      requiredApproval: 'RESOLVER',
+      attemptNumber: 2,
+      predecessorRunId: null,
+      state: 'ESCALATED' as const,
+      stateVersion: 3,
+      stateUpdatedAt: '2026-09-21T09:30:00Z',
+      recordedAt: '2026-09-21T09:30:01Z',
     },
   };
 }

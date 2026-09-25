@@ -59,6 +59,7 @@ describe('human follow-up inbox', () => {
     renderInbox(`/tenants/${TENANT_ID}?queue=UpperCase`, {
       listOpen,
       listOwned: unusedListOwned,
+      getOwnedCaseSummary: unusedGetOwnedCaseSummary,
       claim: unusedClaim,
     });
 
@@ -81,6 +82,7 @@ describe('human follow-up inbox', () => {
     const { router } = renderInbox(`/tenants/${TENANT_ID}`, {
       listOpen,
       listOwned: unusedListOwned,
+      getOwnedCaseSummary: unusedGetOwnedCaseSummary,
       claim: unusedClaim,
     });
 
@@ -115,6 +117,7 @@ describe('human follow-up inbox', () => {
     renderInbox(`/tenants/${TENANT_ID}`, {
       listOpen,
       listOwned: unusedListOwned,
+      getOwnedCaseSummary: unusedGetOwnedCaseSummary,
       claim: unusedClaim,
     });
 
@@ -143,6 +146,7 @@ describe('human follow-up inbox', () => {
     renderInbox(`/tenants/${TENANT_ID}`, {
       listOpen,
       listOwned: unusedListOwned,
+      getOwnedCaseSummary: unusedGetOwnedCaseSummary,
       claim,
     });
 
@@ -173,6 +177,7 @@ describe('human follow-up inbox', () => {
     renderInbox(`/tenants/${TENANT_ID}`, {
       listOpen,
       listOwned: unusedListOwned,
+      getOwnedCaseSummary: unusedGetOwnedCaseSummary,
       claim,
     });
 
@@ -248,6 +253,7 @@ function clientReturning(
       return result;
     },
     listOwned: unusedListOwned,
+    getOwnedCaseSummary: unusedGetOwnedCaseSummary,
     claim,
   };
 }
@@ -296,6 +302,11 @@ const unusedClaim: HumanFollowUpClient['claim'] = async () => {
 const unusedListOwned: HumanFollowUpClient['listOwned'] = async () => {
   throw new Error('Owned work is not used by this test');
 };
+
+const unusedGetOwnedCaseSummary: HumanFollowUpClient['getOwnedCaseSummary'] =
+  async () => {
+    throw new Error('Case context is not used by this test');
+  };
 
 const unusedCurrentActorClient: CurrentActorClient = {
   async resolve() {
