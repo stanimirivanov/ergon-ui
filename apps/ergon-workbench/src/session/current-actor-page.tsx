@@ -4,6 +4,7 @@ import { useParams } from 'react-router';
 
 import { WorkbenchFrame } from '../app/workbench-frame';
 import { HumanFollowUpInbox } from '../follow-up/human-follow-up-inbox';
+import { ResolverOwnedHumanFollowUps } from '../follow-up/resolver-owned-human-follow-ups';
 import { browserSignInHref } from './browser-session-navigation';
 import { useCurrentActorQuery } from './current-actor-api';
 import type { CurrentActorFailure } from './current-actor-client';
@@ -76,6 +77,7 @@ function CurrentActorSession({ tenantId }: { readonly tenantId: string }) {
               </dd>
             </div>
           </dl>
+          <ResolverOwnedHumanFollowUps tenantId={tenantId} />
           <HumanFollowUpInbox tenantId={tenantId} />
         </section>
       </WorkbenchFrame>

@@ -4,9 +4,10 @@
 
 This application is Ergon's internal browser experience. It delivers the
 accessible shell, a typed fail-closed current-actor session boundary, and the
-shared resolver inbox. It consumes the control plane's confidential BFF without
-exposing provider tokens or internal API representations to browser code.
-Resolvers can claim visible work through the session-bound CSRF contract.
+shared and resolver-owned follow-up views. It consumes the control plane's
+confidential BFF without exposing provider tokens or internal API
+representations to browser code. Resolvers can claim visible work through the
+session-bound CSRF contract and recover active ownership after navigation.
 
 ## Commands
 
@@ -44,6 +45,13 @@ only in the in-memory HTTP client. RTK Query owns mutation state and invalidates
 all cached inbox pages for the tenant after success or a stale-item conflict.
 Ambiguous failures offer an explicit retry because the control plane returns an
 existing same-resolver claim instead of creating duplicate ownership.
+
+The active-work section consumes the browser-owned resource independently from
+the shared queue. RTK Query caches pages by tenant and exact claim cursor;
+Effect validates each work-item/claim pair before caching. A successful claim
+invalidates both views so newly acquired ownership appears without optimistic
+keyset-page reconstruction. Empty owned pages remain neutral because absence
+and current-authority non-disclosure intentionally share one representation.
 
 Local Vite development proxies `/bff`, `/oauth2`, and `/login/oauth2` to
 `http://localhost:8090`. Override the target with the server-side

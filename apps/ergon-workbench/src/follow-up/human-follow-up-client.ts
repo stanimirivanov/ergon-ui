@@ -34,6 +34,22 @@ const claimSchema = Schema.Struct({
   claimedAt: utcInstant,
   recordedAt: utcInstant,
 });
+const ownedCursorSchema = Schema.Struct({
+  afterClaimedAt: utcInstant,
+  afterClaimId: Schema.UUID,
+});
+const ownedWorkSchema = Schema.Struct({
+  workItem: workItemSchema,
+  claim: claimSchema,
+}).pipe(
+  Schema.filter(
+    ({ workItem, claim }) => workItem.workItemId === claim.workItemId,
+  ),
+);
+const ownedPageSchema = Schema.Struct({
+  items: Schema.Array(ownedWorkSchema),
+  nextCursor: Schema.NullOr(ownedCursorSchema),
+});
 const problemDetailSchema = Schema.Struct({
   type: Schema.String,
   signInPath: Schema.optional(Schema.String),
@@ -86,6 +102,29 @@ export interface HumanFollowUpClaim {
   readonly recordedAt: string;
 }
 
+/** Exact oldest-claim-first position; both values must travel together. */
+export interface ResolverOwnedHumanFollowUpCursor {
+  readonly afterClaimedAt: string;
+  readonly afterClaimId: string;
+}
+
+export interface ResolverOwnedHumanFollowUpWork {
+  readonly workItem: HumanFollowUpWorkItem;
+  readonly claim: HumanFollowUpClaim;
+}
+
+export interface ResolverOwnedHumanFollowUpPage {
+  readonly items: readonly ResolverOwnedHumanFollowUpWork[];
+  readonly nextCursor: ResolverOwnedHumanFollowUpCursor | null;
+}
+
+/** Bounded active-work request scoped to the current tenant actor. */
+export interface ResolverOwnedHumanFollowUpQuery {
+  readonly tenantId: string;
+  readonly limit: number;
+  readonly cursor?: ResolverOwnedHumanFollowUpCursor;
+}
+
 export type HumanFollowUpFailure =
   | {
       readonly kind: 'authentication-required';
@@ -106,6 +145,10 @@ export type HumanFollowUpFailure =
 
 export type HumanFollowUpResult =
   | { readonly ok: true; readonly page: HumanFollowUpPage }
+  | { readonly ok: false; readonly error: HumanFollowUpFailure };
+
+export type ResolverOwnedHumanFollowUpResult =
+  | { readonly ok: true; readonly page: ResolverOwnedHumanFollowUpPage }
   | { readonly ok: false; readonly error: HumanFollowUpFailure };
 
 export type HumanFollowUpClaimFailure =
@@ -133,7 +176,7 @@ export type HumanFollowUpClaimResult =
   | { readonly ok: false; readonly error: HumanFollowUpClaimFailure };
 
 /**
- * Same-origin browser boundary for visible and claimable follow-up work.
+ * Same-origin browser boundary for visible, owned, and claimable follow-up work.
  *
  * Implementations must decode responses before returning them and keep CSRF
  * state out of callers. Claim failures are not automatically replayed because
@@ -144,6 +187,11 @@ export interface HumanFollowUpClient {
     query: HumanFollowUpQuery,
     signal: AbortSignal,
   ): Promise<HumanFollowUpResult>;
+
+  listOwned(
+    query: ResolverOwnedHumanFollowUpQuery,
+    signal: AbortSignal,
+  ): Promise<ResolverOwnedHumanFollowUpResult>;
 
   claim(
     command: HumanFollowUpClaimCommand,
@@ -215,6 +263,33 @@ export function createHumanFollowUpClient({
         return { ok: false, error: REQUEST_CANCELLED };
       }
     },
+    async listOwned(query, signal) {
+      const program = requestResolverOwnedHumanFollowUps(fetch, query).pipe(
+        Effect.timeoutFail({
+          duration: requestTimeout,
+          onTimeout: () => ({ kind: 'timeout' }) as const,
+        }),
+        Effect.retry({ times: 1, while: isRetryable }),
+      );
+
+      try {
+        const result = await Effect.runPromise(Effect.either(program), {
+          signal,
+        });
+        return Either.match(result, {
+          onLeft: (error): ResolverOwnedHumanFollowUpResult => ({
+            ok: false,
+            error,
+          }),
+          onRight: (page): ResolverOwnedHumanFollowUpResult => ({
+            ok: true,
+            page,
+          }),
+        });
+      } catch {
+        return { ok: false, error: REQUEST_CANCELLED };
+      }
+    },
     async claim(command, signal) {
       const tokenProgram =
         csrfToken === undefined
@@ -274,6 +349,24 @@ function requestHumanFollowUps(
   }).pipe(Effect.flatMap(decodeResponse));
 }
 
+function requestResolverOwnedHumanFollowUps(
+  fetch: typeof globalThis.fetch,
+  query: ResolverOwnedHumanFollowUpQuery,
+) {
+  return Effect.tryPromise({
+    try: (signal) =>
+      fetch(ownedWorkUrl(query), {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json, application/problem+json',
+        },
+        credentials: 'same-origin',
+        signal,
+      }),
+    catch: () => TRANSPORT_FAILURE,
+  }).pipe(Effect.flatMap(decodeOwnedResponse));
+}
+
 function requestCsrfToken(fetch: typeof globalThis.fetch) {
   return Effect.tryPromise({
     try: (signal) =>
@@ -325,11 +418,39 @@ function claimUrl(command: HumanFollowUpClaimCommand) {
   return `/bff/v1/tenants/${encodeURIComponent(command.tenantId)}/human-follow-ups/${encodeURIComponent(command.workItemId)}/claims`;
 }
 
+function ownedWorkUrl(query: ResolverOwnedHumanFollowUpQuery) {
+  const parameters = new URLSearchParams({ limit: String(query.limit) });
+  if (query.cursor !== undefined) {
+    parameters.set('afterClaimedAt', query.cursor.afterClaimedAt);
+    parameters.set('afterClaimId', query.cursor.afterClaimId);
+  }
+  return `/bff/v1/tenants/${encodeURIComponent(query.tenantId)}/human-follow-ups/owned?${parameters.toString()}`;
+}
+
 function decodeResponse(response: Response) {
   if (response.ok) {
     return readJson(response).pipe(
       Effect.flatMap(Schema.decodeUnknown(pageSchema)),
       Effect.map((page): HumanFollowUpPage => ({
+        items: page.items,
+        nextCursor: page.nextCursor,
+      })),
+      Effect.mapError(() => INVALID_RESPONSE),
+    );
+  }
+
+  return readOptionalProblem(response).pipe(
+    Effect.flatMap((problem) =>
+      Effect.fail(mapHttpFailure(response.status, problem)),
+    ),
+  );
+}
+
+function decodeOwnedResponse(response: Response) {
+  if (response.ok) {
+    return readJson(response).pipe(
+      Effect.flatMap(Schema.decodeUnknown(ownedPageSchema)),
+      Effect.map((page): ResolverOwnedHumanFollowUpPage => ({
         items: page.items,
         nextCursor: page.nextCursor,
       })),
@@ -435,7 +556,9 @@ function mapHttpFailure(
   }
   if (
     status === 400 &&
-    problem?.type === 'urn:ergon:problem:invalid-human-follow-up-page'
+    (problem?.type === 'urn:ergon:problem:invalid-human-follow-up-page' ||
+      problem?.type ===
+        'urn:ergon:problem:invalid-resolver-owned-human-follow-up-page')
   ) {
     return { kind: 'invalid-page' };
   }

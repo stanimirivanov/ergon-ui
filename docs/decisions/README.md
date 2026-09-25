@@ -12,6 +12,7 @@ decision whose context or outcome changes.
 | [0003](0003-consume-confidential-bff-sessions.md)                  | Accepted   | Consume confidential same-origin BFF sessions                 |
 | [0004](0004-consume-read-only-resolver-inbox.md)                   | Accepted   | Consume the read-only resolver follow-up inbox                |
 | [0005](0005-claim-follow-up-with-ephemeral-csrf-tokens.md)         | Accepted   | Claim follow-up work with ephemeral CSRF tokens               |
+| [0006](0006-recover-resolver-owned-follow-up-work.md)              | Accepted   | Recover active claims from the confidential BFF               |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

@@ -165,6 +165,9 @@ const emptyHumanFollowUpClient: HumanFollowUpClient = {
   async listOpen() {
     return { ok: true, page: { items: [], nextCursor: null } };
   },
+  async listOwned() {
+    return { ok: true, page: { items: [], nextCursor: null } };
+  },
   async claim() {
     throw new Error('Claiming is not used by this test');
   },

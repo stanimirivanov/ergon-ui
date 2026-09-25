@@ -124,6 +124,58 @@ describe('human follow-up client', () => {
     expect(requestCount).toBe(2);
   });
 
+  it('decodes resolver-owned work and sends both claim cursor values', async () => {
+    let requestedUrl: string | undefined;
+    async function fetchStub(input: Parameters<typeof fetch>[0]) {
+      requestedUrl = input.toString();
+      return jsonResponse(validOwnedPage());
+    }
+    const client = createHumanFollowUpClient({ fetch: fetchStub });
+
+    const result = await client.listOwned(
+      {
+        tenantId: TENANT_ID,
+        limit: 25,
+        cursor: {
+          afterClaimedAt: '2026-09-22T09:00:00Z',
+          afterClaimId: '66666666-6666-4666-8666-666666666666',
+        },
+      },
+      new AbortController().signal,
+    );
+
+    expect(result).toEqual({ ok: true, page: validOwnedPage() });
+    expect(requestedUrl).toBe(
+      `/bff/v1/tenants/${TENANT_ID}/human-follow-ups/owned?limit=25&afterClaimedAt=2026-09-22T09%3A00%3A00Z&afterClaimId=66666666-6666-4666-8666-666666666666`,
+    );
+  });
+
+  it('rejects owned work whose claim belongs to another work item', async () => {
+    async function fetchStub() {
+      const page = validOwnedPage();
+      return jsonResponse({
+        ...page,
+        items: [
+          {
+            ...page.items[0],
+            claim: { ...validClaim(), workItemId: CASE_ID },
+          },
+        ],
+      });
+    }
+    const client = createHumanFollowUpClient({ fetch: fetchStub });
+
+    const result = await client.listOwned(
+      { tenantId: TENANT_ID, limit: 25 },
+      new AbortController().signal,
+    );
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'invalid-response' },
+    });
+  });
+
   it('obtains an ephemeral CSRF token before claiming with the same-origin session', async () => {
     const requests: Array<{
       readonly url: string;
@@ -253,6 +305,16 @@ function validClaim() {
     workItemId: WORK_ITEM_ID,
     claimedAt: '2026-09-22T10:15:00Z',
     recordedAt: '2026-09-22T10:15:01Z',
+  };
+}
+
+function validOwnedPage() {
+  return {
+    items: [{ workItem: validPage().items[0], claim: validClaim() }],
+    nextCursor: {
+      afterClaimedAt: '2026-09-22T10:15:00Z',
+      afterClaimId: '77777777-7777-4777-8777-777777777777',
+    },
   };
 }
 
