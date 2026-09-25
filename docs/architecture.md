@@ -11,7 +11,7 @@ native UI, application state, and authentication adapters platform-specific.
 
 | Deployable        | Audience and responsibility                                        | Status                            |
 | :---------------- | :----------------------------------------------------------------- | :-------------------------------- |
-| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Shared inbox with claiming        |
+| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Shared and owned follow-up views  |
 | `ergon-requester` | External adaptive resolution canvas                                | Deferred to first requester slice |
 | widget SDK        | Embeddable headless client and web components                      | Deferred                          |
 | native clients    | Selected requester or resolver workflows                           | Deferred until required           |
@@ -61,6 +61,9 @@ component-local while each requested page is cached by RTK Query; the UI keeps
 the cursor timestamp and work-item ID together as one immutable value. Claim
 success and stale-item conflicts invalidate every cached inbox page for that
 tenant rather than attempting to repair filtered keyset pages optimistically.
+Owned-work pages use a separate tenant-and-cursor cache. Successful claims also
+invalidate that cache so active ownership is recovered from server truth; stale
+shared-inbox conflicts do not imply a change to the current resolver's claims.
 
 ## Routing and rendering
 

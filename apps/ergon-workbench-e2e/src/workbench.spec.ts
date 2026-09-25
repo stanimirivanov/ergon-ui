@@ -110,6 +110,41 @@ test('reveals visible follow-up work after the BFF session is verified', async (
       }),
     });
   });
+  await page.route(
+    '**/bff/v1/tenants/*/human-follow-ups/owned?*',
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items: claimed
+            ? [
+                {
+                  workItem: {
+                    workItemId: '11111111-1111-4111-8111-111111111111',
+                    caseId: '22222222-2222-4222-8222-222222222222',
+                    runId: '33333333-3333-4333-8333-333333333333',
+                    escalationEventId: '44444444-4444-4444-8444-444444444444',
+                    reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
+                    queueKey: 'access-restoration',
+                    status: 'OPEN',
+                    openedAt: '2026-09-21T09:30:00Z',
+                    recordedAt: '2026-09-21T09:30:01Z',
+                  },
+                  claim: {
+                    claimId: '77777777-7777-4777-8777-777777777777',
+                    workItemId: '11111111-1111-4111-8111-111111111111',
+                    claimedAt: '2026-09-22T10:15:00Z',
+                    recordedAt: '2026-09-22T10:15:01Z',
+                  },
+                },
+              ]
+            : [],
+          nextCursor: null,
+        }),
+      });
+    },
+  );
   await page.route('**/bff/v1/csrf', async (route) => {
     await route.fulfill({
       status: 200,
@@ -160,12 +195,23 @@ test('reveals visible follow-up work after the BFF session is verified', async (
     .click();
 
   await expect(page.getByText('Follow-up claimed.')).toBeVisible();
+  await expect(page.getByText('Claimed', { exact: true })).toBeVisible();
   await expect(
-    page.getByRole('heading', {
-      level: 3,
-      name: 'Retry attempt limit reached',
-    }),
+    page
+      .getByRole('region', { name: 'Open follow-up work' })
+      .getByRole('heading', {
+        level: 3,
+        name: 'Retry attempt limit reached',
+      }),
   ).toHaveCount(0);
+  await expect(
+    page
+      .getByRole('region', { name: 'Claimed follow-ups' })
+      .getByRole('heading', {
+        level: 3,
+        name: 'Retry attempt limit reached',
+      }),
+  ).toBeVisible();
   expect(submittedCsrfToken).toBe('browser-session-token');
 
   const accessibility = await new AxeBuilder({ page }).analyze();

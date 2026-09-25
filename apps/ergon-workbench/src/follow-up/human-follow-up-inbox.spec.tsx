@@ -58,6 +58,7 @@ describe('human follow-up inbox', () => {
     const listOpen = vi.fn<HumanFollowUpClient['listOpen']>();
     renderInbox(`/tenants/${TENANT_ID}?queue=UpperCase`, {
       listOpen,
+      listOwned: unusedListOwned,
       claim: unusedClaim,
     });
 
@@ -79,6 +80,7 @@ describe('human follow-up inbox', () => {
       });
     const { router } = renderInbox(`/tenants/${TENANT_ID}`, {
       listOpen,
+      listOwned: unusedListOwned,
       claim: unusedClaim,
     });
 
@@ -112,6 +114,7 @@ describe('human follow-up inbox', () => {
       .mockResolvedValueOnce(pageWith(SECOND_WORK_ITEM_ID, null));
     renderInbox(`/tenants/${TENANT_ID}`, {
       listOpen,
+      listOwned: unusedListOwned,
       claim: unusedClaim,
     });
 
@@ -137,7 +140,11 @@ describe('human follow-up inbox', () => {
       ok: true,
       claim: claimFor(FIRST_WORK_ITEM_ID),
     });
-    renderInbox(`/tenants/${TENANT_ID}`, { listOpen, claim });
+    renderInbox(`/tenants/${TENANT_ID}`, {
+      listOpen,
+      listOwned: unusedListOwned,
+      claim,
+    });
 
     fireEvent.click(
       await screen.findByRole('button', {
@@ -163,7 +170,11 @@ describe('human follow-up inbox', () => {
       ok: false,
       error: { kind: 'already-claimed' },
     });
-    renderInbox(`/tenants/${TENANT_ID}`, { listOpen, claim });
+    renderInbox(`/tenants/${TENANT_ID}`, {
+      listOpen,
+      listOwned: unusedListOwned,
+      claim,
+    });
 
     fireEvent.click(
       await screen.findByRole('button', {
@@ -236,6 +247,7 @@ function clientReturning(
     async listOpen() {
       return result;
     },
+    listOwned: unusedListOwned,
     claim,
   };
 }
@@ -279,6 +291,10 @@ function claimFor(workItemId: string) {
 
 const unusedClaim: HumanFollowUpClient['claim'] = async () => {
   throw new Error('Claiming is not used by this test');
+};
+
+const unusedListOwned: HumanFollowUpClient['listOwned'] = async () => {
+  throw new Error('Owned work is not used by this test');
 };
 
 const unusedCurrentActorClient: CurrentActorClient = {
