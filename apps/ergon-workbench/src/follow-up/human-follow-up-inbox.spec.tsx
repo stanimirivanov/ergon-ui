@@ -56,7 +56,10 @@ describe('human follow-up inbox', () => {
 
   it('keeps an invalid shareable queue filter out of the HTTP boundary', async () => {
     const listOpen = vi.fn<HumanFollowUpClient['listOpen']>();
-    renderInbox(`/tenants/${TENANT_ID}?queue=UpperCase`, { listOpen });
+    renderInbox(`/tenants/${TENANT_ID}?queue=UpperCase`, {
+      listOpen,
+      claim: unusedClaim,
+    });
 
     expect(
       screen.getByRole('heading', {
@@ -74,7 +77,10 @@ describe('human follow-up inbox', () => {
         ok: true,
         page: { items: [], nextCursor: null },
       });
-    const { router } = renderInbox(`/tenants/${TENANT_ID}`, { listOpen });
+    const { router } = renderInbox(`/tenants/${TENANT_ID}`, {
+      listOpen,
+      claim: unusedClaim,
+    });
 
     await waitFor(() => expect(listOpen).toHaveBeenCalledTimes(1));
     fireEvent.change(screen.getByRole('textbox', { name: 'Queue key' }), {
@@ -104,7 +110,10 @@ describe('human follow-up inbox', () => {
       .fn<HumanFollowUpClient['listOpen']>()
       .mockResolvedValueOnce(pageWith(FIRST_WORK_ITEM_ID, nextCursor))
       .mockResolvedValueOnce(pageWith(SECOND_WORK_ITEM_ID, null));
-    renderInbox(`/tenants/${TENANT_ID}`, { listOpen });
+    renderInbox(`/tenants/${TENANT_ID}`, {
+      listOpen,
+      claim: unusedClaim,
+    });
 
     fireEvent.click(await screen.findByRole('button', { name: 'Next page' }));
 
@@ -118,6 +127,82 @@ describe('human follow-up inbox', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Previous page' }));
     expect(await screen.findByText(FIRST_WORK_ITEM_ID)).toBeTruthy();
+  });
+
+  it('claims visible work and refreshes the tenant inbox', async () => {
+    const listOpen = vi
+      .fn<HumanFollowUpClient['listOpen']>()
+      .mockResolvedValue(pageWith(FIRST_WORK_ITEM_ID, null));
+    const claim = vi.fn<HumanFollowUpClient['claim']>().mockResolvedValue({
+      ok: true,
+      claim: claimFor(FIRST_WORK_ITEM_ID),
+    });
+    renderInbox(`/tenants/${TENANT_ID}`, { listOpen, claim });
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Claim Retry attempt limit reached follow-up',
+      }),
+    );
+
+    expect(
+      await screen.findByRole('status', { name: /follow-up claimed/i }),
+    ).toBeTruthy();
+    expect(claim).toHaveBeenCalledWith(
+      { tenantId: TENANT_ID, workItemId: FIRST_WORK_ITEM_ID },
+      expect.any(AbortSignal),
+    );
+    await waitFor(() => expect(listOpen).toHaveBeenCalledTimes(2));
+  });
+
+  it('announces a competing claim and refreshes stale work', async () => {
+    const listOpen = vi
+      .fn<HumanFollowUpClient['listOpen']>()
+      .mockResolvedValue(pageWith(FIRST_WORK_ITEM_ID, null));
+    const claim = vi.fn<HumanFollowUpClient['claim']>().mockResolvedValue({
+      ok: false,
+      error: { kind: 'already-claimed' },
+    });
+    renderInbox(`/tenants/${TENANT_ID}`, { listOpen, claim });
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Claim Retry attempt limit reached follow-up',
+      }),
+    );
+
+    expect(
+      await screen.findByRole('alert', {
+        name: /another resolver claimed this work/i,
+      }),
+    ).toBeTruthy();
+    await waitFor(() => expect(listOpen).toHaveBeenCalledTimes(2));
+  });
+
+  it('offers an explicit safe retry after an ambiguous claim failure', async () => {
+    const claim = vi
+      .fn<HumanFollowUpClient['claim']>()
+      .mockResolvedValueOnce({ ok: false, error: { kind: 'transport' } })
+      .mockResolvedValueOnce({
+        ok: true,
+        claim: claimFor(FIRST_WORK_ITEM_ID),
+      });
+    renderInbox(
+      `/tenants/${TENANT_ID}`,
+      clientReturning(pageWith(FIRST_WORK_ITEM_ID, null), claim),
+    );
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Claim Retry attempt limit reached follow-up',
+      }),
+    );
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Try claim again' }),
+    );
+
+    expect(await screen.findByText('Follow-up claimed.')).toBeTruthy();
+    expect(claim).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -143,11 +228,15 @@ function renderInbox(path: string, humanFollowUpClient: HumanFollowUpClient) {
   return { ...rendered, router };
 }
 
-function clientReturning(result: HumanFollowUpResult): HumanFollowUpClient {
+function clientReturning(
+  result: HumanFollowUpResult,
+  claim: HumanFollowUpClient['claim'] = unusedClaim,
+): HumanFollowUpClient {
   return {
     async listOpen() {
       return result;
     },
+    claim,
   };
 }
 
@@ -178,6 +267,19 @@ function pageWith(
     },
   };
 }
+
+function claimFor(workItemId: string) {
+  return {
+    claimId: '77777777-7777-4777-8777-777777777777',
+    workItemId,
+    claimedAt: '2026-09-22T10:15:00Z',
+    recordedAt: '2026-09-22T10:15:01Z',
+  };
+}
+
+const unusedClaim: HumanFollowUpClient['claim'] = async () => {
+  throw new Error('Claiming is not used by this test');
+};
 
 const unusedCurrentActorClient: CurrentActorClient = {
   async resolve() {
