@@ -18,6 +18,7 @@ import {
 } from './follow-up-read-codecs';
 import {
   isRetryableReadFailure,
+  mapAbortedTransportFailure,
   REQUEST_CANCELLED,
   TIMEOUT_FAILURE,
   TRANSPORT_FAILURE,
@@ -50,7 +51,10 @@ export function createFollowUpReadAdapter({
           signal,
         });
         return Either.match(result, {
-          onLeft: (error): HumanFollowUpResult => ({ ok: false, error }),
+          onLeft: (error): HumanFollowUpResult => ({
+            ok: false,
+            error: mapAbortedTransportFailure(signal, error),
+          }),
           onRight: (page): HumanFollowUpResult => ({ ok: true, page }),
         });
       } catch (cause) {
@@ -76,7 +80,7 @@ export function createFollowUpReadAdapter({
         return Either.match(result, {
           onLeft: (error): ResolverOwnedHumanFollowUpResult => ({
             ok: false,
-            error,
+            error: mapAbortedTransportFailure(signal, error),
           }),
           onRight: (page): ResolverOwnedHumanFollowUpResult => ({
             ok: true,
@@ -106,7 +110,7 @@ export function createFollowUpReadAdapter({
         return Either.match(result, {
           onLeft: (error): ResolverFollowUpCaseSummaryResult => ({
             ok: false,
-            error,
+            error: mapAbortedTransportFailure(signal, error),
           }),
           onRight: (summary): ResolverFollowUpCaseSummaryResult => ({
             ok: true,

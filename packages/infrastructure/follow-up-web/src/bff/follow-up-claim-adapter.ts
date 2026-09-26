@@ -12,6 +12,7 @@ import {
 } from './follow-up-claim-codecs';
 import {
   isRetryableClaimSetupFailure,
+  mapAbortedTransportFailure,
   REQUEST_CANCELLED,
   TIMEOUT_FAILURE,
   TRANSPORT_FAILURE,
@@ -28,6 +29,8 @@ export function createFollowUpClaimAdapter({
   fetch,
   requestTimeout,
 }: FollowUpClaimAdapterOptions): ClaimHumanFollowUp {
+  // SynchronizedRef owns no external resources; construction is synchronous
+  // and infallible, so the adapter does not need a Scope or async factory.
   const csrfToken = Effect.runSync(
     SynchronizedRef.make<BrowserCsrfToken | undefined>(undefined),
   );
@@ -55,7 +58,10 @@ export function createFollowUpClaimAdapter({
           signal,
         });
         return Either.match(result, {
-          onLeft: (error): HumanFollowUpClaimResult => ({ ok: false, error }),
+          onLeft: (error): HumanFollowUpClaimResult => ({
+            ok: false,
+            error: mapAbortedTransportFailure(signal, error),
+          }),
           onRight: (claim): HumanFollowUpClaimResult => ({ ok: true, claim }),
         });
       } catch (cause) {
@@ -83,6 +89,8 @@ function getCsrfToken(
         duration: requestTimeout,
         onTimeout: () => TIMEOUT_FAILURE,
       }),
+      // A timeout is not retried: only transport and classified 503 failures
+      // receive the single safe setup retry, keeping claim latency bounded.
       Effect.retry({ times: 1, while: isRetryableClaimSetupFailure }),
       Effect.map((freshToken) => [freshToken, freshToken] as const),
     );

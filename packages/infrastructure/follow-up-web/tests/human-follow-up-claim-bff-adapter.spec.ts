@@ -159,6 +159,28 @@ describe('follow-up claim BFF adapter', () => {
     expect(requestCount).toBe(2);
   });
 
+  it('does not retry a timed-out CSRF request', async () => {
+    let requestCount = 0;
+    const adapter = createHumanFollowUpBffAdapter({
+      fetch: async () => {
+        requestCount += 1;
+        return new Promise<Response>(() => undefined);
+      },
+      requestTimeout: 10,
+    });
+
+    await expect(
+      adapter.claim(
+        { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
+        new AbortController().signal,
+      ),
+    ).resolves.toEqual({
+      ok: false,
+      error: { kind: 'timeout' },
+    });
+    expect(requestCount).toBe(1);
+  });
+
   it('converts caller cancellation during claim setup', async () => {
     const controller = new AbortController();
     controller.abort();

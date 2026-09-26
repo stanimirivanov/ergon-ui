@@ -15,6 +15,16 @@ export const INVALID_RESPONSE = { kind: 'invalid-response' } as const;
 export const REQUEST_CANCELLED = { kind: 'request-cancelled' } as const;
 export const TIMEOUT_FAILURE = { kind: 'timeout' } as const;
 
+export function mapAbortedTransportFailure<
+  Failure extends { readonly kind: string },
+>(signal: AbortSignal, failure: Failure): Failure | typeof REQUEST_CANCELLED {
+  // Fetch may reject with AbortError before Effect observes the caller's
+  // interruption. The caller's signal is authoritative in that race.
+  return signal.aborted && failure.kind === 'transport'
+    ? REQUEST_CANCELLED
+    : failure;
+}
+
 export function mapReadHttpFailure(
   status: number,
   problem?: ProblemDetail,
