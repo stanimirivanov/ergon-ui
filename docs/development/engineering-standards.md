@@ -20,6 +20,24 @@ Use Nx tags `type:*`, `scope:*`, and `platform:*`. Shared-platform code cannot
 import web or native code. Web UI cannot import applications or data access.
 Create no package until current behavior needs a stable boundary.
 
+Every project has exactly one tag in each dimension and documents its purpose,
+owned responsibilities, deliberate exclusions, public API, allowed
+dependencies, and verification commands. Cross-project consumers import only
+through the package public API. Applications contain composition and routes;
+they do not become the permanent home of feature implementations.
+
+Define ports at the application boundary that consumes them and segregate them
+by use case. An adapter may implement several ports, but consumers and tests
+receive only the capability they need. Wire schemas and protocol failures stay
+with adapters; decoded domain models and application outcomes do not depend on
+HTTP, RTK Query, React, or provider details.
+
+Before changing a boundary, record the responsibility owner before and after,
+the public contract, and each new dependency edge. Evaluate architecture by
+cohesion and dependency direction, not file length. Extract a shared mechanism
+only after multiple current consumers demonstrate identical semantics; retry,
+security, disclosure, and idempotency policy remain capability-specific.
+
 ## TypeScript
 
 Keep strict checking, exact optional properties, unchecked indexed access, and
@@ -98,6 +116,13 @@ small number of critical browser flows and protocol fakes once data access is
 introduced. Keep tests deterministic and independent of external services,
 locale, order, and wall time.
 
-`pnpm verify` is the required baseline. Dependency changes also require a clean
-`pnpm install --frozen-lockfile`. Report every skipped or unavailable check as
-not run.
+Tests follow responsibility boundaries: domain tests prove invariants,
+application tests prove use-case outcomes, adapter tests prove protocol and
+security behavior, data-access tests prove caching, feature tests prove state
+transitions, and presentation tests prove user-visible states. A test should
+not acquire unrelated ports merely because one production adapter implements
+them together.
+
+`pnpm verify` is the required baseline and includes `pnpm architecture:check`.
+Dependency changes also require a clean `pnpm install --frozen-lockfile`.
+Report every skipped or unavailable check as not run.

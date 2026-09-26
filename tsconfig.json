@@ -11,6 +11,12 @@
     },
     {
       "path": "./packages/ui-web"
+    },
+    {
+      "path": "./packages/follow-up-application"
+    },
+    {
+      "path": "./packages/follow-up-domain"
     }
   ],
   "compilerOptions": {}

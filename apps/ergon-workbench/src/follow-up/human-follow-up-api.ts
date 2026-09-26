@@ -1,19 +1,24 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import type {
-  HumanFollowUpClaim,
+  ClaimHumanFollowUp,
+  GetOwnedFollowUpCaseSummary,
   HumanFollowUpClaimCommand,
   HumanFollowUpClaimFailure,
-  HumanFollowUpClient,
   HumanFollowUpFailure,
   HumanFollowUpPage,
   HumanFollowUpQuery,
+  ListOpenHumanFollowUps,
+  ListOwnedHumanFollowUps,
   ResolverOwnedHumanFollowUpPage,
   ResolverOwnedHumanFollowUpQuery,
-  ResolverFollowUpCaseSummary,
   ResolverFollowUpCaseSummaryFailure,
   ResolverFollowUpCaseSummaryQuery,
-} from './human-follow-up-client';
+} from '@ergon/follow-up-application';
+import type {
+  HumanFollowUpClaim,
+  ResolverFollowUpCaseSummary,
+} from '@ergon/follow-up-domain';
 
 export const humanFollowUpApi = createApi({
   reducerPath: 'humanFollowUpApi',
@@ -30,8 +35,8 @@ export const humanFollowUpApi = createApi({
   endpoints: (build) => ({
     humanFollowUps: build.query<HumanFollowUpPage, HumanFollowUpQuery>({
       async queryFn(query, queryApi) {
-        const client = humanFollowUpClientFrom(queryApi.extra);
-        const result = await client.listOpen(query, queryApi.signal);
+        const capability = listOpenHumanFollowUpsFrom(queryApi.extra);
+        const result = await capability.listOpen(query, queryApi.signal);
         return result.ok ? { data: result.page } : { error: result.error };
       },
       providesTags: (_result, _error, query) => [
@@ -43,8 +48,8 @@ export const humanFollowUpApi = createApi({
       ResolverOwnedHumanFollowUpQuery
     >({
       async queryFn(query, queryApi) {
-        const client = humanFollowUpClientFrom(queryApi.extra);
-        const result = await client.listOwned(query, queryApi.signal);
+        const capability = listOwnedHumanFollowUpsFrom(queryApi.extra);
+        const result = await capability.listOwned(query, queryApi.signal);
         return result.ok ? { data: result.page } : { error: result.error };
       },
       providesTags: (_result, _error, query) => [
@@ -58,8 +63,11 @@ export const humanFollowUpApi = createApi({
       serializeQueryArgs: ({ endpointName, queryArgs }) =>
         `${endpointName}:${queryArgs.tenantId}:${queryArgs.workItemId}`,
       async queryFn(query, queryApi) {
-        const client = humanFollowUpClientFrom(queryApi.extra);
-        const result = await client.getOwnedCaseSummary(query, queryApi.signal);
+        const capability = getOwnedFollowUpCaseSummaryFrom(queryApi.extra);
+        const result = await capability.getOwnedCaseSummary(
+          query,
+          queryApi.signal,
+        );
         return result.ok ? { data: result.summary } : { error: result.error };
       },
       providesTags: (_result, _error, query) => [
@@ -74,8 +82,8 @@ export const humanFollowUpApi = createApi({
       HumanFollowUpClaimCommand
     >({
       async queryFn(command, queryApi) {
-        const client = humanFollowUpClientFrom(queryApi.extra);
-        const result = await client.claim(command, queryApi.signal);
+        const capability = claimHumanFollowUpFrom(queryApi.extra);
+        const result = await capability.claim(command, queryApi.signal);
         return result.ok ? { data: result.claim } : { error: result.error };
       },
       invalidatesTags: (result, error, command) => {
@@ -103,28 +111,93 @@ export const {
   useResolverOwnedHumanFollowUpsQuery,
 } = humanFollowUpApi;
 
-function humanFollowUpClientFrom(extra: unknown): HumanFollowUpClient {
+function listOpenHumanFollowUpsFrom(extra: unknown): ListOpenHumanFollowUps {
   if (
     typeof extra === 'object' &&
     extra !== null &&
-    'humanFollowUpClient' in extra &&
-    isHumanFollowUpClient(extra.humanFollowUpClient)
+    'listOpenHumanFollowUps' in extra &&
+    isListOpenHumanFollowUps(extra.listOpenHumanFollowUps)
   ) {
-    return extra.humanFollowUpClient;
+    return extra.listOpenHumanFollowUps;
   }
-  throw new Error('Human follow-up client is not configured');
+  throw new Error('List-open follow-up capability is not configured');
 }
 
-function isHumanFollowUpClient(value: unknown): value is HumanFollowUpClient {
+function isListOpenHumanFollowUps(
+  value: unknown,
+): value is ListOpenHumanFollowUps {
   return (
     typeof value === 'object' &&
     value !== null &&
     'listOpen' in value &&
-    typeof value.listOpen === 'function' &&
+    typeof value.listOpen === 'function'
+  );
+}
+
+function listOwnedHumanFollowUpsFrom(extra: unknown): ListOwnedHumanFollowUps {
+  if (
+    typeof extra === 'object' &&
+    extra !== null &&
+    'listOwnedHumanFollowUps' in extra &&
+    isListOwnedHumanFollowUps(extra.listOwnedHumanFollowUps)
+  ) {
+    return extra.listOwnedHumanFollowUps;
+  }
+  throw new Error('List-owned follow-up capability is not configured');
+}
+
+function isListOwnedHumanFollowUps(
+  value: unknown,
+): value is ListOwnedHumanFollowUps {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
     'listOwned' in value &&
-    typeof value.listOwned === 'function' &&
+    typeof value.listOwned === 'function'
+  );
+}
+
+function getOwnedFollowUpCaseSummaryFrom(
+  extra: unknown,
+): GetOwnedFollowUpCaseSummary {
+  if (
+    typeof extra === 'object' &&
+    extra !== null &&
+    'getOwnedFollowUpCaseSummary' in extra &&
+    isGetOwnedFollowUpCaseSummary(extra.getOwnedFollowUpCaseSummary)
+  ) {
+    return extra.getOwnedFollowUpCaseSummary;
+  }
+  throw new Error('Owned follow-up case-summary capability is not configured');
+}
+
+function isGetOwnedFollowUpCaseSummary(
+  value: unknown,
+): value is GetOwnedFollowUpCaseSummary {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
     'getOwnedCaseSummary' in value &&
-    typeof value.getOwnedCaseSummary === 'function' &&
+    typeof value.getOwnedCaseSummary === 'function'
+  );
+}
+
+function claimHumanFollowUpFrom(extra: unknown): ClaimHumanFollowUp {
+  if (
+    typeof extra === 'object' &&
+    extra !== null &&
+    'claimHumanFollowUp' in extra &&
+    isClaimHumanFollowUp(extra.claimHumanFollowUp)
+  ) {
+    return extra.claimHumanFollowUp;
+  }
+  throw new Error('Claim follow-up capability is not configured');
+}
+
+function isClaimHumanFollowUp(value: unknown): value is ClaimHumanFollowUp {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
     'claim' in value &&
     typeof value.claim === 'function'
   );

@@ -37,6 +37,12 @@
   "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"],
   "references": [
     {
+      "path": "../../packages/follow-up-domain/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/follow-up-application/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/ui-web/tsconfig.lib.json"
     }
   ]

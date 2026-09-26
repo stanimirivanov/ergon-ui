@@ -39,6 +39,21 @@ Nx project tags enforce the first available boundaries. New package categories
 are added when a real slice creates them. `@ergon/ui-web` is intentionally a
 DOM, Tailwind, and shadcn boundary; it is not a React Native design system.
 
+Each project has exactly one `type:*`, `scope:*`, and `platform:*` tag. The
+current follow-up inner boundary is:
+
+```text
+@ergon/workbench
+  -> @ergon/follow-up-application
+      -> @ergon/follow-up-domain
+```
+
+The workbench remains the composition root. It supplies four separate
+follow-up capabilities to RTK Query rather than exposing one expanding client
+port. Confidential-BFF adapters, cache integration, feature orchestration, and
+web presentation move to their own projects in subsequent independently
+verified refactors; they must not bypass the extracted inner boundary.
+
 ## State ownership
 
 | State                                                            | Owner               |

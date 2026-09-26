@@ -15,6 +15,7 @@ decision whose context or outcome changes.
 | [0006](0006-recover-resolver-owned-follow-up-work.md)              | Accepted   | Recover active claims from the confidential BFF               |
 | [0007](0007-render-owned-follow-up-case-context.md)                | Accepted   | Render server-authorized context inside owned follow-ups      |
 | [0008](0008-render-failed-execution-and-retry-handoff.md)          | Accepted   | Explain failed execution and exhausted retry handoff          |
+| [0009](0009-enforce-capability-and-dependency-boundaries.md)       | Accepted   | Enforce capability-specific ports and inward dependencies     |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

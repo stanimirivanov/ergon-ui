@@ -1,3 +1,10 @@
+import type {
+  HumanFollowUpClaimFailure,
+  HumanFollowUpCursor,
+  HumanFollowUpFailure,
+  HumanFollowUpQuery,
+} from '@ergon/follow-up-application';
+import type { HumanFollowUpWorkItem } from '@ergon/follow-up-domain';
 import { Button } from '@ergon/ui-web';
 import { useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router';
@@ -7,13 +14,6 @@ import {
   useClaimHumanFollowUpMutation,
   useHumanFollowUpsQuery,
 } from './human-follow-up-api';
-import type {
-  HumanFollowUpClaimFailure,
-  HumanFollowUpCursor,
-  HumanFollowUpFailure,
-  HumanFollowUpQuery,
-  HumanFollowUpWorkItem,
-} from './human-follow-up-client';
 
 const PAGE_SIZE = 25;
 const QUEUE_KEY_PATTERN = /^[a-z][a-z0-9-]{0,62}$/;
@@ -469,9 +469,7 @@ function normalizeFailure(error: unknown): HumanFollowUpFailure {
   ) {
     switch (error.kind) {
       case 'authentication-required':
-        return 'signInPath' in error && error.signInPath === '/bff/login'
-          ? { kind: error.kind, signInPath: error.signInPath }
-          : { kind: 'invalid-response' };
+        return { kind: error.kind };
       case 'authentication-unavailable':
       case 'actor-not-registered':
       case 'identity-rejected':
@@ -506,9 +504,7 @@ function normalizeClaimFailure(error: unknown): HumanFollowUpClaimFailure {
   ) {
     switch (error.kind) {
       case 'authentication-required':
-        return 'signInPath' in error && error.signInPath === '/bff/login'
-          ? { kind: error.kind, signInPath: error.signInPath }
-          : { kind: 'invalid-response' };
+        return { kind: error.kind };
       case 'authentication-unavailable':
       case 'actor-not-registered':
       case 'identity-rejected':

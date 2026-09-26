@@ -352,6 +352,12 @@ importers:
 
   apps/ergon-workbench:
     dependencies:
+      '@ergon/follow-up-application':
+        specifier: workspace:*
+        version: link:../../packages/follow-up-application
+      '@ergon/follow-up-domain':
+        specifier: workspace:*
+        version: link:../../packages/follow-up-domain
       '@ergon/ui-web':
         specifier: workspace:*
         version: link:../../packages/ui-web
@@ -366,6 +372,14 @@ importers:
         version: 9.3.0(@types/react@19.3.0)(react@19.3.0)(redux@5.0.1)
 
   apps/ergon-workbench-e2e: {}
+
+  packages/follow-up-application:
+    dependencies:
+      '@ergon/follow-up-domain':
+        specifier: workspace:*
+        version: link:../follow-up-domain
+
+  packages/follow-up-domain: {}
 
   packages/ui-web:
     dependencies:

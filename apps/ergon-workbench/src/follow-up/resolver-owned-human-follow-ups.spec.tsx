@@ -1,14 +1,17 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type {
+  ClaimHumanFollowUp,
+  GetOwnedFollowUpCaseSummary,
+  ListOpenHumanFollowUps,
+  ListOwnedHumanFollowUps,
+  ResolverOwnedHumanFollowUpResult,
+} from '@ergon/follow-up-application';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createWorkbenchStore } from '../app/store';
 import type { CurrentActorClient } from '../session/current-actor-client';
-import type {
-  HumanFollowUpClient,
-  ResolverOwnedHumanFollowUpResult,
-} from './human-follow-up-client';
 import { HumanFollowUpInbox } from './human-follow-up-inbox';
 import { ResolverOwnedHumanFollowUps } from './resolver-owned-human-follow-ups';
 
@@ -55,7 +58,7 @@ describe('resolver-owned human follow-ups', () => {
       afterClaimId: '77777777-7777-4777-8777-777777777777',
     };
     const listOwned = vi
-      .fn<HumanFollowUpClient['listOwned']>()
+      .fn<ListOwnedHumanFollowUps['listOwned']>()
       .mockResolvedValueOnce(ownedPageWith(FIRST_WORK_ITEM_ID, nextCursor))
       .mockResolvedValueOnce(ownedPageWith(SECOND_WORK_ITEM_ID, null));
     renderOwned({
@@ -85,16 +88,16 @@ describe('resolver-owned human follow-ups', () => {
 
   it('refreshes active work after a successful claim', async () => {
     const listOwned = vi
-      .fn<HumanFollowUpClient['listOwned']>()
+      .fn<ListOwnedHumanFollowUps['listOwned']>()
       .mockResolvedValueOnce({
         ok: true,
         page: { items: [], nextCursor: null },
       })
       .mockResolvedValue(ownedPageWith(FIRST_WORK_ITEM_ID, null));
     const listOpen = vi
-      .fn<HumanFollowUpClient['listOpen']>()
+      .fn<ListOpenHumanFollowUps['listOpen']>()
       .mockResolvedValue(openPageWith(FIRST_WORK_ITEM_ID));
-    const claim = vi.fn<HumanFollowUpClient['claim']>().mockResolvedValue({
+    const claim = vi.fn<ClaimHumanFollowUp['claim']>().mockResolvedValue({
       ok: true,
       claim: claimFor(FIRST_WORK_ITEM_ID),
     });
@@ -106,7 +109,7 @@ describe('resolver-owned human follow-ups', () => {
     };
     const store = createWorkbenchStore({
       currentActorClient: unusedCurrentActorClient,
-      humanFollowUpClient: client,
+      ...followUpDependencies(client),
     });
     render(
       <Provider store={store}>
@@ -129,7 +132,7 @@ describe('resolver-owned human follow-ups', () => {
 
   it('lazily reveals validated case context and renders evidence as text', async () => {
     const getOwnedCaseSummary = vi
-      .fn<HumanFollowUpClient['getOwnedCaseSummary']>()
+      .fn<GetOwnedFollowUpCaseSummary['getOwnedCaseSummary']>()
       .mockResolvedValue({
         ok: true,
         summary: caseSummaryWith(
@@ -211,10 +214,10 @@ describe('resolver-owned human follow-ups', () => {
   });
 });
 
-function renderOwned(humanFollowUpClient: HumanFollowUpClient) {
+function renderOwned(adapter: HumanFollowUpTestAdapter) {
   const store = createWorkbenchStore({
     currentActorClient: unusedCurrentActorClient,
-    humanFollowUpClient,
+    ...followUpDependencies(adapter),
   });
   return render(
     <Provider store={store}>
@@ -225,7 +228,7 @@ function renderOwned(humanFollowUpClient: HumanFollowUpClient) {
 
 function clientReturning(
   result: ResolverOwnedHumanFollowUpResult,
-): HumanFollowUpClient {
+): HumanFollowUpTestAdapter {
   return {
     async listOwned() {
       return result;
@@ -347,15 +350,15 @@ function caseSummaryWith(content: string) {
   };
 }
 
-const unusedListOpen: HumanFollowUpClient['listOpen'] = async () => {
+const unusedListOpen: ListOpenHumanFollowUps['listOpen'] = async () => {
   throw new Error('Shared inbox is not used by this test');
 };
 
-const unusedClaim: HumanFollowUpClient['claim'] = async () => {
+const unusedClaim: ClaimHumanFollowUp['claim'] = async () => {
   throw new Error('Claiming is not used by this test');
 };
 
-const unusedGetOwnedCaseSummary: HumanFollowUpClient['getOwnedCaseSummary'] =
+const unusedGetOwnedCaseSummary: GetOwnedFollowUpCaseSummary['getOwnedCaseSummary'] =
   async () => {
     throw new Error('Case context is not used by this test');
   };
@@ -365,3 +368,17 @@ const unusedCurrentActorClient: CurrentActorClient = {
     throw new Error('Current actor resolution is not used by this test');
   },
 };
+
+type HumanFollowUpTestAdapter = ListOpenHumanFollowUps &
+  ListOwnedHumanFollowUps &
+  GetOwnedFollowUpCaseSummary &
+  ClaimHumanFollowUp;
+
+function followUpDependencies(adapter: HumanFollowUpTestAdapter) {
+  return {
+    listOpenHumanFollowUps: adapter,
+    listOwnedHumanFollowUps: adapter,
+    getOwnedFollowUpCaseSummary: adapter,
+    claimHumanFollowUp: adapter,
+  };
+}

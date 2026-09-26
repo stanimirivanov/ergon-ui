@@ -33,6 +33,11 @@ standards and ADRs, define the smallest independently valuable behavior, and
 identify contract, authentication, tenant, accessibility, responsive, browser
 compatibility, rollout, and observability effects.
 
+For an architecture change, identify each affected responsibility, its owner
+before and after the change, its public contract, and every new dependency
+edge. If a slice adds a responsibility to an existing project, explain why it
+shares the same reason to change rather than defaulting to the nearest file.
+
 Use an ADR when a choice affects compatibility, security, deployment topology,
 foundational technology, persistent browser data, design-token meaning, or
 more than one application.
@@ -61,6 +66,14 @@ Describe the problem and observable result.
 
 - Important choices, assumptions, compatibility effects, and ADR links.
 
+## Architecture delta
+
+| Responsibility | Owner before | Owner after | Public contract |
+| -------------- | ------------ | ----------- | --------------- |
+| ...            | ...          | ...         | ...             |
+
+- Dependency edges added or removed.
+
 ## Acceptance criteria
 
 - [ ] Observable behavior and verification evidence.
@@ -84,6 +97,16 @@ future task.
 
 - Applications may depend on feature, data, contract, and UI packages. Web UI
   packages do not depend on applications or data access.
+- Every Nx project has exactly one `type:*`, `scope:*`, and `platform:*` tag,
+  imports other projects only through their public APIs, and documents what it
+  owns and deliberately excludes.
+- Domain projects contain platform-neutral models and invariants. Application
+  projects define use-case inputs, outcomes, and consumed ports. Ports are
+  segregated by capability; an adapter implementing several ports does not
+  justify exposing one broad client to every consumer.
+- Adapters own wire schemas, protocol mapping, transport execution, and
+  platform state. Feature code owns orchestration. Presentational UI receives
+  explicit view state and callbacks rather than fetching or decoding data.
 - Platform-neutral contracts do not import React, React Router, Redux,
   Tailwind, browser APIs, or native APIs.
 - RTK Query owns remote caching and invalidation. Redux slices hold only real
@@ -176,8 +199,8 @@ pnpm verify
 ```
 
 It checks formatting, linting, strict type checking, component tests, the
-production build, and Chromium Playwright behavior. A check that is skipped or
-cannot run is **not run**, not passed.
+production build, architecture metadata, and Chromium Playwright behavior. A
+check that is skipped or cannot run is **not run**, not passed.
 
 ## Completion report
 
