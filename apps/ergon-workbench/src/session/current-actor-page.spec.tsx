@@ -1,10 +1,15 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type {
+  ClaimHumanFollowUp,
+  GetOwnedFollowUpCaseSummary,
+  ListOpenHumanFollowUps,
+  ListOwnedHumanFollowUps,
+} from '@ergon/application-follow-up';
 import { Provider } from 'react-redux';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createWorkbenchStore } from '../app/store';
-import type { HumanFollowUpClient } from '../follow-up/human-follow-up-client';
 import type {
   CurrentActorClient,
   CurrentActorResult,
@@ -151,7 +156,10 @@ function renderSession(path: string, currentActorClient: CurrentActorClient) {
   );
   const store = createWorkbenchStore({
     currentActorClient,
-    humanFollowUpClient: emptyHumanFollowUpClient,
+    listOpenHumanFollowUps: emptyHumanFollowUpAdapter,
+    listOwnedHumanFollowUps: emptyHumanFollowUpAdapter,
+    getOwnedFollowUpCaseSummary: emptyHumanFollowUpAdapter,
+    claimHumanFollowUp: emptyHumanFollowUpAdapter,
   });
 
   return render(
@@ -161,7 +169,10 @@ function renderSession(path: string, currentActorClient: CurrentActorClient) {
   );
 }
 
-const emptyHumanFollowUpClient: HumanFollowUpClient = {
+const emptyHumanFollowUpAdapter: ListOpenHumanFollowUps &
+  ListOwnedHumanFollowUps &
+  GetOwnedFollowUpCaseSummary &
+  ClaimHumanFollowUp = {
   async listOpen() {
     return { ok: true, page: { items: [], nextCursor: null } };
   },

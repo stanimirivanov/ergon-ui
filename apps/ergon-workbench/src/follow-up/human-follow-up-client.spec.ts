@@ -101,7 +101,28 @@ describe('human follow-up client', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: { kind: 'authentication-required', signInPath: '/bff/login' },
+      error: { kind: 'authentication-required' },
+    });
+
+    const rejectedClient = createHumanFollowUpClient({
+      fetch: async () =>
+        jsonResponse(
+          {
+            type: 'urn:ergon:problem:browser-authentication-required',
+            signInPath: 'https://attacker.example/collect',
+          },
+          401,
+        ),
+    });
+
+    await expect(
+      rejectedClient.listOpen(
+        { tenantId: TENANT_ID, limit: 25 },
+        new AbortController().signal,
+      ),
+    ).resolves.toEqual({
+      ok: false,
+      error: { kind: 'unexpected-response', status: 401 },
     });
   });
 

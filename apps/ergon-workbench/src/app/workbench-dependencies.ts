@@ -1,7 +1,16 @@
-import type { HumanFollowUpClient } from '../follow-up/human-follow-up-client';
+import type {
+  ClaimHumanFollowUp,
+  GetOwnedFollowUpCaseSummary,
+  ListOpenHumanFollowUps,
+  ListOwnedHumanFollowUps,
+} from '@ergon/application-follow-up';
+
 import type { CurrentActorClient } from '../session/current-actor-client';
 
 export interface WorkbenchDependencies {
   readonly currentActorClient: CurrentActorClient;
-  readonly humanFollowUpClient: HumanFollowUpClient;
+  readonly listOpenHumanFollowUps: ListOpenHumanFollowUps;
+  readonly listOwnedHumanFollowUps: ListOwnedHumanFollowUps;
+  readonly getOwnedFollowUpCaseSummary: GetOwnedFollowUpCaseSummary;
+  readonly claimHumanFollowUp: ClaimHumanFollowUp;
 }

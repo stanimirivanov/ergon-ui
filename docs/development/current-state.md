@@ -36,6 +36,8 @@ animation, requester app, or native app.
   observation rendering, and an explicit failed-execution and exhausted-retry
   handoff explanation;
 - strict TypeScript, ESLint project boundaries, Prettier, Vitest, and Playwright;
+- explicit follow-up domain and application packages with capability-specific
+  ports and verified Nx project metadata;
 - GitHub verification workflow and contributor harness; and
 - accepted workbench/requester topology decision.
 
@@ -50,6 +52,9 @@ animation, requester app, or native app.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.
+- Confidential-BFF execution, RTK Query endpoints, and follow-up React features
+  still reside in the workbench application pending separate boundary
+  extractions.
 
 The next resolver slice should add an explicit ownership lifecycle operation
 after a reviewed browser contract exists. Existing `/internal/v1` routes remain

@@ -42,6 +42,17 @@ body:
     validations:
       required: true
   - type: textarea
+    id: architecture
+    attributes:
+      label: Architecture delta
+      description: Identify responsibility owners before and after, public contracts, and dependency edges. Write "No change" with a reason when boundaries are unaffected.
+      placeholder: |
+        | Responsibility | Owner before | Owner after | Public contract |
+        | --- | --- | --- | --- |
+        | ... | ... | ... | ... |
+    validations:
+      required: true
+  - type: textarea
     id: exclusions
     attributes:
       label: Out of scope

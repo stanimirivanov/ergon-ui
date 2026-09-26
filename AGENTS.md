@@ -20,14 +20,26 @@ accessibility and security boundaries, and report checks exactly as run.
    milestone. Do not create a UI-only milestone.
 4. Identify affected browser contracts, authentication, tenant isolation,
    accessibility, responsive behavior, telemetry, and deployment configuration.
+5. For every affected architectural responsibility, identify its current and
+   proposed owner, public API, and dependency direction before editing code.
 
 ## Architecture
 
-- Applications compose routes and platform adapters. Feature code owns user
-  behavior. UI packages contain presentation. Contract packages remain free of
-  React, Redux, the DOM, Tailwind, browser storage, and provider SDKs.
-- `@ergon/ui-web` is intentionally web-only. Never present Tailwind or shadcn
-  components as React Native abstractions.
+- Domain packages own platform-neutral models and invariants. Application
+  packages own use cases, outcomes, and the ports those use cases consume.
+  Infrastructure packages implement ports and own protocols, persistence,
+  remote execution, and cache integration. Applications are composition roots
+  and may temporarily contain inbound React adapters while a capability is
+  being extracted.
+- Every Nx project has one `layer:*`, `scope:*`, and `platform:*` tag. Import
+  other projects only through their public API and obey the enforced inward
+  dependency graph.
+- `@ergon/ui-web` owns web-only, domain-agnostic UI primitives outside the
+  business hexagon. It must not import domain, application, infrastructure, or
+  application-composition code, and it is not a React Native abstraction.
+- Ports are defined at their application consumers and segregated by use case.
+  An infrastructure adapter may implement several ports without turning them
+  into one broad consumer dependency.
 - Create a package only when current behavior uses it. Avoid `common`, `core`,
   `helpers`, generic service interfaces, empty applications, and speculative
   native structure.
@@ -57,7 +69,8 @@ accessibility and security boundaries, and report checks exactly as run.
 
 ## Completion
 
-Run `pnpm verify`. A skipped or unavailable check is not a pass. Finish every
+Run `pnpm verify`, including its architecture check. A skipped or unavailable
+check is not a pass. Finish every
 coding task with the exact milestone, copy/paste-ready issue title and body,
 limitations, and passed/failed/not-run checks described in
 [CONTRIBUTING.md](CONTRIBUTING.md#completion-report).

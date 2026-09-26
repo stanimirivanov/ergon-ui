@@ -23,8 +23,60 @@ export default [
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
           depConstraints: [
             {
-              sourceTag: 'type:ui',
-              onlyDependOnLibsWithTags: ['type:ui', 'type:util'],
+              sourceTag: 'layer:domain',
+              onlyDependOnLibsWithTags: ['layer:domain'],
+            },
+            {
+              sourceTag: 'layer:application',
+              onlyDependOnLibsWithTags: ['layer:application', 'layer:domain'],
+            },
+            {
+              sourceTag: 'layer:infrastructure',
+              onlyDependOnLibsWithTags: [
+                'layer:infrastructure',
+                'layer:application',
+                'layer:domain',
+              ],
+            },
+            {
+              sourceTag: 'layer:ui-primitives',
+              onlyDependOnLibsWithTags: ['layer:ui-primitives'],
+            },
+            {
+              sourceTag: 'layer:composition',
+              onlyDependOnLibsWithTags: [
+                'layer:infrastructure',
+                'layer:application',
+                'layer:domain',
+                'layer:ui-primitives',
+              ],
+            },
+            {
+              sourceTag: 'layer:test',
+              onlyDependOnLibsWithTags: [
+                'layer:test',
+                'layer:composition',
+                'layer:infrastructure',
+                'layer:application',
+                'layer:domain',
+                'layer:ui-primitives',
+              ],
+            },
+            {
+              sourceTag: 'scope:shared',
+              onlyDependOnLibsWithTags: ['scope:shared'],
+            },
+            {
+              sourceTag: 'scope:follow-up',
+              onlyDependOnLibsWithTags: ['scope:follow-up', 'scope:shared'],
+            },
+            {
+              sourceTag: 'scope:workbench',
+              onlyDependOnLibsWithTags: [
+                'scope:workbench',
+                'scope:follow-up',
+                'scope:shared',
+              ],
             },
             {
               sourceTag: 'platform:shared',
@@ -33,6 +85,10 @@ export default [
             {
               sourceTag: 'platform:web',
               onlyDependOnLibsWithTags: ['platform:web', 'platform:shared'],
+            },
+            {
+              sourceTag: 'platform:native',
+              onlyDependOnLibsWithTags: ['platform:native', 'platform:shared'],
             },
           ],
         },

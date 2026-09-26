@@ -10,13 +10,14 @@
   "scripts": {
     "dev": "nx dev @ergon/workbench",
     "build": "nx build @ergon/workbench",
+    "architecture:check": "node tools/verify-project-boundaries.mjs",
     "format": "nx format:write",
     "format:check": "nx format:check",
     "lint": "nx run-many -t lint",
     "typecheck": "nx run-many -t typecheck",
     "test": "nx run-many -t test",
     "e2e": "nx e2e @ergon/workbench-e2e",
-    "verify": "pnpm format:check && pnpm nx run-many -t lint typecheck test build && pnpm e2e"
+    "verify": "pnpm format:check && pnpm architecture:check && pnpm nx run-many -t lint typecheck test build && pnpm e2e"
   },
   "private": true,
   "devDependencies": {

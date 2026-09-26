@@ -23,10 +23,18 @@ pnpm nx e2e @ergon/workbench-e2e
 ## Boundaries
 
 - Compose routes and application providers here.
+- Depend on follow-up models through `@ergon/domain-follow-up` and on
+  capability-specific ports through `@ergon/application-follow-up`.
 - Keep reusable DOM primitives in `@ergon/ui-web`.
 - Keep API execution outside presentational components.
 - Do not consume `/internal/v1` as a production browser contract.
 - Do not create requester, studio, simulation, or native placeholder routes.
+
+The composition root currently binds one confidential-BFF implementation to
+four separate follow-up ports: open-work listing, owned-work listing, owned
+case-context loading, and claiming. Consumers receive only the port they use.
+The adapter, RTK Query integration, and React feature are migration boundaries
+that will leave this application in separate behavior-preserving changes.
 
 `/tenants/{tenantId}` resolves the control-plane BFF session contract. RTK Query
 owns request state and caching; Effect owns HTTP, timeout, bounded transient

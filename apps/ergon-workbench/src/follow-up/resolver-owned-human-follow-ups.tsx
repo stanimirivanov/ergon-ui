@@ -1,14 +1,14 @@
+import type {
+  HumanFollowUpFailure,
+  ResolverOwnedHumanFollowUpCursor,
+  ResolverOwnedHumanFollowUpQuery,
+} from '@ergon/application-follow-up';
+import type { ResolverOwnedHumanFollowUpWork } from '@ergon/domain-follow-up';
 import { Button } from '@ergon/ui-web';
 import { useState } from 'react';
 
 import { browserSignInHref } from '../session/browser-session-navigation';
 import { useResolverOwnedHumanFollowUpsQuery } from './human-follow-up-api';
-import type {
-  HumanFollowUpFailure,
-  ResolverOwnedHumanFollowUpCursor,
-  ResolverOwnedHumanFollowUpQuery,
-  ResolverOwnedHumanFollowUpWork,
-} from './human-follow-up-client';
 import { ResolverFollowUpCaseSummary } from './resolver-follow-up-case-summary';
 
 const PAGE_SIZE = 25;
@@ -264,9 +264,7 @@ function normalizeFailure(error: unknown): HumanFollowUpFailure {
   ) {
     switch (error.kind) {
       case 'authentication-required':
-        return 'signInPath' in error && error.signInPath === '/bff/login'
-          ? { kind: error.kind, signInPath: error.signInPath }
-          : { kind: 'invalid-response' };
+        return { kind: error.kind };
       case 'authentication-unavailable':
       case 'actor-not-registered':
       case 'identity-rejected':

@@ -1,8 +1,8 @@
+import type { ResolverFollowUpCaseSummaryFailure } from '@ergon/application-follow-up';
 import { Button } from '@ergon/ui-web';
 
 import { browserSignInHref } from '../session/browser-session-navigation';
 import { useResolverFollowUpCaseSummaryQuery } from './human-follow-up-api';
-import type { ResolverFollowUpCaseSummaryFailure } from './human-follow-up-client';
 
 const observedAtFormatter = new Intl.DateTimeFormat('en-GB', {
   dateStyle: 'medium',
@@ -267,9 +267,7 @@ function normalizeFailure(error: unknown): ResolverFollowUpCaseSummaryFailure {
   ) {
     switch (error.kind) {
       case 'authentication-required':
-        return 'signInPath' in error && error.signInPath === '/bff/login'
-          ? { kind: error.kind, signInPath: error.signInPath }
-          : { kind: 'invalid-response' };
+        return { kind: error.kind };
       case 'authentication-unavailable':
       case 'actor-not-registered':
       case 'identity-rejected':

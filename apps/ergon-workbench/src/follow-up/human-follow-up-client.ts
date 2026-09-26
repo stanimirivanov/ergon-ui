@@ -1,3 +1,26 @@
+import type {
+  ClaimHumanFollowUp,
+  GetOwnedFollowUpCaseSummary,
+  HumanFollowUpClaimCommand,
+  HumanFollowUpClaimFailure,
+  HumanFollowUpClaimResult,
+  HumanFollowUpFailure,
+  HumanFollowUpPage,
+  HumanFollowUpQuery,
+  HumanFollowUpResult,
+  ListOpenHumanFollowUps,
+  ListOwnedHumanFollowUps,
+  ResolverFollowUpCaseSummaryFailure,
+  ResolverFollowUpCaseSummaryQuery,
+  ResolverFollowUpCaseSummaryResult,
+  ResolverOwnedHumanFollowUpQuery,
+  ResolverOwnedHumanFollowUpPage,
+  ResolverOwnedHumanFollowUpResult,
+} from '@ergon/application-follow-up';
+import type {
+  HumanFollowUpClaim,
+  ResolverFollowUpCaseSummary,
+} from '@ergon/domain-follow-up';
 import { Effect, Either, Schema } from 'effect';
 
 const utcInstant = Schema.String.pipe(
@@ -121,229 +144,6 @@ const problemDetailSchema = Schema.Struct({
 const BROWSER_SIGN_IN_PATH = '/bff/login' as const;
 const CSRF_TOKEN_PATH = '/bff/v1/csrf' as const;
 
-/** Exact oldest-first keyset position; both values must travel together. */
-export interface HumanFollowUpCursor {
-  readonly afterOpenedAt: string;
-  readonly afterWorkItemId: string;
-}
-
-export interface HumanFollowUpWorkItem {
-  readonly workItemId: string;
-  readonly caseId: string;
-  readonly runId: string;
-  readonly escalationEventId: string;
-  readonly reason: string;
-  readonly queueKey: string;
-  readonly status: 'OPEN';
-  readonly openedAt: string;
-  readonly recordedAt: string;
-}
-
-export interface HumanFollowUpPage {
-  readonly items: readonly HumanFollowUpWorkItem[];
-  readonly nextCursor: HumanFollowUpCursor | null;
-}
-
-/** Bounded inbox request scoped to one tenant and optional exact queue. */
-export interface HumanFollowUpQuery {
-  readonly tenantId: string;
-  readonly queueKey?: string;
-  readonly limit: number;
-  readonly cursor?: HumanFollowUpCursor;
-}
-
-/** Idempotent ownership request for one tenant-scoped follow-up item. */
-export interface HumanFollowUpClaimCommand {
-  readonly tenantId: string;
-  readonly workItemId: string;
-}
-
-export interface HumanFollowUpClaim {
-  readonly claimId: string;
-  readonly workItemId: string;
-  readonly claimedAt: string;
-  readonly recordedAt: string;
-}
-
-/** Exact oldest-claim-first position; both values must travel together. */
-export interface ResolverOwnedHumanFollowUpCursor {
-  readonly afterClaimedAt: string;
-  readonly afterClaimId: string;
-}
-
-export interface ResolverOwnedHumanFollowUpWork {
-  readonly workItem: HumanFollowUpWorkItem;
-  readonly claim: HumanFollowUpClaim;
-}
-
-export interface ResolverOwnedHumanFollowUpPage {
-  readonly items: readonly ResolverOwnedHumanFollowUpWork[];
-  readonly nextCursor: ResolverOwnedHumanFollowUpCursor | null;
-}
-
-/** Bounded active-work request scoped to the current tenant actor. */
-export interface ResolverOwnedHumanFollowUpQuery {
-  readonly tenantId: string;
-  readonly limit: number;
-  readonly cursor?: ResolverOwnedHumanFollowUpCursor;
-}
-
-/** Identifies one owned follow-up whose server-authorized context is requested. */
-export interface ResolverFollowUpCaseSummaryQuery {
-  readonly tenantId: string;
-  readonly workItemId: string;
-  readonly caseId: string;
-  readonly runId: string;
-}
-
-export interface ResolverFollowUpCaseSummary {
-  readonly followUp: {
-    readonly workItemId: string;
-    readonly queueKey: string;
-    readonly escalationReason: string;
-    readonly openedAt: string;
-    readonly claimedAt: string;
-  };
-  readonly case: {
-    readonly caseId: string;
-    readonly goal: string;
-    readonly status: 'OPEN';
-    readonly streamVersion: number;
-    readonly resolutionContract: {
-      readonly key: string;
-      readonly revision: number;
-    };
-  };
-  readonly observations: readonly {
-    readonly streamVersion: number;
-    readonly eventType: string;
-    readonly summary: string;
-    readonly observationId: string;
-    readonly originType: string;
-    readonly provider: string;
-    readonly reference: string | null;
-    readonly content: string;
-    readonly occurredAt: string;
-    readonly recordedAt: string;
-  }[];
-  readonly resolutionRun: {
-    readonly runId: string;
-    readonly caseEvidenceStreamVersion: number;
-    readonly contractKey: string;
-    readonly contractRevision: number;
-    readonly policyRevision: string;
-    readonly stepId: string;
-    readonly capability: string;
-    readonly effectiveRisk: 'LOW' | 'MEDIUM' | 'HIGH';
-    readonly requiredApproval: string;
-    readonly attemptNumber: number;
-    readonly predecessorRunId: string | null;
-    readonly state: 'ESCALATED';
-    readonly stateVersion: number;
-    readonly stateUpdatedAt: string;
-    readonly recordedAt: string;
-  };
-  readonly failedExecution: {
-    readonly connector: string;
-    readonly outcome: 'FAILED';
-    readonly completedAt: string;
-    readonly recordedAt: string;
-  };
-  readonly escalation: {
-    readonly retryPolicyRevision: string;
-    readonly sourceAttemptNumber: number;
-    readonly maximumAttempts: number;
-    readonly occurredAt: string;
-    readonly recordedAt: string;
-  };
-}
-
-export type HumanFollowUpFailure =
-  | {
-      readonly kind: 'authentication-required';
-      readonly signInPath: typeof BROWSER_SIGN_IN_PATH;
-    }
-  | { readonly kind: 'authentication-unavailable' }
-  | { readonly kind: 'actor-not-registered' }
-  | { readonly kind: 'identity-rejected' }
-  | { readonly kind: 'forbidden' }
-  | { readonly kind: 'invalid-filter' }
-  | { readonly kind: 'invalid-page' }
-  | { readonly kind: 'timeout' }
-  | { readonly kind: 'transport' }
-  | { readonly kind: 'service-unavailable'; readonly status: number }
-  | { readonly kind: 'unexpected-response'; readonly status: number }
-  | { readonly kind: 'invalid-response' }
-  | { readonly kind: 'request-cancelled' };
-
-export type HumanFollowUpResult =
-  | { readonly ok: true; readonly page: HumanFollowUpPage }
-  | { readonly ok: false; readonly error: HumanFollowUpFailure };
-
-export type ResolverOwnedHumanFollowUpResult =
-  | { readonly ok: true; readonly page: ResolverOwnedHumanFollowUpPage }
-  | { readonly ok: false; readonly error: HumanFollowUpFailure };
-
-export type ResolverFollowUpCaseSummaryFailure =
-  HumanFollowUpFailure | { readonly kind: 'not-found' };
-
-export type ResolverFollowUpCaseSummaryResult =
-  | { readonly ok: true; readonly summary: ResolverFollowUpCaseSummary }
-  | { readonly ok: false; readonly error: ResolverFollowUpCaseSummaryFailure };
-
-export type HumanFollowUpClaimFailure =
-  | {
-      readonly kind: 'authentication-required';
-      readonly signInPath: typeof BROWSER_SIGN_IN_PATH;
-    }
-  | { readonly kind: 'authentication-unavailable' }
-  | { readonly kind: 'actor-not-registered' }
-  | { readonly kind: 'identity-rejected' }
-  | { readonly kind: 'resolver-authority-required' }
-  | { readonly kind: 'csrf-rejected' }
-  | { readonly kind: 'already-claimed' }
-  | { readonly kind: 'not-found' }
-  | { readonly kind: 'forbidden' }
-  | { readonly kind: 'timeout' }
-  | { readonly kind: 'transport' }
-  | { readonly kind: 'service-unavailable'; readonly status: number }
-  | { readonly kind: 'unexpected-response'; readonly status: number }
-  | { readonly kind: 'invalid-response' }
-  | { readonly kind: 'request-cancelled' };
-
-export type HumanFollowUpClaimResult =
-  | { readonly ok: true; readonly claim: HumanFollowUpClaim }
-  | { readonly ok: false; readonly error: HumanFollowUpClaimFailure };
-
-/**
- * Same-origin browser boundary for visible, owned, and claimable follow-up work.
- *
- * Implementations must decode responses before returning them and keep CSRF
- * state out of callers. Claim failures are not automatically replayed because
- * the resolver must be told when the result is ambiguous.
- */
-export interface HumanFollowUpClient {
-  listOpen(
-    query: HumanFollowUpQuery,
-    signal: AbortSignal,
-  ): Promise<HumanFollowUpResult>;
-
-  listOwned(
-    query: ResolverOwnedHumanFollowUpQuery,
-    signal: AbortSignal,
-  ): Promise<ResolverOwnedHumanFollowUpResult>;
-
-  getOwnedCaseSummary(
-    query: ResolverFollowUpCaseSummaryQuery,
-    signal: AbortSignal,
-  ): Promise<ResolverFollowUpCaseSummaryResult>;
-
-  claim(
-    command: HumanFollowUpClaimCommand,
-    signal: AbortSignal,
-  ): Promise<HumanFollowUpClaimResult>;
-}
-
 interface HumanFollowUpClientOptions {
   readonly fetch: typeof globalThis.fetch;
   readonly requestTimeout?: number;
@@ -387,7 +187,10 @@ interface BrowserCsrfToken {
 export function createHumanFollowUpClient({
   fetch,
   requestTimeout = 5_000,
-}: HumanFollowUpClientOptions): HumanFollowUpClient {
+}: HumanFollowUpClientOptions): ListOpenHumanFollowUps &
+  ListOwnedHumanFollowUps &
+  GetOwnedFollowUpCaseSummary &
+  ClaimHumanFollowUp {
   let csrfToken: BrowserCsrfToken | undefined;
 
   return {
@@ -751,10 +554,7 @@ function mapHttpFailure(
     problem?.type === 'urn:ergon:problem:browser-authentication-required' &&
     problem.signInPath === BROWSER_SIGN_IN_PATH
   ) {
-    return {
-      kind: 'authentication-required',
-      signInPath: BROWSER_SIGN_IN_PATH,
-    };
+    return { kind: 'authentication-required' };
   }
   if (
     status === 403 &&
@@ -811,10 +611,7 @@ function mapClaimHttpFailure(
     problem?.type === 'urn:ergon:problem:browser-authentication-required' &&
     problem.signInPath === BROWSER_SIGN_IN_PATH
   ) {
-    return {
-      kind: 'authentication-required',
-      signInPath: BROWSER_SIGN_IN_PATH,
-    };
+    return { kind: 'authentication-required' };
   }
   if (
     status === 403 &&
