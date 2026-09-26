@@ -358,6 +358,9 @@ importers:
       '@ergon/domain-follow-up':
         specifier: workspace:*
         version: link:../../packages/domain/follow-up
+      '@ergon/infrastructure-follow-up-web':
+        specifier: workspace:*
+        version: link:../../packages/infrastructure/follow-up-web
       '@ergon/ui-web':
         specifier: workspace:*
         version: link:../../packages/ui-web
@@ -380,6 +383,18 @@ importers:
         version: link:../../domain/follow-up
 
   packages/domain/follow-up: {}
+
+  packages/infrastructure/follow-up-web:
+    dependencies:
+      '@ergon/application-follow-up':
+        specifier: workspace:*
+        version: link:../../application/follow-up
+      '@ergon/domain-follow-up':
+        specifier: workspace:*
+        version: link:../../domain/follow-up
+      effect:
+        specifier: 3.22.2
+        version: 3.22.2
 
   packages/ui-web:
     dependencies:

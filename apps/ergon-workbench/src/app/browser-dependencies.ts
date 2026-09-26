@@ -1,8 +1,9 @@
-import { createHumanFollowUpClient } from '../follow-up/human-follow-up-client';
+import { createHumanFollowUpBffAdapter } from '@ergon/infrastructure-follow-up-web';
+
 import { createCurrentActorClient } from '../session/current-actor-client';
 import type { WorkbenchDependencies } from './workbench-dependencies';
 
-const humanFollowUpAdapter = createHumanFollowUpClient({
+const humanFollowUpAdapter = createHumanFollowUpBffAdapter({
   fetch: globalThis.fetch,
 });
 

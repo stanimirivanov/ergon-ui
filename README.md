@@ -66,7 +66,10 @@ apps/
   ergon-workbench/       Internal resolver experience
   ergon-workbench-e2e/   Browser verification
 packages/
-  ui-web/                DOM and Tailwind-specific UI source
+  domain/follow-up/             Platform-neutral follow-up models
+  application/follow-up/        Follow-up ports and outcomes
+  infrastructure/follow-up-web/ Confidential-BFF web adapter
+  ui-web/                       DOM and Tailwind-specific UI source
 docs/
   decisions/             Durable UI architecture decisions
   development/           Engineering rules and current state

@@ -17,6 +17,9 @@
     },
     {
       "path": "./packages/domain/follow-up"
+    },
+    {
+      "path": "./packages/infrastructure/follow-up-web"
     }
   ],
   "compilerOptions": {}
