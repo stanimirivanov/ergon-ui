@@ -1,13 +1,12 @@
 import type {
   GetOwnedFollowUpCaseSummary,
+  HumanFollowUpFailure,
   HumanFollowUpQuery,
-  HumanFollowUpResult,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
+  ResolverFollowUpCaseSummaryFailure,
   ResolverFollowUpCaseSummaryQuery,
-  ResolverFollowUpCaseSummaryResult,
   ResolverOwnedHumanFollowUpQuery,
-  ResolverOwnedHumanFollowUpResult,
 } from '@ergon/application-follow-up';
 import { Effect, Either } from 'effect';
 
@@ -30,6 +29,15 @@ interface FollowUpReadAdapterOptions {
   readonly requestTimeout: number;
 }
 
+type FollowUpReadFailure =
+  HumanFollowUpFailure | ResolverFollowUpCaseSummaryFailure;
+type ReadExecutionFailure = typeof REQUEST_CANCELLED | typeof TIMEOUT_FAILURE;
+
+interface FailedRead<Failure extends FollowUpReadFailure> {
+  readonly ok: false;
+  readonly error: Failure | ReadExecutionFailure;
+}
+
 export function createFollowUpReadAdapter({
   fetch,
   requestTimeout,
@@ -37,94 +45,59 @@ export function createFollowUpReadAdapter({
   ListOwnedHumanFollowUps &
   GetOwnedFollowUpCaseSummary {
   return {
-    async listOpen(query, signal) {
-      const program = requestHumanFollowUps(fetch, query).pipe(
-        Effect.timeoutFail({
-          duration: requestTimeout,
-          onTimeout: () => TIMEOUT_FAILURE,
-        }),
-        Effect.retry({ times: 1, while: isRetryableReadFailure }),
-      );
-
-      try {
-        const result = await Effect.runPromise(Effect.either(program), {
-          signal,
-        });
-        return Either.match(result, {
-          onLeft: (error): HumanFollowUpResult => ({
-            ok: false,
-            error: mapAbortedTransportFailure(signal, error),
-          }),
-          onRight: (page): HumanFollowUpResult => ({ ok: true, page }),
-        });
-      } catch (cause) {
-        if (!signal.aborted) {
-          throw cause;
-        }
-        return { ok: false, error: REQUEST_CANCELLED };
-      }
-    },
-    async listOwned(query, signal) {
-      const program = requestResolverOwnedHumanFollowUps(fetch, query).pipe(
-        Effect.timeoutFail({
-          duration: requestTimeout,
-          onTimeout: () => TIMEOUT_FAILURE,
-        }),
-        Effect.retry({ times: 1, while: isRetryableReadFailure }),
-      );
-
-      try {
-        const result = await Effect.runPromise(Effect.either(program), {
-          signal,
-        });
-        return Either.match(result, {
-          onLeft: (error): ResolverOwnedHumanFollowUpResult => ({
-            ok: false,
-            error: mapAbortedTransportFailure(signal, error),
-          }),
-          onRight: (page): ResolverOwnedHumanFollowUpResult => ({
-            ok: true,
-            page,
-          }),
-        });
-      } catch (cause) {
-        if (!signal.aborted) {
-          throw cause;
-        }
-        return { ok: false, error: REQUEST_CANCELLED };
-      }
-    },
-    async getOwnedCaseSummary(query, signal) {
-      const program = requestResolverFollowUpCaseSummary(fetch, query).pipe(
-        Effect.timeoutFail({
-          duration: requestTimeout,
-          onTimeout: () => TIMEOUT_FAILURE,
-        }),
-        Effect.retry({ times: 1, while: isRetryableReadFailure }),
-      );
-
-      try {
-        const result = await Effect.runPromise(Effect.either(program), {
-          signal,
-        });
-        return Either.match(result, {
-          onLeft: (error): ResolverFollowUpCaseSummaryResult => ({
-            ok: false,
-            error: mapAbortedTransportFailure(signal, error),
-          }),
-          onRight: (summary): ResolverFollowUpCaseSummaryResult => ({
-            ok: true,
-            summary,
-          }),
-        });
-      } catch (cause) {
-        if (!signal.aborted) {
-          throw cause;
-        }
-        return { ok: false, error: REQUEST_CANCELLED };
-      }
-    },
+    listOpen: (query, signal) =>
+      runRead(
+        requestHumanFollowUps(fetch, query),
+        signal,
+        requestTimeout,
+        (page) => ({ ok: true as const, page }),
+      ),
+    listOwned: (query, signal) =>
+      runRead(
+        requestResolverOwnedHumanFollowUps(fetch, query),
+        signal,
+        requestTimeout,
+        (page) => ({ ok: true as const, page }),
+      ),
+    getOwnedCaseSummary: (query, signal) =>
+      runRead(
+        requestResolverFollowUpCaseSummary(fetch, query),
+        signal,
+        requestTimeout,
+        (summary) => ({ ok: true as const, summary }),
+      ),
   };
+}
+
+async function runRead<Value, Failure extends FollowUpReadFailure, Success>(
+  request: Effect.Effect<Value, Failure>,
+  signal: AbortSignal,
+  requestTimeout: number,
+  onSuccess: (value: Value) => Success,
+): Promise<Success | FailedRead<Failure>> {
+  const program = request.pipe(
+    Effect.timeoutFail({
+      duration: requestTimeout,
+      onTimeout: () => TIMEOUT_FAILURE,
+    }),
+    Effect.retry({ times: 1, while: isRetryableReadFailure }),
+  );
+
+  try {
+    const result = await Effect.runPromise(Effect.either(program), { signal });
+    return Either.match(result, {
+      onLeft: (error) => ({
+        ok: false as const,
+        error: mapAbortedTransportFailure(signal, error),
+      }),
+      onRight: onSuccess,
+    });
+  } catch (cause) {
+    if (!signal.aborted) {
+      throw cause;
+    }
+    return { ok: false, error: REQUEST_CANCELLED };
+  }
 }
 
 function requestHumanFollowUps(
