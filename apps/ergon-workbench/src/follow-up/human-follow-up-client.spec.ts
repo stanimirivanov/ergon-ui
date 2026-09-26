@@ -235,6 +235,61 @@ describe('human follow-up client', () => {
     });
   });
 
+  it('rejects handoff context whose retry attempt contradicts the run', async () => {
+    async function fetchStub() {
+      const summary = validCaseSummary();
+      return jsonResponse({
+        ...summary,
+        escalation: { ...summary.escalation, sourceAttemptNumber: 1 },
+      });
+    }
+    const client = createHumanFollowUpClient({ fetch: fetchStub });
+
+    const result = await client.getOwnedCaseSummary(
+      {
+        tenantId: TENANT_ID,
+        workItemId: WORK_ITEM_ID,
+        caseId: CASE_ID,
+        runId: RUN_ID,
+      },
+      new AbortController().signal,
+    );
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'invalid-response' },
+    });
+  });
+
+  it('rejects handoff context that predates its failed execution', async () => {
+    async function fetchStub() {
+      const summary = validCaseSummary();
+      return jsonResponse({
+        ...summary,
+        failedExecution: {
+          ...summary.failedExecution,
+          completedAt: '2026-09-21T09:30:01Z',
+        },
+      });
+    }
+    const client = createHumanFollowUpClient({ fetch: fetchStub });
+
+    const result = await client.getOwnedCaseSummary(
+      {
+        tenantId: TENANT_ID,
+        workItemId: WORK_ITEM_ID,
+        caseId: CASE_ID,
+        runId: RUN_ID,
+      },
+      new AbortController().signal,
+    );
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'invalid-response' },
+    });
+  });
+
   it('rejects case context associated with a different owned case', async () => {
     async function fetchStub() {
       const summary = validCaseSummary();
@@ -500,6 +555,19 @@ function validCaseSummary() {
       state: 'ESCALATED' as const,
       stateVersion: 3,
       stateUpdatedAt: '2026-09-21T09:30:00Z',
+      recordedAt: '2026-09-21T09:30:01Z',
+    },
+    failedExecution: {
+      connector: 'identity-stub',
+      outcome: 'FAILED' as const,
+      completedAt: '2026-09-21T09:29:30Z',
+      recordedAt: '2026-09-21T09:29:31Z',
+    },
+    escalation: {
+      retryPolicyRevision: 'ergon.dev/policy/resolution-retry/v1',
+      sourceAttemptNumber: 2,
+      maximumAttempts: 2,
+      occurredAt: '2026-09-21T09:30:00Z',
       recordedAt: '2026-09-21T09:30:01Z',
     },
   };

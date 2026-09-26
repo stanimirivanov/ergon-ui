@@ -27,7 +27,8 @@ The first foundation provides:
 - a schema-decoded active-work view with exact claim-cursor pagination and
   post-claim cache refresh;
 - lazy, server-authorized case context for owned follow-ups, including the
-  pinned resolution contract, escalated run, and bounded observation evidence;
+  pinned resolution contract, escalated run, bounded observation evidence,
+  failed connector execution, and exhausted retry decision;
 - Vitest component tests and a Chromium Playwright smoke path;
 - enforced project tags and an accepted application-topology decision; and
 - a contributor, security, issue, pull-request, and CI harness.

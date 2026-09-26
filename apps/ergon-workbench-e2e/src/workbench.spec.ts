@@ -200,6 +200,19 @@ test('reveals visible follow-up work after the BFF session is verified', async (
             stateUpdatedAt: '2026-09-21T09:30:00Z',
             recordedAt: '2026-09-21T09:30:01Z',
           },
+          failedExecution: {
+            connector: 'identity-stub',
+            outcome: 'FAILED',
+            completedAt: '2026-09-21T09:29:30Z',
+            recordedAt: '2026-09-21T09:29:31Z',
+          },
+          escalation: {
+            retryPolicyRevision: 'ergon.dev/policy/resolution-retry/v1',
+            sourceAttemptNumber: 2,
+            maximumAttempts: 2,
+            occurredAt: '2026-09-21T09:30:00Z',
+            recordedAt: '2026-09-21T09:30:01Z',
+          },
         }),
       });
     },
@@ -284,6 +297,11 @@ test('reveals visible follow-up work after the BFF session is verified', async (
     page.getByText('The sign-in link returns an expired-token message.'),
   ).toBeVisible();
   await expect(page.getByText('HIGH risk')).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 5, name: 'Automation handoff' }),
+  ).toBeVisible();
+  await expect(page.getByText('identity-stub', { exact: true })).toBeVisible();
+  await expect(page.getByText('2 of 2', { exact: true })).toBeVisible();
 
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);

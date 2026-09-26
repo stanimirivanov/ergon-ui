@@ -99,6 +99,19 @@ const resolverFollowUpCaseSummarySchema = Schema.Struct({
     stateUpdatedAt: utcInstant,
     recordedAt: utcInstant,
   }),
+  failedExecution: Schema.Struct({
+    connector: Schema.NonEmptyString,
+    outcome: Schema.Literal('FAILED'),
+    completedAt: utcInstant,
+    recordedAt: utcInstant,
+  }),
+  escalation: Schema.Struct({
+    retryPolicyRevision: Schema.NonEmptyString,
+    sourceAttemptNumber: Schema.Number,
+    maximumAttempts: Schema.Number,
+    occurredAt: utcInstant,
+    recordedAt: utcInstant,
+  }),
 });
 const problemDetailSchema = Schema.Struct({
   type: Schema.String,
@@ -228,6 +241,19 @@ export interface ResolverFollowUpCaseSummary {
     readonly state: 'ESCALATED';
     readonly stateVersion: number;
     readonly stateUpdatedAt: string;
+    readonly recordedAt: string;
+  };
+  readonly failedExecution: {
+    readonly connector: string;
+    readonly outcome: 'FAILED';
+    readonly completedAt: string;
+    readonly recordedAt: string;
+  };
+  readonly escalation: {
+    readonly retryPolicyRevision: string;
+    readonly sourceAttemptNumber: number;
+    readonly maximumAttempts: number;
+    readonly occurredAt: string;
     readonly recordedAt: string;
   };
 }
@@ -866,12 +892,14 @@ function isValidCaseSummary(
   query: ResolverFollowUpCaseSummaryQuery,
 ): boolean {
   const contract = summary.case.resolutionContract;
-  const versions = [
+  const positiveIntegers = [
     summary.case.streamVersion,
     summary.resolutionRun.caseEvidenceStreamVersion,
     summary.resolutionRun.contractRevision,
     summary.resolutionRun.attemptNumber,
     summary.resolutionRun.stateVersion,
+    summary.escalation.sourceAttemptNumber,
+    summary.escalation.maximumAttempts,
     ...summary.observations.map((observation) => observation.streamVersion),
   ];
 
@@ -884,7 +912,14 @@ function isValidCaseSummary(
     contract.revision === summary.resolutionRun.contractRevision &&
     summary.resolutionRun.caseEvidenceStreamVersion <=
       summary.case.streamVersion &&
-    versions.every(isPositiveInteger) &&
+    positiveIntegers.every(isPositiveInteger) &&
+    summary.escalation.sourceAttemptNumber ===
+      summary.resolutionRun.attemptNumber &&
+    summary.escalation.sourceAttemptNumber >=
+      summary.escalation.maximumAttempts &&
+    summary.escalation.occurredAt === summary.followUp.openedAt &&
+    Date.parse(summary.failedExecution.completedAt) <=
+      Date.parse(summary.escalation.occurredAt) &&
     summary.observations.every(
       (observation, index, observations) =>
         observation.streamVersion <= summary.case.streamVersion &&

@@ -160,6 +160,14 @@ describe('resolver-owned human follow-ups', () => {
     ).toBeTruthy();
     expect(screen.queryByRole('img')).toBeNull();
     expect(
+      screen.getByRole('heading', { level: 5, name: 'Automation handoff' }),
+    ).toBeTruthy();
+    expect(screen.getByText('identity-stub')).toBeTruthy();
+    expect(
+      screen.getByText(/Automated attempt 2 reached the configured limit of 2/),
+    ).toBeTruthy();
+    expect(screen.getByText('2 of 2')).toBeTruthy();
+    expect(
       (
         disclosure as unknown as {
           getAttribute(name: string): string | null;
@@ -321,6 +329,19 @@ function caseSummaryWith(content: string) {
       state: 'ESCALATED' as const,
       stateVersion: 3,
       stateUpdatedAt: '2026-09-21T09:30:00Z',
+      recordedAt: '2026-09-21T09:30:01Z',
+    },
+    failedExecution: {
+      connector: 'identity-stub',
+      outcome: 'FAILED' as const,
+      completedAt: '2026-09-21T09:29:30Z',
+      recordedAt: '2026-09-21T09:29:31Z',
+    },
+    escalation: {
+      retryPolicyRevision: 'ergon.dev/policy/resolution-retry/v1',
+      sourceAttemptNumber: 2,
+      maximumAttempts: 2,
+      occurredAt: '2026-09-21T09:30:00Z',
       recordedAt: '2026-09-21T09:30:01Z',
     },
   };
