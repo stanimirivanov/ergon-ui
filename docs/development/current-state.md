@@ -32,8 +32,9 @@ animation, requester app, or native app.
 - browser-owned work decoding, neutral empty-state handling, reversible exact
   claim-cursor pagination, and post-claim cache refresh;
 - lazy owned-follow-up case context with contract/run consistency checks,
-  evidence-boundary validation, neutral absence handling, and plain-text
-  observation rendering;
+  evidence-boundary validation, neutral absence handling, plain-text
+  observation rendering, and an explicit failed-execution and exhausted-retry
+  handoff explanation;
 - strict TypeScript, ESLint project boundaries, Prettier, Vitest, and Playwright;
 - GitHub verification workflow and contributor harness; and
 - accepted workbench/requester topology decision.

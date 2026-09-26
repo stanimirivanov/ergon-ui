@@ -122,6 +122,47 @@ export function ResolverFollowUpCaseSummary({
         </ContextFact>
       </dl>
 
+      <section
+        aria-labelledby={`${regionId}-handoff-heading`}
+        className="mt-6 rounded-xl border border-border bg-canvas/60 p-4"
+      >
+        <h5
+          id={`${regionId}-handoff-heading`}
+          className="text-sm font-bold text-ink"
+        >
+          Automation handoff
+        </h5>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">
+          The {summary.failedExecution.connector} connector failed. Automated
+          attempt {summary.escalation.sourceAttemptNumber} reached the
+          configured limit of {summary.escalation.maximumAttempts}, so the case
+          was escalated to human follow-up.
+        </p>
+        <dl className="mt-4 grid gap-x-6 gap-y-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+          <ContextFact label="Connector">
+            {summary.failedExecution.connector}
+          </ContextFact>
+          <ContextFact label="Execution result">Failed</ContextFact>
+          <ContextFact label="Execution completed">
+            <time dateTime={summary.failedExecution.completedAt}>
+              {formatUtcInstant(summary.failedExecution.completedAt)}
+            </time>
+          </ContextFact>
+          <ContextFact label="Retry policy">
+            {summary.escalation.retryPolicyRevision}
+          </ContextFact>
+          <ContextFact label="Attempt at handoff">
+            {summary.escalation.sourceAttemptNumber} of{' '}
+            {summary.escalation.maximumAttempts}
+          </ContextFact>
+          <ContextFact label="Escalated">
+            <time dateTime={summary.escalation.occurredAt}>
+              {formatUtcInstant(summary.escalation.occurredAt)}
+            </time>
+          </ContextFact>
+        </dl>
+      </section>
+
       <div className="mt-6">
         <h5 className="text-sm font-bold text-ink">Recorded observations</h5>
         {summary.observations.length === 0 ? (
@@ -151,7 +192,7 @@ export function ResolverFollowUpCaseSummary({
                     : ` · ${observation.reference}`}{' '}
                   ·{' '}
                   <time dateTime={observation.occurredAt}>
-                    {formatObservedAt(observation.occurredAt)}
+                    {formatUtcInstant(observation.occurredAt)}
                   </time>
                 </p>
               </li>
@@ -315,6 +356,6 @@ function failureCopy(failure: ResolverFollowUpCaseSummaryFailure) {
   }
 }
 
-function formatObservedAt(value: string) {
+function formatUtcInstant(value: string) {
   return `${observedAtFormatter.format(new Date(value))} UTC`;
 }

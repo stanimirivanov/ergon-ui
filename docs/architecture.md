@@ -65,8 +65,9 @@ Owned-work pages use a separate tenant-and-cursor cache. Successful claims also
 invalidate that cache so active ownership is recovered from server truth; stale
 shared-inbox conflicts do not imply a change to the current resolver's claims.
 Owned case summaries use a tenant-and-work-item cache key and are mounted only
-while their local disclosure is open. The URL and persistent storage do not
-retain this short-lived resolver context.
+while their local disclosure is open. Failed-execution and retry-handoff facts
+remain part of that same response and cache entry. The URL and persistent
+storage do not retain this short-lived resolver context.
 
 ## Routing and rendering
 
@@ -92,8 +93,9 @@ invalid response, and unexpected defects.
 
 Owned case context is a read-only confidential-BFF projection. The browser
 checks response identity, positive revisions, pinned-contract consistency,
-evidence bounds, and observation order before caching it. Evidence text remains
-untrusted content and is rendered only through React text nodes.
+evidence bounds, observation order, and the failed-execution-to-escalation
+sequence before caching it. Evidence text remains untrusted content and is
+rendered only through React text nodes.
 
 A tenant selected in the URL is navigation context only. The backend remains
 authoritative for subject mapping, authority evidence, tenant isolation, and

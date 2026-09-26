@@ -55,12 +55,13 @@ and current-authority non-disclosure intentionally share one representation.
 
 Each active-work card can lazily request its case context. The BFF rechecks
 current ownership and authority before returning the open case, pinned
-resolution contract, escalated run, and observations. Effect rejects malformed
-identities, invalid positive versions, contract drift, out-of-bound evidence,
-or unordered observations before RTK Query caches the response. A missing
-resource remains deliberately neutral because closure, ownership change, and
-authority change share the same non-disclosing response. Observation content
-is rendered as text and is never interpreted as HTML.
+resolution contract, escalated run, observations, failed connector execution,
+and exhausted retry decision. Effect rejects malformed identities, invalid
+positive versions, contract drift, out-of-bound evidence, unordered
+observations, or handoff facts that contradict the run before RTK Query caches
+the response. A missing resource remains deliberately neutral because closure,
+ownership change, and authority change share the same non-disclosing response.
+Observation content is rendered as text and is never interpreted as HTML.
 
 Local Vite development proxies `/bff`, `/oauth2`, and `/login/oauth2` to
 `http://localhost:8090`. Override the target with the server-side
