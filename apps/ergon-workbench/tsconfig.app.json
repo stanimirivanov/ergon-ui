@@ -43,6 +43,9 @@
       "path": "../../packages/application/follow-up/tsconfig.lib.json"
     },
     {
+      "path": "../../packages/infrastructure/follow-up-web/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/ui-web/tsconfig.lib.json"
     }
   ]

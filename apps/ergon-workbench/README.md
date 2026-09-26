@@ -25,15 +25,18 @@ pnpm nx e2e @ergon/workbench-e2e
 - Compose routes and application providers here.
 - Depend on follow-up models through `@ergon/domain-follow-up` and on
   capability-specific ports through `@ergon/application-follow-up`.
+- Bind the confidential-BFF implementation from
+  `@ergon/infrastructure-follow-up-web`; do not recreate protocol handling in
+  the composition root.
 - Keep reusable DOM primitives in `@ergon/ui-web`.
 - Keep API execution outside presentational components.
 - Do not consume `/internal/v1` as a production browser contract.
 - Do not create requester, studio, simulation, or native placeholder routes.
 
-The composition root currently binds one confidential-BFF implementation to
-four separate follow-up ports: open-work listing, owned-work listing, owned
+The composition root binds `@ergon/infrastructure-follow-up-web` to four
+separate follow-up ports: open-work listing, owned-work listing, owned
 case-context loading, and claiming. Consumers receive only the port they use.
-The adapter, RTK Query integration, and React feature are migration boundaries
+RTK Query integration and the inbound React feature remain migration boundaries
 that will leave this application in separate behavior-preserving changes.
 
 `/tenants/{tenantId}` resolves the control-plane BFF session contract. RTK Query
@@ -49,8 +52,9 @@ plane uses it both for no visible work and for non-disclosure when current
 resolver authority is absent.
 
 Claiming first obtains the opaque CSRF value from `/bff/v1/csrf` and retains it
-only in the in-memory HTTP client. RTK Query owns mutation state and invalidates
-all cached inbox pages for the tenant after success or a stale-item conflict.
+only inside the infrastructure adapter. RTK Query owns mutation state and
+invalidates all cached inbox pages for the tenant after success or a stale-item
+conflict.
 Ambiguous failures offer an explicit retry because the control plane returns an
 existing same-resolver claim instead of creating duplicate ownership.
 
