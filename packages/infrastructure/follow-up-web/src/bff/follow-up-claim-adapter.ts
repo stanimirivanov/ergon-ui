@@ -4,7 +4,7 @@ import type {
   HumanFollowUpClaimFailure,
   HumanFollowUpClaimResult,
 } from '@ergon/application-follow-up';
-import { Effect, Either } from 'effect';
+import { Effect, Either, SynchronizedRef } from 'effect';
 
 import {
   decodeCsrfToken,
@@ -13,6 +13,7 @@ import {
 import {
   isRetryableClaimSetupFailure,
   REQUEST_CANCELLED,
+  TIMEOUT_FAILURE,
   TRANSPORT_FAILURE,
 } from './follow-up-failures';
 import type { BrowserCsrfToken } from './follow-up-wire-schemas';
@@ -27,44 +28,34 @@ export function createFollowUpClaimAdapter({
   fetch,
   requestTimeout,
 }: FollowUpClaimAdapterOptions): ClaimHumanFollowUp {
-  let csrfToken: BrowserCsrfToken | undefined;
+  const csrfToken = Effect.runSync(
+    SynchronizedRef.make<BrowserCsrfToken | undefined>(undefined),
+  );
 
   return {
     async claim(command, signal) {
-      const tokenProgram =
-        csrfToken === undefined
-          ? requestCsrfToken(fetch).pipe(
-              Effect.retry({
-                times: 1,
-                while: isRetryableClaimSetupFailure,
-              }),
-              Effect.tap((token) =>
-                Effect.sync(() => {
-                  csrfToken = token;
-                }),
-              ),
-            )
-          : Effect.succeed(csrfToken);
-      const program = tokenProgram.pipe(
-        Effect.flatMap((token) => requestClaim(fetch, command, token)),
-        Effect.timeoutFail({
-          duration: requestTimeout,
-          onTimeout: () => ({ kind: 'timeout' }) as const,
-        }),
+      const program = getCsrfToken(csrfToken, fetch, requestTimeout).pipe(
+        Effect.flatMap((token) =>
+          requestClaim(fetch, command, token).pipe(
+            Effect.timeoutFail({
+              duration: requestTimeout,
+              onTimeout: () => TIMEOUT_FAILURE,
+            }),
+            Effect.tapError((error) =>
+              error.kind === 'csrf-rejected'
+                ? invalidateRejectedToken(csrfToken, token)
+                : Effect.void,
+            ),
+          ),
+        ),
       );
 
       try {
         const result = await Effect.runPromise(Effect.either(program), {
           signal,
         });
-        if (Either.isLeft(result) && result.left.kind === 'csrf-rejected') {
-          csrfToken = undefined;
-        }
         return Either.match(result, {
-          onLeft: (error): HumanFollowUpClaimResult => ({
-            ok: false,
-            error,
-          }),
+          onLeft: (error): HumanFollowUpClaimResult => ({ ok: false, error }),
           onRight: (claim): HumanFollowUpClaimResult => ({ ok: true, claim }),
         });
       } catch (cause) {
@@ -75,6 +66,39 @@ export function createFollowUpClaimAdapter({
       }
     },
   };
+}
+
+function getCsrfToken(
+  csrfToken: SynchronizedRef.SynchronizedRef<BrowserCsrfToken | undefined>,
+  fetch: typeof globalThis.fetch,
+  requestTimeout: number,
+) {
+  return SynchronizedRef.modifyEffect(csrfToken, (cachedToken) => {
+    if (cachedToken !== undefined) {
+      return Effect.succeed([cachedToken, cachedToken] as const);
+    }
+
+    return requestCsrfToken(fetch).pipe(
+      Effect.timeoutFail({
+        duration: requestTimeout,
+        onTimeout: () => TIMEOUT_FAILURE,
+      }),
+      Effect.retry({ times: 1, while: isRetryableClaimSetupFailure }),
+      Effect.map((freshToken) => [freshToken, freshToken] as const),
+    );
+  });
+}
+
+function invalidateRejectedToken(
+  csrfToken: SynchronizedRef.SynchronizedRef<BrowserCsrfToken | undefined>,
+  rejectedToken: BrowserCsrfToken,
+) {
+  return SynchronizedRef.update(csrfToken, (cachedToken) =>
+    cachedToken?.headerName === rejectedToken.headerName &&
+    cachedToken.token === rejectedToken.token
+      ? undefined
+      : cachedToken,
+  );
 }
 
 function requestCsrfToken(fetch: typeof globalThis.fetch) {

@@ -10,8 +10,9 @@ layers.
 
 - Same-origin BFF request construction and response decoding.
 - Browser wire schemas and protocol-to-application failure translation.
-- Bounded read retries, request timeouts, and cancellation conversion.
-- The in-memory, session-bound CSRF token lifecycle for claim commands.
+- Bounded read retries, per-request timeouts, and cancellation conversion.
+- The in-memory, session-bound CSRF token lifecycle for claim commands,
+  including single-flight acquisition and compare-and-clear invalidation.
 
 ## Does not own
 

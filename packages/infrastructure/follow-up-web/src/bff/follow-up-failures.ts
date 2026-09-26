@@ -8,9 +8,12 @@ import type { ProblemDetail } from './follow-up-wire-schemas';
 
 const BROWSER_SIGN_IN_PATH = '/bff/login' as const;
 
+// Application failures remain serializable and do not disclose browser or
+// network internals to Redux state, logs, or presentation code.
 export const TRANSPORT_FAILURE = { kind: 'transport' } as const;
 export const INVALID_RESPONSE = { kind: 'invalid-response' } as const;
 export const REQUEST_CANCELLED = { kind: 'request-cancelled' } as const;
+export const TIMEOUT_FAILURE = { kind: 'timeout' } as const;
 
 export function mapReadHttpFailure(
   status: number,

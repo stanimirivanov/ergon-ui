@@ -10,7 +10,7 @@ import { createFollowUpReadAdapter } from './bff/follow-up-read-adapter';
 
 export interface HumanFollowUpBffAdapterOptions {
   readonly fetch: typeof globalThis.fetch;
-  /** Positive timeout in milliseconds applied to each port invocation. */
+  /** Positive timeout in milliseconds applied to each outbound HTTP request. */
   readonly requestTimeout?: number;
 }
 
@@ -25,7 +25,9 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
  * Responses are fully decoded before reaching application state. Read
  * operations retry one classified transient failure; claim commands are never
  * replayed automatically. The session-bound CSRF value remains inside the
- * returned adapter and is discarded when the server rejects it.
+ * returned adapter and is discarded when the server rejects it. Caller
+ * cancellation interrupts Effect, propagates to the signal supplied to fetch,
+ * and returns the ports' typed cancellation failure.
  *
  * @throws {RangeError} When `requestTimeout` is not a positive finite number.
  */

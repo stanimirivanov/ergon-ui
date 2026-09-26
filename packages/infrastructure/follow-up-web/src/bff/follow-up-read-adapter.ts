@@ -19,6 +19,7 @@ import {
 import {
   isRetryableReadFailure,
   REQUEST_CANCELLED,
+  TIMEOUT_FAILURE,
   TRANSPORT_FAILURE,
 } from './follow-up-failures';
 import { caseSummaryUrl, inboxUrl, ownedWorkUrl } from './follow-up-urls';
@@ -39,7 +40,7 @@ export function createFollowUpReadAdapter({
       const program = requestHumanFollowUps(fetch, query).pipe(
         Effect.timeoutFail({
           duration: requestTimeout,
-          onTimeout: () => ({ kind: 'timeout' }) as const,
+          onTimeout: () => TIMEOUT_FAILURE,
         }),
         Effect.retry({ times: 1, while: isRetryableReadFailure }),
       );
@@ -63,7 +64,7 @@ export function createFollowUpReadAdapter({
       const program = requestResolverOwnedHumanFollowUps(fetch, query).pipe(
         Effect.timeoutFail({
           duration: requestTimeout,
-          onTimeout: () => ({ kind: 'timeout' }) as const,
+          onTimeout: () => TIMEOUT_FAILURE,
         }),
         Effect.retry({ times: 1, while: isRetryableReadFailure }),
       );
@@ -93,7 +94,7 @@ export function createFollowUpReadAdapter({
       const program = requestResolverFollowUpCaseSummary(fetch, query).pipe(
         Effect.timeoutFail({
           duration: requestTimeout,
-          onTimeout: () => ({ kind: 'timeout' }) as const,
+          onTimeout: () => TIMEOUT_FAILURE,
         }),
         Effect.retry({ times: 1, while: isRetryableReadFailure }),
       );

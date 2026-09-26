@@ -86,6 +86,53 @@ describe('follow-up claim BFF adapter', () => {
     expect(requestCount).toBe(4);
   });
 
+  it('shares one in-flight CSRF request between concurrent claims', async () => {
+    let csrfRequestCount = 0;
+    let claimRequestCount = 0;
+    let releaseToken: () => void = () => undefined;
+    let announceTokenRequest: () => void = () => undefined;
+    const tokenGate = new Promise<void>((resolve) => {
+      releaseToken = resolve;
+    });
+    const tokenRequested = new Promise<void>((resolve) => {
+      announceTokenRequest = resolve;
+    });
+    const adapter = createHumanFollowUpBffAdapter({
+      fetch: async (input) => {
+        if (input.toString() === '/bff/v1/csrf') {
+          csrfRequestCount += 1;
+          announceTokenRequest();
+          await tokenGate;
+          return jsonResponse({
+            headerName: 'X-CSRF-TOKEN',
+            token: 'shared-token',
+          });
+        }
+        claimRequestCount += 1;
+        return jsonResponse(validClaim());
+      },
+    });
+
+    const firstClaim = adapter.claim(
+      { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
+      new AbortController().signal,
+    );
+    const secondClaim = adapter.claim(
+      { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
+      new AbortController().signal,
+    );
+
+    await tokenRequested;
+    expect(csrfRequestCount).toBe(1);
+    releaseToken();
+
+    await expect(Promise.all([firstClaim, secondClaim])).resolves.toEqual([
+      { ok: true, claim: validClaim() },
+      { ok: true, claim: validClaim() },
+    ]);
+    expect(claimRequestCount).toBe(2);
+  });
+
   it('does not automatically retry a competing ownership conflict', async () => {
     let requestCount = 0;
     const adapter = createHumanFollowUpBffAdapter({
