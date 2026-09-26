@@ -45,18 +45,21 @@ current follow-up boundary is:
 
 ```text
 @ergon/workbench
+  -> @ergon/infrastructure-follow-up-web
+      -> @ergon/application-follow-up
+          -> @ergon/domain-follow-up
   -> @ergon/application-follow-up
       -> @ergon/domain-follow-up
   -> @ergon/domain-follow-up
   -> @ergon/ui-web
 ```
 
-The workbench remains the composition root and temporarily owns the inbound
-React adapter and the confidential-BFF, Effect, and RTK Query infrastructure
-adapters. It supplies four separate follow-up capabilities rather than exposing
-one expanding client port. Established outer responsibilities move to
-`packages/infrastructure/follow-up-*` only when a behavior-preserving pull
-request can verify the resulting boundary; empty placeholders are prohibited.
+The workbench remains the composition root and binds the confidential-BFF
+adapter from `@ergon/infrastructure-follow-up-web` to four separate application
+ports. That infrastructure package owns browser wire schemas, Effect execution,
+failure translation, retry and timeout policy, and the ephemeral CSRF lifecycle.
+RTK Query integration and the inbound React adapter remain in the workbench for
+separate behavior-preserving extractions; empty placeholders are prohibited.
 
 The current application package exposes capability-specific consumed ports and
 outcomes. As application policy is extracted, it must enter through explicit
