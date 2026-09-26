@@ -3,8 +3,8 @@ import type {
   HumanFollowUpCursor,
   HumanFollowUpFailure,
   HumanFollowUpQuery,
-} from '@ergon/follow-up-application';
-import type { HumanFollowUpWorkItem } from '@ergon/follow-up-domain';
+} from '@ergon/application-follow-up';
+import type { HumanFollowUpWorkItem } from '@ergon/domain-follow-up';
 import { Button } from '@ergon/ui-web';
 import { useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router';

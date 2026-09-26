@@ -23,71 +23,43 @@ export default [
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
           depConstraints: [
             {
-              sourceTag: 'type:app',
+              sourceTag: 'layer:domain',
+              onlyDependOnLibsWithTags: ['layer:domain'],
+            },
+            {
+              sourceTag: 'layer:application',
+              onlyDependOnLibsWithTags: ['layer:application', 'layer:domain'],
+            },
+            {
+              sourceTag: 'layer:infrastructure',
               onlyDependOnLibsWithTags: [
-                'type:feature',
-                'type:data-access',
-                'type:adapter',
-                'type:application',
-                'type:domain',
-                'type:ui',
-                'type:util',
+                'layer:infrastructure',
+                'layer:application',
+                'layer:domain',
               ],
             },
             {
-              sourceTag: 'type:feature',
+              sourceTag: 'layer:ui-primitives',
+              onlyDependOnLibsWithTags: ['layer:ui-primitives'],
+            },
+            {
+              sourceTag: 'layer:composition',
               onlyDependOnLibsWithTags: [
-                'type:feature',
-                'type:data-access',
-                'type:application',
-                'type:domain',
-                'type:ui',
-                'type:util',
+                'layer:infrastructure',
+                'layer:application',
+                'layer:domain',
+                'layer:ui-primitives',
               ],
             },
             {
-              sourceTag: 'type:data-access',
+              sourceTag: 'layer:test',
               onlyDependOnLibsWithTags: [
-                'type:application',
-                'type:domain',
-                'type:util',
-              ],
-            },
-            {
-              sourceTag: 'type:adapter',
-              onlyDependOnLibsWithTags: [
-                'type:application',
-                'type:domain',
-                'type:util',
-              ],
-            },
-            {
-              sourceTag: 'type:application',
-              onlyDependOnLibsWithTags: ['type:domain', 'type:util'],
-            },
-            {
-              sourceTag: 'type:domain',
-              onlyDependOnLibsWithTags: ['type:domain', 'type:util'],
-            },
-            {
-              sourceTag: 'type:ui',
-              onlyDependOnLibsWithTags: ['type:domain', 'type:ui', 'type:util'],
-            },
-            {
-              sourceTag: 'type:util',
-              onlyDependOnLibsWithTags: ['type:util'],
-            },
-            {
-              sourceTag: 'type:e2e',
-              onlyDependOnLibsWithTags: [
-                'type:app',
-                'type:feature',
-                'type:data-access',
-                'type:adapter',
-                'type:application',
-                'type:domain',
-                'type:ui',
-                'type:util',
+                'layer:test',
+                'layer:composition',
+                'layer:infrastructure',
+                'layer:application',
+                'layer:domain',
+                'layer:ui-primitives',
               ],
             },
             {

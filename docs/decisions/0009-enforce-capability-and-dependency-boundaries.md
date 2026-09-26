@@ -6,10 +6,11 @@
 
 ## TL;DR
 
-Represent domain, application, adapter, data-access, feature, UI, and
-composition responsibilities as explicit Nx projects with enforced dependency
-direction. Begin by extracting follow-up domain models and capability-specific
-application ports without changing runtime behavior.
+Represent the hexagonal domain, application, infrastructure, and composition
+layers as explicit Nx projects with enforced inward dependency direction. Keep
+domain-agnostic UI primitives outside the business hexagon. Begin by extracting
+follow-up domain models and capability-specific application ports without
+changing runtime behavior.
 
 ## Context
 
@@ -26,20 +27,30 @@ were divided into smaller files.
 
 ## Decision
 
-- Use Nx project roles `domain`, `application`, `adapter`, `data-access`,
-  `feature`, `ui`, `app`, `e2e`, and `util`. Every project has exactly one
-  `type:*`, `scope:*`, and `platform:*` tag.
-- Dependencies point inward. Domain has no framework or infrastructure
-  dependencies. Application depends on domain. Adapters and data access depend
-  on application and domain. Feature code may compose data access and UI.
-  Applications are composition roots.
+- Organize capability packages under `packages/domain/<capability>`,
+  `packages/application/<capability>`, and
+  `packages/infrastructure/<capability>-<adapter>`. Create a package only when
+  current behavior gives it a stable responsibility; do not create empty layer
+  or capability placeholders.
+- Every Nx project has exactly one `layer:*`, `scope:*`, and `platform:*` tag.
+  Layers are `domain`, `application`, `infrastructure`, `composition`,
+  `ui-primitives`, and `test`. Scope and platform are independent dimensions,
+  not architectural layers.
+- Dependencies point inward. Domain depends only on domain. Application may
+  depend on application and domain. Infrastructure may depend on
+  infrastructure, application, and domain. Composition roots may assemble all
+  production layers. Test projects may depend on the layers they verify.
+- Keep `@ergon/ui-web` outside the business hexagon. It owns domain-agnostic
+  DOM and design-system primitives and may depend only on UI primitives.
+  Capability wording and workflow composition do not belong there.
 - Define one consumed application port per use case. Listing open work, listing
   owned work, loading owned case context, and claiming work are separate ports.
   One adapter may implement several ports, but consumers receive only the port
   they require.
 - Keep wire schemas, HTTP status interpretation, URLs, credentials, retry,
-  timeout, cancellation execution, and CSRF state in platform adapters. Wire
-  schemas do not become domain models merely because Effect decodes them.
+  timeout, cancellation execution, RTK Query integration, and CSRF state in
+  infrastructure adapters. Wire schemas do not become domain models merely
+  because Effect decodes them.
 - Use package public APIs for cross-project imports. Each project README states
   purpose, ownership, exclusions, dependencies, and verification commands.
 - Enforce project direction with Nx lint rules and validate complete project
@@ -47,10 +58,12 @@ were divided into smaller files.
 - Evaluate cohesion from responsibilities and dependency direction. Do not use
   source-line limits as an architectural substitute.
 
-The first implementation creates `@ergon/follow-up-domain` and
-`@ergon/follow-up-application`. The existing confidential-BFF adapter, RTK
-Query integration, and React feature remain in the workbench until subsequent
-behavior-preserving pull requests move those established responsibilities.
+The first implementation creates `@ergon/domain-follow-up` at
+`packages/domain/follow-up` and `@ergon/application-follow-up` at
+`packages/application/follow-up`. The existing confidential-BFF adapter, RTK
+Query integration, and inbound React adapter remain in the workbench until
+subsequent behavior-preserving pull requests move established responsibilities.
+No empty `session` or `infrastructure` package is introduced by this decision.
 
 ## Consequences
 
@@ -59,11 +72,15 @@ untagged projects from escaping those rules. Tests and composition code can
 depend on narrow capabilities rather than constructing an unrelated client
 surface.
 
-The repository temporarily contains both extracted inner boundaries and outer
-follow-up implementations still located in the application. That is an
-explicit migration state, not the target topology. Further extractions must
-preserve browser contracts, RTK cache identity, Effect cancellation and retry,
+The repository temporarily contains extracted inner boundaries while outer
+follow-up adapters remain in the deployable application. That is an explicit
+migration state, not the target topology. Further extractions must preserve
+browser contracts, RTK cache identity, Effect cancellation and retry,
 non-disclosure behavior, and CSRF lifetime.
+
+The initial application package primarily defines consumed ports and outcomes.
+Future application policy belongs in explicit use cases; pass-through services
+that only rename infrastructure calls do not improve the boundary.
 
 More projects and public APIs add navigation and maintenance cost. A new
 project therefore still requires current behavior and a stable responsibility;
@@ -79,6 +96,10 @@ empty future-facing packages remain prohibited.
   project.
 - **Move every follow-up layer at once:** rejected because the resulting change
   would combine several independently reviewable migrations.
-- **Adopt Feature-Sliced Design verbatim:** rejected in favor of its
-  capability ownership and downward-import principles expressed through the
-  repository's existing Nx project model.
+- **Treat `feature`, `data-access`, and `adapter` as peer architecture
+  layers:** rejected because they mix presentation organization and technical
+  roles with hexagonal dependency layers. These terms may describe code inside
+  an owning layer, but they do not define the repository's dependency axis.
+- **Adopt Feature-Sliced Design verbatim:** rejected because its presentation
+  taxonomy would compete with the business hexagon. Its useful capability
+  ownership ideas are retained without adding a second layer model.

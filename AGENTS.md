@@ -25,18 +25,21 @@ accessibility and security boundaries, and report checks exactly as run.
 
 ## Architecture
 
-- Applications compose routes and platform adapters. Feature code owns user
-  behavior. UI packages contain presentation. Contract packages remain free of
-  React, Redux, the DOM, Tailwind, browser storage, and provider SDKs.
-- Domain code owns platform-neutral models and invariants. Application ports
-  are defined at their consumers and segregated by use case. Adapters own wire
-  schemas and protocol behavior; an adapter may implement several ports without
-  turning them into one broad consumer dependency.
-- Every Nx project has one `type:*`, `scope:*`, and `platform:*` tag. Import
+- Domain packages own platform-neutral models and invariants. Application
+  packages own use cases, outcomes, and the ports those use cases consume.
+  Infrastructure packages implement ports and own protocols, persistence,
+  remote execution, and cache integration. Applications are composition roots
+  and may temporarily contain inbound React adapters while a capability is
+  being extracted.
+- Every Nx project has one `layer:*`, `scope:*`, and `platform:*` tag. Import
   other projects only through their public API and obey the enforced inward
   dependency graph.
-- `@ergon/ui-web` is intentionally web-only. Never present Tailwind or shadcn
-  components as React Native abstractions.
+- `@ergon/ui-web` owns web-only, domain-agnostic UI primitives outside the
+  business hexagon. It must not import domain, application, infrastructure, or
+  application-composition code, and it is not a React Native abstraction.
+- Ports are defined at their application consumers and segregated by use case.
+  An infrastructure adapter may implement several ports without turning them
+  into one broad consumer dependency.
 - Create a package only when current behavior uses it. Avoid `common`, `core`,
   `helpers`, generic service interfaces, empty applications, and speculative
   native structure.

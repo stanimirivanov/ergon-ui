@@ -2,8 +2,8 @@ import type {
   HumanFollowUpFailure,
   ResolverOwnedHumanFollowUpCursor,
   ResolverOwnedHumanFollowUpQuery,
-} from '@ergon/follow-up-application';
-import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-domain';
+} from '@ergon/application-follow-up';
+import type { ResolverOwnedHumanFollowUpWork } from '@ergon/domain-follow-up';
 import { Button } from '@ergon/ui-web';
 import { useState } from 'react';
 

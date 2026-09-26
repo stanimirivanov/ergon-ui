@@ -2,18 +2,22 @@ import { access, readFile, readdir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
 const PROJECT_ROOTS = ['apps', 'packages'];
-const TAG_DIMENSIONS = ['type', 'scope', 'platform'];
-const ALLOWED_TYPES = new Set([
-  'type:adapter',
-  'type:app',
-  'type:application',
-  'type:data-access',
-  'type:domain',
-  'type:e2e',
-  'type:feature',
-  'type:ui',
-  'type:util',
+const TAG_DIMENSIONS = ['layer', 'scope', 'platform'];
+const ALLOWED_LAYERS = new Set([
+  'layer:application',
+  'layer:composition',
+  'layer:domain',
+  'layer:infrastructure',
+  'layer:test',
+  'layer:ui-primitives',
 ]);
+const EXPECTED_PACKAGE_LAYERS = new Map([
+  ['packages/application', 'layer:application'],
+  ['packages/domain', 'layer:domain'],
+  ['packages/infrastructure', 'layer:infrastructure'],
+  ['packages/ui-web', 'layer:ui-primitives'],
+]);
+const IGNORED_DIRECTORIES = new Set(['dist', 'node_modules', 'out-tsc']);
 const ALLOWED_PLATFORMS = new Set([
   'platform:native',
   'platform:shared',
@@ -46,9 +50,23 @@ for (const project of projects) {
     }
   }
 
+  const expectedLayer = [...EXPECTED_PACKAGE_LAYERS].find(
+    ([path]) => project.path === path || project.path.startsWith(`${path}/`),
+  )?.[1];
+  if (expectedLayer !== undefined && !tags.includes(expectedLayer)) {
+    errors.push(
+      `${project.path}: its package path requires the ${expectedLayer} tag`,
+    );
+  }
+
   for (const tag of tags) {
-    if (tag.startsWith('type:') && !ALLOWED_TYPES.has(tag)) {
-      errors.push(`${project.path}: unsupported project type ${tag}`);
+    if (tag.startsWith('type:')) {
+      errors.push(
+        `${project.path}: obsolete ${tag} tag must be expressed as a layer:* tag`,
+      );
+    }
+    if (tag.startsWith('layer:') && !ALLOWED_LAYERS.has(tag)) {
+      errors.push(`${project.path}: unsupported project layer ${tag}`);
     }
     if (tag.startsWith('platform:') && !ALLOWED_PLATFORMS.has(tag)) {
       errors.push(`${project.path}: unsupported project platform ${tag}`);
@@ -73,24 +91,30 @@ async function discoverProjects() {
   const projects = [];
 
   for (const root of PROJECT_ROOTS) {
-    const entries = await readdir(root, { withFileTypes: true });
-    for (const entry of entries) {
-      if (!entry.isDirectory()) {
-        continue;
-      }
-
-      const manifestPath = join(root, entry.name, 'package.json');
-      try {
-        await access(manifestPath);
-      } catch {
-        continue;
-      }
-      projects.push({
-        manifestPath,
-        path: relative('.', join(root, entry.name)).replaceAll('\\', '/'),
-      });
-    }
+    await visitDirectory(root);
   }
 
   return projects.sort((left, right) => left.path.localeCompare(right.path));
+
+  async function visitDirectory(directory) {
+    const manifestPath = join(directory, 'package.json');
+    try {
+      await access(manifestPath);
+      projects.push({
+        manifestPath,
+        path: relative('.', directory).replaceAll('\\', '/'),
+      });
+      return;
+    } catch {
+      // A grouping directory is not an Nx project; inspect its children.
+    }
+
+    const entries = await readdir(directory, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isDirectory() || IGNORED_DIRECTORIES.has(entry.name)) {
+        continue;
+      }
+      await visitDirectory(join(directory, entry.name));
+    }
+  }
 }

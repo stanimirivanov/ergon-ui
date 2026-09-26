@@ -1,4 +1,4 @@
-import type { ResolverFollowUpCaseSummaryFailure } from '@ergon/follow-up-application';
+import type { ResolverFollowUpCaseSummaryFailure } from '@ergon/application-follow-up';
 import { Button } from '@ergon/ui-web';
 
 import { browserSignInHref } from '../session/browser-session-navigation';

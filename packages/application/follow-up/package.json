@@ -1,5 +1,5 @@
 {
-  "name": "@ergon/follow-up-domain",
+  "name": "@ergon/application-follow-up",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",
@@ -12,9 +12,12 @@
     },
     "./package.json": "./package.json"
   },
+  "dependencies": {
+    "@ergon/domain-follow-up": "workspace:*"
+  },
   "nx": {
     "tags": [
-      "type:domain",
+      "layer:application",
       "scope:follow-up",
       "platform:shared"
     ]

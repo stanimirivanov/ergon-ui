@@ -19,13 +19,13 @@ follow-up work, claims, and resolver-visible case context.
 
 ## Public API and dependencies
 
-Consumers import only `@ergon/follow-up-domain`. This package has no runtime
+Consumers import only `@ergon/domain-follow-up`. This package has no runtime
 dependencies and may not import frameworks, platform APIs, or infrastructure.
 
 ## Verification
 
 ```powershell
-pnpm nx lint @ergon/follow-up-domain
-pnpm nx typecheck @ergon/follow-up-domain
-pnpm nx build @ergon/follow-up-domain
+pnpm nx lint @ergon/domain-follow-up
+pnpm nx typecheck @ergon/domain-follow-up
+pnpm nx build @ergon/domain-follow-up
 ```

@@ -13,10 +13,10 @@
       "path": "./packages/ui-web"
     },
     {
-      "path": "./packages/follow-up-application"
+      "path": "./packages/application/follow-up"
     },
     {
-      "path": "./packages/follow-up-domain"
+      "path": "./packages/domain/follow-up"
     }
   ],
   "compilerOptions": {}

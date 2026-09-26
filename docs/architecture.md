@@ -23,36 +23,45 @@ trust boundary; split them only for demonstrated isolation or ownership needs.
 
 ## Dependency direction
 
-```text
-applications
-  -> feature behavior
-      -> data access
-          -> API contracts
-  -> web UI
+Business capabilities use hexagonal dependency direction. Nx layers enforce
+the following package relationships:
 
-platform:shared  -X-> platform:web
-platform:shared  -X-> platform:native
-web UI            -X-> applications or data access
-```
+| Source layer   | May depend on                                      |
+| :------------- | :------------------------------------------------- |
+| Domain         | Domain                                             |
+| Application    | Application, domain                                |
+| Infrastructure | Infrastructure, application, domain                |
+| Composition    | Infrastructure, application, domain, UI primitives |
+| UI primitives  | UI primitives                                      |
+| Test           | Any layer needed by the behavior under test        |
 
-Nx project tags enforce the first available boundaries. New package categories
-are added when a real slice creates them. `@ergon/ui-web` is intentionally a
-DOM, Tailwind, and shadcn boundary; it is not a React Native design system.
+Scope and platform constraints apply independently. Shared-platform code cannot
+import web or native code. `@ergon/ui-web` is intentionally a domain-agnostic
+DOM, Tailwind, and shadcn boundary outside the business hexagon; it is not a
+React Native design system.
 
-Each project has exactly one `type:*`, `scope:*`, and `platform:*` tag. The
-current follow-up inner boundary is:
+Each project has exactly one `layer:*`, `scope:*`, and `platform:*` tag. The
+current follow-up boundary is:
 
 ```text
 @ergon/workbench
-  -> @ergon/follow-up-application
-      -> @ergon/follow-up-domain
+  -> @ergon/application-follow-up
+      -> @ergon/domain-follow-up
+  -> @ergon/domain-follow-up
+  -> @ergon/ui-web
 ```
 
-The workbench remains the composition root. It supplies four separate
-follow-up capabilities to RTK Query rather than exposing one expanding client
-port. Confidential-BFF adapters, cache integration, feature orchestration, and
-web presentation move to their own projects in subsequent independently
-verified refactors; they must not bypass the extracted inner boundary.
+The workbench remains the composition root and temporarily owns the inbound
+React adapter and the confidential-BFF, Effect, and RTK Query infrastructure
+adapters. It supplies four separate follow-up capabilities rather than exposing
+one expanding client port. Established outer responsibilities move to
+`packages/infrastructure/follow-up-*` only when a behavior-preserving pull
+request can verify the resulting boundary; empty placeholders are prohibited.
+
+The current application package exposes capability-specific consumed ports and
+outcomes. As application policy is extracted, it must enter through explicit
+use cases rather than pass-through services that merely rename an
+infrastructure call.
 
 ## State ownership
 

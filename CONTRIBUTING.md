@@ -95,18 +95,25 @@ future task.
 
 ## Architecture and state
 
-- Applications may depend on feature, data, contract, and UI packages. Web UI
-  packages do not depend on applications or data access.
-- Every Nx project has exactly one `type:*`, `scope:*`, and `platform:*` tag,
-  imports other projects only through their public APIs, and documents what it
-  owns and deliberately excludes.
 - Domain projects contain platform-neutral models and invariants. Application
-  projects define use-case inputs, outcomes, and consumed ports. Ports are
-  segregated by capability; an adapter implementing several ports does not
-  justify exposing one broad client to every consumer.
-- Adapters own wire schemas, protocol mapping, transport execution, and
-  platform state. Feature code owns orchestration. Presentational UI receives
-  explicit view state and callbacks rather than fetching or decoding data.
+  projects define use cases, inputs, outcomes, and consumed ports.
+  Infrastructure projects implement those ports and own wire schemas,
+  protocol mapping, transport execution, persistence, and cache integration.
+  Deployable applications are composition roots and own routes and dependency
+  assembly.
+- Every Nx project has exactly one `layer:*`, `scope:*`, and `platform:*` tag,
+  imports other projects only through their public APIs, and documents what it
+  owns and deliberately excludes. The allowed layers are `domain`,
+  `application`, `infrastructure`, `composition`, `ui-primitives`, and `test`.
+- Dependencies point inward: application may depend on domain; infrastructure
+  may depend on application and domain; composition may depend on every
+  production layer. Domain-agnostic UI primitives sit outside the business
+  hexagon and may depend only on other UI primitives.
+- Ports are segregated by capability; an infrastructure adapter implementing
+  several ports does not justify exposing one broad client to every consumer.
+  React route and screen code is an inbound adapter, not a domain or
+  application service. Presentational UI receives explicit view state and
+  callbacks rather than fetching or decoding data.
 - Platform-neutral contracts do not import React, React Router, Redux,
   Tailwind, browser APIs, or native APIs.
 - RTK Query owns remote caching and invalidation. Redux slices hold only real

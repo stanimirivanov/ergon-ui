@@ -3,7 +3,7 @@ import type {
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
-} from '@ergon/follow-up-application';
+} from '@ergon/application-follow-up';
 
 import type { CurrentActorClient } from '../session/current-actor-client';
 

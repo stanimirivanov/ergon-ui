@@ -14,11 +14,11 @@ import type {
   ResolverOwnedHumanFollowUpQuery,
   ResolverFollowUpCaseSummaryFailure,
   ResolverFollowUpCaseSummaryQuery,
-} from '@ergon/follow-up-application';
+} from '@ergon/application-follow-up';
 import type {
   HumanFollowUpClaim,
   ResolverFollowUpCaseSummary,
-} from '@ergon/follow-up-domain';
+} from '@ergon/domain-follow-up';
 
 export const humanFollowUpApi = createApi({
   reducerPath: 'humanFollowUpApi',

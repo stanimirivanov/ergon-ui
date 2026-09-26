@@ -5,7 +5,7 @@ import type {
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
   ResolverOwnedHumanFollowUpResult,
-} from '@ergon/follow-up-application';
+} from '@ergon/application-follow-up';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';

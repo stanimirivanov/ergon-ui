@@ -20,15 +20,15 @@ human follow-up workflows.
 
 ## Public API and dependencies
 
-Consumers import only `@ergon/follow-up-application`. The package depends
-inward on `@ergon/follow-up-domain`; it may not import frameworks or adapters.
+Consumers import only `@ergon/application-follow-up`. The package depends
+inward on `@ergon/domain-follow-up`; it may not import frameworks or adapters.
 Ports return decoded serializable outcomes and accept cancellation from their
 caller.
 
 ## Verification
 
 ```powershell
-pnpm nx lint @ergon/follow-up-application
-pnpm nx typecheck @ergon/follow-up-application
-pnpm nx build @ergon/follow-up-application
+pnpm nx lint @ergon/application-follow-up
+pnpm nx typecheck @ergon/application-follow-up
+pnpm nx build @ergon/application-follow-up
 ```

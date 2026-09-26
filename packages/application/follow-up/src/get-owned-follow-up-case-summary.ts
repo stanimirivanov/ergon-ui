@@ -1,4 +1,4 @@
-import type { ResolverFollowUpCaseSummary } from '@ergon/follow-up-domain';
+import type { ResolverFollowUpCaseSummary } from '@ergon/domain-follow-up';
 
 import type { ResolverFollowUpCaseSummaryFailure } from './human-follow-up-failures';
 

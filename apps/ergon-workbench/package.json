@@ -8,8 +8,8 @@
     "#lib/*": "./src/lib/*.ts"
   },
   "dependencies": {
-    "@ergon/follow-up-application": "workspace:*",
-    "@ergon/follow-up-domain": "workspace:*",
+    "@ergon/application-follow-up": "workspace:*",
+    "@ergon/domain-follow-up": "workspace:*",
     "@ergon/ui-web": "workspace:*",
     "@reduxjs/toolkit": "2.12.0",
     "effect": "3.22.2",
@@ -17,7 +17,7 @@
   },
   "nx": {
     "tags": [
-      "type:app",
+      "layer:composition",
       "scope:workbench",
       "platform:web"
     ]

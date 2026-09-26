@@ -16,11 +16,11 @@ import type {
   ResolverOwnedHumanFollowUpQuery,
   ResolverOwnedHumanFollowUpPage,
   ResolverOwnedHumanFollowUpResult,
-} from '@ergon/follow-up-application';
+} from '@ergon/application-follow-up';
 import type {
   HumanFollowUpClaim,
   ResolverFollowUpCaseSummary,
-} from '@ergon/follow-up-domain';
+} from '@ergon/domain-follow-up';
 import { Effect, Either, Schema } from 'effect';
 
 const utcInstant = Schema.String.pipe(

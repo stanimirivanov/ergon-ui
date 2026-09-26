@@ -23,8 +23,8 @@ pnpm nx e2e @ergon/workbench-e2e
 ## Boundaries
 
 - Compose routes and application providers here.
-- Depend on follow-up models through `@ergon/follow-up-domain` and on
-  capability-specific ports through `@ergon/follow-up-application`.
+- Depend on follow-up models through `@ergon/domain-follow-up` and on
+  capability-specific ports through `@ergon/application-follow-up`.
 - Keep reusable DOM primitives in `@ergon/ui-web`.
 - Keep API execution outside presentational components.
 - Do not consume `/internal/v1` as a production browser contract.

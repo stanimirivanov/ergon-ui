@@ -11,20 +11,24 @@
 
 ## Architecture
 
-Applications compose routes, feature behavior, and platform adapters. Feature
-code owns user-visible workflows. Data access owns protocol calls and cache
-policy. Contract packages own wire schemas and tagged failures. UI packages own
-presentation without fetching data or knowing application routes.
+Organize business capabilities as a hexagon. Domain packages own
+platform-neutral models and invariants. Application packages own use cases,
+outcomes, and consumed ports. Infrastructure packages implement those ports
+and own wire schemas, protocol calls, persistence, external execution, and
+cache integration. Deployable applications compose routes and dependencies;
+their React routes and screens are inbound adapters. Domain-agnostic web UI
+primitives sit outside the business hexagon.
 
-Use Nx tags `type:*`, `scope:*`, and `platform:*`. Shared-platform code cannot
-import web or native code. Web UI cannot import applications or data access.
-Create no package until current behavior needs a stable boundary.
+Use Nx tags `layer:*`, `scope:*`, and `platform:*`. Shared-platform code cannot
+import web or native code. UI primitives cannot import business or composition
+layers. Create no package until current behavior needs a stable boundary.
 
 Every project has exactly one tag in each dimension and documents its purpose,
 owned responsibilities, deliberate exclusions, public API, allowed
 dependencies, and verification commands. Cross-project consumers import only
 through the package public API. Applications contain composition and routes;
-they do not become the permanent home of feature implementations.
+application-local adapters are an explicit migration state, not the permanent
+home of extracted capability implementations.
 
 Define ports at the application boundary that consumes them and segregate them
 by use case. An adapter may implement several ports, but consumers and tests
@@ -117,11 +121,10 @@ introduced. Keep tests deterministic and independent of external services,
 locale, order, and wall time.
 
 Tests follow responsibility boundaries: domain tests prove invariants,
-application tests prove use-case outcomes, adapter tests prove protocol and
-security behavior, data-access tests prove caching, feature tests prove state
-transitions, and presentation tests prove user-visible states. A test should
-not acquire unrelated ports merely because one production adapter implements
-them together.
+application tests prove use-case outcomes, infrastructure tests prove protocol,
+security, persistence, and cache behavior, and inbound-adapter tests prove
+user-visible states and state transitions. A test should not acquire unrelated
+ports merely because one production adapter implements them together.
 
 `pnpm verify` is the required baseline and includes `pnpm architecture:check`.
 Dependency changes also require a clean `pnpm install --frozen-lockfile`.

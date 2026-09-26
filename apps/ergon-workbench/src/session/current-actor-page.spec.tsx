@@ -4,7 +4,7 @@ import type {
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
-} from '@ergon/follow-up-application';
+} from '@ergon/application-follow-up';
 import { Provider } from 'react-redux';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
