@@ -7,6 +7,12 @@ const humanFollowUpAdapter = createHumanFollowUpBffAdapter({
   fetch: globalThis.fetch,
 });
 
+/**
+ * Production browser dependency graph for the resolver workbench.
+ *
+ * All follow-up ports deliberately share one adapter instance so its ephemeral
+ * CSRF state has the same lifetime as the workbench store.
+ */
 export const browserDependencies: WorkbenchDependencies = {
   currentActorClient: createCurrentActorClient({
     fetch: globalThis.fetch,

@@ -31,6 +31,13 @@ type ClaimNotice =
       readonly failure: HumanFollowUpClaimFailure;
     };
 
+/**
+ * Renders server-visible open follow-ups with URL-owned queue filtering,
+ * reversible keyset pagination, and explicit claim outcomes.
+ *
+ * The tenant route is request context only; visibility and claim authority are
+ * re-evaluated by the BFF.
+ */
 export function HumanFollowUpInbox({
   tenantId,
 }: {

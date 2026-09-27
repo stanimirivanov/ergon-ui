@@ -6,10 +6,15 @@ import type {
   CurrentActorFailure,
 } from './current-actor-client';
 
+/** Tenant route context used as the current-actor cache key, not as authority. */
 export interface CurrentActorQuery {
   readonly tenantId: string;
 }
 
+/**
+ * Owns current-actor remote cache state and bridges RTK Query cancellation to
+ * the injected session client.
+ */
 export const currentActorApi = createApi({
   reducerPath: 'currentActorApi',
   baseQuery: fakeBaseQuery<CurrentActorFailure>(),

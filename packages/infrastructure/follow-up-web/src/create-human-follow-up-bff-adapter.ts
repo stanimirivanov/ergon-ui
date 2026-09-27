@@ -8,9 +8,14 @@ import type {
 import { createFollowUpClaimAdapter } from './bff/follow-up-claim-adapter';
 import { createFollowUpReadAdapter } from './bff/follow-up-read-adapter';
 
+/** Dependencies and per-request policy for the confidential-BFF adapter. */
 export interface HumanFollowUpBffAdapterOptions {
+  /** Fetch-compatible transport; requests remain same-origin and credentialed. */
   readonly fetch: typeof globalThis.fetch;
-  /** Positive timeout in milliseconds applied to each outbound HTTP request. */
+  /**
+   * Positive timeout in milliseconds applied independently to each outbound
+   * HTTP attempt. Defaults to 5,000 milliseconds.
+   */
   readonly requestTimeout?: number;
 }
 
@@ -29,7 +34,12 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
  * cancellation interrupts Effect, propagates to the signal supplied to fetch,
  * and returns the ports' typed cancellation failure.
  *
- * @throws {RangeError} When `requestTimeout` is not a positive finite number.
+ * The adapter instance owns its in-memory CSRF state. Create it for one
+ * browser-session composition lifetime and discard it when that session is
+ * replaced; do not share it across authenticated browser sessions.
+ *
+ * @returns The four follow-up application ports backed by one adapter state.
+ * @throws A `RangeError` when `requestTimeout` is not a positive finite number.
  */
 export function createHumanFollowUpBffAdapter({
   fetch,

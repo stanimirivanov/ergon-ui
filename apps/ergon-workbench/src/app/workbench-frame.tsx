@@ -5,6 +5,7 @@ interface WorkbenchFrameProps extends PropsWithChildren {
   readonly statusLabel: string;
 }
 
+/** Shared workbench landmarks, skip navigation, status, and milestone footer. */
 export function WorkbenchFrame({ children, statusLabel }: WorkbenchFrameProps) {
   return (
     <div className="min-h-screen">

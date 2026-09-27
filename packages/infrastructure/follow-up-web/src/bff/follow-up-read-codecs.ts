@@ -1,4 +1,5 @@
 import type {
+  HumanFollowUpFailure,
   HumanFollowUpPage,
   ResolverFollowUpCaseSummaryFailure,
   ResolverFollowUpCaseSummaryQuery,
@@ -20,7 +21,14 @@ import {
 } from './follow-up-wire-schemas';
 import { readJson, readOptionalProblem } from './json-response';
 
-export function decodeHumanFollowUpPage(response: Response) {
+/**
+ * Decodes a visible-work response into an application page.
+ * Successful but malformed bodies fail as `invalid-response`; non-success
+ * responses use the reviewed problem/status mapping.
+ */
+export function decodeHumanFollowUpPage(
+  response: Response,
+): Effect.Effect<HumanFollowUpPage, HumanFollowUpFailure, never> {
   if (response.ok) {
     return readJson(response).pipe(
       Effect.flatMap(Schema.decodeUnknown(humanFollowUpPageSchema)),
@@ -36,7 +44,13 @@ export function decodeHumanFollowUpPage(response: Response) {
   );
 }
 
-export function decodeResolverOwnedHumanFollowUpPage(response: Response) {
+/**
+ * Decodes resolver-owned work and rejects any claim/work-item identity
+ * mismatch enforced by the wire schema.
+ */
+export function decodeResolverOwnedHumanFollowUpPage(
+  response: Response,
+): Effect.Effect<ResolverOwnedHumanFollowUpPage, HumanFollowUpFailure, never> {
   if (response.ok) {
     return readJson(response).pipe(
       Effect.flatMap(
@@ -54,10 +68,19 @@ export function decodeResolverOwnedHumanFollowUpPage(response: Response) {
   );
 }
 
+/**
+ * Decodes and semantically binds one server-authorized case-context response.
+ * The request identity participates in validation so a validly shaped response
+ * for different work cannot enter the domain or RTK Query cache.
+ */
 export function decodeResolverFollowUpCaseSummary(
   response: Response,
   query: ResolverFollowUpCaseSummaryQuery,
-) {
+): Effect.Effect<
+  ResolverFollowUpCaseSummary,
+  ResolverFollowUpCaseSummaryFailure,
+  never
+> {
   if (response.ok) {
     return readJson(response).pipe(
       Effect.flatMap(Schema.decodeUnknown(resolverFollowUpCaseSummarySchema)),
@@ -79,6 +102,11 @@ export function decodeResolverFollowUpCaseSummary(
   );
 }
 
+/**
+ * Binds structurally decoded context to the requested work item, case, and run
+ * and enforces the evidence, contract, ordering, and retry-handoff invariants
+ * required by the domain projection.
+ */
 function isValidCaseSummary(
   summary: ResolverFollowUpCaseSummaryPayload,
   query: ResolverFollowUpCaseSummaryQuery,

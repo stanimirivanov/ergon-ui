@@ -20,6 +20,15 @@ import type {
   ResolverFollowUpCaseSummary,
 } from '@ergon/domain-follow-up';
 
+/**
+ * Owns follow-up server cache state for the resolver workbench.
+ *
+ * Query functions delegate to injected application ports and forward RTK
+ * Query's abort signal. Successful claims invalidate both visible and owned
+ * work; stale claim outcomes invalidate only the visible inbox. Case evidence
+ * cache identity is tenant plus work item; on fetch, the infrastructure adapter
+ * validates the response against the full requested identity tuple.
+ */
 export const humanFollowUpApi = createApi({
   reducerPath: 'humanFollowUpApi',
   baseQuery: fakeBaseQuery<

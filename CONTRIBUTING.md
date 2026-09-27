@@ -139,19 +139,47 @@ future task.
 - Prefer `unknown` at untrusted boundaries, immutable values, exhaustive
   discriminated unions, and explicit nullable meaning. Avoid `any`, non-null
   assertions, type assertions used as validation, and mutable module globals.
+- Supported APIs and non-trivial protocol, schema-decoding, persistence, and
+  asynchronous boundary functions MUST declare return types. The annotation
+  must expose the success, failure, and environment channels of Effect values
+  rather than relying on an inferred implementation type. Small local
+  callbacks and obvious pure helpers MAY rely on inference.
 
 ## TSDoc and comments
 
-Document exported APIs when their purpose, invariants, parameter or return
-constraints, side effects, concurrency, or meaningful errors are not obvious
-from the name and type. Add an example only when correct use is not obvious;
-prefer an imported, compiled example or executable test over a free-form block
-that can drift.
+The declaration that owns a supported public contract MUST document any
+non-obvious purpose, invariants, parameter or return constraints, units,
+ordering, ownership, lifetime, side effects, concurrency, cancellation,
+retry, idempotency, security boundary, or meaningful error behavior. Package
+entry points, cross-layer contracts, and application composition boundaries
+define the supported surface; an `export` used only between implementation
+modules does not become public API merely because TypeScript requires it.
+Re-export files MUST NOT duplicate declaration documentation.
 
-Explain reasons, compatibility constraints, accessibility decisions, security
-boundaries, and deliberate performance trade-offs. Never narrate syntax. Skip
-members whose names and types already say everything—uninformative comments are
-a maintenance liability. Delete stale and commented-out code.
+Use `@param` and `@returns` only to add semantics or constraints that the name
+and type do not express. Use `@throws` only for exceptions or promise
+rejections that can actually escape; describe discriminated failure results as
+outcomes instead. Add an example only when correct use is not obvious, and
+prefer an executable test or typechecked source example over a free-form block
+that can drift. TypeScript has no repository-supported equivalent of Kotlin's
+compiled `@sample`; do not invent one.
+
+Ports and Effect-backed adapters MUST document relevant timeout, retry,
+cancellation, idempotency, resource-lifetime, and disclosure semantics. React
+components and hooks document non-obvious accessibility, state-ownership, and
+cleanup contracts. Wire schemas document protocol meaning or compatibility
+constraints when those are not already owned by a referenced contract.
+
+Implementation comments explain reasons, compatibility constraints,
+accessibility decisions, security boundaries, concurrency, and deliberate
+performance trade-offs. Never narrate syntax. Skip members whose names and
+types already say everything—uninformative comments are a maintenance
+liability. If an API needs extensive prose because its name or type is vague,
+improve the API first. Delete stale and commented-out code.
+
+Reviews evaluate documentation correctness and usefulness, not coverage
+percentages. Syntax tooling MAY reject malformed TSDoc, but MUST NOT require a
+comment for every export or reward boilerplate.
 
 ## React and presentation
 

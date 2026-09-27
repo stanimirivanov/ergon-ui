@@ -49,12 +49,20 @@ accessibility and security boundaries, and report checks exactly as run.
 ## React and TypeScript
 
 - Keep TypeScript strict and prefer immutable values and discriminated unions.
+- Declare return types on supported APIs and non-trivial protocol, decoding,
+  persistence, and asynchronous boundary functions. Small local callbacks may
+  rely on inference when the result is immediate and unambiguous.
 - RTK Query owns remote cache state; React Hook Form owns form state; the URL
   owns shareable navigation state; local React state owns local interaction.
 - Effect belongs at untrusted and asynchronous boundaries. It must not replace
   RTK Query caching or ordinary React rendering.
-- Exported APIs document non-obvious purpose, invariants, constraints, and
-  errors. Comments explain reasons and constraints, never syntax.
+- Supported public APIs document non-obvious purpose, invariants, constraints,
+  ownership, side effects, and errors at their owning declarations. An
+  `export` used only between implementation modules does not by itself require
+  TSDoc. Comments explain reasons and constraints, never syntax.
+- For ports and asynchronous boundaries, document cancellation, retry,
+  timeout, idempotency, lifetime, and typed-failure semantics when relevant.
+  Do not add documentation merely to satisfy a count.
 - Use semantic HTML first, keyboard-visible focus, reduced-motion behavior, and
   accessible names. Color and animation cannot be the only state signal.
 

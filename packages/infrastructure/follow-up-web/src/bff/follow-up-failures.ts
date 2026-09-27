@@ -27,11 +27,19 @@ type SharedStatusFailure = Extract<
 type ProblemFailureFactory<Failure> = () => Failure;
 type StatusFailureFactory = (status: number) => SharedStatusFailure;
 
-// Application failures remain serializable and do not disclose browser or
-// network internals to Redux state, logs, or presentation code.
+/**
+ * Transport failed before a trusted HTTP response was available. The raw
+ * browser cause is omitted to keep application state serializable and private.
+ */
 export const TRANSPORT_FAILURE = { kind: 'transport' } as const;
+
+/** The HTTP response could not be decoded into its required wire contract. */
 export const INVALID_RESPONSE = { kind: 'invalid-response' } as const;
+
+/** The caller ended an in-flight operation through its abort signal. */
 export const REQUEST_CANCELLED = { kind: 'request-cancelled' } as const;
+
+/** One configured outbound request attempt exceeded its deadline. */
 export const TIMEOUT_FAILURE = { kind: 'timeout' } as const;
 
 const SHARED_PROBLEM_FAILURES: ReadonlyMap<
@@ -135,6 +143,13 @@ const unexpectedResponse: StatusFailureFactory = (status) => ({
   status,
 });
 
+/**
+ * Gives caller cancellation precedence when fetch rejection races Effect
+ * interruption.
+ *
+ * Only a transport failure is rewritten; decoded HTTP and domain failures keep
+ * their original meaning even if the signal is subsequently aborted.
+ */
 export function mapAbortedTransportFailure<
   Failure extends { readonly kind: string },
 >(signal: AbortSignal, failure: Failure): Failure | typeof REQUEST_CANCELLED {
@@ -145,6 +160,7 @@ export function mapAbortedTransportFailure<
     : failure;
 }
 
+/** Maps a read response status and trusted problem identity to its application failure. */
 export function mapReadHttpFailure(
   status: number,
   problem?: ProblemDetail,
@@ -155,6 +171,7 @@ export function mapReadHttpFailure(
   );
 }
 
+/** Maps a claim response status and trusted problem identity to its application failure. */
 export function mapClaimHttpFailure(
   status: number,
   problem?: ProblemDetail,
@@ -165,6 +182,10 @@ export function mapClaimHttpFailure(
   );
 }
 
+/**
+ * Maps case-summary absence before delegating shared read failures.
+ * `not-found` preserves the browser contract's non-disclosure semantics.
+ */
 export function mapCaseSummaryHttpFailure(
   status: number,
   problem?: ProblemDetail,
@@ -175,6 +196,10 @@ export function mapCaseSummaryHttpFailure(
   );
 }
 
+/**
+ * Resolves an exact status/problem tuple and creates a fresh failure value so
+ * one consumer cannot mutate a value retained by the lookup table.
+ */
 function lookupProblemFailure<Failure>(
   failures: ReadonlyMap<string, ProblemFailureFactory<Failure>>,
   status: number,
@@ -187,12 +212,15 @@ function lookupProblemFailure<Failure>(
   return factory?.();
 }
 
+/**
+ * Builds a collision-safe problem identity. The advertised sign-in path is
+ * part of the key so an untrusted problem cannot redirect to an arbitrary path.
+ */
 function problemKey(status: number, type: string, signInPath?: string): string {
-  // Including the advertised sign-in path in the identity prevents an
-  // untrusted authentication problem from redirecting to an arbitrary path.
   return JSON.stringify([status, type, signInPath ?? null]);
 }
 
+/** Applies exact-status, status-class, then unexpected-response fallback policy. */
 function mapStatusFailure(status: number): SharedStatusFailure {
   const factory =
     STATUS_FAILURES.get(status) ??
@@ -201,6 +229,10 @@ function mapStatusFailure(status: number): SharedStatusFailure {
   return factory(status);
 }
 
+/**
+ * Selects failures safe to retry for idempotent reads: transport, timeout, and
+ * server unavailability.
+ */
 export function isRetryableReadFailure(
   failure: HumanFollowUpFailure | ResolverFollowUpCaseSummaryFailure,
 ): boolean {
@@ -211,6 +243,10 @@ export function isRetryableReadFailure(
   );
 }
 
+/**
+ * Selects failures safe to retry while acquiring CSRF state.
+ * Timeouts are deliberately excluded to keep claim setup latency bounded.
+ */
 export function isRetryableClaimSetupFailure(
   failure: HumanFollowUpClaimFailure,
 ): boolean {

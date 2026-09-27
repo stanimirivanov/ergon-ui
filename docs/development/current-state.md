@@ -35,7 +35,8 @@ animation, requester app, or native app.
   evidence-boundary validation, neutral absence handling, plain-text
   observation rendering, and an explicit failed-execution and exhausted-retry
   handoff explanation;
-- strict TypeScript, ESLint project boundaries, Prettier, Vitest, and Playwright;
+- strict TypeScript, source-owned TSDoc for non-obvious public contracts,
+  ESLint project boundaries, Prettier, Vitest, and Playwright;
 - explicit follow-up domain and application packages with capability-specific
   ports and verified Nx project metadata;
 - a follow-up web infrastructure package with separated wire contracts, read
