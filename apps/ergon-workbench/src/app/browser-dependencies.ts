@@ -14,7 +14,7 @@ const humanFollowUpAdapter = createHumanFollowUpBffAdapter({
  * CSRF state has the same lifetime as the workbench store.
  */
 export const browserDependencies: WorkbenchDependencies = {
-  currentActorClient: createCurrentActorClient({
+  resolveCurrentActor: createCurrentActorClient({
     fetch: globalThis.fetch,
   }),
   listOpenHumanFollowUps: humanFollowUpAdapter,

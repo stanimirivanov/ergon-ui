@@ -355,9 +355,15 @@ importers:
       '@ergon/application-follow-up':
         specifier: workspace:*
         version: link:../../packages/application/follow-up
+      '@ergon/application-session':
+        specifier: workspace:*
+        version: link:../../packages/application/session
       '@ergon/domain-follow-up':
         specifier: workspace:*
         version: link:../../packages/domain/follow-up
+      '@ergon/domain-session':
+        specifier: workspace:*
+        version: link:../../packages/domain/session
       '@ergon/infrastructure-follow-up-web':
         specifier: workspace:*
         version: link:../../packages/infrastructure/follow-up-web
@@ -382,7 +388,15 @@ importers:
         specifier: workspace:*
         version: link:../../domain/follow-up
 
+  packages/application/session:
+    dependencies:
+      '@ergon/domain-session':
+        specifier: workspace:*
+        version: link:../../domain/session
+
   packages/domain/follow-up: {}
+
+  packages/domain/session: {}
 
   packages/infrastructure/follow-up-web:
     dependencies:

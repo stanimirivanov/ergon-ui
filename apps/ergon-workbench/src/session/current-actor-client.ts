@@ -1,3 +1,9 @@
+import type {
+  CurrentActorFailure,
+  CurrentActorResult,
+  ResolveCurrentActor,
+} from '@ergon/application-session';
+import type { CurrentActor } from '@ergon/domain-session';
 import { Effect, Either, Schema } from 'effect';
 
 const utcInstant = Schema.String.pipe(
@@ -21,61 +27,6 @@ const problemDetailSchema = Schema.Struct({
 });
 
 const BROWSER_SIGN_IN_PATH = '/bff/login' as const;
-
-/**
- * Server-verified actor bound to the current confidential browser session.
- *
- * The value contains no provider subject or credential. Identifiers and UTC
- * timestamp wire formats are schema-validated before this projection is
- * constructed; `registeredAt` is the actor-binding time and `recordedAt` its
- * persistence time.
- */
-export interface CurrentActor {
-  readonly actorId: string;
-  readonly identityProvider: string;
-  readonly registeredAt: string;
-  readonly recordedAt: string;
-}
-
-/**
- * Presentation-safe current-session failure.
- *
- * Only the canonical local sign-in path may accompany
- * `authentication-required`. Raw browser and network causes are deliberately
- * omitted so the value can enter RTK Query state without disclosing transport
- * details.
- */
-export type CurrentActorFailure =
-  | {
-      readonly kind: 'authentication-required';
-      readonly signInPath: typeof BROWSER_SIGN_IN_PATH;
-    }
-  | { readonly kind: 'authentication-unavailable' }
-  | { readonly kind: 'actor-not-registered' }
-  | { readonly kind: 'identity-rejected' }
-  | { readonly kind: 'forbidden' }
-  | { readonly kind: 'timeout' }
-  | { readonly kind: 'transport' }
-  | { readonly kind: 'service-unavailable'; readonly status: number }
-  | { readonly kind: 'unexpected-response'; readonly status: number }
-  | { readonly kind: 'invalid-response' }
-  | { readonly kind: 'request-cancelled' };
-
-/** Verified session actor or an explicit recoverable failure. */
-export type CurrentActorResult =
-  | { readonly ok: true; readonly actor: CurrentActor }
-  | { readonly ok: false; readonly error: CurrentActorFailure };
-
-/**
- * Resolves the actor authorized for a tenant-scoped browser request.
- *
- * The tenant identifier selects request context and does not confer authority.
- * Implementations honor caller cancellation and return a typed result rather
- * than exposing Effect or transport failures.
- */
-export interface CurrentActorClient {
-  resolve(tenantId: string, signal: AbortSignal): Promise<CurrentActorResult>;
-}
 
 interface CurrentActorClientOptions {
   /** Fetch-compatible transport used for same-origin credentialed requests. */
@@ -102,7 +53,7 @@ const REQUEST_CANCELLED: CurrentActorFailure = { kind: 'request-cancelled' };
 export function createCurrentActorClient({
   fetch,
   requestTimeout = 5_000,
-}: CurrentActorClientOptions): CurrentActorClient {
+}: CurrentActorClientOptions): ResolveCurrentActor {
   return {
     async resolve(tenantId, signal) {
       const program = requestCurrentActor(fetch, tenantId).pipe(
@@ -198,10 +149,7 @@ function mapHttpFailure(
     problem?.type === 'urn:ergon:problem:browser-authentication-required' &&
     problem.signInPath === BROWSER_SIGN_IN_PATH
   ) {
-    return {
-      kind: 'authentication-required',
-      signInPath: BROWSER_SIGN_IN_PATH,
-    };
+    return { kind: 'authentication-required' };
   }
   if (
     status === 403 &&

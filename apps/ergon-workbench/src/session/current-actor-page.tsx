@@ -1,4 +1,5 @@
 import { Button } from '@ergon/ui-web';
+import type { CurrentActorFailure } from '@ergon/application-session';
 import { Schema } from 'effect';
 import { useParams } from 'react-router';
 
@@ -7,7 +8,6 @@ import { HumanFollowUpInbox } from '../follow-up/human-follow-up-inbox';
 import { ResolverOwnedHumanFollowUps } from '../follow-up/resolver-owned-human-follow-ups';
 import { browserSignInHref } from './browser-session-navigation';
 import { useCurrentActorQuery } from './current-actor-api';
-import type { CurrentActorFailure } from './current-actor-client';
 
 const tenantIdSchema = Schema.UUID;
 
@@ -167,9 +167,6 @@ function normalizeFailure(error: unknown): CurrentActorFailure {
   ) {
     switch (error.kind) {
       case 'authentication-required':
-        return 'signInPath' in error && error.signInPath === '/bff/login'
-          ? { kind: error.kind, signInPath: error.signInPath }
-          : { kind: 'invalid-response' };
       case 'authentication-unavailable':
       case 'actor-not-registered':
       case 'identity-rejected':

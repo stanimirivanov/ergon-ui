@@ -1,10 +1,10 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import type {
-  CurrentActor,
-  CurrentActorClient,
   CurrentActorFailure,
-} from './current-actor-client';
+  ResolveCurrentActor,
+} from '@ergon/application-session';
+import type { CurrentActor } from '@ergon/domain-session';
 
 /** Tenant route context used as the current-actor cache key, not as authority. */
 export interface CurrentActorQuery {
@@ -21,8 +21,8 @@ export const currentActorApi = createApi({
   endpoints: (build) => ({
     currentActor: build.query<CurrentActor, CurrentActorQuery>({
       async queryFn({ tenantId }, queryApi) {
-        const client = currentActorClientFrom(queryApi.extra);
-        const result = await client.resolve(tenantId, queryApi.signal);
+        const resolver = currentActorResolverFrom(queryApi.extra);
+        const result = await resolver.resolve(tenantId, queryApi.signal);
         return result.ok ? { data: result.actor } : { error: result.error };
       },
     }),
@@ -31,19 +31,19 @@ export const currentActorApi = createApi({
 
 export const { useCurrentActorQuery } = currentActorApi;
 
-function currentActorClientFrom(extra: unknown): CurrentActorClient {
+function currentActorResolverFrom(extra: unknown): ResolveCurrentActor {
   if (
     typeof extra === 'object' &&
     extra !== null &&
-    'currentActorClient' in extra &&
-    isCurrentActorClient(extra.currentActorClient)
+    'resolveCurrentActor' in extra &&
+    isCurrentActorResolver(extra.resolveCurrentActor)
   ) {
-    return extra.currentActorClient;
+    return extra.resolveCurrentActor;
   }
-  throw new Error('Current actor client is not configured');
+  throw new Error('Current actor resolver is not configured');
 }
 
-function isCurrentActorClient(value: unknown): value is CurrentActorClient {
+function isCurrentActorResolver(value: unknown): value is ResolveCurrentActor {
   return (
     typeof value === 'object' &&
     value !== null &&

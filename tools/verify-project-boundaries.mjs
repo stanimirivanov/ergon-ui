@@ -25,6 +25,7 @@ const ALLOWED_PLATFORMS = new Set([
 ]);
 const ALLOWED_SCOPES = new Set([
   'scope:follow-up',
+  'scope:session',
   'scope:shared',
   'scope:workbench',
 ]);

@@ -37,6 +37,8 @@ animation, requester app, or native app.
   handoff explanation;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
+- explicit session domain and application packages with a cancellation-aware
+  current-actor resolution port;
 - explicit follow-up domain and application packages with capability-specific
   ports and verified Nx project metadata;
 - a follow-up web infrastructure package with separated wire contracts, read
@@ -55,8 +57,9 @@ animation, requester app, or native app.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.
-- RTK Query endpoints and follow-up React features still reside in the
-  workbench application pending separate boundary extractions.
+- RTK Query endpoints, the session HTTP/Effect adapter, and follow-up React
+  features still reside in the workbench application pending separate boundary
+  extractions.
 
 The next resolver slice should add an explicit ownership lifecycle operation
 after a reviewed browser contract exists. Existing `/internal/v1` routes remain

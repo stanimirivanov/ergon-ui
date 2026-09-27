@@ -6,12 +6,12 @@ import type {
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
 } from '@ergon/application-follow-up';
+import type { ResolveCurrentActor } from '@ergon/application-session';
 import { Provider } from 'react-redux';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createWorkbenchStore } from '../app/store';
-import type { CurrentActorClient } from '../session/current-actor-client';
 import { HumanFollowUpInbox } from './human-follow-up-inbox';
 
 const TENANT_ID = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
@@ -236,7 +236,7 @@ function renderInbox(path: string, adapter: HumanFollowUpTestAdapter) {
     { initialEntries: [path] },
   );
   const store = createWorkbenchStore({
-    currentActorClient: unusedCurrentActorClient,
+    resolveCurrentActor: unusedCurrentActorResolver,
     ...followUpDependencies(adapter),
   });
   const rendered = render(
@@ -311,7 +311,7 @@ const unusedGetOwnedCaseSummary: GetOwnedFollowUpCaseSummary['getOwnedCaseSummar
     throw new Error('Case context is not used by this test');
   };
 
-const unusedCurrentActorClient: CurrentActorClient = {
+const unusedCurrentActorResolver: ResolveCurrentActor = {
   async resolve() {
     throw new Error('Current actor resolution is not used by this test');
   },
