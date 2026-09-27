@@ -27,8 +27,9 @@ pnpm nx e2e @ergon/workbench-e2e
   capability-specific ports through `@ergon/application-follow-up`.
 - Depend on the verified actor through `@ergon/domain-session` and on session
   resolution through `@ergon/application-session`.
-- Bind session HTTP through `@ergon/infrastructure-session-web`; do not recreate
-  its wire decoding or execution policy in the composition root.
+- Bind session HTTP and remote caching through
+  `@ergon/infrastructure-session-web`; do not recreate its wire decoding,
+  execution policy, or RTK Query API in the composition root.
 - Bind the confidential-BFF implementation from
   `@ergon/infrastructure-follow-up-web`; do not recreate protocol handling in
   the composition root.
@@ -45,8 +46,9 @@ that will leave this application in separate behavior-preserving changes.
 
 The composition root binds `@ergon/infrastructure-session-web` to the
 `ResolveCurrentActor` application port. The adapter owns session HTTP, wire
-decoding, failure classification, timeout, retry, and cancellation semantics;
-RTK Query remains the remote-cache owner.
+decoding, failure classification, timeout, retry, cancellation semantics, and
+the current-actor RTK Query API. The workbench only registers that API during
+store composition and renders its generated hook.
 
 `/tenants/{tenantId}` resolves the control-plane BFF session contract. RTK Query
 owns request state and caching; Effect owns HTTP, timeout, bounded transient

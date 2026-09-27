@@ -44,7 +44,8 @@ animation, requester app, or native app.
 - a follow-up web infrastructure package with separated wire contracts, read
   execution, claim/CSRF execution, and protocol failure translation;
 - a session web infrastructure package with separated wire decoding, failure
-  classification, read execution, and cancellation normalization;
+  classification, read execution, cancellation normalization, and tenant-keyed
+  RTK Query integration;
 - GitHub verification workflow and contributor harness; and
 - accepted workbench/requester topology decision.
 
@@ -59,7 +60,7 @@ animation, requester app, or native app.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.
-- RTK Query endpoints and follow-up React features still reside in the
+- The follow-up RTK Query endpoint and React features still reside in the
   workbench application pending separate boundary extractions.
 
 The next resolver slice should add an explicit ownership lifecycle operation

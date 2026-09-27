@@ -12,8 +12,21 @@ export interface CurrentActorQuery {
 }
 
 /**
- * Owns current-actor remote cache state and bridges RTK Query cancellation to
- * the injected session client.
+ * Thunk-extra contract required by the current-actor cache adapter.
+ *
+ * The resolver is an executable dependency and must never be placed in Redux
+ * state. Composition roots supply it when configuring the store.
+ */
+export interface CurrentActorCacheDependencies {
+  readonly resolveCurrentActor: ResolveCurrentActor;
+}
+
+/**
+ * Owns current-actor remote cache identity and request lifecycle.
+ *
+ * Cache entries are isolated by the complete tenant query. RTK Query owns
+ * deduplication and passes cancellation to the injected application port; the
+ * tenant key remains navigation context and never confers authority.
  */
 export const currentActorApi = createApi({
   reducerPath: 'currentActorApi',
