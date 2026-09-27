@@ -367,6 +367,9 @@ importers:
       '@ergon/infrastructure-follow-up-web':
         specifier: workspace:*
         version: link:../../packages/infrastructure/follow-up-web
+      '@ergon/infrastructure-session-web':
+        specifier: workspace:*
+        version: link:../../packages/infrastructure/session-web
       '@ergon/ui-web':
         specifier: workspace:*
         version: link:../../packages/ui-web
@@ -406,6 +409,18 @@ importers:
       '@ergon/domain-follow-up':
         specifier: workspace:*
         version: link:../../domain/follow-up
+      effect:
+        specifier: 3.22.2
+        version: 3.22.2
+
+  packages/infrastructure/session-web:
+    dependencies:
+      '@ergon/application-session':
+        specifier: workspace:*
+        version: link:../../application/session
+      '@ergon/domain-session':
+        specifier: workspace:*
+        version: link:../../domain/session
       effect:
         specifier: 3.22.2
         version: 3.22.2

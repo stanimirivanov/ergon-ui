@@ -51,6 +51,9 @@ current workbench boundaries are:
   -> @ergon/application-follow-up
       -> @ergon/domain-follow-up
   -> @ergon/domain-follow-up
+  -> @ergon/infrastructure-session-web
+      -> @ergon/application-session
+          -> @ergon/domain-session
   -> @ergon/application-session
       -> @ergon/domain-session
   -> @ergon/domain-session
@@ -64,11 +67,11 @@ failure translation, retry and timeout policy, and the ephemeral CSRF lifecycle.
 RTK Query integration and the inbound React adapter remain in the workbench for
 separate behavior-preserving extractions; empty placeholders are prohibited.
 
-The workbench also consumes `ResolveCurrentActor` from
-`@ergon/application-session` and the verified actor model from
-`@ergon/domain-session`. Its existing HTTP/Effect implementation and RTK Query
-integration remain app-local until a separate session infrastructure
-extraction.
+The workbench binds `@ergon/infrastructure-session-web` to the
+`ResolveCurrentActor` port from `@ergon/application-session`. The infrastructure
+package owns session wire schemas, Effect execution, failure translation,
+retry, timeout, and cancellation policy. The verified actor remains owned by
+`@ergon/domain-session`; RTK Query integration remains in the workbench.
 
 The current application package exposes capability-specific consumed ports and
 outcomes. As application policy is extracted, it must enter through explicit

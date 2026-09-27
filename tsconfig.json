@@ -26,6 +26,9 @@
     },
     {
       "path": "./packages/domain/session"
+    },
+    {
+      "path": "./packages/infrastructure/session-web"
     }
   ],
   "compilerOptions": {}
