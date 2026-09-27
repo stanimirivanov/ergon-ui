@@ -68,7 +68,7 @@ apps/
 packages/
   domain/follow-up/             Platform-neutral follow-up models
   application/follow-up/        Follow-up ports and outcomes
-  infrastructure/follow-up-web/ Confidential-BFF web adapter
+  infrastructure/follow-up-web/ Confidential-BFF adapter and remote cache
   ui-web/                       DOM and Tailwind-specific UI source
 docs/
   decisions/             Durable UI architecture decisions

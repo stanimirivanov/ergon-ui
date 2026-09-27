@@ -4,11 +4,11 @@ import type {
   ResolverOwnedHumanFollowUpQuery,
 } from '@ergon/application-follow-up';
 import type { ResolverOwnedHumanFollowUpWork } from '@ergon/domain-follow-up';
+import { useResolverOwnedHumanFollowUpsQuery } from '@ergon/infrastructure-follow-up-web';
 import { Button } from '@ergon/ui-web';
 import { useState } from 'react';
 
 import { browserSignInHref } from '../session/browser-session-navigation';
-import { useResolverOwnedHumanFollowUpsQuery } from './human-follow-up-api';
 import { ResolverFollowUpCaseSummary } from './resolver-follow-up-case-summary';
 
 const PAGE_SIZE = 25;

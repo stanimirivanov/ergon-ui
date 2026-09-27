@@ -5,15 +5,15 @@ import type {
   HumanFollowUpQuery,
 } from '@ergon/application-follow-up';
 import type { HumanFollowUpWorkItem } from '@ergon/domain-follow-up';
+import {
+  useClaimHumanFollowUpMutation,
+  useHumanFollowUpsQuery,
+} from '@ergon/infrastructure-follow-up-web';
 import { Button } from '@ergon/ui-web';
 import { useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { browserSignInHref } from '../session/browser-session-navigation';
-import {
-  useClaimHumanFollowUpMutation,
-  useHumanFollowUpsQuery,
-} from './human-follow-up-api';
 
 const PAGE_SIZE = 25;
 const QUEUE_KEY_PATTERN = /^[a-z][a-z0-9-]{0,62}$/;

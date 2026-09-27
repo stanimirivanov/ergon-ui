@@ -21,6 +21,19 @@ import type {
 } from '@ergon/domain-follow-up';
 
 /**
+ * Thunk-extra contract required by the follow-up cache adapter.
+ *
+ * These ports are executable dependencies and must never be placed in Redux
+ * state. Composition roots supply them when configuring the store.
+ */
+export interface HumanFollowUpCacheDependencies {
+  readonly listOpenHumanFollowUps: ListOpenHumanFollowUps;
+  readonly listOwnedHumanFollowUps: ListOwnedHumanFollowUps;
+  readonly getOwnedFollowUpCaseSummary: GetOwnedFollowUpCaseSummary;
+  readonly claimHumanFollowUp: ClaimHumanFollowUp;
+}
+
+/**
  * Owns follow-up server cache state for the resolver workbench.
  *
  * Query functions delegate to injected application ports and forward RTK

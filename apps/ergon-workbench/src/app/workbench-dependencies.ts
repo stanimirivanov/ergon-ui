@@ -1,9 +1,4 @@
-import type {
-  ClaimHumanFollowUp,
-  GetOwnedFollowUpCaseSummary,
-  ListOpenHumanFollowUps,
-  ListOwnedHumanFollowUps,
-} from '@ergon/application-follow-up';
+import type { HumanFollowUpCacheDependencies } from '@ergon/infrastructure-follow-up-web';
 import type { CurrentActorCacheDependencies } from '@ergon/infrastructure-session-web';
 
 /**
@@ -13,9 +8,5 @@ import type { CurrentActorCacheDependencies } from '@ergon/infrastructure-sessio
  * Separate ports keep consumers scoped to one use case even when one concrete
  * infrastructure adapter implements several of them.
  */
-export interface WorkbenchDependencies extends CurrentActorCacheDependencies {
-  readonly listOpenHumanFollowUps: ListOpenHumanFollowUps;
-  readonly listOwnedHumanFollowUps: ListOwnedHumanFollowUps;
-  readonly getOwnedFollowUpCaseSummary: GetOwnedFollowUpCaseSummary;
-  readonly claimHumanFollowUp: ClaimHumanFollowUp;
-}
+export interface WorkbenchDependencies
+  extends CurrentActorCacheDependencies, HumanFollowUpCacheDependencies {}

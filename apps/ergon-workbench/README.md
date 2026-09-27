@@ -31,8 +31,8 @@ pnpm nx e2e @ergon/workbench-e2e
   `@ergon/infrastructure-session-web`; do not recreate its wire decoding,
   execution policy, or RTK Query API in the composition root.
 - Bind the confidential-BFF implementation from
-  `@ergon/infrastructure-follow-up-web`; do not recreate protocol handling in
-  the composition root.
+  `@ergon/infrastructure-follow-up-web`; do not recreate protocol or remote
+  cache handling in the composition root.
 - Keep reusable DOM primitives in `@ergon/ui-web`.
 - Keep API execution outside presentational components.
 - Do not consume `/internal/v1` as a production browser contract.
@@ -40,9 +40,10 @@ pnpm nx e2e @ergon/workbench-e2e
 
 The composition root binds `@ergon/infrastructure-follow-up-web` to four
 separate follow-up ports: open-work listing, owned-work listing, owned
-case-context loading, and claiming. Consumers receive only the port they use.
-RTK Query integration and the inbound React feature remain migration boundaries
-that will leave this application in separate behavior-preserving changes.
+case-context loading, and claiming. The infrastructure package owns the
+follow-up RTK Query API; the workbench registers its reducer and middleware and
+renders its generated hooks. The inbound React feature remains a migration
+boundary for a separate behavior-preserving change.
 
 The composition root binds `@ergon/infrastructure-session-web` to the
 `ResolveCurrentActor` application port. The adapter owns session HTTP, wire

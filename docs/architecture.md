@@ -63,9 +63,11 @@ current workbench boundaries are:
 The workbench remains the composition root and binds the confidential-BFF
 adapter from `@ergon/infrastructure-follow-up-web` to four separate application
 ports. That infrastructure package owns browser wire schemas, Effect execution,
-failure translation, retry and timeout policy, and the ephemeral CSRF lifecycle.
-RTK Query integration and the inbound React adapter remain in the workbench for
-separate behavior-preserving extractions; empty placeholders are prohibited.
+failure translation, retry and timeout policy, the ephemeral CSRF lifecycle,
+and the follow-up RTK Query API. The workbench registers the API reducer and
+middleware during store composition. The inbound React adapter remains in the
+workbench for a separate behavior-preserving extraction; empty placeholders are
+prohibited.
 
 The workbench binds `@ergon/infrastructure-session-web` to the
 `ResolveCurrentActor` port from `@ergon/application-session`. The infrastructure
