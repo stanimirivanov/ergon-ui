@@ -4,6 +4,12 @@ import { humanFollowUpApi } from '../follow-up/human-follow-up-api';
 import { currentActorApi } from '../session/current-actor-api';
 import type { WorkbenchDependencies } from './workbench-dependencies';
 
+/**
+ * Creates an isolated workbench store with injected application capabilities.
+ *
+ * Remote resources remain owned by the RTK Query APIs. Dependencies are passed
+ * through the thunk extra argument and are not stored in serializable state.
+ */
 export function createWorkbenchStore(dependencies: WorkbenchDependencies) {
   return configureStore({
     reducer: {

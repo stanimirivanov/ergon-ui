@@ -4,6 +4,7 @@ import type { ButtonHTMLAttributes } from 'react';
 
 import { cn } from '../lib/utils';
 
+/** Semantic button style recipe shared by native and slotted controls. */
 const buttonVariants = cva(
   'inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas disabled:pointer-events-none disabled:opacity-50',
   {
@@ -28,9 +29,22 @@ const buttonVariants = cva(
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
+    /**
+     * Delegates rendering and merged props to the single child instead of
+     * creating a `<button>`. The caller then owns correct interactive semantics,
+     * accessible naming, keyboard behavior, and disabled-state handling.
+     */
     asChild?: boolean;
   };
 
+/**
+ * Renders the shared web button primitive with visible focus and minimum
+ * target sizing.
+ *
+ * Native-button attributes and semantics apply by default. With `asChild`, the
+ * component supplies styling and behavior through Radix Slot while the child
+ * owns its final element semantics.
+ */
 function Button({
   asChild = false,
   className,

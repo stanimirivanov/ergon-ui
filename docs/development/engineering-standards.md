@@ -51,11 +51,26 @@ Avoid `any`, non-null assertions, unsafe casts, numeric enums, mutable exports,
 barrel files that hide cycles, and boolean combinations that permit impossible
 states.
 
-Exported APIs receive TSDoc when callers need non-obvious purpose, invariants,
-constraints, side effects, or error meaning. Examples must clarify usage and
-prefer compiled code or executable tests. Skip comments that repeat the symbol
-name or type. Implementation comments explain protocol, compatibility,
-security, accessibility, concurrency, or performance reasons.
+Supported public APIs receive TSDoc at the declaration that owns the contract
+when callers need non-obvious purpose, invariants, constraints, ownership,
+lifetime, side effects, concurrency, or error meaning. Package entry points
+and architectural boundaries determine public API; module-local exports and
+re-export barrels do not need duplicate prose.
+
+Document units, ordering, nullable meaning, related-field invariants, trust and
+authority assumptions, and failure or cancellation behavior where applicable.
+Ports and asynchronous adapters also describe timeout, retry, idempotency, and
+resource-lifetime policy. React APIs describe non-obvious state ownership,
+cleanup, semantic HTML, and accessibility obligations.
+
+`@param` and `@returns` add constraints rather than repeating signatures.
+`@throws` names only exceptions or rejections that escape the API; typed error
+results are documented as outcomes. Examples must clarify genuinely ambiguous
+usage and should live in executable tests or typechecked source. Skip comments
+that repeat the symbol name or type, and improve unclear APIs before explaining
+them with long prose. Implementation comments explain protocol,
+compatibility, security, accessibility, concurrency, or performance reasons.
+Documentation quality is reviewed semantically; no coverage quota applies.
 
 ## React and routing
 

@@ -1,3 +1,16 @@
+/**
+ * Evidence snapshot authorized for the resolver who owns a follow-up.
+ *
+ * The snapshot binds one open case, escalated resolution run, failed connector
+ * execution, and retry-exhaustion event. Its resolution contract matches the
+ * run contract; the run's evidence version does not exceed the case stream;
+ * observations are strictly stream-version ordered within that boundary; and
+ * the escalation attempt matches the run attempt and has reached the configured
+ * maximum. All time values are validated UTC instants.
+ *
+ * The value contains case evidence and must not be persisted in browser
+ * storage, URLs, logs, or analytics.
+ */
 export interface ResolverFollowUpCaseSummary {
   readonly followUp: {
     readonly workItemId: string;
@@ -16,6 +29,7 @@ export interface ResolverFollowUpCaseSummary {
       readonly revision: number;
     };
   };
+  /** Evidence in strictly increasing stream-version order. */
   readonly observations: readonly {
     readonly streamVersion: number;
     readonly eventType: string;
@@ -30,6 +44,7 @@ export interface ResolverFollowUpCaseSummary {
   }[];
   readonly resolutionRun: {
     readonly runId: string;
+    /** Highest case stream version visible to this resolution attempt. */
     readonly caseEvidenceStreamVersion: number;
     readonly contractKey: string;
     readonly contractRevision: number;
@@ -53,6 +68,7 @@ export interface ResolverFollowUpCaseSummary {
   };
   readonly escalation: {
     readonly retryPolicyRevision: string;
+    /** Attempt that failed and caused this human handoff. */
     readonly sourceAttemptNumber: number;
     readonly maximumAttempts: number;
     readonly occurredAt: string;

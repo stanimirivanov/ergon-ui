@@ -1,3 +1,12 @@
+/**
+ * Presentation-safe failures shared by follow-up read operations.
+ *
+ * Authentication and identity variants distinguish recovery paths without
+ * exposing provider credentials. `invalid-filter` and `invalid-page` identify
+ * rejected request contracts. `invalid-response` means the response could not
+ * be trusted after transport succeeded. Status-bearing variants preserve only
+ * the HTTP status; raw browser and network causes are deliberately excluded.
+ */
 export type HumanFollowUpFailure =
   | { readonly kind: 'authentication-required' }
   | { readonly kind: 'authentication-unavailable' }
@@ -13,9 +22,23 @@ export type HumanFollowUpFailure =
   | { readonly kind: 'invalid-response' }
   | { readonly kind: 'request-cancelled' };
 
+/**
+ * Case-summary read failure.
+ *
+ * `not-found` intentionally combines absence, stale ownership, and
+ * non-disclosing authorization outcomes exposed by the browser contract.
+ */
 export type ResolverFollowUpCaseSummaryFailure =
   HumanFollowUpFailure | { readonly kind: 'not-found' };
 
+/**
+ * Failures specific to acquiring resolver ownership.
+ *
+ * `csrf-rejected` requires obtaining a fresh ephemeral token;
+ * `already-claimed` is a competing ownership result; and `not-found` covers a
+ * stale or no-longer-visible item. Raw browser and network causes are omitted
+ * so results remain safe for presentation and Redux state.
+ */
 export type HumanFollowUpClaimFailure =
   | { readonly kind: 'authentication-required' }
   | { readonly kind: 'authentication-unavailable' }

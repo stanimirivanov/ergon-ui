@@ -11,6 +11,11 @@ import type { CurrentActorFailure } from './current-actor-client';
 
 const tenantIdSchema = Schema.UUID;
 
+/**
+ * Resolves the tenant route into a fail-closed authenticated workbench.
+ * Invalid tenant identifiers cause no session request, and follow-up data is
+ * mounted only after the BFF returns a verified actor.
+ */
 export function CurrentActorPage() {
   const tenantId = decodeTenantId(useParams().tenantId);
 

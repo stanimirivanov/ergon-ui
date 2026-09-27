@@ -22,6 +22,14 @@ const problemDetailSchema = Schema.Struct({
 
 const BROWSER_SIGN_IN_PATH = '/bff/login' as const;
 
+/**
+ * Server-verified actor bound to the current confidential browser session.
+ *
+ * The value contains no provider subject or credential. Identifiers and UTC
+ * timestamp wire formats are schema-validated before this projection is
+ * constructed; `registeredAt` is the actor-binding time and `recordedAt` its
+ * persistence time.
+ */
 export interface CurrentActor {
   readonly actorId: string;
   readonly identityProvider: string;
@@ -29,6 +37,14 @@ export interface CurrentActor {
   readonly recordedAt: string;
 }
 
+/**
+ * Presentation-safe current-session failure.
+ *
+ * Only the canonical local sign-in path may accompany
+ * `authentication-required`. Raw browser and network causes are deliberately
+ * omitted so the value can enter RTK Query state without disclosing transport
+ * details.
+ */
 export type CurrentActorFailure =
   | {
       readonly kind: 'authentication-required';
@@ -45,16 +61,26 @@ export type CurrentActorFailure =
   | { readonly kind: 'invalid-response' }
   | { readonly kind: 'request-cancelled' };
 
+/** Verified session actor or an explicit recoverable failure. */
 export type CurrentActorResult =
   | { readonly ok: true; readonly actor: CurrentActor }
   | { readonly ok: false; readonly error: CurrentActorFailure };
 
+/**
+ * Resolves the actor authorized for a tenant-scoped browser request.
+ *
+ * The tenant identifier selects request context and does not confer authority.
+ * Implementations honor caller cancellation and return a typed result rather
+ * than exposing Effect or transport failures.
+ */
 export interface CurrentActorClient {
   resolve(tenantId: string, signal: AbortSignal): Promise<CurrentActorResult>;
 }
 
 interface CurrentActorClientOptions {
+  /** Fetch-compatible transport used for same-origin credentialed requests. */
   readonly fetch: typeof globalThis.fetch;
+  /** Timeout in milliseconds for each session request; defaults to 5,000. */
   readonly requestTimeout?: number;
 }
 
@@ -69,6 +95,9 @@ const REQUEST_CANCELLED: CurrentActorFailure = { kind: 'request-cancelled' };
  * bounded retry for transient failures, timeout enforcement, and schema
  * decoding as an Effect program. Its promise result is deliberately
  * serializable for RTK Query and contains no provider credentials.
+ *
+ * @returns A stateless client; each resolution uses the supplied browser
+ * session and abort signal.
  */
 export function createCurrentActorClient({
   fetch,
