@@ -13,6 +13,7 @@
     "@ergon/domain-follow-up": "workspace:*",
     "@ergon/domain-session": "workspace:*",
     "@ergon/infrastructure-follow-up-web": "workspace:*",
+    "@ergon/infrastructure-session-web": "workspace:*",
     "@ergon/ui-web": "workspace:*",
     "@reduxjs/toolkit": "2.12.0",
     "effect": "3.22.2",

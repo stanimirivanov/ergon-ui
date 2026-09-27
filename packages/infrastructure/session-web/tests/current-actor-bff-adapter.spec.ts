@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
-import { createCurrentActorClient } from './current-actor-client';
+import { createCurrentActorBffAdapter } from '../src';
 
 const TENANT_ID = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
 const ACTOR_ID = '741bcdba-9521-4e96-bfcc-7a5a2830eec8';
 
-describe('current actor client', () => {
+describe('current actor BFF adapter', () => {
+  it('rejects a non-positive request timeout at construction', () => {
+    expect(() =>
+      createCurrentActorBffAdapter({ fetch, requestTimeout: 0 }),
+    ).toThrow(RangeError);
+  });
+
   it('sends the same-origin session cookie and decodes a valid actor', async () => {
     let requestedUrl: string | undefined;
     let credentials: unknown;
@@ -24,7 +30,7 @@ describe('current actor client', () => {
       });
     }
 
-    const client = createCurrentActorClient({
+    const client = createCurrentActorBffAdapter({
       fetch: fetchStub,
     });
 
@@ -60,7 +66,7 @@ describe('current actor client', () => {
       );
     }
 
-    const client = createCurrentActorClient({
+    const client = createCurrentActorBffAdapter({
       fetch: fetchStub,
     });
 
@@ -89,7 +95,7 @@ describe('current actor client', () => {
       );
     }
 
-    const client = createCurrentActorClient({ fetch: fetchStub });
+    const client = createCurrentActorBffAdapter({ fetch: fetchStub });
 
     const result = await client.resolve(
       TENANT_ID,
@@ -117,7 +123,7 @@ describe('current actor client', () => {
       );
     }
 
-    const client = createCurrentActorClient({ fetch: fetchStub });
+    const client = createCurrentActorBffAdapter({ fetch: fetchStub });
 
     const result = await client.resolve(
       TENANT_ID,
@@ -144,7 +150,7 @@ describe('current actor client', () => {
       );
     }
 
-    const client = createCurrentActorClient({
+    const client = createCurrentActorBffAdapter({
       fetch: fetchStub,
     });
 
@@ -164,7 +170,7 @@ describe('current actor client', () => {
       return jsonResponse({ actorId: 'not-a-uuid' });
     }
 
-    const client = createCurrentActorClient({
+    const client = createCurrentActorBffAdapter({
       fetch: fetchStub,
     });
 
@@ -202,7 +208,7 @@ describe('current actor client', () => {
       });
     }
 
-    const client = createCurrentActorClient({
+    const client = createCurrentActorBffAdapter({
       fetch: fetchStub,
     });
 
@@ -229,7 +235,7 @@ describe('current actor client', () => {
       });
     }
 
-    const client = createCurrentActorClient({
+    const client = createCurrentActorBffAdapter({
       fetch: fetchStub,
       requestTimeout: 5,
     });
@@ -242,9 +248,41 @@ describe('current actor client', () => {
     expect(result).toEqual({ ok: false, error: { kind: 'timeout' } });
     expect(requestCount).toBe(2);
   });
+
+  it('normalizes caller cancellation without retrying the read', async () => {
+    let requestCount = 0;
+    let notifyRequestStarted: () => void = () => undefined;
+    const requestStarted = new Promise<void>((resolve) => {
+      notifyRequestStarted = resolve;
+    });
+    function fetchStub(
+      _input: Parameters<typeof fetch>[0],
+      init?: Parameters<typeof fetch>[1],
+    ): Promise<Response> {
+      requestCount += 1;
+      notifyRequestStarted();
+      return new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () =>
+          reject(new DOMException('Aborted', 'AbortError')),
+        );
+      });
+    }
+    const adapter = createCurrentActorBffAdapter({ fetch: fetchStub });
+    const controller = new AbortController();
+
+    const resultPromise = adapter.resolve(TENANT_ID, controller.signal);
+    await requestStarted;
+    controller.abort();
+
+    await expect(resultPromise).resolves.toEqual({
+      ok: false,
+      error: { kind: 'request-cancelled' },
+    });
+    expect(requestCount).toBe(1);
+  });
 });
 
-function jsonResponse(body: unknown, status = 200) {
+function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { 'Content-Type': 'application/json' },
