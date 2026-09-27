@@ -15,7 +15,10 @@
   "dependencies": {
     "@ergon/application-session": "workspace:*",
     "@ergon/domain-session": "workspace:*",
-    "effect": "3.22.2"
+    "@reduxjs/toolkit": "2.12.0",
+    "effect": "3.22.2",
+    "react": "19.3.0",
+    "react-redux": "9.3.0"
   },
   "nx": {
     "tags": [

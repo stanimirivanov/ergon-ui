@@ -70,8 +70,9 @@ separate behavior-preserving extractions; empty placeholders are prohibited.
 The workbench binds `@ergon/infrastructure-session-web` to the
 `ResolveCurrentActor` port from `@ergon/application-session`. The infrastructure
 package owns session wire schemas, Effect execution, failure translation,
-retry, timeout, and cancellation policy. The verified actor remains owned by
-`@ergon/domain-session`; RTK Query integration remains in the workbench.
+retry, timeout, cancellation policy, and the tenant-keyed RTK Query API. The
+verified actor remains owned by `@ergon/domain-session`; the workbench registers
+the API reducer and middleware as part of store composition.
 
 The current application package exposes capability-specific consumed ports and
 outcomes. As application policy is extracted, it must enter through explicit

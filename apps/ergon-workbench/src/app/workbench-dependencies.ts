@@ -4,7 +4,7 @@ import type {
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
 } from '@ergon/application-follow-up';
-import type { ResolveCurrentActor } from '@ergon/application-session';
+import type { CurrentActorCacheDependencies } from '@ergon/infrastructure-session-web';
 
 /**
  * Capability-level dependencies supplied once by the workbench composition
@@ -13,8 +13,7 @@ import type { ResolveCurrentActor } from '@ergon/application-session';
  * Separate ports keep consumers scoped to one use case even when one concrete
  * infrastructure adapter implements several of them.
  */
-export interface WorkbenchDependencies {
-  readonly resolveCurrentActor: ResolveCurrentActor;
+export interface WorkbenchDependencies extends CurrentActorCacheDependencies {
   readonly listOpenHumanFollowUps: ListOpenHumanFollowUps;
   readonly listOwnedHumanFollowUps: ListOwnedHumanFollowUps;
   readonly getOwnedFollowUpCaseSummary: GetOwnedFollowUpCaseSummary;

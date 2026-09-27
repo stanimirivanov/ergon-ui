@@ -12,20 +12,24 @@ concerns into the inner layers.
 - Browser wire schemas and protocol-to-application failure translation.
 - One bounded retry for classified transient read failures.
 - Per-attempt timeouts and caller-cancellation normalization.
+- Tenant-keyed RTK Query caching, request deduplication, and the generated
+  current-actor React hook.
 
 ## Does not own
 
 - Session domain models or application contracts.
-- RTK Query cache identity, request state, or React hooks.
-- Sign-in navigation, routes, components, or presentation.
+- Redux store assembly or non-session cache integration.
+- Sign-in navigation, routes, feature components, or presentation.
 - OIDC credentials, provider tokens, or server-side session creation.
 
 ## Public API and dependencies
 
-Consumers import only `createCurrentActorBffAdapter` from
-`@ergon/infrastructure-session-web`. The package implements
-`ResolveCurrentActor`, maps validated responses to `CurrentActor`, and exposes
-neither Effect programs nor wire payload types.
+Consumers import only from `@ergon/infrastructure-session-web`. The package
+exposes `createCurrentActorBffAdapter`, `currentActorApi`,
+`useCurrentActorQuery`, and the thunk-extra dependency contract required during
+store composition. It implements `ResolveCurrentActor`, maps validated
+responses to `CurrentActor`, and exposes neither Effect programs nor wire
+payload types.
 
 ## Verification
 

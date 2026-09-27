@@ -1,5 +1,6 @@
 import { Button } from '@ergon/ui-web';
 import type { CurrentActorFailure } from '@ergon/application-session';
+import { useCurrentActorQuery } from '@ergon/infrastructure-session-web';
 import { Schema } from 'effect';
 import { useParams } from 'react-router';
 
@@ -7,7 +8,6 @@ import { WorkbenchFrame } from '../app/workbench-frame';
 import { HumanFollowUpInbox } from '../follow-up/human-follow-up-inbox';
 import { ResolverOwnedHumanFollowUps } from '../follow-up/resolver-owned-human-follow-ups';
 import { browserSignInHref } from './browser-session-navigation';
-import { useCurrentActorQuery } from './current-actor-api';
 
 const tenantIdSchema = Schema.UUID;
 
