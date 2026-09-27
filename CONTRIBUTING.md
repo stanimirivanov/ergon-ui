@@ -139,6 +139,11 @@ future task.
 - Prefer `unknown` at untrusted boundaries, immutable values, exhaustive
   discriminated unions, and explicit nullable meaning. Avoid `any`, non-null
   assertions, type assertions used as validation, and mutable module globals.
+- Supported APIs and non-trivial protocol, schema-decoding, persistence, and
+  asynchronous boundary functions MUST declare return types. The annotation
+  must expose the success, failure, and environment channels of Effect values
+  rather than relying on an inferred implementation type. Small local
+  callbacks and obvious pure helpers MAY rely on inference.
 
 ## TSDoc and comments
 

@@ -10,7 +10,14 @@ import {
 } from './follow-up-wire-schemas';
 import { readJson, readOptionalProblem } from './json-response';
 
-export function decodeCsrfToken(response: Response) {
+/**
+ * Decodes the exact CSRF success contract or a typed claim-setup failure.
+ * The schema fixes the allowed request-header name and requires a non-empty
+ * opaque token.
+ */
+export function decodeCsrfToken(
+  response: Response,
+): Effect.Effect<BrowserCsrfToken, HumanFollowUpClaimFailure, never> {
   if (response.status === 200) {
     return readJson(response).pipe(
       Effect.flatMap(Schema.decodeUnknown(csrfTokenSchema)),
@@ -26,7 +33,14 @@ export function decodeCsrfToken(response: Response) {
   );
 }
 
-export function decodeHumanFollowUpClaim(response: Response) {
+/**
+ * Decodes a created or replayed same-resolver claim.
+ * Both 200 and 201 are successful because the server's idempotent contract may
+ * return existing ownership rather than create a duplicate claim.
+ */
+export function decodeHumanFollowUpClaim(
+  response: Response,
+): Effect.Effect<HumanFollowUpClaim, HumanFollowUpClaimFailure, never> {
   if (response.status === 200 || response.status === 201) {
     return readJson(response).pipe(
       Effect.flatMap(Schema.decodeUnknown(humanFollowUpClaimSchema)),

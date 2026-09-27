@@ -51,6 +51,12 @@ Avoid `any`, non-null assertions, unsafe casts, numeric enums, mutable exports,
 barrel files that hide cycles, and boolean combinations that permit impossible
 states.
 
+Declare return types for supported APIs and non-trivial protocol, decoding,
+persistence, and asynchronous boundary functions. For Effect programs, expose
+the success, error, and required-environment channels deliberately. Inference
+remains appropriate for short local callbacks and obvious pure helpers where
+an annotation would add no contract information.
+
 Supported public APIs receive TSDoc at the declaration that owns the contract
 when callers need non-obvious purpose, invariants, constraints, ownership,
 lifetime, side effects, concurrency, or error meaning. Package entry points

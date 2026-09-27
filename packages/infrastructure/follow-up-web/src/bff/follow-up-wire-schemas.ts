@@ -27,6 +27,7 @@ const claimSchema = Schema.Struct({
   recordedAt: utcInstant,
 });
 
+/** Structural wire contract for one oldest-first visible-work page. */
 export const humanFollowUpPageSchema = Schema.Struct({
   items: Schema.Array(workItemSchema),
   nextCursor: Schema.NullOr(cursorSchema),
@@ -45,6 +46,11 @@ const ownedWorkSchema = Schema.Struct({
   ),
 );
 
+/**
+ * Structural wire contract for resolver-owned work.
+ *
+ * Decoding also enforces that each claim belongs to its paired work item.
+ */
 export const resolverOwnedHumanFollowUpPageSchema = Schema.Struct({
   items: Schema.Array(ownedWorkSchema),
   nextCursor: Schema.NullOr(ownedCursorSchema),
@@ -67,6 +73,13 @@ const caseObservationSchema = Schema.Struct({
   recordedAt: utcInstant,
 });
 
+/**
+ * Structural wire contract for the resolver case-context response.
+ *
+ * Cross-field identity, contract, version, ordering, and handoff invariants are
+ * enforced after structural decoding because they depend on both the request
+ * and multiple response sections.
+ */
 export const resolverFollowUpCaseSummarySchema = Schema.Struct({
   followUp: Schema.Struct({
     workItemId: Schema.UUID,
@@ -115,20 +128,39 @@ export const resolverFollowUpCaseSummarySchema = Schema.Struct({
   }),
 });
 
+/**
+ * Ephemeral browser CSRF wire contract.
+ *
+ * Restricting the header name prevents an untrusted response from selecting an
+ * arbitrary request header.
+ */
 export const csrfTokenSchema = Schema.Struct({
   headerName: Schema.Literal('X-CSRF-TOKEN'),
   token: Schema.NonEmptyString,
 });
 
+/** Structural wire contract for a recorded follow-up claim. */
 export const humanFollowUpClaimSchema = claimSchema;
 
+/**
+ * Minimal problem-detail fields accepted for failure classification.
+ * Unused descriptive fields are deliberately not admitted into application
+ * state or telemetry.
+ */
 export const problemDetailSchema = Schema.Struct({
   type: Schema.String,
   signInPath: Schema.optional(Schema.String),
 });
 
+/** Validated ephemeral CSRF token retained only by the adapter instance. */
 export type BrowserCsrfToken = Schema.Schema.Type<typeof csrfTokenSchema>;
+
+/** Validated problem fields used by the protocol-to-application mapper. */
 export type ProblemDetail = Schema.Schema.Type<typeof problemDetailSchema>;
+
+/**
+ * Structurally decoded case-context payload awaiting cross-field validation.
+ */
 export type ResolverFollowUpCaseSummaryPayload = Schema.Schema.Type<
   typeof resolverFollowUpCaseSummarySchema
 >;

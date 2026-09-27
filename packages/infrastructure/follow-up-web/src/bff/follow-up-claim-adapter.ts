@@ -4,6 +4,7 @@ import type {
   HumanFollowUpClaimFailure,
   HumanFollowUpClaimResult,
 } from '@ergon/application-follow-up';
+import type { HumanFollowUpClaim } from '@ergon/domain-follow-up';
 import { Effect, Either, SynchronizedRef } from 'effect';
 
 import {
@@ -21,10 +22,19 @@ import type { BrowserCsrfToken } from './follow-up-wire-schemas';
 import { claimUrl, CSRF_TOKEN_PATH } from './follow-up-urls';
 
 interface FollowUpClaimAdapterOptions {
+  /** Fetch-compatible transport for same-origin credentialed requests. */
   readonly fetch: typeof globalThis.fetch;
+  /** Positive timeout in milliseconds applied to each outbound request. */
   readonly requestTimeout: number;
 }
 
+/**
+ * Creates the claim port with one synchronized, in-memory CSRF lifecycle.
+ *
+ * Concurrent claims share token acquisition. Setup transport and 503 failures
+ * receive one retry, setup timeouts do not, and the claim POST is never replayed
+ * automatically after an ambiguous result.
+ */
 export function createFollowUpClaimAdapter({
   fetch,
   requestTimeout,
@@ -36,7 +46,7 @@ export function createFollowUpClaimAdapter({
   );
 
   return {
-    async claim(command, signal) {
+    async claim(command, signal): Promise<HumanFollowUpClaimResult> {
       const program = getCsrfToken(csrfToken, fetch, requestTimeout).pipe(
         Effect.flatMap((token) =>
           requestClaim(fetch, command, token).pipe(
@@ -74,11 +84,15 @@ export function createFollowUpClaimAdapter({
   };
 }
 
+/**
+ * Returns the cached token or performs one single-flight acquisition while the
+ * synchronized reference is locked for competing claim calls.
+ */
 function getCsrfToken(
   csrfToken: SynchronizedRef.SynchronizedRef<BrowserCsrfToken | undefined>,
   fetch: typeof globalThis.fetch,
   requestTimeout: number,
-) {
+): Effect.Effect<BrowserCsrfToken, HumanFollowUpClaimFailure, never> {
   return SynchronizedRef.modifyEffect(csrfToken, (cachedToken) => {
     if (cachedToken !== undefined) {
       return Effect.succeed([cachedToken, cachedToken] as const);
@@ -97,10 +111,11 @@ function getCsrfToken(
   });
 }
 
+/** Clears a rejected token only if no concurrent acquisition has replaced it. */
 function invalidateRejectedToken(
   csrfToken: SynchronizedRef.SynchronizedRef<BrowserCsrfToken | undefined>,
   rejectedToken: BrowserCsrfToken,
-) {
+): Effect.Effect<void, never, never> {
   return SynchronizedRef.update(csrfToken, (cachedToken) =>
     cachedToken?.headerName === rejectedToken.headerName &&
     cachedToken.token === rejectedToken.token
@@ -109,7 +124,10 @@ function invalidateRejectedToken(
   );
 }
 
-function requestCsrfToken(fetch: typeof globalThis.fetch) {
+/** Constructs the interruptible same-origin CSRF acquisition request. */
+function requestCsrfToken(
+  fetch: typeof globalThis.fetch,
+): Effect.Effect<BrowserCsrfToken, HumanFollowUpClaimFailure, never> {
   return Effect.tryPromise({
     try: (signal) =>
       fetch(CSRF_TOKEN_PATH, {
@@ -124,11 +142,15 @@ function requestCsrfToken(fetch: typeof globalThis.fetch) {
   }).pipe(Effect.flatMap(decodeCsrfToken));
 }
 
+/**
+ * Constructs one interruptible claim attempt with the server-approved CSRF
+ * header. Retry remains an explicit caller decision.
+ */
 function requestClaim(
   fetch: typeof globalThis.fetch,
   command: HumanFollowUpClaimCommand,
   csrfToken: BrowserCsrfToken,
-) {
+): Effect.Effect<HumanFollowUpClaim, HumanFollowUpClaimFailure, never> {
   return Effect.tryPromise({
     try: (signal) =>
       fetch(claimUrl(command), {

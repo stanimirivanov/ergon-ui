@@ -1,13 +1,19 @@
 import type {
   GetOwnedFollowUpCaseSummary,
   HumanFollowUpFailure,
+  HumanFollowUpPage,
   HumanFollowUpQuery,
+  HumanFollowUpResult,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
   ResolverFollowUpCaseSummaryFailure,
   ResolverFollowUpCaseSummaryQuery,
+  ResolverFollowUpCaseSummaryResult,
+  ResolverOwnedHumanFollowUpPage,
   ResolverOwnedHumanFollowUpQuery,
+  ResolverOwnedHumanFollowUpResult,
 } from '@ergon/application-follow-up';
+import type { ResolverFollowUpCaseSummary } from '@ergon/domain-follow-up';
 import { Effect, Either } from 'effect';
 
 import {
@@ -25,10 +31,15 @@ import {
 import { caseSummaryUrl, inboxUrl, ownedWorkUrl } from './follow-up-urls';
 
 interface FollowUpReadAdapterOptions {
+  /** Fetch-compatible transport for same-origin credentialed requests. */
   readonly fetch: typeof globalThis.fetch;
+  /** Positive timeout in milliseconds applied to each read attempt. */
   readonly requestTimeout: number;
 }
 
+type FollowUpReadAdapter = ListOpenHumanFollowUps &
+  ListOwnedHumanFollowUps &
+  GetOwnedFollowUpCaseSummary;
 type FollowUpReadFailure =
   HumanFollowUpFailure | ResolverFollowUpCaseSummaryFailure;
 type ReadExecutionFailure = typeof REQUEST_CANCELLED | typeof TIMEOUT_FAILURE;
@@ -38,28 +49,36 @@ interface FailedRead<Failure extends FollowUpReadFailure> {
   readonly error: Failure | ReadExecutionFailure;
 }
 
+/**
+ * Creates the read-only BFF port implementations.
+ *
+ * Every read receives the same per-attempt timeout, one retry for classified
+ * transient failures, Effect interruption from the caller's signal, and
+ * cancellation normalization.
+ */
 export function createFollowUpReadAdapter({
   fetch,
   requestTimeout,
-}: FollowUpReadAdapterOptions): ListOpenHumanFollowUps &
-  ListOwnedHumanFollowUps &
-  GetOwnedFollowUpCaseSummary {
+}: FollowUpReadAdapterOptions): FollowUpReadAdapter {
   return {
-    listOpen: (query, signal) =>
+    listOpen: (query, signal): Promise<HumanFollowUpResult> =>
       runRead(
         requestHumanFollowUps(fetch, query),
         signal,
         requestTimeout,
         (page) => ({ ok: true as const, page }),
       ),
-    listOwned: (query, signal) =>
+    listOwned: (query, signal): Promise<ResolverOwnedHumanFollowUpResult> =>
       runRead(
         requestResolverOwnedHumanFollowUps(fetch, query),
         signal,
         requestTimeout,
         (page) => ({ ok: true as const, page }),
       ),
-    getOwnedCaseSummary: (query, signal) =>
+    getOwnedCaseSummary: (
+      query,
+      signal,
+    ): Promise<ResolverFollowUpCaseSummaryResult> =>
       runRead(
         requestResolverFollowUpCaseSummary(fetch, query),
         signal,
@@ -69,8 +88,12 @@ export function createFollowUpReadAdapter({
   };
 }
 
+/**
+ * Executes the policy shared by idempotent BFF reads while preserving each
+ * port's success shape and typed failure channel.
+ */
 async function runRead<Value, Failure extends FollowUpReadFailure, Success>(
-  request: Effect.Effect<Value, Failure>,
+  request: Effect.Effect<Value, Failure, never>,
   signal: AbortSignal,
   requestTimeout: number,
   onSuccess: (value: Value) => Success,
@@ -100,10 +123,11 @@ async function runRead<Value, Failure extends FollowUpReadFailure, Success>(
   }
 }
 
+/** Constructs the interruptible visible-work request and decoding pipeline. */
 function requestHumanFollowUps(
   fetch: typeof globalThis.fetch,
   query: HumanFollowUpQuery,
-) {
+): Effect.Effect<HumanFollowUpPage, HumanFollowUpFailure, never> {
   return Effect.tryPromise({
     try: (signal) =>
       fetch(inboxUrl(query), {
@@ -118,10 +142,11 @@ function requestHumanFollowUps(
   }).pipe(Effect.flatMap(decodeHumanFollowUpPage));
 }
 
+/** Constructs the interruptible resolver-owned-work request and decoding pipeline. */
 function requestResolverOwnedHumanFollowUps(
   fetch: typeof globalThis.fetch,
   query: ResolverOwnedHumanFollowUpQuery,
-) {
+): Effect.Effect<ResolverOwnedHumanFollowUpPage, HumanFollowUpFailure, never> {
   return Effect.tryPromise({
     try: (signal) =>
       fetch(ownedWorkUrl(query), {
@@ -136,10 +161,18 @@ function requestResolverOwnedHumanFollowUps(
   }).pipe(Effect.flatMap(decodeResolverOwnedHumanFollowUpPage));
 }
 
+/**
+ * Constructs the interruptible case-context request; decoding binds the
+ * response back to the complete requested identity.
+ */
 function requestResolverFollowUpCaseSummary(
   fetch: typeof globalThis.fetch,
   query: ResolverFollowUpCaseSummaryQuery,
-) {
+): Effect.Effect<
+  ResolverFollowUpCaseSummary,
+  ResolverFollowUpCaseSummaryFailure,
+  never
+> {
   return Effect.tryPromise({
     try: (signal) =>
       fetch(caseSummaryUrl(query), {
