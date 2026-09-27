@@ -1,8 +1,8 @@
 import type { ResolverFollowUpCaseSummaryFailure } from '@ergon/application-follow-up';
+import { useResolverFollowUpCaseSummaryQuery } from '@ergon/infrastructure-follow-up-web';
 import { Button } from '@ergon/ui-web';
 
 import { browserSignInHref } from '../session/browser-session-navigation';
-import { useResolverFollowUpCaseSummaryQuery } from './human-follow-up-api';
 
 const observedAtFormatter = new Intl.DateTimeFormat('en-GB', {
   dateStyle: 'medium',

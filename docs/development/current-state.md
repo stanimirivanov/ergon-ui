@@ -42,7 +42,8 @@ animation, requester app, or native app.
 - explicit follow-up domain and application packages with capability-specific
   ports and verified Nx project metadata;
 - a follow-up web infrastructure package with separated wire contracts, read
-  execution, claim/CSRF execution, and protocol failure translation;
+  execution, claim/CSRF execution, protocol failure translation, and explicit
+  RTK Query cache integration;
 - a session web infrastructure package with separated wire decoding, failure
   classification, read execution, cancellation normalization, and tenant-keyed
   RTK Query integration;
@@ -60,8 +61,8 @@ animation, requester app, or native app.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.
-- The follow-up RTK Query endpoint and React features still reside in the
-  workbench application pending separate boundary extractions.
+- Follow-up React features still reside in the workbench application pending a
+  separate boundary extraction.
 
 The next resolver slice should add an explicit ownership lifecycle operation
 after a reviewed browser contract exists. Existing `/internal/v1` routes remain
