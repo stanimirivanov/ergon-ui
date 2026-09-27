@@ -25,6 +25,8 @@ pnpm nx e2e @ergon/workbench-e2e
 - Compose routes and application providers here.
 - Depend on follow-up models through `@ergon/domain-follow-up` and on
   capability-specific ports through `@ergon/application-follow-up`.
+- Depend on the verified actor through `@ergon/domain-session` and on session
+  resolution through `@ergon/application-session`.
 - Bind the confidential-BFF implementation from
   `@ergon/infrastructure-follow-up-web`; do not recreate protocol handling in
   the composition root.
@@ -38,6 +40,11 @@ separate follow-up ports: open-work listing, owned-work listing, owned
 case-context loading, and claiming. Consumers receive only the port they use.
 RTK Query integration and the inbound React feature remain migration boundaries
 that will leave this application in separate behavior-preserving changes.
+
+The app-local current-actor HTTP/Effect client implements the
+`ResolveCurrentActor` application port. Moving that client and its wire
+contracts to session infrastructure is a separate behavior-preserving change;
+RTK Query remains the remote-cache owner.
 
 `/tenants/{tenantId}` resolves the control-plane BFF session contract. RTK Query
 owns request state and caching; Effect owns HTTP, timeout, bounded transient

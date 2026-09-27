@@ -41,7 +41,7 @@ DOM, Tailwind, and shadcn boundary outside the business hexagon; it is not a
 React Native design system.
 
 Each project has exactly one `layer:*`, `scope:*`, and `platform:*` tag. The
-current follow-up boundary is:
+current workbench boundaries are:
 
 ```text
 @ergon/workbench
@@ -51,6 +51,9 @@ current follow-up boundary is:
   -> @ergon/application-follow-up
       -> @ergon/domain-follow-up
   -> @ergon/domain-follow-up
+  -> @ergon/application-session
+      -> @ergon/domain-session
+  -> @ergon/domain-session
   -> @ergon/ui-web
 ```
 
@@ -60,6 +63,12 @@ ports. That infrastructure package owns browser wire schemas, Effect execution,
 failure translation, retry and timeout policy, and the ephemeral CSRF lifecycle.
 RTK Query integration and the inbound React adapter remain in the workbench for
 separate behavior-preserving extractions; empty placeholders are prohibited.
+
+The workbench also consumes `ResolveCurrentActor` from
+`@ergon/application-session` and the verified actor model from
+`@ergon/domain-session`. Its existing HTTP/Effect implementation and RTK Query
+integration remain app-local until a separate session infrastructure
+extraction.
 
 The current application package exposes capability-specific consumed ports and
 outcomes. As application policy is extracted, it must enter through explicit

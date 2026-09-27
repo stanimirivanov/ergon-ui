@@ -20,6 +20,12 @@
     },
     {
       "path": "./packages/infrastructure/follow-up-web"
+    },
+    {
+      "path": "./packages/application/session"
+    },
+    {
+      "path": "./packages/domain/session"
     }
   ],
   "compilerOptions": {}

@@ -4,8 +4,7 @@ import type {
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
 } from '@ergon/application-follow-up';
-
-import type { CurrentActorClient } from '../session/current-actor-client';
+import type { ResolveCurrentActor } from '@ergon/application-session';
 
 /**
  * Capability-level dependencies supplied once by the workbench composition
@@ -15,7 +14,7 @@ import type { CurrentActorClient } from '../session/current-actor-client';
  * infrastructure adapter implements several of them.
  */
 export interface WorkbenchDependencies {
-  readonly currentActorClient: CurrentActorClient;
+  readonly resolveCurrentActor: ResolveCurrentActor;
   readonly listOpenHumanFollowUps: ListOpenHumanFollowUps;
   readonly listOwnedHumanFollowUps: ListOwnedHumanFollowUps;
   readonly getOwnedFollowUpCaseSummary: GetOwnedFollowUpCaseSummary;

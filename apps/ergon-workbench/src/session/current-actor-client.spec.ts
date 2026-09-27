@@ -71,10 +71,7 @@ describe('current actor client', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: {
-        kind: 'authentication-required',
-        signInPath: '/bff/login',
-      },
+      error: { kind: 'authentication-required' },
     });
   });
 

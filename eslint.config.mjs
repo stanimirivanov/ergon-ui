@@ -71,10 +71,15 @@ export default [
               onlyDependOnLibsWithTags: ['scope:follow-up', 'scope:shared'],
             },
             {
+              sourceTag: 'scope:session',
+              onlyDependOnLibsWithTags: ['scope:session', 'scope:shared'],
+            },
+            {
               sourceTag: 'scope:workbench',
               onlyDependOnLibsWithTags: [
                 'scope:workbench',
                 'scope:follow-up',
+                'scope:session',
                 'scope:shared',
               ],
             },
