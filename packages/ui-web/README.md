@@ -15,6 +15,6 @@ be imported by future shared or native packages.
 - Add a variant only when it represents stable UI meaning.
 - Test through roles, names, keyboard behavior, and observable state.
 
-Add components from an application directory so the shadcn CLI can resolve the
+Add components from an app directory so the shadcn CLI can resolve the
 monorepo `components.json` files, then review every generated dependency and
 source change.

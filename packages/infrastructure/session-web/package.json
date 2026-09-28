@@ -22,10 +22,9 @@
   },
   "nx": {
     "tags": [
-      "layer:infrastructure",
+      "type:data-access",
       "scope:session",
-      "platform:web",
-      "adapter:outbound"
+      "platform:web"
     ]
   }
 }

@@ -72,7 +72,7 @@ describe('current actor cache adapter', () => {
     request.unsubscribe();
   });
 
-  it('passes RTK Query cancellation to the application port', async () => {
+  it('passes RTK Query cancellation to the current-actor gateway', async () => {
     let observedSignal: AbortSignal | undefined;
     let notifyStarted: () => void = () => undefined;
     const started = new Promise<void>((resolve) => {

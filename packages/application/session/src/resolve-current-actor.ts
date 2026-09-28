@@ -13,7 +13,8 @@ export type CurrentActorResult =
  * The tenant identifier selects request context and does not confer authority.
  * Implementations must honor caller cancellation and resolve it as the typed
  * `request-cancelled` result. Transport, decoding, retry, and timeout behavior
- * remains an adapter concern and must not escape through this port.
+ * remains a data-access concern and must not escape through this transitional
+ * gateway contract.
  */
 export interface ResolveCurrentActor {
   resolve(tenantId: string, signal: AbortSignal): Promise<CurrentActorResult>;

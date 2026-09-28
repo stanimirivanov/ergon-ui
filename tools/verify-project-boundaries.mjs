@@ -1,98 +1,17 @@
 import { access, readFile, readdir } from 'node:fs/promises';
-import { join, relative } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
+
+import {
+  APPROVED_APPLICATION_CORES,
+  validateProjectBoundaries,
+} from './project-boundary-policy.mjs';
 
 const PROJECT_ROOTS = ['apps', 'packages'];
-const TAG_DIMENSIONS = ['layer', 'scope', 'platform'];
-const ALLOWED_ADAPTER_ROLES = new Set(['adapter:inbound', 'adapter:outbound']);
-const ALLOWED_LAYERS = new Set([
-  'layer:application',
-  'layer:composition',
-  'layer:domain',
-  'layer:infrastructure',
-  'layer:test',
-  'layer:ui-primitives',
-]);
-const EXPECTED_PACKAGE_LAYERS = new Map([
-  ['packages/application', 'layer:application'],
-  ['packages/domain', 'layer:domain'],
-  ['packages/infrastructure', 'layer:infrastructure'],
-  ['packages/ui-web', 'layer:ui-primitives'],
-]);
 const IGNORED_DIRECTORIES = new Set(['dist', 'node_modules', 'out-tsc']);
-const ALLOWED_PLATFORMS = new Set([
-  'platform:native',
-  'platform:shared',
-  'platform:web',
-]);
-const ALLOWED_SCOPES = new Set([
-  'scope:follow-up',
-  'scope:session',
-  'scope:shared',
-  'scope:workbench',
-]);
 
-const errors = [];
 const projects = await discoverProjects();
-
-for (const project of projects) {
-  const manifest = JSON.parse(await readFile(project.manifestPath, 'utf8'));
-  const tags = manifest.nx?.tags;
-
-  if (!Array.isArray(tags) || !tags.every((tag) => typeof tag === 'string')) {
-    errors.push(`${project.path}: nx.tags must be an array of strings`);
-    continue;
-  }
-
-  for (const dimension of TAG_DIMENSIONS) {
-    const matchingTags = tags.filter((tag) => tag.startsWith(`${dimension}:`));
-    if (matchingTags.length !== 1) {
-      errors.push(
-        `${project.path}: expected exactly one ${dimension}:* tag, found ${matchingTags.length}`,
-      );
-    }
-  }
-
-  const adapterRoles = tags.filter((tag) => tag.startsWith('adapter:'));
-  if (tags.includes('layer:infrastructure') && adapterRoles.length !== 1) {
-    errors.push(
-      `${project.path}: infrastructure projects require exactly one adapter:* role, found ${adapterRoles.length}`,
-    );
-  }
-  if (!tags.includes('layer:infrastructure') && adapterRoles.length > 0) {
-    errors.push(
-      `${project.path}: only infrastructure projects may declare an adapter:* role`,
-    );
-  }
-
-  const expectedLayer = [...EXPECTED_PACKAGE_LAYERS].find(
-    ([path]) => project.path === path || project.path.startsWith(`${path}/`),
-  )?.[1];
-  if (expectedLayer !== undefined && !tags.includes(expectedLayer)) {
-    errors.push(
-      `${project.path}: its package path requires the ${expectedLayer} tag`,
-    );
-  }
-
-  for (const tag of tags) {
-    if (tag.startsWith('type:')) {
-      errors.push(
-        `${project.path}: obsolete ${tag} tag must be expressed as a layer:* tag`,
-      );
-    }
-    if (tag.startsWith('layer:') && !ALLOWED_LAYERS.has(tag)) {
-      errors.push(`${project.path}: unsupported project layer ${tag}`);
-    }
-    if (tag.startsWith('adapter:') && !ALLOWED_ADAPTER_ROLES.has(tag)) {
-      errors.push(`${project.path}: unsupported adapter role ${tag}`);
-    }
-    if (tag.startsWith('platform:') && !ALLOWED_PLATFORMS.has(tag)) {
-      errors.push(`${project.path}: unsupported project platform ${tag}`);
-    }
-    if (tag.startsWith('scope:') && !ALLOWED_SCOPES.has(tag)) {
-      errors.push(`${project.path}: unsupported project scope ${tag}`);
-    }
-  }
-}
+const acceptedDecisionPaths = await loadAcceptedDecisionPaths();
+const errors = validateProjectBoundaries(projects, { acceptedDecisionPaths });
 
 if (errors.length > 0) {
   console.error('Project boundary metadata is invalid:');
@@ -101,7 +20,9 @@ if (errors.length > 0) {
   }
   process.exitCode = 1;
 } else {
-  console.log(`Verified architecture tags for ${projects.length} projects.`);
+  console.log(
+    `Verified type, scope, platform, and workspace dependency boundaries for ${projects.length} projects.`,
+  );
 }
 
 async function discoverProjects() {
@@ -115,15 +36,20 @@ async function discoverProjects() {
 
   async function visitDirectory(directory) {
     const manifestPath = join(directory, 'package.json');
-    try {
-      await access(manifestPath);
+    if (await exists(manifestPath)) {
+      const manifest = await readJson(manifestPath);
+
       projects.push({
+        manifest,
         manifestPath,
         path: relative('.', directory).replaceAll('\\', '/'),
+        typescriptConfiguration: isCoreProject(manifest)
+          ? await loadTypeScriptConfiguration(
+              join(directory, 'tsconfig.lib.json'),
+            )
+          : undefined,
       });
       return;
-    } catch {
-      // A grouping directory is not an Nx project; inspect its children.
     }
 
     const entries = await readdir(directory, { withFileTypes: true });
@@ -133,5 +59,94 @@ async function discoverProjects() {
       }
       await visitDirectory(join(directory, entry.name));
     }
+  }
+}
+
+async function exists(path) {
+  try {
+    await access(path);
+    return true;
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      return false;
+    }
+    throw error;
+  }
+}
+
+async function loadAcceptedDecisionPaths() {
+  const acceptedDecisionPaths = new Set();
+  for (const decisionPath of new Set(APPROVED_APPLICATION_CORES.values())) {
+    if (!(await exists(decisionPath))) {
+      continue;
+    }
+    const decision = await readFile(decisionPath, 'utf8');
+    if (/^- Status: Accepted\s*$/m.test(decision)) {
+      acceptedDecisionPaths.add(decisionPath);
+    }
+  }
+  return acceptedDecisionPaths;
+}
+
+function isCoreProject(manifest) {
+  const tags = manifest.nx?.tags;
+  return (
+    Array.isArray(tags) &&
+    (tags.includes('type:model') || tags.includes('type:application'))
+  );
+}
+
+async function loadTypeScriptConfiguration(configPath, seen = new Set()) {
+  if (!(await exists(configPath))) {
+    return undefined;
+  }
+
+  const normalizedPath = resolve(configPath);
+  if (seen.has(normalizedPath)) {
+    throw new Error(
+      `Circular TypeScript configuration inheritance at ${configPath}`,
+    );
+  }
+  seen.add(normalizedPath);
+
+  const configuration = await readJson(configPath);
+  const extendsPath = resolveExtendsPath(configPath, configuration.extends);
+  const inherited =
+    extendsPath === undefined
+      ? undefined
+      : await loadTypeScriptConfiguration(extendsPath.absolute, seen);
+  const compilerOptions = configuration.compilerOptions;
+
+  return {
+    extendsPath: extendsPath?.relative,
+    libraries: compilerOptions?.lib ?? inherited?.libraries,
+    types: compilerOptions?.types ?? inherited?.types,
+  };
+}
+
+function resolveExtendsPath(configPath, inheritedPath) {
+  if (typeof inheritedPath !== 'string' || inheritedPath.length === 0) {
+    return undefined;
+  }
+  const withExtension = inheritedPath.endsWith('.json')
+    ? inheritedPath
+    : `${inheritedPath}.json`;
+  const absolute = resolve(dirname(configPath), withExtension);
+  return {
+    absolute,
+    relative: relative('.', absolute).replaceAll('\\', '/'),
+  };
+}
+
+async function readJson(path) {
+  const source = await readFile(path, 'utf8');
+  try {
+    const value = JSON.parse(source);
+    if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+      throw new TypeError('Expected a JSON object');
+    }
+    return value;
+  } catch (error) {
+    throw new Error(`Cannot parse ${path}`, { cause: error });
   }
 }

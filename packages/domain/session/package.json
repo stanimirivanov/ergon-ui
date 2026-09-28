@@ -14,7 +14,7 @@
   },
   "nx": {
     "tags": [
-      "layer:domain",
+      "type:model",
       "scope:session",
       "platform:shared"
     ]

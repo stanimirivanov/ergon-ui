@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "nx dev @ergon/workbench",
     "build": "nx build @ergon/workbench",
-    "architecture:check": "node tools/verify-project-boundaries.mjs",
+    "architecture:check": "node --test tools/project-boundary-policy.test.mjs && node tools/verify-project-boundaries.mjs",
     "format": "nx format:write",
     "format:check": "nx format:check",
     "lint": "nx run-many -t lint",

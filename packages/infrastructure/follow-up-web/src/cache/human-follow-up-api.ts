@@ -23,7 +23,7 @@ import type {
 /**
  * Thunk-extra contract required by the follow-up cache adapter.
  *
- * These ports are executable dependencies and must never be placed in Redux
+ * These operations are executable dependencies and must never be placed in Redux
  * state. Composition roots supply them when configuring the store.
  */
 export interface HumanFollowUpCacheDependencies {
@@ -36,10 +36,10 @@ export interface HumanFollowUpCacheDependencies {
 /**
  * Owns follow-up server cache state for the resolver workbench.
  *
- * Query functions delegate to injected application ports and forward RTK
+ * Query functions delegate to injected follow-up operations and forward RTK
  * Query's abort signal. Successful claims invalidate both visible and owned
  * work; stale claim outcomes invalidate only the visible inbox. Case evidence
- * cache identity is tenant plus work item; on fetch, the infrastructure adapter
+ * cache identity is tenant plus work item; on fetch, the data-access boundary
  * validates the response against the full requested identity tuple.
  */
 export const humanFollowUpApi = createApi({

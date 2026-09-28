@@ -17,7 +17,7 @@
   },
   "nx": {
     "tags": [
-      "layer:application",
+      "type:application",
       "scope:session",
       "platform:shared"
     ]

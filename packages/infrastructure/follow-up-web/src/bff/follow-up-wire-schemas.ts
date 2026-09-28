@@ -155,7 +155,7 @@ export const problemDetailSchema = Schema.Struct({
 /** Validated ephemeral CSRF token retained only by the adapter instance. */
 export type BrowserCsrfToken = Schema.Schema.Type<typeof csrfTokenSchema>;
 
-/** Validated problem fields used by the protocol-to-application mapper. */
+/** Validated problem fields used by the protocol-to-typed-failure mapper. */
 export type ProblemDetail = Schema.Schema.Type<typeof problemDetailSchema>;
 
 /**

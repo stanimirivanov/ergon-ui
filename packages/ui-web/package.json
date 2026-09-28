@@ -25,7 +25,7 @@
   },
   "nx": {
     "tags": [
-      "layer:ui-primitives",
+      "type:ui",
       "scope:shared",
       "platform:web"
     ]

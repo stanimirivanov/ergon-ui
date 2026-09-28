@@ -1,14 +1,20 @@
-# Session application
+# Session application contract — transitional
 
 ## Purpose
 
-Define the platform-neutral outcome and consumed port for resolving the actor
-authorized by an authenticated session.
+Hold the existing current-actor result and gateway contract while they are
+moved to their capability-first owners. This package contains no executable
+use case and is explicit migration debt under ADR 0011.
 
 ## Owns
 
 - The current-actor result and presentation-safe failure contracts.
-- The cancellation-aware current-actor resolution port.
+- The cancellation-aware current-actor gateway contract.
+
+These are current rather than target responsibilities. Request, cancellation,
+and transport-failure contracts move to data access; capability values move to
+the model. Only outcomes consumed by real executable use-case policy would
+remain in an application project.
 
 ## Does not own
 
@@ -18,9 +24,11 @@ authorized by an authenticated session.
 
 ## Public API and dependencies
 
-Consumers import only `@ergon/application-session`. The package depends inward
-on `@ergon/domain-session`; it may not import frameworks or adapters. The port
-returns decoded serializable outcomes and accepts cancellation from its caller.
+The current app and data-access project import only
+`@ergon/application-session`. The package depends on the session model and may
+not import frameworks or data-access or feature implementations. Its
+`AbortSignal` contract and DOM TypeScript library remain known portability debt
+for the later contract-consolidation change.
 
 ## Verification
 

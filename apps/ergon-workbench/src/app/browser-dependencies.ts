@@ -10,7 +10,7 @@ const humanFollowUpAdapter = createHumanFollowUpBffAdapter({
 /**
  * Production browser dependency graph for the resolver workbench.
  *
- * All follow-up ports deliberately share one adapter instance so its ephemeral
+ * All follow-up operations deliberately share one client instance so its ephemeral
  * CSRF state has the same lifetime as the workbench store.
  */
 export const browserDependencies: WorkbenchDependencies = {

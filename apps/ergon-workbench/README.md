@@ -24,14 +24,14 @@ pnpm nx e2e @ergon/workbench-e2e
 
 - Compose routes and application providers here.
 - Render follow-up behavior through
-  `@ergon/infrastructure-follow-up-react`; do not recreate capability-specific
-  orchestration or presentation in the composition root.
+  the transitional `@ergon/infrastructure-follow-up-react` feature package; do
+  not recreate capability-specific orchestration or presentation in the app.
 - Depend on the verified actor through `@ergon/domain-session` and on session
   resolution through `@ergon/application-session`.
-- Bind session HTTP and remote caching through
+- Compose session HTTP and remote caching through
   `@ergon/infrastructure-session-web`; do not recreate its wire decoding,
   execution policy, or RTK Query API in the composition root.
-- Bind the confidential-BFF implementation from
+- Compose follow-up BFF and remote-cache data access from
   `@ergon/infrastructure-follow-up-web`; do not recreate protocol or remote
   cache handling in the composition root.
 - Keep reusable DOM primitives in `@ergon/ui-web`.
@@ -39,16 +39,16 @@ pnpm nx e2e @ergon/workbench-e2e
 - Do not consume `/internal/v1` as a production browser contract.
 - Do not create requester, studio, simulation, or native placeholder routes.
 
-The composition root binds `@ergon/infrastructure-follow-up-web` to four
-separate follow-up ports: open-work listing, owned-work listing, owned
-case-context loading, and claiming. The infrastructure package owns the
-follow-up RTK Query API; the workbench registers its reducer and middleware and
-renders the inbound `@ergon/infrastructure-follow-up-react` adapter that
-consumes its generated hooks. The workbench supplies tenant request context and
-the trusted same-origin sign-in URL after session verification.
+The app binds `@ergon/infrastructure-follow-up-web` to four transitional
+follow-up contracts: open-work listing, owned-work listing, owned case-context
+loading, and claiming. That data-access package owns the follow-up RTK Query
+API; the workbench registers its reducer and middleware and renders the
+`@ergon/infrastructure-follow-up-react` feature that consumes its generated
+hooks. The workbench supplies tenant request context and the trusted same-origin
+sign-in URL after session verification.
 
 The composition root binds `@ergon/infrastructure-session-web` to the
-`ResolveCurrentActor` application port. The adapter owns session HTTP, wire
+`ResolveCurrentActor` contract. The data-access project owns session HTTP, wire
 decoding, failure classification, timeout, retry, cancellation semantics, and
 the current-actor RTK Query API. The workbench only registers that API during
 store composition and renders its generated hook.
@@ -66,7 +66,7 @@ plane uses it both for no visible work and for non-disclosure when current
 resolver authority is absent.
 
 Claiming first obtains the opaque CSRF value from `/bff/v1/csrf` and retains it
-only inside the infrastructure adapter. RTK Query owns mutation state and
+only inside web data access. RTK Query owns mutation state and
 invalidates all cached inbox pages for the tenant after success or a stale-item
 conflict.
 Ambiguous failures offer an explicit retry because the control plane returns an

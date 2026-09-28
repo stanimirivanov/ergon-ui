@@ -11,35 +11,45 @@
 
 ## Architecture
 
-Organize business capabilities as a hexagon. Domain packages own
-platform-neutral models and invariants. Application packages own use cases,
-outcomes, and consumed ports. Infrastructure packages implement those ports
-and own wire schemas, protocol calls, persistence, external execution, and
-cache integration. Deployable applications compose routes and dependencies;
-their React routes and screens are inbound adapters. Domain-agnostic web UI
-primitives sit outside the business hexagon.
+Group projects by business capability, then assign the concrete `model`,
+`application`, `data-access`, `feature`, `ui`, `app`, or `test` responsibility.
+Models own platform-neutral values and semantic refinements. Data access owns
+wire schemas, remote execution, Effect programs, security state, RTK Query,
+and cache policy. Features own capability React behavior and presentation.
+Apps compose routes, providers, stores, configuration, and dependencies.
 
-Infrastructure projects declare whether they are `adapter:inbound` or
-`adapter:outbound`. Inbound web adapters may consume domain-agnostic UI
-primitives to present a capability. Outbound adapters may depend on other
-infrastructure, application, and domain projects but never on presentation.
+Application projects are optional. Create one only for executable,
+platform-neutral policy, a state machine, or workflow behavior required now;
+keep its outcomes and consumed ports beside that behavior. Do not create an
+interface-only package or a service that merely forwards one data-access call.
+A cache-centric feature may consume data access directly when no independent
+client use case exists.
 
-Use Nx tags `layer:*`, `scope:*`, and `platform:*`. Shared-platform code cannot
-import web or native code. UI primitives cannot import business or composition
-layers. Create no package until current behavior needs a stable boundary.
+Use Nx tags `type:*`, `scope:*`, and `platform:*`. Model depends only on model;
+application on application and model; data access on data access, application,
+and model; feature on data access, application, model, and UI; UI only on UI;
+and app on production types. Shared-platform code cannot import web or native
+code. New packages use `packages/<scope>/<role[-platform]>`; the checked legacy
+ledger is the only permission to remain under a global-layer path. A new
+application core also needs a ledger entry referencing the accepted ADR for
+the executable policy it owns. Model and application library builds extend the
+DOM-free `tsconfig.core.json`; finite legacy exceptions identify current
+portability debt. Create no package until current behavior needs a stable
+boundary. Deployables and end-to-end projects live under `apps/*` and use
+`type:app` and `type:test`, respectively.
 
 Every project has exactly one tag in each dimension and documents its purpose,
 owned responsibilities, deliberate exclusions, public API, allowed
 dependencies, and verification commands. Cross-project consumers import only
-through the package public API. Applications contain composition and routes;
-application-local adapters are an explicit migration state, not the permanent
-home of extracted capability implementations.
+through the package public API. Wire schemas and transport failures stay in
+data access. Model values and application outcomes do not depend on HTTP, RTK
+Query, React, Effect, or provider details. Presentational components receive
+explicit state and callbacks rather than decoding protocols themselves.
 
-Define ports at the application boundary that consumes them and segregate them
-by use case. An adapter may implement several ports, but consumers and tests
-receive only the capability they need. Wire schemas and protocol failures stay
-with adapters; decoded domain models and application outcomes do not depend on
-HTTP, RTK Query, React, or provider details.
+Automation checks dependency direction, the core TypeScript configuration,
+and prohibited framework families. Reviewers still evaluate whether any other
+dependency or API introduces transport, browser, native, or provider coupling;
+package names alone cannot prove semantic neutrality.
 
 Before changing a boundary, record the responsibility owner before and after,
 the public contract, and each new dependency edge. Evaluate architecture by
@@ -146,11 +156,11 @@ small number of critical browser flows and protocol fakes once data access is
 introduced. Keep tests deterministic and independent of external services,
 locale, order, and wall time.
 
-Tests follow responsibility boundaries: domain tests prove invariants,
-application tests prove use-case outcomes, infrastructure tests prove protocol,
-security, persistence, and cache behavior, and inbound-adapter tests prove
-user-visible states and state transitions. A test should not acquire unrelated
-ports merely because one production adapter implements them together.
+Tests follow responsibility boundaries: model tests prove refinements and
+invariants; application tests prove real use-case policy; data-access tests
+prove protocol, security, persistence, and cache behavior; and feature tests
+prove user-visible states and transitions. A test should not acquire unrelated
+dependencies merely because one production project exposes them together.
 
 `pnpm verify` is the required baseline and includes `pnpm architecture:check`.
 Dependency changes also require a clean `pnpm install --frozen-lockfile`.

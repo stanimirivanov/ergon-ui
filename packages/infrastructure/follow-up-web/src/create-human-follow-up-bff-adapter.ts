@@ -25,20 +25,20 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
   ClaimHumanFollowUp;
 
 /**
- * Adapts the confidential browser BFF to the follow-up application ports.
+ * Adapts the confidential browser BFF to the transitional follow-up contracts.
  *
  * Responses are fully decoded before reaching application state. Read
  * operations retry one classified transient failure; claim commands are never
  * replayed automatically. The session-bound CSRF value remains inside the
  * returned adapter and is discarded when the server rejects it. Caller
  * cancellation interrupts Effect, propagates to the signal supplied to fetch,
- * and returns the ports' typed cancellation failure.
+ * and returns the operations' typed cancellation failure.
  *
  * The adapter instance owns its in-memory CSRF state. Create it for one
  * browser-session composition lifetime and discard it when that session is
  * replaced; do not share it across authenticated browser sessions.
  *
- * @returns The four follow-up application ports backed by one adapter state.
+ * @returns The four follow-up operations backed by one adapter state.
  * @throws A `RangeError` when `requestTimeout` is not a positive finite number.
  */
 export function createHumanFollowUpBffAdapter({

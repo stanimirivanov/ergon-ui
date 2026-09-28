@@ -95,31 +95,42 @@ future task.
 
 ## Architecture and state
 
-- Domain projects contain platform-neutral models and invariants. Application
-  projects define use cases, inputs, outcomes, and consumed ports.
-  Infrastructure projects implement those ports and own wire schemas,
-  protocol mapping, transport execution, persistence, and cache integration.
-  Deployable applications are composition roots and own routes and dependency
-  assembly.
-- Every Nx project has exactly one `layer:*`, `scope:*`, and `platform:*` tag,
-  imports other projects only through their public APIs, and documents what it
-  owns and deliberately excludes. The allowed layers are `domain`,
-  `application`, `infrastructure`, `composition`, `ui-primitives`, and `test`.
-- Dependencies point inward: application may depend on domain; infrastructure
-  may depend on application and domain; inbound web infrastructure adapters
-  may additionally consume domain-agnostic UI primitives; composition may
-  depend on every production layer. Outbound infrastructure adapters remain
-  independent of presentation. Domain-agnostic UI primitives sit outside the
-  business hexagon and may depend only on other UI primitives. Every
-  infrastructure project declares exactly one `adapter:inbound` or
-  `adapter:outbound` role.
-- Ports are segregated by capability; an infrastructure adapter implementing
-  several ports does not justify exposing one broad client to every consumer.
-  React route and screen code is an inbound adapter, not a domain or
-  application service. Presentational UI receives explicit view state and
-  callbacks rather than fetching or decoding data.
-- Platform-neutral contracts do not import React, React Router, Redux,
-  Tailwind, browser APIs, or native APIs.
+- Organize projects first by business capability and then by concrete role.
+  Models own platform-neutral values and pure semantic refinements. Data-access
+  projects own wire schemas, protocol mapping, Effect execution, security
+  state, RTK Query endpoints, and cache policy. Feature projects own
+  capability-specific React orchestration, interaction, accessibility, copy,
+  and presentation. Deployable apps own routes and dependency composition.
+- Every Nx project has exactly one `type:*`, `scope:*`, and `platform:*` tag,
+  imports other projects only through public APIs, and documents what it owns
+  and deliberately excludes. Supported types are `model`, `application`,
+  `data-access`, `feature`, `ui`, `app`, and `test`.
+- New package projects MUST use `packages/<scope>/<role[-platform]>`, with
+  `packages/ui-web` as the current explicit exception. Existing global-layer
+  paths are finite migration entries and MUST NOT be copied. Deployables and
+  end-to-end projects live under `apps/*` with `type:app` and `type:test`,
+  respectively.
+- Dependency direction is enforced independently by type, scope, and platform.
+  Model depends on model; application on application and model; data access on
+  data access, application, and model; feature on data access, application,
+  model, and UI; UI only on UI; app on production project types; and test on
+  the behavior it verifies.
+- Application projects are optional. They MUST own executable,
+  platform-neutral use-case policy, a state machine, or workflow behavior plus
+  any ports that behavior consumes. Interface-only projects and services that
+  merely forward a data-access call MUST NOT be introduced. A new application
+  project also requires a checked architecture-policy ledger entry referencing
+  its accepted ADR.
+- A feature MAY consume data access directly for cache-centric reads or
+  mutations when the client owns no independent application policy. When a
+  real client use case exists, the feature invokes application behavior and
+  composition binds its data-access implementation.
+- Platform-neutral model and application projects do not import React, React
+  Router, Redux, RTK Query, Effect, Tailwind, DOM, browser, or native APIs.
+  Their library builds MUST extend the DOM-free `tsconfig.core.json`; finite
+  legacy exceptions identify existing portability debt.
+  Presentational components receive explicit view state and callbacks rather
+  than decoding protocols themselves.
 - RTK Query owns remote caching and invalidation. Redux slices hold only real
   cross-route client state. URL parameters own shareable filters. React Hook
   Form owns form state. React state owns local interaction.

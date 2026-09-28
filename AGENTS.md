@@ -25,24 +25,30 @@ accessibility and security boundaries, and report checks exactly as run.
 
 ## Architecture
 
-- Domain packages own platform-neutral models and invariants. Application
-  packages own use cases, outcomes, and the ports those use cases consume.
-  Infrastructure packages implement ports and own protocols, persistence,
-  remote execution, and cache integration. Applications are composition roots
-  and may temporarily contain inbound React adapters while a capability is
-  being extracted.
-- Every Nx project has one `layer:*`, `scope:*`, and `platform:*` tag. Import
-  other projects only through their public API and obey the enforced inward
-  dependency graph.
-- Infrastructure projects declare exactly one `adapter:inbound` or
-  `adapter:outbound` role. Inbound web adapters may use domain-agnostic UI
-  primitives; outbound adapters must remain independent of presentation.
-- `@ergon/ui-web` owns web-only, domain-agnostic UI primitives outside the
-  business hexagon. It must not import domain, application, infrastructure, or
-  application-composition code, and it is not a React Native abstraction.
-- Ports are defined at their application consumers and segregated by use case.
-  An infrastructure adapter may implement several ports without turning them
-  into one broad consumer dependency.
+- Group projects by business capability, then by the concrete `model`,
+  `application`, `data-access`, `feature`, `ui`, `app`, or `test` role defined
+  in ADR 0011. Every Nx project has one `type:*`, `scope:*`, and `platform:*`
+  tag and is consumed only through its public API.
+- New packages use `packages/<scope>/<role[-platform]>`; only `packages/ui-web`
+  is a current special location. Old global-layer paths are a finite migration
+  ledger, not a naming option. Deployables and end-to-end projects use `apps/*`
+  with `type:app` and `type:test`, respectively.
+- Models own platform-neutral values and pure semantic refinements. Data-access
+  projects own protocols, Effect execution, transport state, and RTK Query.
+  Feature projects own capability React behavior and presentation. Apps own
+  routes, providers, store assembly, configuration, and dependency binding.
+- Application projects are optional and MUST contain executable,
+  platform-neutral use-case policy or workflow behavior. Define ports beside
+  the application behavior that consumes them; do not add interface-only or
+  pass-through application projects. Adding one requires an accepted decision
+  path in the architecture policy ledger.
+- A feature may consume data access directly for a cache-centric slice without
+  client-owned application policy. When a genuine use case exists, the feature
+  calls it and composition supplies its data-access port implementation.
+- `@ergon/ui-web` owns web-only, domain-agnostic primitives. It may depend only
+  on other UI projects and is not a React Native abstraction.
+- Model and application library builds extend `tsconfig.core.json`. Do not add
+  DOM or ambient platform types; named legacy exceptions are migration debt.
 - Create a package only when current behavior uses it. Avoid `common`, `core`,
   `helpers`, generic service interfaces, empty applications, and speculative
   native structure.
