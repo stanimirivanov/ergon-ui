@@ -1,4 +1,5 @@
 import { Button } from '@ergon/ui-web';
+import type { ReactElement } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { FollowUpMessage } from './follow-up-message';
@@ -11,17 +12,25 @@ type QueueSelection =
   | { readonly valid: true; readonly queueKey?: string }
   | { readonly valid: false };
 
+/** Inputs supplied by the route-level composition boundary. */
+export interface HumanFollowUpInboxProps {
+  /** Request context only; the BFF remains authoritative for visibility. */
+  readonly tenantId: string;
+  /** Trusted same-origin navigation target supplied by the composition root. */
+  readonly signInHref: string;
+}
+
 /**
  * Composes URL-owned queue filtering with the tenant-scoped inbox page.
  *
- * The tenant route is request context only; visibility and claim authority are
- * re-evaluated by the BFF.
+ * Visibility and claim authority are re-evaluated by the BFF. Authentication
+ * failures navigate only to the trusted same-origin target supplied by the
+ * composition root.
  */
 export function HumanFollowUpInbox({
   tenantId,
-}: {
-  readonly tenantId: string;
-}) {
+  signInHref,
+}: HumanFollowUpInboxProps): ReactElement {
   const [searchParameters, setSearchParameters] = useSearchParams();
   const queue = decodeQueueKey(searchParameters.get('queue'));
 
@@ -66,6 +75,7 @@ export function HumanFollowUpInbox({
         <HumanFollowUpInboxPage
           key={queue.queueKey ?? 'all'}
           tenantId={tenantId}
+          signInHref={signInHref}
           {...(queue.queueKey === undefined
             ? {}
             : { queueKey: queue.queueKey })}

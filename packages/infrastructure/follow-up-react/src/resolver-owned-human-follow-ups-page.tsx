@@ -6,7 +6,6 @@ import { useResolverOwnedHumanFollowUpsQuery } from '@ergon/infrastructure-follo
 import { Button } from '@ergon/ui-web';
 import { useState } from 'react';
 
-import { browserSignInHref } from '../session/browser-session-navigation';
 import { normalizeFollowUpReadFailure } from './follow-up-failure-normalization';
 import { FollowUpMessage } from './follow-up-message';
 import { ownedWorkFailureCopy } from './resolver-owned-human-follow-ups-copy';
@@ -22,8 +21,10 @@ interface PagePosition {
 /** Owns active-work requests and reversible claim-cursor navigation. */
 export function ResolverOwnedHumanFollowUpsPage({
   tenantId,
+  signInHref,
 }: {
   readonly tenantId: string;
+  readonly signInHref: string;
 }) {
   const [position, setPosition] = useState<PagePosition>({ history: [] });
   const query: ResolverOwnedHumanFollowUpQuery = {
@@ -52,7 +53,7 @@ export function ResolverOwnedHumanFollowUpsPage({
     const action =
       failure.kind === 'authentication-required' ? (
         <Button asChild>
-          <a href={browserSignInHref(tenantId)}>Sign in again</a>
+          <a href={signInHref}>Sign in again</a>
         </Button>
       ) : failure.kind === 'invalid-page' ? (
         <Button
@@ -84,6 +85,7 @@ export function ResolverOwnedHumanFollowUpsPage({
   return (
     <ResolverOwnedHumanFollowUpsList
       tenantId={tenantId}
+      signInHref={signInHref}
       items={items}
       isFetching={ownedWork.isFetching}
       canGoBack={position.history.length > 0}

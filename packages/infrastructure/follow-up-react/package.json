@@ -1,5 +1,5 @@
 {
-  "name": "@ergon/infrastructure-session-web",
+  "name": "@ergon/infrastructure-follow-up-react",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",
@@ -13,19 +13,21 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@ergon/application-session": "workspace:*",
-    "@ergon/domain-session": "workspace:*",
+    "@ergon/application-follow-up": "workspace:*",
+    "@ergon/domain-follow-up": "workspace:*",
+    "@ergon/infrastructure-follow-up-web": "workspace:*",
+    "@ergon/ui-web": "workspace:*",
     "@reduxjs/toolkit": "2.12.0",
-    "effect": "3.22.2",
     "react": "19.3.0",
-    "react-redux": "9.3.0"
+    "react-redux": "9.3.0",
+    "react-router": "8.4.0"
   },
   "nx": {
     "tags": [
       "layer:infrastructure",
-      "scope:session",
+      "scope:follow-up",
       "platform:web",
-      "adapter:outbound"
+      "adapter:inbound"
     ]
   }
 }

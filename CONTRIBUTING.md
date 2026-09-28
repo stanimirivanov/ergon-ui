@@ -106,9 +106,13 @@ future task.
   owns and deliberately excludes. The allowed layers are `domain`,
   `application`, `infrastructure`, `composition`, `ui-primitives`, and `test`.
 - Dependencies point inward: application may depend on domain; infrastructure
-  may depend on application and domain; composition may depend on every
-  production layer. Domain-agnostic UI primitives sit outside the business
-  hexagon and may depend only on other UI primitives.
+  may depend on application and domain; inbound web infrastructure adapters
+  may additionally consume domain-agnostic UI primitives; composition may
+  depend on every production layer. Outbound infrastructure adapters remain
+  independent of presentation. Domain-agnostic UI primitives sit outside the
+  business hexagon and may depend only on other UI primitives. Every
+  infrastructure project declares exactly one `adapter:inbound` or
+  `adapter:outbound` role.
 - Ports are segregated by capability; an infrastructure adapter implementing
   several ports does not justify exposing one broad client to every consumer.
   React route and screen code is an inbound adapter, not a domain or

@@ -48,16 +48,13 @@
       "path": "../../packages/infrastructure/follow-up-web/tsconfig.lib.json"
     },
     {
+      "path": "../../packages/infrastructure/follow-up-react/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/domain/session/tsconfig.lib.json"
     },
     {
-      "path": "../../packages/domain/follow-up/tsconfig.lib.json"
-    },
-    {
       "path": "../../packages/application/session/tsconfig.lib.json"
-    },
-    {
-      "path": "../../packages/application/follow-up/tsconfig.lib.json"
     }
   ]
 }

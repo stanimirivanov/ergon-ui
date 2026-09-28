@@ -2,7 +2,6 @@ import { useResolverFollowUpCaseSummaryQuery } from '@ergon/infrastructure-follo
 import { Button } from '@ergon/ui-web';
 import type { ReactNode } from 'react';
 
-import { browserSignInHref } from '../session/browser-session-navigation';
 import { normalizeFollowUpCaseSummaryFailure } from './follow-up-failure-normalization';
 import { caseSummaryFailureCopy } from './resolver-follow-up-case-summary-copy';
 import { ResolverFollowUpCaseSummaryView } from './resolver-follow-up-case-summary-view';
@@ -16,12 +15,14 @@ import { ResolverFollowUpCaseSummaryView } from './resolver-follow-up-case-summa
  */
 export function ResolverFollowUpCaseSummary({
   tenantId,
+  signInHref,
   workItemId,
   caseId,
   runId,
   regionId,
 }: {
   readonly tenantId: string;
+  readonly signInHref: string;
   readonly workItemId: string;
   readonly caseId: string;
   readonly runId: string;
@@ -51,7 +52,7 @@ export function ResolverFollowUpCaseSummary({
     const action =
       failure.kind === 'authentication-required' ? (
         <Button asChild>
-          <a href={browserSignInHref(tenantId)}>Sign in again</a>
+          <a href={signInHref}>Sign in again</a>
         </Button>
       ) : copy.canRetry ? (
         <Button type="button" variant="quiet" onClick={() => result.refetch()}>

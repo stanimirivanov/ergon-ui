@@ -36,6 +36,24 @@ export default [
                 'layer:infrastructure',
                 'layer:application',
                 'layer:domain',
+                'layer:ui-primitives',
+              ],
+            },
+            {
+              sourceTag: 'adapter:outbound',
+              onlyDependOnLibsWithTags: [
+                'layer:infrastructure',
+                'layer:application',
+                'layer:domain',
+              ],
+            },
+            {
+              sourceTag: 'adapter:inbound',
+              onlyDependOnLibsWithTags: [
+                'layer:infrastructure',
+                'layer:application',
+                'layer:domain',
+                'layer:ui-primitives',
               ],
             },
             {

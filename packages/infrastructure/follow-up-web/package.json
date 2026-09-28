@@ -24,7 +24,8 @@
     "tags": [
       "layer:infrastructure",
       "scope:follow-up",
-      "platform:web"
+      "platform:web",
+      "adapter:outbound"
     ]
   }
 }

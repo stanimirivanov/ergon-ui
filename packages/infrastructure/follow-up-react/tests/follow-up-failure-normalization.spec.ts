@@ -4,7 +4,7 @@ import {
   normalizeFollowUpCaseSummaryFailure,
   normalizeFollowUpClaimFailure,
   normalizeFollowUpReadFailure,
-} from './follow-up-failure-normalization';
+} from '../src/follow-up-failure-normalization';
 
 describe('follow-up failure normalization', () => {
   it.each([

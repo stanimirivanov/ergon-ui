@@ -1,11 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type {
-  ClaimHumanFollowUp,
-  GetOwnedFollowUpCaseSummary,
-  ListOpenHumanFollowUps,
-  ListOwnedHumanFollowUps,
-} from '@ergon/application-follow-up';
-import type {
   CurrentActorResult,
   ResolveCurrentActor,
 } from '@ergon/application-session';
@@ -14,6 +8,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createWorkbenchStore } from '../app/store';
+import type { WorkbenchDependencies } from '../app/workbench-dependencies';
 import { CurrentActorPage } from './current-actor-page';
 
 const TENANT_ID = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
@@ -153,10 +148,7 @@ function renderSession(path: string, resolveCurrentActor: ResolveCurrentActor) {
   );
   const store = createWorkbenchStore({
     resolveCurrentActor,
-    listOpenHumanFollowUps: emptyHumanFollowUpAdapter,
-    listOwnedHumanFollowUps: emptyHumanFollowUpAdapter,
-    getOwnedFollowUpCaseSummary: emptyHumanFollowUpAdapter,
-    claimHumanFollowUp: emptyHumanFollowUpAdapter,
+    ...emptyFollowUpDependencies,
   });
 
   return render(
@@ -166,21 +158,32 @@ function renderSession(path: string, resolveCurrentActor: ResolveCurrentActor) {
   );
 }
 
-const emptyHumanFollowUpAdapter: ListOpenHumanFollowUps &
-  ListOwnedHumanFollowUps &
-  GetOwnedFollowUpCaseSummary &
-  ClaimHumanFollowUp = {
-  async listOpen() {
-    return { ok: true, page: { items: [], nextCursor: null } };
+const emptyFollowUpDependencies: Pick<
+  WorkbenchDependencies,
+  | 'listOpenHumanFollowUps'
+  | 'listOwnedHumanFollowUps'
+  | 'getOwnedFollowUpCaseSummary'
+  | 'claimHumanFollowUp'
+> = {
+  listOpenHumanFollowUps: {
+    async listOpen() {
+      return { ok: true, page: { items: [], nextCursor: null } };
+    },
   },
-  async listOwned() {
-    return { ok: true, page: { items: [], nextCursor: null } };
+  listOwnedHumanFollowUps: {
+    async listOwned() {
+      return { ok: true, page: { items: [], nextCursor: null } };
+    },
   },
-  async getOwnedCaseSummary() {
-    throw new Error('Case context is not used by this test');
+  getOwnedFollowUpCaseSummary: {
+    async getOwnedCaseSummary() {
+      throw new Error('Case context is not used by this test');
+    },
   },
-  async claim() {
-    throw new Error('Claiming is not used by this test');
+  claimHumanFollowUp: {
+    async claim() {
+      throw new Error('Claiming is not used by this test');
+    },
   },
 };
 

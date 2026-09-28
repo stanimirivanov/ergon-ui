@@ -13,6 +13,7 @@ const claimedAtFormatter = new Intl.DateTimeFormat('en-GB', {
 
 interface ResolverOwnedHumanFollowUpsListProps {
   readonly tenantId: string;
+  readonly signInHref: string;
   readonly items: readonly ResolverOwnedHumanFollowUpWork[];
   readonly isFetching: boolean;
   readonly canGoBack: boolean;
@@ -24,6 +25,7 @@ interface ResolverOwnedHumanFollowUpsListProps {
 /** Renders one claimed-work page without owning its remote or cursor state. */
 export function ResolverOwnedHumanFollowUpsList({
   tenantId,
+  signInHref,
   items,
   isFetching,
   canGoBack,
@@ -42,7 +44,11 @@ export function ResolverOwnedHumanFollowUpsList({
         <ol className="grid gap-4" aria-label="Your active human follow-ups">
           {items.map((item) => (
             <li key={item.claim.claimId}>
-              <OwnedWorkItem tenantId={tenantId} item={item} />
+              <OwnedWorkItem
+                tenantId={tenantId}
+                signInHref={signInHref}
+                item={item}
+              />
             </li>
           ))}
         </ol>
@@ -83,9 +89,11 @@ export function ResolverOwnedHumanFollowUpsList({
 
 function OwnedWorkItem({
   tenantId,
+  signInHref,
   item,
 }: {
   readonly tenantId: string;
+  readonly signInHref: string;
   readonly item: ResolverOwnedHumanFollowUpWork;
 }) {
   const [isContextOpen, setContextOpen] = useState(false);
@@ -132,6 +140,7 @@ function OwnedWorkItem({
       {isContextOpen ? (
         <ResolverFollowUpCaseSummary
           tenantId={tenantId}
+          signInHref={signInHref}
           workItemId={item.workItem.workItemId}
           caseId={item.workItem.caseId}
           runId={item.workItem.runId}

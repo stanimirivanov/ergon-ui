@@ -19,6 +19,11 @@ cache integration. Deployable applications compose routes and dependencies;
 their React routes and screens are inbound adapters. Domain-agnostic web UI
 primitives sit outside the business hexagon.
 
+Infrastructure projects declare whether they are `adapter:inbound` or
+`adapter:outbound`. Inbound web adapters may consume domain-agnostic UI
+primitives to present a capability. Outbound adapters may depend on other
+infrastructure, application, and domain projects but never on presentation.
+
 Use Nx tags `layer:*`, `scope:*`, and `platform:*`. Shared-platform code cannot
 import web or native code. UI primitives cannot import business or composition
 layers. Create no package until current behavior needs a stable boundary.
