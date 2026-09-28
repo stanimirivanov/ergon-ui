@@ -9,6 +9,7 @@ import { Button } from '@ergon/ui-web';
 import { useState } from 'react';
 
 import { browserSignInHref } from '../session/browser-session-navigation';
+import { normalizeFollowUpReadFailure } from './follow-up-failure-normalization';
 import { ResolverFollowUpCaseSummary } from './resolver-follow-up-case-summary';
 
 const PAGE_SIZE = 25;
@@ -72,7 +73,7 @@ function OwnedWorkPage({ tenantId }: { readonly tenantId: string }) {
   }
 
   if (ownedWork.data === undefined) {
-    const failure = normalizeFailure(ownedWork.error);
+    const failure = normalizeFollowUpReadFailure(ownedWork.error);
     const copy = failureCopy(failure);
     const action =
       failure.kind === 'authentication-required' ? (
@@ -253,41 +254,6 @@ function OwnedWorkMessage({
       {action === undefined ? null : <div className="mt-5">{action}</div>}
     </div>
   );
-}
-
-function normalizeFailure(error: unknown): HumanFollowUpFailure {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'kind' in error &&
-    typeof error.kind === 'string'
-  ) {
-    switch (error.kind) {
-      case 'authentication-required':
-        return { kind: error.kind };
-      case 'authentication-unavailable':
-      case 'actor-not-registered':
-      case 'identity-rejected':
-      case 'forbidden':
-      case 'invalid-filter':
-      case 'invalid-page':
-      case 'timeout':
-      case 'transport':
-      case 'invalid-response':
-      case 'request-cancelled':
-        return { kind: error.kind };
-      case 'service-unavailable':
-      case 'unexpected-response':
-        return {
-          kind: error.kind,
-          status:
-            'status' in error && typeof error.status === 'number'
-              ? error.status
-              : 0,
-        };
-    }
-  }
-  return { kind: 'invalid-response' };
 }
 
 function failureCopy(failure: HumanFollowUpFailure) {

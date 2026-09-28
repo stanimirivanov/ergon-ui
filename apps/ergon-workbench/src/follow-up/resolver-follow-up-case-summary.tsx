@@ -3,6 +3,7 @@ import { useResolverFollowUpCaseSummaryQuery } from '@ergon/infrastructure-follo
 import { Button } from '@ergon/ui-web';
 
 import { browserSignInHref } from '../session/browser-session-navigation';
+import { normalizeFollowUpCaseSummaryFailure } from './follow-up-failure-normalization';
 
 const observedAtFormatter = new Intl.DateTimeFormat('en-GB', {
   dateStyle: 'medium',
@@ -48,7 +49,7 @@ export function ResolverFollowUpCaseSummary({
   }
 
   if (result.data === undefined) {
-    const failure = normalizeFailure(result.error);
+    const failure = normalizeFollowUpCaseSummaryFailure(result.error);
     const copy = failureCopy(failure);
     const action =
       failure.kind === 'authentication-required' ? (
@@ -256,42 +257,6 @@ function CaseContextMessage({
       {action === undefined ? null : <div className="mt-4">{action}</div>}
     </section>
   );
-}
-
-function normalizeFailure(error: unknown): ResolverFollowUpCaseSummaryFailure {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'kind' in error &&
-    typeof error.kind === 'string'
-  ) {
-    switch (error.kind) {
-      case 'authentication-required':
-        return { kind: error.kind };
-      case 'authentication-unavailable':
-      case 'actor-not-registered':
-      case 'identity-rejected':
-      case 'forbidden':
-      case 'invalid-filter':
-      case 'invalid-page':
-      case 'not-found':
-      case 'timeout':
-      case 'transport':
-      case 'invalid-response':
-      case 'request-cancelled':
-        return { kind: error.kind };
-      case 'service-unavailable':
-      case 'unexpected-response':
-        return {
-          kind: error.kind,
-          status:
-            'status' in error && typeof error.status === 'number'
-              ? error.status
-              : 0,
-        };
-    }
-  }
-  return { kind: 'invalid-response' };
 }
 
 function failureCopy(failure: ResolverFollowUpCaseSummaryFailure) {
