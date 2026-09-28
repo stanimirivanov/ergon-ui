@@ -14,6 +14,10 @@ import { useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { browserSignInHref } from '../session/browser-session-navigation';
+import {
+  normalizeFollowUpClaimFailure,
+  normalizeFollowUpReadFailure,
+} from './follow-up-failure-normalization';
 
 const PAGE_SIZE = 25;
 const QUEUE_KEY_PATTERN = /^[a-z][a-z0-9-]{0,62}$/;
@@ -186,7 +190,7 @@ function InboxPage({
         : {
             kind: 'failure',
             item,
-            failure: normalizeClaimFailure(result.error),
+            failure: normalizeFollowUpClaimFailure(result.error),
           },
     );
   }
@@ -205,7 +209,7 @@ function InboxPage({
   }
 
   if (followUps.data === undefined) {
-    const failure = normalizeFailure(followUps.error);
+    const failure = normalizeFollowUpReadFailure(followUps.error);
     const copy = failureCopy(failure);
     const action =
       failure.kind === 'authentication-required' ? (
@@ -465,78 +469,6 @@ function decodeQueueKey(
   return QUEUE_KEY_PATTERN.test(value)
     ? { valid: true, queueKey: value }
     : { valid: false };
-}
-
-function normalizeFailure(error: unknown): HumanFollowUpFailure {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'kind' in error &&
-    typeof error.kind === 'string'
-  ) {
-    switch (error.kind) {
-      case 'authentication-required':
-        return { kind: error.kind };
-      case 'authentication-unavailable':
-      case 'actor-not-registered':
-      case 'identity-rejected':
-      case 'forbidden':
-      case 'invalid-filter':
-      case 'invalid-page':
-      case 'timeout':
-      case 'transport':
-      case 'invalid-response':
-      case 'request-cancelled':
-        return { kind: error.kind };
-      case 'service-unavailable':
-      case 'unexpected-response':
-        return {
-          kind: error.kind,
-          status:
-            'status' in error && typeof error.status === 'number'
-              ? error.status
-              : 0,
-        };
-    }
-  }
-  return { kind: 'invalid-response' };
-}
-
-function normalizeClaimFailure(error: unknown): HumanFollowUpClaimFailure {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'kind' in error &&
-    typeof error.kind === 'string'
-  ) {
-    switch (error.kind) {
-      case 'authentication-required':
-        return { kind: error.kind };
-      case 'authentication-unavailable':
-      case 'actor-not-registered':
-      case 'identity-rejected':
-      case 'resolver-authority-required':
-      case 'csrf-rejected':
-      case 'already-claimed':
-      case 'not-found':
-      case 'forbidden':
-      case 'timeout':
-      case 'transport':
-      case 'invalid-response':
-      case 'request-cancelled':
-        return { kind: error.kind };
-      case 'service-unavailable':
-      case 'unexpected-response':
-        return {
-          kind: error.kind,
-          status:
-            'status' in error && typeof error.status === 'number'
-              ? error.status
-              : 0,
-        };
-    }
-  }
-  return { kind: 'invalid-response' };
 }
 
 function failureCopy(failure: HumanFollowUpFailure) {
