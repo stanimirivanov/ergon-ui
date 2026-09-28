@@ -10,7 +10,6 @@ import {
 import { Button } from '@ergon/ui-web';
 import { useState } from 'react';
 
-import { browserSignInHref } from '../session/browser-session-navigation';
 import {
   normalizeFollowUpClaimFailure,
   normalizeFollowUpReadFailure,
@@ -32,9 +31,11 @@ interface PagePosition {
 /** Owns inbox request, claim, and reversible keyset-navigation state. */
 export function HumanFollowUpInboxPage({
   tenantId,
+  signInHref,
   queueKey,
 }: {
   readonly tenantId: string;
+  readonly signInHref: string;
   readonly queueKey?: string;
 }) {
   const [position, setPosition] = useState<PagePosition>({ history: [] });
@@ -84,7 +85,7 @@ export function HumanFollowUpInboxPage({
     const action =
       failure.kind === 'authentication-required' ? (
         <Button asChild>
-          <a href={browserSignInHref(tenantId)}>Sign in again</a>
+          <a href={signInHref}>Sign in again</a>
         </Button>
       ) : failure.kind === 'invalid-page' ? (
         <Button
@@ -126,7 +127,7 @@ export function HumanFollowUpInboxPage({
           : undefined
       }
       claimNotice={claimNotice}
-      signInHref={browserSignInHref(tenantId)}
+      signInHref={signInHref}
       onClaim={claim}
       onPrevious={() =>
         setPosition((current) => {

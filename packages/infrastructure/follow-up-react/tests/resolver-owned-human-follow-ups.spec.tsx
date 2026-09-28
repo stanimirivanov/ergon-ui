@@ -18,13 +18,14 @@ import {
   successfulOpenFollowUpResult,
   successfulOwnedFollowUpResult,
   TENANT_ID,
-} from './follow-up-fixtures.spec-support';
+} from './follow-up-fixtures';
 import {
   createFollowUpTestStore,
   type FollowUpTestCapabilities,
-} from './follow-up-test-store.spec-support';
-import { HumanFollowUpInbox } from './human-follow-up-inbox';
-import { ResolverOwnedHumanFollowUps } from './resolver-owned-human-follow-ups';
+} from './follow-up-test-store';
+import { HumanFollowUpInbox, ResolverOwnedHumanFollowUps } from '../src';
+
+const SIGN_IN_HREF = `/bff/login?returnTo=%2Ftenants%2F${TENANT_ID}`;
 
 describe('resolver-owned human follow-ups', () => {
   it('renders active work without internal ownership attribution', async () => {
@@ -118,8 +119,11 @@ describe('resolver-owned human follow-ups', () => {
     render(
       <Provider store={store}>
         <MemoryRouter>
-          <ResolverOwnedHumanFollowUps tenantId={TENANT_ID} />
-          <HumanFollowUpInbox tenantId={TENANT_ID} />
+          <ResolverOwnedHumanFollowUps
+            tenantId={TENANT_ID}
+            signInHref={SIGN_IN_HREF}
+          />
+          <HumanFollowUpInbox tenantId={TENANT_ID} signInHref={SIGN_IN_HREF} />
         </MemoryRouter>
       </Provider>,
     );
@@ -215,7 +219,10 @@ function renderOwned(capabilities: FollowUpTestCapabilities) {
   const store = createFollowUpTestStore(capabilities);
   return render(
     <Provider store={store}>
-      <ResolverOwnedHumanFollowUps tenantId={TENANT_ID} />
+      <ResolverOwnedHumanFollowUps
+        tenantId={TENANT_ID}
+        signInHref={SIGN_IN_HREF}
+      />
     </Provider>,
   );
 }

@@ -26,31 +26,35 @@ trust boundary; split them only for demonstrated isolation or ownership needs.
 Business capabilities use hexagonal dependency direction. Nx layers enforce
 the following package relationships:
 
-| Source layer   | May depend on                                      |
-| :------------- | :------------------------------------------------- |
-| Domain         | Domain                                             |
-| Application    | Application, domain                                |
-| Infrastructure | Infrastructure, application, domain                |
-| Composition    | Infrastructure, application, domain, UI primitives |
-| UI primitives  | UI primitives                                      |
-| Test           | Any layer needed by the behavior under test        |
+| Source project role        | May depend on                                      |
+| :------------------------- | :------------------------------------------------- |
+| Domain                     | Domain                                             |
+| Application                | Application, domain                                |
+| Outbound infrastructure    | Infrastructure, application, domain                |
+| Inbound web infrastructure | Infrastructure, application, domain, UI primitives |
+| Composition                | Infrastructure, application, domain, UI primitives |
+| UI primitives              | UI primitives                                      |
+| Test                       | Any layer needed by the behavior under test        |
 
 Scope and platform constraints apply independently. Shared-platform code cannot
 import web or native code. `@ergon/ui-web` is intentionally a domain-agnostic
 DOM, Tailwind, and shadcn boundary outside the business hexagon; it is not a
 React Native design system.
 
-Each project has exactly one `layer:*`, `scope:*`, and `platform:*` tag. The
-current workbench boundaries are:
+Each project has exactly one `layer:*`, `scope:*`, and `platform:*` tag.
+Infrastructure projects additionally declare exactly one `adapter:inbound` or
+`adapter:outbound` role. The current workbench boundaries are:
 
 ```text
 @ergon/workbench
+  -> @ergon/infrastructure-follow-up-react
+      -> @ergon/infrastructure-follow-up-web
+      -> @ergon/application-follow-up
+      -> @ergon/domain-follow-up
+      -> @ergon/ui-web
   -> @ergon/infrastructure-follow-up-web
       -> @ergon/application-follow-up
           -> @ergon/domain-follow-up
-  -> @ergon/application-follow-up
-      -> @ergon/domain-follow-up
-  -> @ergon/domain-follow-up
   -> @ergon/infrastructure-session-web
       -> @ergon/application-session
           -> @ergon/domain-session
@@ -62,12 +66,16 @@ current workbench boundaries are:
 
 The workbench remains the composition root and binds the confidential-BFF
 adapter from `@ergon/infrastructure-follow-up-web` to four separate application
-ports. That infrastructure package owns browser wire schemas, Effect execution,
-failure translation, retry and timeout policy, the ephemeral CSRF lifecycle,
-and the follow-up RTK Query API. The workbench registers the API reducer and
-middleware during store composition. The inbound React adapter remains in the
-workbench for a separate behavior-preserving extraction; empty placeholders are
-prohibited.
+ports. That outbound infrastructure package owns browser wire schemas, Effect
+execution, failure translation, retry and timeout policy, the ephemeral CSRF
+lifecycle, and the follow-up RTK Query API. The workbench registers the API
+reducer and middleware during store composition.
+
+`@ergon/infrastructure-follow-up-react` is the inbound web adapter. It owns
+follow-up-specific React orchestration and presentation while consuming the
+cache hooks and domain-agnostic primitives through public package APIs. The
+workbench supplies tenant request context and its trusted same-origin sign-in
+URL; the feature cannot import session or application-composition code.
 
 The workbench binds `@ergon/infrastructure-session-web` to the
 `ResolveCurrentActor` port from `@ergon/application-session`. The infrastructure

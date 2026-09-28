@@ -14,12 +14,14 @@ import {
   SECOND_WORK_ITEM_ID,
   successfulOpenFollowUpResult,
   TENANT_ID,
-} from './follow-up-fixtures.spec-support';
+} from './follow-up-fixtures';
 import {
   createFollowUpTestStore,
   type FollowUpTestCapabilities,
-} from './follow-up-test-store.spec-support';
-import { HumanFollowUpInbox } from './human-follow-up-inbox';
+} from './follow-up-test-store';
+import { HumanFollowUpInbox } from '../src';
+
+const SIGN_IN_HREF = `/bff/login?returnTo=%2Ftenants%2F${TENANT_ID}`;
 
 describe('human follow-up inbox', () => {
   it('renders visible work without provider identity data', async () => {
@@ -71,6 +73,20 @@ describe('human follow-up inbox', () => {
       }),
     ).toBeTruthy();
     expect(listOpen).not.toHaveBeenCalled();
+  });
+
+  it('uses the composition-supplied sign-in target after session expiry', async () => {
+    renderInbox(`/tenants/${TENANT_ID}`, {
+      async listOpen() {
+        return {
+          ok: false,
+          error: { kind: 'authentication-required' },
+        };
+      },
+    });
+
+    const signIn = await screen.findByRole('link', { name: 'Sign in again' });
+    expect(signIn.getAttribute('href')).toBe(SIGN_IN_HREF);
   });
 
   it('stores the queue filter in the URL and resets to its first page', async () => {
@@ -218,7 +234,9 @@ function renderInbox(path: string, capabilities: FollowUpTestCapabilities) {
     [
       {
         path: '/tenants/:tenantId',
-        element: <HumanFollowUpInbox tenantId={TENANT_ID} />,
+        element: (
+          <HumanFollowUpInbox tenantId={TENANT_ID} signInHref={SIGN_IN_HREF} />
+        ),
       },
     ],
     { initialEntries: [path] },

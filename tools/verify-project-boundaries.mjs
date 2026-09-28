@@ -3,6 +3,7 @@ import { join, relative } from 'node:path';
 
 const PROJECT_ROOTS = ['apps', 'packages'];
 const TAG_DIMENSIONS = ['layer', 'scope', 'platform'];
+const ALLOWED_ADAPTER_ROLES = new Set(['adapter:inbound', 'adapter:outbound']);
 const ALLOWED_LAYERS = new Set([
   'layer:application',
   'layer:composition',
@@ -51,6 +52,18 @@ for (const project of projects) {
     }
   }
 
+  const adapterRoles = tags.filter((tag) => tag.startsWith('adapter:'));
+  if (tags.includes('layer:infrastructure') && adapterRoles.length !== 1) {
+    errors.push(
+      `${project.path}: infrastructure projects require exactly one adapter:* role, found ${adapterRoles.length}`,
+    );
+  }
+  if (!tags.includes('layer:infrastructure') && adapterRoles.length > 0) {
+    errors.push(
+      `${project.path}: only infrastructure projects may declare an adapter:* role`,
+    );
+  }
+
   const expectedLayer = [...EXPECTED_PACKAGE_LAYERS].find(
     ([path]) => project.path === path || project.path.startsWith(`${path}/`),
   )?.[1];
@@ -68,6 +81,9 @@ for (const project of projects) {
     }
     if (tag.startsWith('layer:') && !ALLOWED_LAYERS.has(tag)) {
       errors.push(`${project.path}: unsupported project layer ${tag}`);
+    }
+    if (tag.startsWith('adapter:') && !ALLOWED_ADAPTER_ROLES.has(tag)) {
+      errors.push(`${project.path}: unsupported adapter role ${tag}`);
     }
     if (tag.startsWith('platform:') && !ALLOWED_PLATFORMS.has(tag)) {
       errors.push(`${project.path}: unsupported project platform ${tag}`);

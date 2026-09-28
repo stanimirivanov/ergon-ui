@@ -34,6 +34,9 @@ accessibility and security boundaries, and report checks exactly as run.
 - Every Nx project has one `layer:*`, `scope:*`, and `platform:*` tag. Import
   other projects only through their public API and obey the enforced inward
   dependency graph.
+- Infrastructure projects declare exactly one `adapter:inbound` or
+  `adapter:outbound` role. Inbound web adapters may use domain-agnostic UI
+  primitives; outbound adapters must remain independent of presentation.
 - `@ergon/ui-web` owns web-only, domain-agnostic UI primitives outside the
   business hexagon. It must not import domain, application, infrastructure, or
   application-composition code, and it is not a React Native abstraction.

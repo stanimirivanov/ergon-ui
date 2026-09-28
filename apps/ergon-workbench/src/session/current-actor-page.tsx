@@ -1,12 +1,14 @@
 import { Button } from '@ergon/ui-web';
 import type { CurrentActorFailure } from '@ergon/application-session';
+import {
+  HumanFollowUpInbox,
+  ResolverOwnedHumanFollowUps,
+} from '@ergon/infrastructure-follow-up-react';
 import { useCurrentActorQuery } from '@ergon/infrastructure-session-web';
 import { Schema } from 'effect';
 import { useParams } from 'react-router';
 
 import { WorkbenchFrame } from '../app/workbench-frame';
-import { HumanFollowUpInbox } from '../follow-up/human-follow-up-inbox';
-import { ResolverOwnedHumanFollowUps } from '../follow-up/resolver-owned-human-follow-ups';
 import { browserSignInHref } from './browser-session-navigation';
 
 const tenantIdSchema = Schema.UUID;
@@ -36,6 +38,7 @@ export function CurrentActorPage() {
 
 function CurrentActorSession({ tenantId }: { readonly tenantId: string }) {
   const session = useCurrentActorQuery({ tenantId });
+  const signInHref = browserSignInHref(tenantId);
 
   if (session.isLoading || (session.isFetching && session.data === undefined)) {
     return (
@@ -82,8 +85,11 @@ function CurrentActorSession({ tenantId }: { readonly tenantId: string }) {
               </dd>
             </div>
           </dl>
-          <ResolverOwnedHumanFollowUps tenantId={tenantId} />
-          <HumanFollowUpInbox tenantId={tenantId} />
+          <ResolverOwnedHumanFollowUps
+            tenantId={tenantId}
+            signInHref={signInHref}
+          />
+          <HumanFollowUpInbox tenantId={tenantId} signInHref={signInHref} />
         </section>
       </WorkbenchFrame>
     );
@@ -94,7 +100,7 @@ function CurrentActorSession({ tenantId }: { readonly tenantId: string }) {
   const action =
     failure.kind === 'authentication-required' ? (
       <Button asChild>
-        <a href={browserSignInHref(tenantId)}>Sign in to Ergon</a>
+        <a href={signInHref}>Sign in to Ergon</a>
       </Button>
     ) : copy.canRetry ? (
       <Button type="button" onClick={() => session.refetch()}>

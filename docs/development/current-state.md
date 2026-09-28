@@ -44,6 +44,8 @@ animation, requester app, or native app.
 - a follow-up web infrastructure package with separated wire contracts, read
   execution, claim/CSRF execution, protocol failure translation, and explicit
   RTK Query cache integration;
+- a follow-up React inbound-adapter package with capability-owned orchestration,
+  presentation, failure copy, and independently verified component tests;
 - a session web infrastructure package with separated wire decoding, failure
   classification, read execution, cancellation normalization, and tenant-keyed
   RTK Query integration;
@@ -61,8 +63,6 @@ animation, requester app, or native app.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.
-- Follow-up React features still reside in the workbench application pending a
-  separate boundary extraction.
 
 The next resolver slice should add an explicit ownership lifecycle operation
 after a reviewed browser contract exists. Existing `/internal/v1` routes remain

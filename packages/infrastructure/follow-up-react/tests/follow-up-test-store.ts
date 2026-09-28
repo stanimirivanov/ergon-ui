@@ -1,15 +1,17 @@
+import { configureStore } from '@reduxjs/toolkit';
 import type {
   ClaimHumanFollowUp,
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
 } from '@ergon/application-follow-up';
-import type { ResolveCurrentActor } from '@ergon/application-session';
-
-import { createWorkbenchStore } from '../app/store';
+import {
+  type HumanFollowUpCacheDependencies,
+  humanFollowUpApi,
+} from '@ergon/infrastructure-follow-up-web';
 
 /**
- * Capability implementations enabled for one workbench component test.
+ * Capability implementations enabled for one follow-up component test.
  *
  * Omitted capabilities fail immediately when exercised. This keeps each test's
  * acquired ports visible without recreating the broad adapter surface that the
@@ -22,12 +24,13 @@ export interface FollowUpTestCapabilities {
   readonly claim?: ClaimHumanFollowUp['claim'];
 }
 
-/** Creates an isolated store whose undeclared capabilities fail fast. */
+type FollowUpTestStore = ReturnType<typeof configureFollowUpStore>;
+
+/** Creates an isolated follow-up cache whose undeclared ports fail fast. */
 export function createFollowUpTestStore(
   capabilities: FollowUpTestCapabilities,
-): ReturnType<typeof createWorkbenchStore> {
-  return createWorkbenchStore({
-    resolveCurrentActor: unusedCurrentActorResolver,
+): FollowUpTestStore {
+  const dependencies: HumanFollowUpCacheDependencies = {
     listOpenHumanFollowUps: {
       listOpen: capabilities.listOpen ?? unusedListOpen,
     },
@@ -41,6 +44,20 @@ export function createFollowUpTestStore(
     claimHumanFollowUp: {
       claim: capabilities.claim ?? unusedClaim,
     },
+  };
+
+  return configureFollowUpStore(dependencies);
+}
+
+function configureFollowUpStore(dependencies: HumanFollowUpCacheDependencies) {
+  return configureStore({
+    reducer: {
+      [humanFollowUpApi.reducerPath]: humanFollowUpApi.reducer,
+    },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        thunk: { extraArgument: dependencies },
+      }).concat(humanFollowUpApi.middleware),
   });
 }
 
@@ -59,12 +76,4 @@ const unusedGetOwnedCaseSummary: GetOwnedFollowUpCaseSummary['getOwnedCaseSummar
 
 const unusedClaim: ClaimHumanFollowUp['claim'] = async () => {
   throw new Error('Claiming was not configured for this test');
-};
-
-const unusedCurrentActorResolver: ResolveCurrentActor = {
-  async resolve() {
-    throw new Error(
-      'Current actor resolution was not configured for this test',
-    );
-  },
 };

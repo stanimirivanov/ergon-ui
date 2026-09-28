@@ -23,8 +23,9 @@ pnpm nx e2e @ergon/workbench-e2e
 ## Boundaries
 
 - Compose routes and application providers here.
-- Depend on follow-up models through `@ergon/domain-follow-up` and on
-  capability-specific ports through `@ergon/application-follow-up`.
+- Render follow-up behavior through
+  `@ergon/infrastructure-follow-up-react`; do not recreate capability-specific
+  orchestration or presentation in the composition root.
 - Depend on the verified actor through `@ergon/domain-session` and on session
   resolution through `@ergon/application-session`.
 - Bind session HTTP and remote caching through
@@ -42,8 +43,9 @@ The composition root binds `@ergon/infrastructure-follow-up-web` to four
 separate follow-up ports: open-work listing, owned-work listing, owned
 case-context loading, and claiming. The infrastructure package owns the
 follow-up RTK Query API; the workbench registers its reducer and middleware and
-renders its generated hooks. The inbound React feature remains a migration
-boundary for a separate behavior-preserving change.
+renders the inbound `@ergon/infrastructure-follow-up-react` adapter that
+consumes its generated hooks. The workbench supplies tenant request context and
+the trusted same-origin sign-in URL after session verification.
 
 The composition root binds `@ergon/infrastructure-session-web` to the
 `ResolveCurrentActor` application port. The adapter owns session HTTP, wire

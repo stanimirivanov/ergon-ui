@@ -1,11 +1,20 @@
+import type { ReactElement } from 'react';
+
 import { ResolverOwnedHumanFollowUpsPage } from './resolver-owned-human-follow-ups-page';
+
+/** Inputs supplied by the route-level composition boundary. */
+export interface ResolverOwnedHumanFollowUpsProps {
+  /** Request context only; the BFF remains authoritative for ownership. */
+  readonly tenantId: string;
+  /** Trusted same-origin navigation target supplied by the composition root. */
+  readonly signInHref: string;
+}
 
 /** Renders active claims without inferring why the server returned an empty page. */
 export function ResolverOwnedHumanFollowUps({
   tenantId,
-}: {
-  readonly tenantId: string;
-}) {
+  signInHref,
+}: ResolverOwnedHumanFollowUpsProps): ReactElement {
   return (
     <section aria-labelledby="owned-work-heading" className="mt-12">
       <div className="border-b border-border pb-7">
@@ -23,7 +32,10 @@ export function ResolverOwnedHumanFollowUps({
           resolver authority is checked again whenever this list is requested.
         </p>
       </div>
-      <ResolverOwnedHumanFollowUpsPage tenantId={tenantId} />
+      <ResolverOwnedHumanFollowUpsPage
+        tenantId={tenantId}
+        signInHref={signInHref}
+      />
     </section>
   );
 }
