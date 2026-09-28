@@ -1,28 +1,31 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type {
   ClaimHumanFollowUp,
-  GetOwnedFollowUpCaseSummary,
   HumanFollowUpResult,
   ListOpenHumanFollowUps,
-  ListOwnedHumanFollowUps,
 } from '@ergon/application-follow-up';
-import type { ResolveCurrentActor } from '@ergon/application-session';
 import { Provider } from 'react-redux';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 
-import { createWorkbenchStore } from '../app/store';
+import {
+  FIRST_WORK_ITEM_ID,
+  followUpClaim,
+  SECOND_WORK_ITEM_ID,
+  successfulOpenFollowUpResult,
+  TENANT_ID,
+} from './follow-up-fixtures.spec-support';
+import {
+  createFollowUpTestStore,
+  type FollowUpTestCapabilities,
+} from './follow-up-test-store.spec-support';
 import { HumanFollowUpInbox } from './human-follow-up-inbox';
-
-const TENANT_ID = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
-const FIRST_WORK_ITEM_ID = '11111111-1111-4111-8111-111111111111';
-const SECOND_WORK_ITEM_ID = '55555555-5555-4555-8555-555555555555';
 
 describe('human follow-up inbox', () => {
   it('renders visible work without provider identity data', async () => {
     renderInbox(
       `/tenants/${TENANT_ID}`,
-      clientReturning(pageWith(FIRST_WORK_ITEM_ID, null)),
+      listOpenReturning(successfulOpenFollowUpResult(FIRST_WORK_ITEM_ID, null)),
     );
 
     expect(
@@ -42,7 +45,7 @@ describe('human follow-up inbox', () => {
   it('presents an empty authorized page without implying absent authority', async () => {
     renderInbox(
       `/tenants/${TENANT_ID}`,
-      clientReturning({
+      listOpenReturning({
         ok: true,
         page: { items: [], nextCursor: null },
       }),
@@ -59,12 +62,7 @@ describe('human follow-up inbox', () => {
 
   it('keeps an invalid shareable queue filter out of the HTTP boundary', async () => {
     const listOpen = vi.fn<ListOpenHumanFollowUps['listOpen']>();
-    renderInbox(`/tenants/${TENANT_ID}?queue=UpperCase`, {
-      listOpen,
-      listOwned: unusedListOwned,
-      getOwnedCaseSummary: unusedGetOwnedCaseSummary,
-      claim: unusedClaim,
-    });
+    renderInbox(`/tenants/${TENANT_ID}?queue=UpperCase`, { listOpen });
 
     expect(
       screen.getByRole('heading', {
@@ -82,12 +80,7 @@ describe('human follow-up inbox', () => {
         ok: true,
         page: { items: [], nextCursor: null },
       });
-    const { router } = renderInbox(`/tenants/${TENANT_ID}`, {
-      listOpen,
-      listOwned: unusedListOwned,
-      getOwnedCaseSummary: unusedGetOwnedCaseSummary,
-      claim: unusedClaim,
-    });
+    const { router } = renderInbox(`/tenants/${TENANT_ID}`, { listOpen });
 
     await waitFor(() => expect(listOpen).toHaveBeenCalledTimes(1));
     fireEvent.change(screen.getByRole('textbox', { name: 'Queue key' }), {
@@ -115,14 +108,13 @@ describe('human follow-up inbox', () => {
     };
     const listOpen = vi
       .fn<ListOpenHumanFollowUps['listOpen']>()
-      .mockResolvedValueOnce(pageWith(FIRST_WORK_ITEM_ID, nextCursor))
-      .mockResolvedValueOnce(pageWith(SECOND_WORK_ITEM_ID, null));
-    renderInbox(`/tenants/${TENANT_ID}`, {
-      listOpen,
-      listOwned: unusedListOwned,
-      getOwnedCaseSummary: unusedGetOwnedCaseSummary,
-      claim: unusedClaim,
-    });
+      .mockResolvedValueOnce(
+        successfulOpenFollowUpResult(FIRST_WORK_ITEM_ID, nextCursor),
+      )
+      .mockResolvedValueOnce(
+        successfulOpenFollowUpResult(SECOND_WORK_ITEM_ID, null),
+      );
+    renderInbox(`/tenants/${TENANT_ID}`, { listOpen });
 
     fireEvent.click(await screen.findByRole('button', { name: 'Next page' }));
 
@@ -141,17 +133,14 @@ describe('human follow-up inbox', () => {
   it('claims visible work and refreshes the tenant inbox', async () => {
     const listOpen = vi
       .fn<ListOpenHumanFollowUps['listOpen']>()
-      .mockResolvedValue(pageWith(FIRST_WORK_ITEM_ID, null));
+      .mockResolvedValue(
+        successfulOpenFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      );
     const claim = vi.fn<ClaimHumanFollowUp['claim']>().mockResolvedValue({
       ok: true,
-      claim: claimFor(FIRST_WORK_ITEM_ID),
+      claim: followUpClaim(FIRST_WORK_ITEM_ID),
     });
-    renderInbox(`/tenants/${TENANT_ID}`, {
-      listOpen,
-      listOwned: unusedListOwned,
-      getOwnedCaseSummary: unusedGetOwnedCaseSummary,
-      claim,
-    });
+    renderInbox(`/tenants/${TENANT_ID}`, { listOpen, claim });
 
     fireEvent.click(
       await screen.findByRole('button', {
@@ -172,17 +161,14 @@ describe('human follow-up inbox', () => {
   it('announces a competing claim and refreshes stale work', async () => {
     const listOpen = vi
       .fn<ListOpenHumanFollowUps['listOpen']>()
-      .mockResolvedValue(pageWith(FIRST_WORK_ITEM_ID, null));
+      .mockResolvedValue(
+        successfulOpenFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      );
     const claim = vi.fn<ClaimHumanFollowUp['claim']>().mockResolvedValue({
       ok: false,
       error: { kind: 'already-claimed' },
     });
-    renderInbox(`/tenants/${TENANT_ID}`, {
-      listOpen,
-      listOwned: unusedListOwned,
-      getOwnedCaseSummary: unusedGetOwnedCaseSummary,
-      claim,
-    });
+    renderInbox(`/tenants/${TENANT_ID}`, { listOpen, claim });
 
     fireEvent.click(
       await screen.findByRole('button', {
@@ -204,12 +190,14 @@ describe('human follow-up inbox', () => {
       .mockResolvedValueOnce({ ok: false, error: { kind: 'transport' } })
       .mockResolvedValueOnce({
         ok: true,
-        claim: claimFor(FIRST_WORK_ITEM_ID),
+        claim: followUpClaim(FIRST_WORK_ITEM_ID),
       });
-    renderInbox(
-      `/tenants/${TENANT_ID}`,
-      clientReturning(pageWith(FIRST_WORK_ITEM_ID, null), claim),
-    );
+    renderInbox(`/tenants/${TENANT_ID}`, {
+      ...listOpenReturning(
+        successfulOpenFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      ),
+      claim,
+    });
 
     fireEvent.click(
       await screen.findByRole('button', {
@@ -225,7 +213,7 @@ describe('human follow-up inbox', () => {
   });
 });
 
-function renderInbox(path: string, adapter: HumanFollowUpTestAdapter) {
+function renderInbox(path: string, capabilities: FollowUpTestCapabilities) {
   const router = createMemoryRouter(
     [
       {
@@ -235,10 +223,7 @@ function renderInbox(path: string, adapter: HumanFollowUpTestAdapter) {
     ],
     { initialEntries: [path] },
   );
-  const store = createWorkbenchStore({
-    resolveCurrentActor: unusedCurrentActorResolver,
-    ...followUpDependencies(adapter),
-  });
+  const store = createFollowUpTestStore(capabilities);
   const rendered = render(
     <Provider store={store}>
       <RouterProvider router={router} />
@@ -247,86 +232,12 @@ function renderInbox(path: string, adapter: HumanFollowUpTestAdapter) {
   return { ...rendered, router };
 }
 
-function clientReturning(
+function listOpenReturning(
   result: HumanFollowUpResult,
-  claim: ClaimHumanFollowUp['claim'] = unusedClaim,
-): HumanFollowUpTestAdapter {
+): FollowUpTestCapabilities {
   return {
     async listOpen() {
       return result;
     },
-    listOwned: unusedListOwned,
-    getOwnedCaseSummary: unusedGetOwnedCaseSummary,
-    claim,
-  };
-}
-
-function pageWith(
-  workItemId: string,
-  nextCursor: {
-    readonly afterOpenedAt: string;
-    readonly afterWorkItemId: string;
-  } | null,
-): HumanFollowUpResult {
-  return {
-    ok: true,
-    page: {
-      items: [
-        {
-          workItemId,
-          caseId: workItemId,
-          runId: '33333333-3333-4333-8333-333333333333',
-          escalationEventId: '44444444-4444-4444-8444-444444444444',
-          reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
-          queueKey: 'access-restoration',
-          status: 'OPEN',
-          openedAt: '2026-09-21T09:30:00Z',
-          recordedAt: '2026-09-21T09:30:01Z',
-        },
-      ],
-      nextCursor,
-    },
-  };
-}
-
-function claimFor(workItemId: string) {
-  return {
-    claimId: '77777777-7777-4777-8777-777777777777',
-    workItemId,
-    claimedAt: '2026-09-22T10:15:00Z',
-    recordedAt: '2026-09-22T10:15:01Z',
-  };
-}
-
-const unusedClaim: ClaimHumanFollowUp['claim'] = async () => {
-  throw new Error('Claiming is not used by this test');
-};
-
-const unusedListOwned: ListOwnedHumanFollowUps['listOwned'] = async () => {
-  throw new Error('Owned work is not used by this test');
-};
-
-const unusedGetOwnedCaseSummary: GetOwnedFollowUpCaseSummary['getOwnedCaseSummary'] =
-  async () => {
-    throw new Error('Case context is not used by this test');
-  };
-
-const unusedCurrentActorResolver: ResolveCurrentActor = {
-  async resolve() {
-    throw new Error('Current actor resolution is not used by this test');
-  },
-};
-
-type HumanFollowUpTestAdapter = ListOpenHumanFollowUps &
-  ListOwnedHumanFollowUps &
-  GetOwnedFollowUpCaseSummary &
-  ClaimHumanFollowUp;
-
-function followUpDependencies(adapter: HumanFollowUpTestAdapter) {
-  return {
-    listOpenHumanFollowUps: adapter,
-    listOwnedHumanFollowUps: adapter,
-    getOwnedFollowUpCaseSummary: adapter,
-    claimHumanFollowUp: adapter,
   };
 }

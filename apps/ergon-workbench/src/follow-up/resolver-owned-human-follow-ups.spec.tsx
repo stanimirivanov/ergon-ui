@@ -4,24 +4,35 @@ import type {
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
-  ResolverOwnedHumanFollowUpResult,
 } from '@ergon/application-follow-up';
-import type { ResolveCurrentActor } from '@ergon/application-session';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 
-import { createWorkbenchStore } from '../app/store';
+import {
+  FIRST_WORK_ITEM_ID,
+  followUpClaim,
+  resolverFollowUpCaseSummary,
+  RUN_ID,
+  SECOND_WORK_ITEM_ID,
+  successfulOpenFollowUpResult,
+  successfulOwnedFollowUpResult,
+  TENANT_ID,
+} from './follow-up-fixtures.spec-support';
+import {
+  createFollowUpTestStore,
+  type FollowUpTestCapabilities,
+} from './follow-up-test-store.spec-support';
 import { HumanFollowUpInbox } from './human-follow-up-inbox';
 import { ResolverOwnedHumanFollowUps } from './resolver-owned-human-follow-ups';
 
-const TENANT_ID = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
-const FIRST_WORK_ITEM_ID = '11111111-1111-4111-8111-111111111111';
-const SECOND_WORK_ITEM_ID = '55555555-5555-4555-8555-555555555555';
-
 describe('resolver-owned human follow-ups', () => {
   it('renders active work without internal ownership attribution', async () => {
-    renderOwned(clientReturning(ownedPageWith(FIRST_WORK_ITEM_ID, null)));
+    renderOwned({
+      async listOwned() {
+        return successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null);
+      },
+    });
 
     expect(
       await screen.findByRole('heading', {
@@ -36,12 +47,11 @@ describe('resolver-owned human follow-ups', () => {
   });
 
   it('keeps an empty active-work page neutral', async () => {
-    renderOwned(
-      clientReturning({
-        ok: true,
-        page: { items: [], nextCursor: null },
-      }),
-    );
+    renderOwned({
+      async listOwned() {
+        return { ok: true, page: { items: [], nextCursor: null } };
+      },
+    });
 
     expect(
       await screen.findByRole('heading', {
@@ -59,14 +69,13 @@ describe('resolver-owned human follow-ups', () => {
     };
     const listOwned = vi
       .fn<ListOwnedHumanFollowUps['listOwned']>()
-      .mockResolvedValueOnce(ownedPageWith(FIRST_WORK_ITEM_ID, nextCursor))
-      .mockResolvedValueOnce(ownedPageWith(SECOND_WORK_ITEM_ID, null));
-    renderOwned({
-      listOwned,
-      listOpen: unusedListOpen,
-      getOwnedCaseSummary: unusedGetOwnedCaseSummary,
-      claim: unusedClaim,
-    });
+      .mockResolvedValueOnce(
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, nextCursor),
+      )
+      .mockResolvedValueOnce(
+        successfulOwnedFollowUpResult(SECOND_WORK_ITEM_ID, null),
+      );
+    renderOwned({ listOwned });
 
     fireEvent.click(
       await screen.findByRole('button', { name: 'Next claimed-work page' }),
@@ -93,24 +102,19 @@ describe('resolver-owned human follow-ups', () => {
         ok: true,
         page: { items: [], nextCursor: null },
       })
-      .mockResolvedValue(ownedPageWith(FIRST_WORK_ITEM_ID, null));
+      .mockResolvedValue(
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      );
     const listOpen = vi
       .fn<ListOpenHumanFollowUps['listOpen']>()
-      .mockResolvedValue(openPageWith(FIRST_WORK_ITEM_ID));
+      .mockResolvedValue(
+        successfulOpenFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      );
     const claim = vi.fn<ClaimHumanFollowUp['claim']>().mockResolvedValue({
       ok: true,
-      claim: claimFor(FIRST_WORK_ITEM_ID),
+      claim: followUpClaim(FIRST_WORK_ITEM_ID),
     });
-    const client = {
-      listOwned,
-      listOpen,
-      getOwnedCaseSummary: unusedGetOwnedCaseSummary,
-      claim,
-    };
-    const store = createWorkbenchStore({
-      resolveCurrentActor: unusedCurrentActorResolver,
-      ...followUpDependencies(client),
-    });
+    const store = createFollowUpTestStore({ listOwned, listOpen, claim });
     render(
       <Provider store={store}>
         <MemoryRouter>
@@ -135,15 +139,15 @@ describe('resolver-owned human follow-ups', () => {
       .fn<GetOwnedFollowUpCaseSummary['getOwnedCaseSummary']>()
       .mockResolvedValue({
         ok: true,
-        summary: caseSummaryWith(
+        summary: resolverFollowUpCaseSummary(
+          FIRST_WORK_ITEM_ID,
           '<img src="/tracking-pixel" alt="unsafe markup">',
         ),
       });
     renderOwned({
-      listOwned: async () => ownedPageWith(FIRST_WORK_ITEM_ID, null),
-      listOpen: unusedListOpen,
+      listOwned: async () =>
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
       getOwnedCaseSummary,
-      claim: unusedClaim,
     });
 
     const disclosure = await screen.findByRole('button', {
@@ -170,19 +174,13 @@ describe('resolver-owned human follow-ups', () => {
       screen.getByText(/Automated attempt 2 reached the configured limit of 2/),
     ).toBeTruthy();
     expect(screen.getByText('2 of 2')).toBeTruthy();
-    expect(
-      (
-        disclosure as unknown as {
-          getAttribute(name: string): string | null;
-        }
-      ).getAttribute('aria-expanded'),
-    ).toBe('true');
+    expect(disclosure.getAttribute('aria-expanded')).toBe('true');
     expect(getOwnedCaseSummary).toHaveBeenCalledWith(
       {
         tenantId: TENANT_ID,
         workItemId: FIRST_WORK_ITEM_ID,
         caseId: FIRST_WORK_ITEM_ID,
-        runId: '33333333-3333-4333-8333-333333333333',
+        runId: RUN_ID,
       },
       expect.any(AbortSignal),
     );
@@ -190,13 +188,12 @@ describe('resolver-owned human follow-ups', () => {
 
   it('keeps unavailable case context non-disclosing', async () => {
     renderOwned({
-      listOwned: async () => ownedPageWith(FIRST_WORK_ITEM_ID, null),
-      listOpen: unusedListOpen,
+      listOwned: async () =>
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
       getOwnedCaseSummary: async () => ({
         ok: false,
         error: { kind: 'not-found' },
       }),
-      claim: unusedClaim,
     });
 
     fireEvent.click(
@@ -214,171 +211,11 @@ describe('resolver-owned human follow-ups', () => {
   });
 });
 
-function renderOwned(adapter: HumanFollowUpTestAdapter) {
-  const store = createWorkbenchStore({
-    resolveCurrentActor: unusedCurrentActorResolver,
-    ...followUpDependencies(adapter),
-  });
+function renderOwned(capabilities: FollowUpTestCapabilities) {
+  const store = createFollowUpTestStore(capabilities);
   return render(
     <Provider store={store}>
       <ResolverOwnedHumanFollowUps tenantId={TENANT_ID} />
     </Provider>,
   );
-}
-
-function clientReturning(
-  result: ResolverOwnedHumanFollowUpResult,
-): HumanFollowUpTestAdapter {
-  return {
-    async listOwned() {
-      return result;
-    },
-    listOpen: unusedListOpen,
-    getOwnedCaseSummary: unusedGetOwnedCaseSummary,
-    claim: unusedClaim,
-  };
-}
-
-function ownedPageWith(
-  workItemId: string,
-  nextCursor: {
-    readonly afterClaimedAt: string;
-    readonly afterClaimId: string;
-  } | null,
-): ResolverOwnedHumanFollowUpResult {
-  return {
-    ok: true,
-    page: {
-      items: [
-        { workItem: workItemFor(workItemId), claim: claimFor(workItemId) },
-      ],
-      nextCursor,
-    },
-  };
-}
-
-function openPageWith(workItemId: string) {
-  return {
-    ok: true as const,
-    page: { items: [workItemFor(workItemId)], nextCursor: null },
-  };
-}
-
-function workItemFor(workItemId: string) {
-  return {
-    workItemId,
-    caseId: workItemId,
-    runId: '33333333-3333-4333-8333-333333333333',
-    escalationEventId: '44444444-4444-4444-8444-444444444444',
-    reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
-    queueKey: 'access-restoration',
-    status: 'OPEN' as const,
-    openedAt: '2026-09-21T09:30:00Z',
-    recordedAt: '2026-09-21T09:30:01Z',
-  };
-}
-
-function claimFor(workItemId: string) {
-  return {
-    claimId: '77777777-7777-4777-8777-777777777777',
-    workItemId,
-    claimedAt: '2026-09-22T10:15:00Z',
-    recordedAt: '2026-09-22T10:15:01Z',
-  };
-}
-
-function caseSummaryWith(content: string) {
-  return {
-    followUp: {
-      workItemId: FIRST_WORK_ITEM_ID,
-      queueKey: 'access-restoration',
-      escalationReason: 'RETRY_ATTEMPT_LIMIT_REACHED',
-      openedAt: '2026-09-21T09:30:00Z',
-      claimedAt: '2026-09-22T10:15:00Z',
-    },
-    case: {
-      caseId: '22222222-2222-4222-8222-222222222222',
-      goal: 'Restore access to the customer workspace',
-      status: 'OPEN' as const,
-      streamVersion: 4,
-      resolutionContract: { key: 'access-restoration', revision: 2 },
-    },
-    observations: [
-      {
-        streamVersion: 1,
-        eventType: 'SourceObservationRecorded',
-        summary: 'Customer cannot sign in',
-        observationId: '88888888-8888-4888-8888-888888888888',
-        originType: 'EMAIL',
-        provider: 'support-mailbox',
-        reference: 'message-42',
-        content,
-        occurredAt: '2026-09-21T09:20:00Z',
-        recordedAt: '2026-09-21T09:20:01Z',
-      },
-    ],
-    resolutionRun: {
-      runId: '33333333-3333-4333-8333-333333333333',
-      caseEvidenceStreamVersion: 4,
-      contractKey: 'access-restoration',
-      contractRevision: 2,
-      policyRevision: 'policy-7',
-      stepId: 'verify-account-owner',
-      capability: 'identity.lookup',
-      effectiveRisk: 'HIGH' as const,
-      requiredApproval: 'RESOLVER',
-      attemptNumber: 2,
-      predecessorRunId: null,
-      state: 'ESCALATED' as const,
-      stateVersion: 3,
-      stateUpdatedAt: '2026-09-21T09:30:00Z',
-      recordedAt: '2026-09-21T09:30:01Z',
-    },
-    failedExecution: {
-      connector: 'identity-stub',
-      outcome: 'FAILED' as const,
-      completedAt: '2026-09-21T09:29:30Z',
-      recordedAt: '2026-09-21T09:29:31Z',
-    },
-    escalation: {
-      retryPolicyRevision: 'ergon.dev/policy/resolution-retry/v1',
-      sourceAttemptNumber: 2,
-      maximumAttempts: 2,
-      occurredAt: '2026-09-21T09:30:00Z',
-      recordedAt: '2026-09-21T09:30:01Z',
-    },
-  };
-}
-
-const unusedListOpen: ListOpenHumanFollowUps['listOpen'] = async () => {
-  throw new Error('Shared inbox is not used by this test');
-};
-
-const unusedClaim: ClaimHumanFollowUp['claim'] = async () => {
-  throw new Error('Claiming is not used by this test');
-};
-
-const unusedGetOwnedCaseSummary: GetOwnedFollowUpCaseSummary['getOwnedCaseSummary'] =
-  async () => {
-    throw new Error('Case context is not used by this test');
-  };
-
-const unusedCurrentActorResolver: ResolveCurrentActor = {
-  async resolve() {
-    throw new Error('Current actor resolution is not used by this test');
-  },
-};
-
-type HumanFollowUpTestAdapter = ListOpenHumanFollowUps &
-  ListOwnedHumanFollowUps &
-  GetOwnedFollowUpCaseSummary &
-  ClaimHumanFollowUp;
-
-function followUpDependencies(adapter: HumanFollowUpTestAdapter) {
-  return {
-    listOpenHumanFollowUps: adapter,
-    listOwnedHumanFollowUps: adapter,
-    getOwnedFollowUpCaseSummary: adapter,
-    claimHumanFollowUp: adapter,
-  };
 }
