@@ -1,7 +1,7 @@
-import type { CurrentActorFailure } from '@ergon/application-session';
 import type { CurrentActor } from '@ergon/domain-session';
 import { Effect, Either, Schema } from 'effect';
 
+import type { CurrentActorFailure } from '../current-actor-client';
 import {
   INVALID_RESPONSE,
   mapCurrentActorHttpFailure,

@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type {
+  CurrentActorClient,
   CurrentActorResult,
-  ResolveCurrentActor,
-} from '@ergon/application-session';
+} from '@ergon/infrastructure-session-web';
 import { Provider } from 'react-redux';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
@@ -15,7 +15,7 @@ const TENANT_ID = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
 
 describe('current actor page', () => {
   it('does not resolve a session for an invalid tenant address', async () => {
-    const resolve = vi.fn<ResolveCurrentActor['resolve']>();
+    const resolve = vi.fn<CurrentActorClient['resolve']>();
 
     renderSession('/tenants/not-a-uuid', { resolve });
 
@@ -113,7 +113,7 @@ describe('current actor page', () => {
 
   it('allows a transient verification failure to be retried', async () => {
     const resolve = vi
-      .fn<ResolveCurrentActor['resolve']>()
+      .fn<CurrentActorClient['resolve']>()
       .mockResolvedValueOnce({ ok: false, error: { kind: 'transport' } })
       .mockResolvedValueOnce({
         ok: true,
@@ -139,7 +139,7 @@ describe('current actor page', () => {
   });
 });
 
-function renderSession(path: string, resolveCurrentActor: ResolveCurrentActor) {
+function renderSession(path: string, resolveCurrentActor: CurrentActorClient) {
   const router = createMemoryRouter(
     [{ path: '/tenants/:tenantId', Component: CurrentActorPage }],
     {
@@ -187,7 +187,7 @@ const emptyFollowUpDependencies: Pick<
   },
 };
 
-function clientReturning(result: CurrentActorResult): ResolveCurrentActor {
+function clientReturning(result: CurrentActorResult): CurrentActorClient {
   return {
     async resolve() {
       return result;

@@ -1,11 +1,11 @@
-import type {
-  CurrentActorFailure,
-  CurrentActorResult,
-  ResolveCurrentActor,
-} from '@ergon/application-session';
 import type { CurrentActor } from '@ergon/domain-session';
 import { Effect, Either } from 'effect';
 
+import type {
+  CurrentActorClient,
+  CurrentActorFailure,
+  CurrentActorResult,
+} from '../current-actor-client';
 import { decodeCurrentActorResponse } from './current-actor-codecs';
 import {
   isRetryableCurrentActorFailure,
@@ -30,7 +30,7 @@ interface CurrentActorReadAdapterOptions {
 export function createCurrentActorReadAdapter({
   fetch,
   requestTimeout,
-}: CurrentActorReadAdapterOptions): ResolveCurrentActor {
+}: CurrentActorReadAdapterOptions): CurrentActorClient {
   return {
     resolve: (tenantId, signal): Promise<CurrentActorResult> =>
       runCurrentActorRead(

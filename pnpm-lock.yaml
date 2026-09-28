@@ -352,12 +352,6 @@ importers:
 
   apps/ergon-workbench:
     dependencies:
-      '@ergon/application-session':
-        specifier: workspace:*
-        version: link:../../packages/application/session
-      '@ergon/domain-session':
-        specifier: workspace:*
-        version: link:../../packages/domain/session
       '@ergon/infrastructure-follow-up-react':
         specifier: workspace:*
         version: link:../../packages/infrastructure/follow-up-react
@@ -387,12 +381,6 @@ importers:
       '@ergon/domain-follow-up':
         specifier: workspace:*
         version: link:../../domain/follow-up
-
-  packages/application/session:
-    dependencies:
-      '@ergon/domain-session':
-        specifier: workspace:*
-        version: link:../../domain/session
 
   packages/domain/follow-up: {}
 
@@ -448,9 +436,6 @@ importers:
 
   packages/infrastructure/session-web:
     dependencies:
-      '@ergon/application-session':
-        specifier: workspace:*
-        version: link:../../application/session
       '@ergon/domain-session':
         specifier: workspace:*
         version: link:../../domain/session

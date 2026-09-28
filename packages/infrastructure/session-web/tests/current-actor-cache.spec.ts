@@ -1,8 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
-import type { ResolveCurrentActor } from '@ergon/application-session';
 import { describe, expect, it, vi } from 'vitest';
 
-import { type CurrentActorCacheDependencies, currentActorApi } from '../src';
+import {
+  type CurrentActorCacheDependencies,
+  type CurrentActorClient,
+  currentActorApi,
+} from '../src';
 
 const TENANT_ID = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
 const OTHER_TENANT_ID = '1f262f80-c0c6-4c31-9fa0-5e701b8636ee';
@@ -11,7 +14,7 @@ const ACTOR_ID = '741bcdba-9521-4e96-bfcc-7a5a2830eec8';
 describe('current actor cache adapter', () => {
   it('deduplicates one tenant while isolating a different tenant key', async () => {
     const resolve = vi
-      .fn<ResolveCurrentActor['resolve']>()
+      .fn<CurrentActorClient['resolve']>()
       .mockImplementation(async (tenantId) => ({
         ok: true,
         actor: {
@@ -55,7 +58,7 @@ describe('current actor cache adapter', () => {
     otherTenant.unsubscribe();
   });
 
-  it('places typed application failures in the RTK Query error channel', async () => {
+  it('places typed data-access failures in the RTK Query error channel', async () => {
     const store = createSessionCacheStore({
       resolveCurrentActor: {
         async resolve() {
@@ -72,7 +75,7 @@ describe('current actor cache adapter', () => {
     request.unsubscribe();
   });
 
-  it('passes RTK Query cancellation to the current-actor gateway', async () => {
+  it('passes RTK Query cancellation to the current-actor client', async () => {
     let observedSignal: AbortSignal | undefined;
     let notifyStarted: () => void = () => undefined;
     const started = new Promise<void>((resolve) => {

@@ -1,5 +1,4 @@
-import type { CurrentActorFailure } from '@ergon/application-session';
-
+import type { CurrentActorFailure } from '../current-actor-client';
 import type { ProblemDetail } from './current-actor-wire-schemas';
 
 const BROWSER_SIGN_IN_PATH = '/bff/login' as const;

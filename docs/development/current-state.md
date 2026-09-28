@@ -37,8 +37,8 @@ animation, requester app, or native app.
   handoff explanation;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
-- transitional session model and interface-only application packages plus a
-  cancellation-aware current-actor resolution contract;
+- a transitional session model plus a cancellation-aware current-actor client
+  owned by session web data access, with no ceremonial application project;
 - transitional follow-up model and interface-only application packages with
   capability-specific contracts and verified Nx project metadata;
 - a follow-up web data-access package with separated wire contracts, read
@@ -46,9 +46,9 @@ animation, requester app, or native app.
   RTK Query cache integration;
 - a follow-up web feature package with capability-owned orchestration,
   presentation, failure copy, and independently verified component tests;
-- a session web data-access package with separated wire decoding, failure
-  classification, read execution, cancellation normalization, and tenant-keyed
-  RTK Query integration;
+- a session web data-access package owning its typed client contract, wire
+  decoding, failure classification, read execution, cancellation normalization,
+  and tenant-keyed RTK Query integration;
 - capability-first `type:*`, `scope:*`, and `platform:*` boundaries with a
   finite ledger for packages still under the old global-layer paths and a
   DOM-free TypeScript configuration for model and application cores;
