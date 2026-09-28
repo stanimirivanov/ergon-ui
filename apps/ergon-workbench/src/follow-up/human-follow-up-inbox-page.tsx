@@ -15,11 +15,11 @@ import {
   normalizeFollowUpClaimFailure,
   normalizeFollowUpReadFailure,
 } from './follow-up-failure-normalization';
+import { FollowUpMessage } from './follow-up-message';
 import { inboxFailureCopy } from './human-follow-up-inbox-copy';
 import {
   type ClaimNotice,
   HumanFollowUpPageView,
-  InboxMessage,
 } from './human-follow-up-inbox-view';
 
 const PAGE_SIZE = 25;
@@ -70,7 +70,7 @@ export function HumanFollowUpInboxPage({
     (followUps.isFetching && followUps.data === undefined)
   ) {
     return (
-      <InboxMessage
+      <FollowUpMessage
         title="Loading follow-up work…"
         description="The workbench is requesting only the rows visible to your current authority."
         live
@@ -104,7 +104,7 @@ export function HumanFollowUpInboxPage({
         </Button>
       ) : undefined;
     return (
-      <InboxMessage
+      <FollowUpMessage
         title={copy.title}
         description={copy.description}
         action={action}

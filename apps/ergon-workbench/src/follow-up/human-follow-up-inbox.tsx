@@ -1,8 +1,9 @@
 import { Button } from '@ergon/ui-web';
 import { useSearchParams } from 'react-router';
 
+import { FollowUpMessage } from './follow-up-message';
 import { HumanFollowUpInboxPage } from './human-follow-up-inbox-page';
-import { InboxMessage, QueueFilter } from './human-follow-up-inbox-view';
+import { QueueFilter } from './human-follow-up-inbox-view';
 
 const QUEUE_KEY_PATTERN = /^[a-z][a-z0-9-]{0,62}$/;
 
@@ -70,7 +71,7 @@ export function HumanFollowUpInbox({
             : { queueKey: queue.queueKey })}
         />
       ) : (
-        <InboxMessage
+        <FollowUpMessage
           title="Queue filter is invalid."
           description="Use a lowercase queue key beginning with a letter. Hyphens and digits are allowed after the first character."
           action={
