@@ -26,6 +26,8 @@
     "src/**/*.test.js",
     "src/**/*.spec.jsx",
     "src/**/*.test.jsx",
+    "src/**/*.spec-support.ts",
+    "src/**/*.spec-support.tsx",
     "vite.config.ts",
     "vite.config.mts",
     "vitest.config.ts",

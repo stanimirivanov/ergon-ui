@@ -12,6 +12,7 @@
       "@nx/react/typings/image.d.ts"
     ],
     "jsx": "react-jsx",
+    "lib": ["dom"],
     "module": "esnext",
     "moduleResolution": "bundler"
   },
@@ -28,6 +29,8 @@
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx",
+    "src/**/*.spec-support.ts",
+    "src/**/*.spec-support.tsx",
     "src/**/*.d.ts"
   ],
   "references": [
