@@ -1,6 +1,6 @@
 # ADR 0009: Enforce capability and dependency boundaries
 
-- Status: Accepted
+- Status: Superseded by [ADR 0011](0011-adopt-capability-first-frontend-boundaries.md)
 - Date: 2026-09-26
 - Milestone: M05 - Human follow-up and resolver console
 

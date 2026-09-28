@@ -1,10 +1,10 @@
-# Follow-up React adapter
+# Follow-up web feature — transitional location
 
 ## Purpose
 
-Provide the web workbench's inbound React adapter for human follow-up without
-placing capability behavior in a deployable application or in domain-agnostic
-UI primitives.
+Own the workbench's human-follow-up React behavior until the project moves to
+`packages/follow-up/feature-web`, keeping capability behavior out of the
+deployable app and domain-agnostic UI primitives.
 
 ## Owns
 
@@ -15,7 +15,7 @@ UI primitives.
 
 ## Does not own
 
-- Follow-up domain models, application ports, or policy.
+- Follow-up models or executable application policy.
 - BFF protocol decoding, HTTP execution, CSRF state, or RTK Query cache policy.
 - Session verification, sign-in URL construction, route hierarchy, or Redux
   store composition.
@@ -26,7 +26,7 @@ UI primitives.
 Consumers import `HumanFollowUpInbox` and `ResolverOwnedHumanFollowUps` from
 `@ergon/infrastructure-follow-up-react`. The workbench supplies tenant request
 context and a trusted same-origin sign-in URL after its session boundary has
-been composed. The adapter consumes generated cache hooks from
+been composed. This `type:feature` project consumes generated cache hooks from
 `@ergon/infrastructure-follow-up-web` and presentation primitives from
 `@ergon/ui-web`.
 

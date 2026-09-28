@@ -1,9 +1,9 @@
-# Session domain
+# Session model — transitional location
 
 ## Purpose
 
-Own the platform-neutral identity projection for a server-verified authenticated
-session.
+Own the platform-neutral identity projection for a server-verified session
+until the project moves to `packages/session/model`.
 
 ## Owns
 
@@ -14,13 +14,15 @@ session.
 ## Does not own
 
 - HTTP payload schemas, sign-in URLs, status codes, retries, or timeouts.
-- Session-resolution ports, RTK Query caching, React routes, or presentation.
+- Session-resolution gateway contracts, RTK Query caching, React routes, or
+  presentation.
 - Provider token storage or browser authentication mechanics.
 
 ## Public API and dependencies
 
-Consumers import only `@ergon/domain-session`. This package has no runtime
-dependencies and may not import frameworks, platform APIs, or infrastructure.
+Consumers import only `@ergon/domain-session`. This `type:model` project has no
+runtime dependencies and may not import frameworks, platform APIs, data-access
+projects, or feature projects.
 
 ## Verification
 

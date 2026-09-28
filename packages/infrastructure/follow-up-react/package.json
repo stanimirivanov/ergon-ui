@@ -24,10 +24,9 @@
   },
   "nx": {
     "tags": [
-      "layer:infrastructure",
+      "type:feature",
       "scope:follow-up",
-      "platform:web",
-      "adapter:inbound"
+      "platform:web"
     ]
   }
 }

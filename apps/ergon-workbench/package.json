@@ -20,7 +20,7 @@
   },
   "nx": {
     "tags": [
-      "layer:composition",
+      "type:app",
       "scope:workbench",
       "platform:web"
     ]

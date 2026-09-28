@@ -39,8 +39,9 @@
 - [ ] One coherent capability; unrelated work is excluded.
 - [ ] The issue uses the existing domain milestone.
 - [ ] Public, URL, API, storage, and design-token contracts are intentional.
-- [ ] Responsibilities have explicit owners and dependencies still point inward.
-- [ ] Consumers receive only the application ports they use.
+- [ ] Responsibilities have explicit owners and obey type, scope, and platform boundaries.
+- [ ] New package paths follow the capability-first convention; any legacy-path or application-core ledger entry is justified.
+- [ ] Application projects contain executable use-case behavior; any direct feature-to-data-access dependency is deliberate.
 - [ ] Cross-project imports use public APIs; project tags and READMEs are current.
 - [ ] Loading, empty, negative, and failure states are covered where relevant.
 - [ ] Semantic HTML, keyboard access, focus, zoom, and reduced motion were reviewed.

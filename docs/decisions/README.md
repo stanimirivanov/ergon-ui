@@ -15,8 +15,9 @@ decision whose context or outcome changes.
 | [0006](0006-recover-resolver-owned-follow-up-work.md)              | Accepted   | Recover active claims from the confidential BFF               |
 | [0007](0007-render-owned-follow-up-case-context.md)                | Accepted   | Render server-authorized context inside owned follow-ups      |
 | [0008](0008-render-failed-execution-and-retry-handoff.md)          | Accepted   | Explain failed execution and exhausted retry handoff          |
-| [0009](0009-enforce-capability-and-dependency-boundaries.md)       | Accepted   | Enforce capability-specific ports and inward dependencies     |
-| [0010](0010-extract-capability-react-adapters.md)                  | Accepted   | Extract capability React code as inbound adapters             |
+| [0009](0009-enforce-capability-and-dependency-boundaries.md)       | Superseded | Enforce capability-specific ports and inward dependencies     |
+| [0010](0010-extract-capability-react-adapters.md)                  | Superseded | Extract capability React code as inbound adapters             |
+| [0011](0011-adopt-capability-first-frontend-boundaries.md)         | Accepted   | Adopt capability-first roles and selective application cores  |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

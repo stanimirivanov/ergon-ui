@@ -21,73 +21,81 @@ identity clients, CSPs, URLs, performance budgets, and release decisions. Studio
 and simulation begin as workbench route areas because they share the internal
 trust boundary; split them only for demonstrated isolation or ownership needs.
 
-## Dependency direction
+## Project roles and dependency direction
 
-Business capabilities use hexagonal dependency direction. Nx layers enforce
-the following package relationships:
+Projects are grouped by business capability and concrete frontend
+responsibility. A capability gains a hexagonal application core only when the
+client owns executable, platform-neutral workflow policy. Cache-centric slices
+may deliberately connect a feature directly to data access.
 
-| Source project role        | May depend on                                      |
-| :------------------------- | :------------------------------------------------- |
-| Domain                     | Domain                                             |
-| Application                | Application, domain                                |
-| Outbound infrastructure    | Infrastructure, application, domain                |
-| Inbound web infrastructure | Infrastructure, application, domain, UI primitives |
-| Composition                | Infrastructure, application, domain, UI primitives |
-| UI primitives              | UI primitives                                      |
-| Test                       | Any layer needed by the behavior under test        |
+| Source type | May depend on                                |
+| :---------- | :------------------------------------------- |
+| Model       | Model                                        |
+| Application | Application, model                           |
+| Data access | Data access, application, model              |
+| Feature     | Data access, application, model, UI          |
+| UI          | UI                                           |
+| App         | Feature, data access, application, model, UI |
+| Test        | Any type required by the tested behavior     |
 
 Scope and platform constraints apply independently. Shared-platform code cannot
-import web or native code. `@ergon/ui-web` is intentionally a domain-agnostic
-DOM, Tailwind, and shadcn boundary outside the business hexagon; it is not a
-React Native design system.
+import web or native projects. `@ergon/ui-web` is a domain-agnostic DOM,
+Tailwind, and shadcn boundary; it is not a React Native design system.
 
-Each project has exactly one `layer:*`, `scope:*`, and `platform:*` tag.
-Infrastructure projects additionally declare exactly one `adapter:inbound` or
-`adapter:outbound` role. The current workbench boundaries are:
+Each project has exactly one `type:*`, `scope:*`, and `platform:*` tag. The
+architecture check validates both metadata and declared workspace dependencies;
+ESLint validates source imports. The intended capability-first shape is:
 
 ```text
-@ergon/workbench
-  -> @ergon/infrastructure-follow-up-react
-      -> @ergon/infrastructure-follow-up-web
-      -> @ergon/application-follow-up
-      -> @ergon/domain-follow-up
-      -> @ergon/ui-web
-  -> @ergon/infrastructure-follow-up-web
-      -> @ergon/application-follow-up
-          -> @ergon/domain-follow-up
-  -> @ergon/infrastructure-session-web
-      -> @ergon/application-session
-          -> @ergon/domain-session
-  -> @ergon/application-session
-      -> @ergon/domain-session
-  -> @ergon/domain-session
-  -> @ergon/ui-web
+@ergon/workbench (app)
+  -> follow-up/feature-web
+      -> follow-up/data-access-web
+      -> follow-up/model
+      -> ui-web
+  -> session/feature-web
+      -> session/data-access-web
+      -> session/model
+      -> ui-web
 ```
 
-The workbench remains the composition root and binds the confidential-BFF
-adapter from `@ergon/infrastructure-follow-up-web` to four separate application
-ports. That outbound infrastructure package owns browser wire schemas, Effect
-execution, failure translation, retry and timeout policy, the ephemeral CSRF
-lifecycle, and the follow-up RTK Query API. The workbench registers the API
-reducer and middleware during store composition.
+An optional application project sits between feature and data access only for
+a genuine client-owned use case:
 
-`@ergon/infrastructure-follow-up-react` is the inbound web adapter. It owns
-follow-up-specific React orchestration and presentation while consuming the
-cache hooks and domain-agnostic primitives through public package APIs. The
-workbench supplies tenant request context and its trusted same-origin sign-in
-URL; the feature cannot import session or application-composition code.
+```text
+feature -> application use case -> consumed port <- data-access implementation
+```
 
-The workbench binds `@ergon/infrastructure-session-web` to the
-`ResolveCurrentActor` port from `@ergon/application-session`. The infrastructure
-package owns session wire schemas, Effect execution, failure translation,
-retry, timeout, cancellation policy, and the tenant-keyed RTK Query API. The
-verified actor remains owned by `@ergon/domain-session`; the workbench registers
-the API reducer and middleware as part of store composition.
+The repository is migrating to that shape without changing runtime behavior.
+Current paths and import names remain temporarily unchanged:
 
-The current application package exposes capability-specific consumed ports and
-outcomes. As application policy is extracted, it must enter through explicit
-use cases rather than pass-through services that merely rename an
-infrastructure call.
+| Current project or source                                 | Declared type / migration status  | Target                                  |
+| :-------------------------------------------------------- | :-------------------------------- | :-------------------------------------- |
+| `@ergon/domain-follow-up`                                 | `type:model`                      | `packages/follow-up/model`              |
+| `@ergon/application-follow-up`                            | `type:application` (debt)         | Remove, or move after it gains behavior |
+| `@ergon/infrastructure-follow-up-web`                     | `type:data-access`                | `packages/follow-up/data-access-web`    |
+| `@ergon/infrastructure-follow-up-react`                   | `type:feature`                    | `packages/follow-up/feature-web`        |
+| `@ergon/domain-session`                                   | `type:model`                      | `packages/session/model`                |
+| `@ergon/application-session`                              | `type:application` (debt)         | Remove, or move after it gains behavior |
+| `@ergon/infrastructure-session-web`                       | `type:data-access`                | `packages/session/data-access-web`      |
+| `apps/ergon-workbench/src/session/current-actor-page.tsx` | `type:app` (session-feature debt) | `packages/session/feature-web`          |
+
+The finite legacy-location ledger in the architecture checker rejects new
+projects under the old global-layer directories and becomes stale when a listed
+project moves. This forces each migration change to remove its exception.
+
+The workbench remains the app composition root. It registers the RTK Query
+reducers and middleware, supplies runtime dependencies, owns route hierarchy
+and session gating, and provides trusted same-origin navigation inputs. The
+follow-up feature owns capability React behavior. Follow-up and session data
+access own BFF protocols, Effect execution, typed failure translation, timeout,
+retry, cancellation, cache identity, and generated hooks.
+
+The two existing application projects contain contracts rather than executable
+use cases. They are recorded migration debt, not a precedent for new
+interface-only application projects. Their `AbortSignal` contracts and DOM
+TypeScript library also remain a known portability mismatch to resolve when
+the contracts move to their actual owner. Other model and application library
+builds extend the checked, DOM-free `tsconfig.core.json`.
 
 ## State ownership
 

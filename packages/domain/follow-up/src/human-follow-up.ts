@@ -35,8 +35,9 @@ export interface HumanFollowUpClaim {
  * Open follow-up paired with the current resolver's active claim.
  *
  * The pair is valid only when `claim.workItemId` equals
- * `workItem.workItemId`; infrastructure adapters enforce that relationship
- * before constructing this value.
+ * `workItem.workItemId`. Data-access decoders currently enforce that
+ * relationship before constructing this value; moving the pure refinement to
+ * the model is migration debt.
  */
 export interface ResolverOwnedHumanFollowUpWork {
   readonly workItem: HumanFollowUpWorkItem;

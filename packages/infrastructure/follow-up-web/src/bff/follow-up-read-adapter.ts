@@ -50,7 +50,7 @@ interface FailedRead<Failure extends FollowUpReadFailure> {
 }
 
 /**
- * Creates the read-only BFF port implementations.
+ * Creates the read-only BFF operations.
  *
  * Every read receives the same per-attempt timeout, one retry for classified
  * transient failures, Effect interruption from the caller's signal, and
@@ -90,7 +90,7 @@ export function createFollowUpReadAdapter({
 
 /**
  * Executes the policy shared by idempotent BFF reads while preserving each
- * port's success shape and typed failure channel.
+ * operation's success shape and typed failure channel.
  */
 async function runRead<Value, Failure extends FollowUpReadFailure, Success>(
   request: Effect.Effect<Value, Failure, never>,

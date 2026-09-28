@@ -14,7 +14,7 @@ import {
  * Capability implementations enabled for one follow-up component test.
  *
  * Omitted capabilities fail immediately when exercised. This keeps each test's
- * acquired ports visible without recreating the broad adapter surface that the
+ * acquired operations visible without recreating the broad client surface that the
  * production application deliberately segregates.
  */
 export interface FollowUpTestCapabilities {
@@ -26,7 +26,7 @@ export interface FollowUpTestCapabilities {
 
 type FollowUpTestStore = ReturnType<typeof configureFollowUpStore>;
 
-/** Creates an isolated follow-up cache whose undeclared ports fail fast. */
+/** Creates an isolated follow-up cache whose undeclared operations fail fast. */
 export function createFollowUpTestStore(
   capabilities: FollowUpTestCapabilities,
 ): FollowUpTestStore {

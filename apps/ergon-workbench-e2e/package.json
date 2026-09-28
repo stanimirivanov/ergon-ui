@@ -4,7 +4,7 @@
   "private": true,
   "nx": {
     "tags": [
-      "layer:test",
+      "type:test",
       "scope:workbench",
       "platform:web"
     ],

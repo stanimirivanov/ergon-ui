@@ -29,7 +29,7 @@ interface FollowUpClaimAdapterOptions {
 }
 
 /**
- * Creates the claim port with one synchronized, in-memory CSRF lifecycle.
+ * Creates the claim operation with one synchronized, in-memory CSRF lifecycle.
  *
  * Concurrent claims share token acquisition. Setup transport and 503 failures
  * receive one retry, setup timeouts do not, and the claim POST is never replayed

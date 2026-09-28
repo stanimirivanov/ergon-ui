@@ -22,7 +22,7 @@ export interface CurrentActorBffAdapterOptions {
  * resolves as the typed `request-cancelled` failure. Provider subjects,
  * credentials, raw problem details, and browser errors never enter the result.
  *
- * @returns A stateless implementation of the current-actor resolution port.
+ * @returns A stateless implementation of the transitional current-actor operation.
  * @throws A `RangeError` when `requestTimeout` is not a positive finite number.
  */
 export function createCurrentActorBffAdapter({

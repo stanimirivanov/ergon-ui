@@ -30,7 +30,8 @@ The first foundation provides:
   pinned resolution contract, escalated run, bounded observation evidence,
   failed connector execution, and exhausted retry decision;
 - Vitest component tests and a Chromium Playwright smoke path;
-- enforced project tags and an accepted application-topology decision; and
+- enforced capability-first project roles and an accepted application-topology
+  decision; and
 - a contributor, security, issue, pull-request, and CI harness.
 
 The control-plane contracts are connected through same-origin cookies. A live
@@ -59,21 +60,26 @@ pnpm dev
 
 Nx serves it at `http://localhost:4200` by default.
 
-## Repository shape
+## Target repository shape
 
 ```text
 apps/
   ergon-workbench/       Internal resolver experience
   ergon-workbench-e2e/   Browser verification
 packages/
-  domain/follow-up/             Platform-neutral follow-up models
-  application/follow-up/        Follow-up ports and outcomes
-  infrastructure/follow-up-web/ Confidential-BFF adapter and remote cache
-  ui-web/                       DOM and Tailwind-specific UI source
+  follow-up/             Target group for follow-up model, data, and feature projects
+  session/               Target group for session model, data, and feature projects
+  ui-web/                DOM and Tailwind-specific UI source
 docs/
   decisions/             Durable UI architecture decisions
   development/           Engineering rules and current state
 ```
+
+Existing `packages/domain`, `packages/application`, and
+`packages/infrastructure` paths are finite migration locations. Project
+`type:*` tags describe their current responsibility until capability-scoped
+moves are completed; new projects must use the capability-first layout. The
+current-to-target map is maintained in [the architecture guide](docs/architecture.md#project-roles-and-dependency-direction).
 
 The eventual external adaptive canvas will be a separate
 `apps/ergon-requester` deployable. It will be created with its first usable

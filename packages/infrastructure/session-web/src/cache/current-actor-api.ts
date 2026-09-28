@@ -25,8 +25,8 @@ export interface CurrentActorCacheDependencies {
  * Owns current-actor remote cache identity and request lifecycle.
  *
  * Cache entries are isolated by the complete tenant query. RTK Query owns
- * deduplication and passes cancellation to the injected application port; the
- * tenant key remains navigation context and never confers authority.
+ * deduplication and passes cancellation to the injected transitional gateway;
+ * the tenant key remains navigation context and never confers authority.
  */
 export const currentActorApi = createApi({
   reducerPath: 'currentActorApi',
