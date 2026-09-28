@@ -8,8 +8,6 @@
     "#lib/*": "./src/lib/*.ts"
   },
   "dependencies": {
-    "@ergon/application-session": "workspace:*",
-    "@ergon/domain-session": "workspace:*",
     "@ergon/infrastructure-follow-up-react": "workspace:*",
     "@ergon/infrastructure-follow-up-web": "workspace:*",
     "@ergon/infrastructure-session-web": "workspace:*",

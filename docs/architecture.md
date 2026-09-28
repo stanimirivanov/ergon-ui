@@ -75,7 +75,6 @@ Current paths and import names remain temporarily unchanged:
 | `@ergon/infrastructure-follow-up-web`                     | `type:data-access`                | `packages/follow-up/data-access-web`    |
 | `@ergon/infrastructure-follow-up-react`                   | `type:feature`                    | `packages/follow-up/feature-web`        |
 | `@ergon/domain-session`                                   | `type:model`                      | `packages/session/model`                |
-| `@ergon/application-session`                              | `type:application` (debt)         | Remove, or move after it gains behavior |
 | `@ergon/infrastructure-session-web`                       | `type:data-access`                | `packages/session/data-access-web`      |
 | `apps/ergon-workbench/src/session/current-actor-page.tsx` | `type:app` (session-feature debt) | `packages/session/feature-web`          |
 
@@ -90,12 +89,13 @@ follow-up feature owns capability React behavior. Follow-up and session data
 access own BFF protocols, Effect execution, typed failure translation, timeout,
 retry, cancellation, cache identity, and generated hooks.
 
-The two existing application projects contain contracts rather than executable
-use cases. They are recorded migration debt, not a precedent for new
-interface-only application projects. Their `AbortSignal` contracts and DOM
-TypeScript library also remain a known portability mismatch to resolve when
-the contracts move to their actual owner. Other model and application library
-builds extend the checked, DOM-free `tsconfig.core.json`.
+The remaining follow-up application project contains contracts rather than an
+executable use case. It is recorded migration debt, not a precedent for new
+interface-only application projects. Its `AbortSignal` contracts and DOM
+TypeScript library remain a known portability mismatch. Session request,
+cancellation, result, and failure contracts already belong to session web data
+access, so that capability has no application project. Model and genuine
+application library builds extend the checked, DOM-free `tsconfig.core.json`.
 
 ## State ownership
 

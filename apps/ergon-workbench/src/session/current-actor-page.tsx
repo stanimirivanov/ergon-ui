@@ -1,10 +1,12 @@
 import { Button } from '@ergon/ui-web';
-import type { CurrentActorFailure } from '@ergon/application-session';
 import {
   HumanFollowUpInbox,
   ResolverOwnedHumanFollowUps,
 } from '@ergon/infrastructure-follow-up-react';
-import { useCurrentActorQuery } from '@ergon/infrastructure-session-web';
+import {
+  type CurrentActorFailure,
+  useCurrentActorQuery,
+} from '@ergon/infrastructure-session-web';
 import { Schema } from 'effect';
 import { useParams } from 'react-router';
 

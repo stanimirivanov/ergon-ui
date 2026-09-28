@@ -26,11 +26,10 @@ pnpm nx e2e @ergon/workbench-e2e
 - Render follow-up behavior through
   the transitional `@ergon/infrastructure-follow-up-react` feature package; do
   not recreate capability-specific orchestration or presentation in the app.
-- Depend on the verified actor through `@ergon/domain-session` and on session
-  resolution through `@ergon/application-session`.
 - Compose session HTTP and remote caching through
   `@ergon/infrastructure-session-web`; do not recreate its wire decoding,
-  execution policy, or RTK Query API in the composition root.
+  typed client contract, execution policy, or RTK Query API in the composition
+  root.
 - Compose follow-up BFF and remote-cache data access from
   `@ergon/infrastructure-follow-up-web`; do not recreate protocol or remote
   cache handling in the composition root.
@@ -47,11 +46,12 @@ API; the workbench registers its reducer and middleware and renders the
 hooks. The workbench supplies tenant request context and the trusted same-origin
 sign-in URL after session verification.
 
-The composition root binds `@ergon/infrastructure-session-web` to the
-`ResolveCurrentActor` contract. The data-access project owns session HTTP, wire
-decoding, failure classification, timeout, retry, cancellation semantics, and
-the current-actor RTK Query API. The workbench only registers that API during
-store composition and renders its generated hook.
+The composition root creates the `CurrentActorClient` exported by
+`@ergon/infrastructure-session-web` and supplies it to that package's cache
+dependency contract. The data-access project owns session HTTP, wire decoding,
+failure classification, timeout, retry, cancellation semantics, and the
+current-actor RTK Query API. The workbench only supplies the executable client,
+registers the API during store composition, and renders its generated hook.
 
 `/tenants/{tenantId}` resolves the control-plane BFF session contract. RTK Query
 owns request state and caching; Effect owns HTTP, timeout, bounded transient

@@ -2,6 +2,11 @@ export {
   createCurrentActorBffAdapter,
   type CurrentActorBffAdapterOptions,
 } from './create-current-actor-bff-adapter';
+export type {
+  CurrentActorClient,
+  CurrentActorFailure,
+  CurrentActorResult,
+} from './current-actor-client';
 export {
   type CurrentActorCacheDependencies,
   currentActorApi,

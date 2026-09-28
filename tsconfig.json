@@ -25,9 +25,6 @@
       "path": "./packages/infrastructure/follow-up-react"
     },
     {
-      "path": "./packages/application/session"
-    },
-    {
       "path": "./packages/domain/session"
     },
     {
