@@ -22,7 +22,7 @@
       "path": "./packages/follow-up/feature-web"
     },
     {
-      "path": "./packages/domain/session"
+      "path": "./packages/session/model"
     },
     {
       "path": "./packages/infrastructure/session-web"

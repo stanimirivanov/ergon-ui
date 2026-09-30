@@ -122,15 +122,6 @@ const ACCEPTED_DECISION_PATH =
  */
 export const LEGACY_PROJECT_LOCATIONS = new Map([
   [
-    'packages/domain/session',
-    {
-      type: 'type:model',
-      scope: 'scope:session',
-      platform: 'platform:shared',
-      target: 'packages/session/model',
-    },
-  ],
-  [
     'packages/infrastructure/session-web',
     {
       type: 'type:data-access',

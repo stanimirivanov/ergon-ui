@@ -1,9 +1,8 @@
-# Session model — transitional location
+# Session model
 
 ## Purpose
 
-Own the platform-neutral identity projection for a server-verified session
-until the project moves to `packages/session/model`.
+Own the platform-neutral identity projection for a server-verified session.
 
 ## Owns
 
