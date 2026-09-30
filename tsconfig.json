@@ -25,7 +25,7 @@
       "path": "./packages/session/model"
     },
     {
-      "path": "./packages/infrastructure/session-web"
+      "path": "./packages/session/data-access-web"
     }
   ],
   "compilerOptions": {}

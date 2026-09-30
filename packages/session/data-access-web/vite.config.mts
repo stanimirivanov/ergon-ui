@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
-  cacheDir: '../../../node_modules/.vite/packages/infrastructure/session-web',
+  cacheDir: '../../../node_modules/.vite/packages/session/data-access-web',
   test: {
     name: '@ergon/infrastructure-session-web',
     watch: false,

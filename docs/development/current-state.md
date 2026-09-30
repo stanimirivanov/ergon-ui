@@ -50,9 +50,9 @@ animation, requester app, or native app.
 - a capability-located follow-up web feature package with capability-owned
   orchestration, presentation, failure copy, and independently verified
   component tests;
-- a session web data-access package owning its typed client contract, wire
-  decoding, failure classification, read execution, cancellation normalization,
-  and tenant-keyed RTK Query integration;
+- a capability-located session web data-access package owning its typed client
+  contract, wire decoding, failure classification, read execution, cancellation
+  normalization, and tenant-keyed RTK Query integration;
 - capability-first `type:*`, `scope:*`, and `platform:*` boundaries with a
   finite ledger for packages still under the old global-layer paths and a
   DOM-free TypeScript configuration for model and application cores;
