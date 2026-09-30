@@ -1,10 +1,9 @@
-# Follow-up model — transitional location
+# Follow-up model
 
 ## Purpose
 
 Own the platform-neutral read models used to represent human follow-up work,
-claims, and resolver-visible case context until the project moves to
-`packages/follow-up/model`.
+claims, and resolver-visible case context.
 
 ## Owns
 
