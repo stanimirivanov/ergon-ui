@@ -1,0 +1,23 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/vitest",
+    "types": [
+      "vitest/globals",
+      "vitest/importMeta",
+      "vite/client",
+      "node",
+      "vitest"
+    ],
+    "jsx": "react-jsx",
+    "lib": ["dom", "es2022"],
+    "module": "esnext",
+    "moduleResolution": "bundler"
+  },
+  "include": ["vite.config.mts", "tests/**/*.ts", "tests/**/*.tsx"],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ]
+}

@@ -53,6 +53,9 @@ animation, requester app, or native app.
 - a capability-located session web data-access package owning its typed client
   contract, wire decoding, failure classification, read execution, cancellation
   normalization, and tenant-keyed RTK Query integration;
+- a capability-located session web feature that validates tenant navigation
+  context, renders fail-closed verification states, and mounts app-supplied
+  authenticated content only after a verified actor is returned;
 - capability-first `type:*`, `scope:*`, and `platform:*` boundaries with a
   finite ledger for packages still under the old global-layer paths and a
   DOM-free TypeScript configuration for model and application cores;

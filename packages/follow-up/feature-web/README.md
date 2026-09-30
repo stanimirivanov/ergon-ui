@@ -9,6 +9,7 @@ out of the deployable app and domain-agnostic UI primitives.
 
 - Shared-inbox queue filtering, pagination, claim interaction, and presentation.
 - Resolver-owned pagination and lazy case-context disclosure.
+- Follow-up workspace introduction and composition of the two work views.
 - Translation of typed follow-up failures into resolver-facing copy.
 - Accessible follow-up-specific interaction and rendering.
 
@@ -22,12 +23,14 @@ out of the deployable app and domain-agnostic UI primitives.
 
 ## Public API and dependencies
 
-Consumers import `HumanFollowUpInbox` and `ResolverOwnedHumanFollowUps` from
+Consumers import `HumanFollowUpWorkspace`, `HumanFollowUpInbox`, and
+`ResolverOwnedHumanFollowUps` from
 `@ergon/infrastructure-follow-up-react`. The workbench supplies tenant request
 context and a trusted same-origin sign-in URL after its session boundary has
 been composed. This `type:feature` project consumes generated cache hooks from
 `@ergon/infrastructure-follow-up-web` and presentation primitives from
-`@ergon/ui-web`.
+`@ergon/ui-web`. The workbench supplies the session-owned verified-actor
+display as an opaque slot; this feature never inspects session identity.
 
 ## Verification
 

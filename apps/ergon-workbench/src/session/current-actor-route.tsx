@@ -8,7 +8,7 @@ const store = createWorkbenchStore(browserDependencies);
 
 /**
  * Mounts the tenant workbench with one stable store and dependency graph.
- * Session verification inside the page remains fail-closed before resolver
+ * The session feature composed by the page remains fail-closed before resolver
  * data is rendered.
  */
 export function CurrentActorRoute() {
