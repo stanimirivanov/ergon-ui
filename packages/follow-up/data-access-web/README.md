@@ -10,6 +10,8 @@ Own confidential-browser BFF execution and follow-up remote-cache integration.
 - Follow-up client operations, requests, results, cursors, and presentation-safe
   failures consumed by the feature and cache.
 - Browser wire schemas and protocol-to-typed-failure translation.
+- Structural owned-work decoding followed by the model's claim/work-item
+  pairing refinement before remote caching.
 - Bounded read retries, per-request timeouts, and cancellation conversion.
 - The in-memory, session-bound CSRF token lifecycle for claim commands,
   including single-flight acquisition and compare-and-clear invalidation.

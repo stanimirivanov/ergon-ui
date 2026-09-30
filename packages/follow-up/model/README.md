@@ -8,7 +8,7 @@ claims, and resolver-visible case context.
 ## Owns
 
 - Follow-up work-item and claim values.
-- Resolver-owned work projections.
+- Resolver-owned work projections and pure claim/work-item pairing refinement.
 - Server-authorized case-summary projections and pure contract, version,
   evidence-order, and retry-handoff refinements.
 

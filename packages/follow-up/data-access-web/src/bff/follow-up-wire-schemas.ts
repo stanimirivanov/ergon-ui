@@ -40,16 +40,12 @@ const ownedCursorSchema = Schema.Struct({
 const ownedWorkSchema = Schema.Struct({
   workItem: workItemSchema,
   claim: claimSchema,
-}).pipe(
-  Schema.filter(
-    ({ workItem, claim }) => workItem.workItemId === claim.workItemId,
-  ),
-);
+});
 
 /**
  * Structural wire contract for resolver-owned work.
  *
- * Decoding also enforces that each claim belongs to its paired work item.
+ * The model checks claim/work-item pairing after structural decoding.
  */
 export const resolverOwnedHumanFollowUpPageSchema = Schema.Struct({
   items: Schema.Array(ownedWorkSchema),
