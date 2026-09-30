@@ -19,7 +19,7 @@
       "path": "./packages/follow-up/data-access-web"
     },
     {
-      "path": "./packages/infrastructure/follow-up-react"
+      "path": "./packages/follow-up/feature-web"
     },
     {
       "path": "./packages/domain/session"

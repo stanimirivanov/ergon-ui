@@ -24,7 +24,7 @@ pnpm nx e2e @ergon/workbench-e2e
 
 - Compose routes and application providers here.
 - Render follow-up behavior through
-  the transitional `@ergon/infrastructure-follow-up-react` feature package; do
+  the `@ergon/infrastructure-follow-up-react` feature package; do
   not recreate capability-specific orchestration or presentation in the app.
 - Compose session HTTP and remote caching through
   `@ergon/infrastructure-session-web`; do not recreate its wire decoding,

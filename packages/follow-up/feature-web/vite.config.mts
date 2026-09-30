@@ -4,8 +4,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
-  cacheDir:
-    '../../../node_modules/.vite/packages/infrastructure/follow-up-react',
+  cacheDir: '../../../node_modules/.vite/packages/follow-up/feature-web',
   plugins: [react()],
   test: {
     name: '@ergon/infrastructure-follow-up-react',
