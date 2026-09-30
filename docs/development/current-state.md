@@ -52,7 +52,9 @@ animation, requester app, or native app.
 - capability-first `type:*`, `scope:*`, and `platform:*` boundaries with a
   finite ledger for packages still under the old global-layer paths and a
   DOM-free TypeScript configuration for model and application cores;
-- GitHub verification workflow and contributor harness; and
+- CommonMark-aware repository policy for local links, summaries, ADR history,
+  milestone fields, and GitHub templates;
+- progressively routed harness guidance and staged GitHub verification; and
 - accepted workbench/requester topology decision.
 
 ## Deliberate limits

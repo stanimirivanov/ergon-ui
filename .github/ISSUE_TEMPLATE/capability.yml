@@ -34,14 +34,6 @@ body:
     validations:
       required: true
   - type: textarea
-    id: acceptance
-    attributes:
-      label: Acceptance criteria
-      description: Include behavior, failures, accessibility, and verification evidence.
-      placeholder: '- [ ] ...'
-    validations:
-      required: true
-  - type: textarea
     id: architecture
     attributes:
       label: Architecture delta
@@ -50,6 +42,14 @@ body:
         | Responsibility | Owner before | Owner after | Public contract |
         | --- | --- | --- | --- |
         | ... | ... | ... | ... |
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Include behavior, failures, accessibility, and verification evidence.
+      placeholder: '- [ ] ...'
     validations:
       required: true
   - type: textarea

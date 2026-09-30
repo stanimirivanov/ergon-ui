@@ -24,9 +24,13 @@
 
 ## Verification
 
-| Command or check | Result | Evidence or reason not run |
-| :--------------- | :----- | :------------------------- |
-| `pnpm verify`    |        |                            |
+| Command or check          | Result | Evidence or reason not run |
+| :------------------------ | :----- | :------------------------- |
+| `pnpm repository:check`   |        |                            |
+| `pnpm architecture:check` |        |                            |
+| `pnpm verify`             |        |                            |
+
+Checks not run, blocking conditions, and residual risk:
 
 ## Accessibility and responsive behavior
 
@@ -37,6 +41,7 @@
 ## Review checklist
 
 - [ ] One coherent capability; unrelated work is excluded.
+- [ ] Repository policy and architecture checks pass.
 - [ ] The issue uses the existing domain milestone.
 - [ ] Public, URL, API, storage, and design-token contracts are intentional.
 - [ ] Responsibilities have explicit owners and obey type, scope, and platform boundaries.

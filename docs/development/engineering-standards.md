@@ -162,6 +162,13 @@ prove protocol, security, persistence, and cache behavior; and feature tests
 prove user-visible states and transitions. A test should not acquire unrelated
 dependencies merely because one production project exposes them together.
 
-`pnpm verify` is the required baseline and includes `pnpm architecture:check`.
+`pnpm verify` is the required baseline and includes `pnpm repository:check`
+and `pnpm architecture:check`.
 Dependency changes also require a clean `pnpm install --frozen-lockfile`.
 Report every skipped or unavailable check as not run.
+
+Run `pnpm repository:check` and `pnpm architecture:check` for early structural
+feedback. The [coding harness](harness.md) owns the command inventory and
+timing tiers. A recurring review finding should become narrower guidance, a
+deterministic sensor, a focused behavioral test, or an explicit owned
+exception—never a broad suppression or an unreviewed metric target.

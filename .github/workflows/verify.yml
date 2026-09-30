@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -36,8 +38,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check repository policy
+        run: pnpm repository:check
+
+      - name: Check architecture policy
+        run: pnpm architecture:check
+
+      - name: Verify workspace
+        run: pnpm verify:workspace
+
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Verify workspace
-        run: pnpm verify
+      - name: Verify browser behavior
+        run: pnpm e2e

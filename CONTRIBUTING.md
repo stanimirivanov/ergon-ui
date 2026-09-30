@@ -18,6 +18,8 @@ In this repository, **MUST** and **MUST NOT** are requirements. **SHOULD** and
 | :-------------------------------------------- | :----------------------------------------------------------------- |
 | Workflow, review, issue structure, completion | This document                                                      |
 | Concise agent entry point                     | [AGENTS.md](AGENTS.md)                                             |
+| Progressive task-to-source routing            | [documentation map](docs/README.md)                                |
+| Harness tiers and executable feedback         | [coding harness](docs/development/harness.md)                      |
 | React, TypeScript, UI, state, tests           | [engineering standards](docs/development/engineering-standards.md) |
 | Durable UI architecture                       | [ADRs](docs/decisions/README.md)                                   |
 | Product, backend contracts, milestones        | [Ergon core](https://github.com/stanimirivanov/rag-help-center)    |
@@ -28,10 +30,12 @@ convenient interpretation silently.
 
 ## Before starting
 
-A contributor MUST inspect the branch and working tree, read the relevant
-standards and ADRs, define the smallest independently valuable behavior, and
+A contributor MUST inspect the branch and working tree, use the
+[documentation map](docs/README.md) to load the relevant standards, package
+guides, and ADRs, define the smallest independently valuable behavior, and
 identify contract, authentication, tenant, accessibility, responsive, browser
-compatibility, rollout, and observability effects.
+compatibility, rollout, and observability effects. Do not bulk-read unrelated
+guidance.
 
 For an architecture change, identify each affected responsibility, its owner
 before and after the change, its public contract, and every new dependency
@@ -240,17 +244,65 @@ Nx package versions aligned. Commit `pnpm-lock.yaml`; never hand-edit it.
 Generated code is reviewed like authored code and committed only when consumers
 need it and regeneration is deterministic.
 
+## Documentation
+
+Code and documentation change together when behavior, contracts,
+configuration, responsibility ownership, or operations change. Long or
+policy-oriented documents begin with a visible, non-empty `## TL;DR` after the
+title and permitted status metadata. A document is long when it has at least
+800 visible words, more than five second-level sections, or is an architecture,
+security, migration, operations, operational, or end-to-end guide.
+
+ADRs and GitHub templates are exempt from that general threshold because their
+fixed formats are validated separately. Required headings, metadata, prompts,
+commands, and review fields use visible Markdown or semantic YAML; comments,
+raw HTML, image-only text, and code fences cannot carry policy fields.
+
+Repository-local links use exact path casing, stay inside the repository, and
+name real heading anchors. Accepted ADRs are historical records: supersede
+rather than rewrite them. The UI repository validates milestone field shape
+but does not duplicate Ergon core's milestone catalog.
+
+## Pull request description
+
+A pull request states its linked issue and exact milestone, resulting behavior,
+scope and exclusions, assumptions and limitations, architecture and
+compatibility effects, accessibility, security, rollout, and verification.
+Every applicable command is reported as passed, failed, or not run; a not-run
+check includes its blocker and residual risk. Use the checked-in pull-request
+template. Its heading order, prompts, command table, and ordered checklist are
+repository-policy contracts.
+
 ## Verification
 
-The baseline is:
+Run the fast structural checks during editing:
+
+```powershell
+pnpm repository:check
+pnpm architecture:check
+```
+
+Before handoff, run the complete acceptance gate:
 
 ```powershell
 pnpm verify
 ```
 
-It checks formatting, linting, strict type checking, component tests, the
-production build, architecture metadata, and Chromium Playwright behavior. A
-check that is skipped or cannot run is **not run**, not passed.
+It checks repository policy, architecture metadata, formatting, linting,
+strict type checking, unit and component tests, production builds, and
+Chromium Playwright behavior. Dependency changes also require
+`pnpm install --frozen-lockfile`. A check that is skipped or cannot run is
+**not run**, not passed. The [coding harness](docs/development/harness.md)
+defines timing tiers and specialist checks.
+
+## Improving the harness
+
+When a review finding recurs, clarify the narrow guide, add a deterministic
+structural sensor, add a focused behavior test, or record an owned exception
+when automation would be noisy. Sensors MUST be deterministic, actionable,
+repository-pinned, and documented in the harness inventory. They MUST NOT
+rewrite expectations, weaken invariants, depend on undeclared ambient tools,
+or turn an unavailable check into a pass.
 
 ## Completion report
 
