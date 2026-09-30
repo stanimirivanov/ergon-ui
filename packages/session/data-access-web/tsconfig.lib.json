@@ -12,7 +12,7 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
-      "path": "../../session/model/tsconfig.lib.json"
+      "path": "../model/tsconfig.lib.json"
     }
   ]
 }

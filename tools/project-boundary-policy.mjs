@@ -120,17 +120,7 @@ const ACCEPTED_DECISION_PATH =
  * Removing or moving one of these projects requires updating the ledger in the
  * same change, so the transitional topology cannot silently become permanent.
  */
-export const LEGACY_PROJECT_LOCATIONS = new Map([
-  [
-    'packages/infrastructure/session-web',
-    {
-      type: 'type:data-access',
-      scope: 'scope:session',
-      platform: 'platform:web',
-      target: 'packages/session/data-access-web',
-    },
-  ],
-]);
+export const LEGACY_PROJECT_LOCATIONS = new Map();
 
 /**
  * Reviewed application cores. Add an entry only with an accepted decision that

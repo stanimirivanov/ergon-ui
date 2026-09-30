@@ -67,18 +67,17 @@ feature -> application use case -> consumed port <- data-access implementation
 
 The repository is migrating to that shape without changing runtime behavior.
 The follow-up model, web data access, and web feature now live under
-`packages/follow-up/`, and the session model lives under `packages/session/`.
-Their existing import names remain stable. Other current paths and import names
-remain temporarily unchanged:
+`packages/follow-up/`. The session model and web data access live under
+`packages/session/`. Their existing import names remain stable. One session
+feature remains in the workbench during the migration:
 
-| Current project or source                                 | Declared type / migration status  | Target                             |
-| :-------------------------------------------------------- | :-------------------------------- | :--------------------------------- |
-| `@ergon/infrastructure-session-web`                       | `type:data-access`                | `packages/session/data-access-web` |
-| `apps/ergon-workbench/src/session/current-actor-page.tsx` | `type:app` (session-feature debt) | `packages/session/feature-web`     |
+| Current project or source                                 | Declared type / migration status  | Target                         |
+| :-------------------------------------------------------- | :-------------------------------- | :----------------------------- |
+| `apps/ergon-workbench/src/session/current-actor-page.tsx` | `type:app` (session-feature debt) | `packages/session/feature-web` |
 
-The finite legacy-location ledger in the architecture checker rejects new
-projects under the old global-layer directories and becomes stale when a listed
-project moves. This forces each migration change to remove its exception.
+The now-empty legacy-location ledger in the architecture checker rejects new
+projects under the old global-layer directories. Moving each listed project
+removed its exception in the same change.
 
 The workbench remains the app composition root. It registers the RTK Query
 reducers and middleware, supplies runtime dependencies, owns route hierarchy

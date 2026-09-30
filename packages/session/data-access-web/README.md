@@ -1,9 +1,8 @@
-# Session web data access — transitional location
+# Session web data access
 
 ## Purpose
 
-Own confidential-browser session execution and remote-cache integration until
-the project moves to `packages/session/data-access-web`.
+Own confidential-browser session execution and remote-cache integration.
 
 ## Owns
 

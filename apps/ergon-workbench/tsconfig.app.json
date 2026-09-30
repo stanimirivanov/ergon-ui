@@ -42,7 +42,7 @@
       "path": "../../packages/ui-web/tsconfig.lib.json"
     },
     {
-      "path": "../../packages/infrastructure/session-web/tsconfig.lib.json"
+      "path": "../../packages/session/data-access-web/tsconfig.lib.json"
     },
     {
       "path": "../../packages/follow-up/data-access-web/tsconfig.lib.json"
