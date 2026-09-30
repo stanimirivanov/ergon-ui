@@ -23,7 +23,7 @@
       "path": "../../follow-up/model/tsconfig.lib.json"
     },
     {
-      "path": "../follow-up-web/tsconfig.lib.json"
+      "path": "../../follow-up/data-access-web/tsconfig.lib.json"
     },
     {
       "path": "../../ui-web/tsconfig.lib.json"

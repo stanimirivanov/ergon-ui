@@ -16,7 +16,7 @@
       "path": "./packages/follow-up/model"
     },
     {
-      "path": "./packages/infrastructure/follow-up-web"
+      "path": "./packages/follow-up/data-access-web"
     },
     {
       "path": "./packages/infrastructure/follow-up-react"
