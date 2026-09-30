@@ -66,17 +66,17 @@ feature -> application use case -> consumed port <- data-access implementation
 ```
 
 The repository is migrating to that shape without changing runtime behavior.
-The follow-up model now lives at `packages/follow-up/model`; its existing
-`@ergon/domain-follow-up` import name remains stable. Other current paths and
-import names remain temporarily unchanged:
+The follow-up model and web data access now live under `packages/follow-up/`;
+their existing `@ergon/domain-follow-up` and
+`@ergon/infrastructure-follow-up-web` import names remain stable. Other current
+paths and import names remain temporarily unchanged:
 
-| Current project or source                                 | Declared type / migration status  | Target                               |
-| :-------------------------------------------------------- | :-------------------------------- | :----------------------------------- |
-| `@ergon/infrastructure-follow-up-web`                     | `type:data-access`                | `packages/follow-up/data-access-web` |
-| `@ergon/infrastructure-follow-up-react`                   | `type:feature`                    | `packages/follow-up/feature-web`     |
-| `@ergon/domain-session`                                   | `type:model`                      | `packages/session/model`             |
-| `@ergon/infrastructure-session-web`                       | `type:data-access`                | `packages/session/data-access-web`   |
-| `apps/ergon-workbench/src/session/current-actor-page.tsx` | `type:app` (session-feature debt) | `packages/session/feature-web`       |
+| Current project or source                                 | Declared type / migration status  | Target                             |
+| :-------------------------------------------------------- | :-------------------------------- | :--------------------------------- |
+| `@ergon/infrastructure-follow-up-react`                   | `type:feature`                    | `packages/follow-up/feature-web`   |
+| `@ergon/domain-session`                                   | `type:model`                      | `packages/session/model`           |
+| `@ergon/infrastructure-session-web`                       | `type:data-access`                | `packages/session/data-access-web` |
+| `apps/ergon-workbench/src/session/current-actor-page.tsx` | `type:app` (session-feature debt) | `packages/session/feature-web`     |
 
 The finite legacy-location ledger in the architecture checker rejects new
 projects under the old global-layer directories and becomes stale when a listed

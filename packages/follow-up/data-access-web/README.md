@@ -1,9 +1,8 @@
-# Follow-up web data access — transitional location
+# Follow-up web data access
 
 ## Purpose
 
-Own confidential-browser BFF execution and follow-up remote-cache integration
-until the project moves to `packages/follow-up/data-access-web`.
+Own confidential-browser BFF execution and follow-up remote-cache integration.
 
 ## Owns
 

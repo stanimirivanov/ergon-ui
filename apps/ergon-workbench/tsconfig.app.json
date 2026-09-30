@@ -45,7 +45,7 @@
       "path": "../../packages/infrastructure/session-web/tsconfig.lib.json"
     },
     {
-      "path": "../../packages/infrastructure/follow-up-web/tsconfig.lib.json"
+      "path": "../../packages/follow-up/data-access-web/tsconfig.lib.json"
     },
     {
       "path": "../../packages/infrastructure/follow-up-react/tsconfig.lib.json"

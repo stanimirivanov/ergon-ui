@@ -43,9 +43,9 @@ animation, requester app, or native app.
   case-summary refinements, and verified Nx project metadata; follow-up request
   and failure contracts live in web data access without an interface-only
   application project;
-- a follow-up web data-access package with separated wire contracts, read
-  execution, claim/CSRF execution, protocol failure translation, and explicit
-  RTK Query cache integration;
+- a capability-located follow-up web data-access package with separated wire
+  contracts, read execution, claim/CSRF execution, protocol failure
+  translation, and explicit RTK Query cache integration;
 - a follow-up web feature package with capability-owned orchestration,
   presentation, failure copy, and independently verified component tests;
 - a session web data-access package owning its typed client contract, wire
