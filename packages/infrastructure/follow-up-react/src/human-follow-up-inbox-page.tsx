@@ -1,7 +1,7 @@
 import type {
   HumanFollowUpCursor,
   HumanFollowUpQuery,
-} from '@ergon/application-follow-up';
+} from '@ergon/infrastructure-follow-up-web';
 import type { HumanFollowUpWorkItem } from '@ergon/domain-follow-up';
 import {
   useClaimHumanFollowUpMutation,

@@ -3,7 +3,7 @@ import type {
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
-} from '@ergon/application-follow-up';
+} from '../src/client';
 import { describe, expect, it, vi } from 'vitest';
 
 import { type HumanFollowUpCacheDependencies, humanFollowUpApi } from '../src';

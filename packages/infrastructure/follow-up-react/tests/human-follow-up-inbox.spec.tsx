@@ -3,7 +3,7 @@ import type {
   ClaimHumanFollowUp,
   HumanFollowUpResult,
   ListOpenHumanFollowUps,
-} from '@ergon/application-follow-up';
+} from '@ergon/infrastructure-follow-up-web';
 import { Provider } from 'react-redux';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';

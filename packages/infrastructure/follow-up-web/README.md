@@ -8,6 +8,8 @@ until the project moves to `packages/follow-up/data-access-web`.
 ## Owns
 
 - Same-origin BFF request construction and response decoding.
+- Follow-up client operations, requests, results, cursors, and presentation-safe
+  failures consumed by the feature and cache.
 - Browser wire schemas and protocol-to-typed-failure translation.
 - Bounded read retries, per-request timeouts, and cancellation conversion.
 - The in-memory, session-bound CSRF token lifecycle for claim commands,
@@ -26,14 +28,12 @@ until the project moves to `packages/follow-up/data-access-web`.
 
 ## Public API and dependencies
 
-Consumers import the BFF client factory, `humanFollowUpApi`, its generated
-hooks, and `HumanFollowUpCacheDependencies` from
-`@ergon/infrastructure-follow-up-web`. The package implements the narrow
-operations described by the transitional follow-up contracts and maps
-validated responses to follow-up model values. Its public API does not expose
-Effect programs or wire DTOs. Composition roots provide executable operation
-dependencies through Redux thunk extra arguments and register the API reducer
-and middleware.
+Consumers import the BFF client factory, typed client contracts,
+`humanFollowUpApi`, generated hooks, and `HumanFollowUpCacheDependencies` from
+`@ergon/infrastructure-follow-up-web`. The package maps validated responses to
+follow-up model values without exposing Effect programs or wire DTOs.
+Composition roots provide executable operation dependencies through Redux
+thunk extra arguments and register the API reducer and middleware.
 
 ## Verification
 

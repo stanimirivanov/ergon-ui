@@ -122,22 +122,6 @@ const ACCEPTED_DECISION_PATH =
  */
 export const LEGACY_PROJECT_LOCATIONS = new Map([
   [
-    'packages/application/follow-up',
-    {
-      type: 'type:application',
-      scope: 'scope:follow-up',
-      platform: 'platform:shared',
-      compilerConfigurationException: {
-        reason: 'AbortSignal is temporarily part of the transitional contract',
-        extendsPath: 'tsconfig.base.json',
-        libraries: ['dom', 'es2022'],
-        types: ['*'],
-      },
-      target:
-        'remove it or move it to packages/follow-up/application after it gains executable behavior',
-    },
-  ],
-  [
     'packages/domain/follow-up',
     {
       type: 'type:model',

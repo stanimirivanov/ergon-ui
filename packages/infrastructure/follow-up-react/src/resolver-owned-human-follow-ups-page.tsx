@@ -1,7 +1,7 @@
 import type {
   ResolverOwnedHumanFollowUpCursor,
   ResolverOwnedHumanFollowUpQuery,
-} from '@ergon/application-follow-up';
+} from '@ergon/infrastructure-follow-up-web';
 import { useResolverOwnedHumanFollowUpsQuery } from '@ergon/infrastructure-follow-up-web';
 import { Button } from '@ergon/ui-web';
 import { useState } from 'react';

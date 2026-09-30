@@ -3,7 +3,7 @@ import type {
   HumanFollowUpQuery,
   ResolverFollowUpCaseSummaryQuery,
   ResolverOwnedHumanFollowUpQuery,
-} from '@ergon/application-follow-up';
+} from '../client';
 
 /** Same-origin endpoint for acquiring an ephemeral browser CSRF token. */
 export const CSRF_TOKEN_PATH = '/bff/v1/csrf' as const;

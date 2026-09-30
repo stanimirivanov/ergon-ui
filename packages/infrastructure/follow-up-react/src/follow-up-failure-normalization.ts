@@ -2,7 +2,7 @@ import type {
   HumanFollowUpClaimFailure,
   HumanFollowUpFailure,
   ResolverFollowUpCaseSummaryFailure,
-} from '@ergon/application-follow-up';
+} from '@ergon/infrastructure-follow-up-web';
 
 const INVALID_RESPONSE = { kind: 'invalid-response' } as const;
 

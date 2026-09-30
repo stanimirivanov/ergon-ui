@@ -382,21 +382,12 @@ importers:
 
   apps/ergon-workbench-e2e: {}
 
-  packages/application/follow-up:
-    dependencies:
-      '@ergon/domain-follow-up':
-        specifier: workspace:*
-        version: link:../../domain/follow-up
-
   packages/domain/follow-up: {}
 
   packages/domain/session: {}
 
   packages/infrastructure/follow-up-react:
     dependencies:
-      '@ergon/application-follow-up':
-        specifier: workspace:*
-        version: link:../../application/follow-up
       '@ergon/domain-follow-up':
         specifier: workspace:*
         version: link:../../domain/follow-up
@@ -421,9 +412,6 @@ importers:
 
   packages/infrastructure/follow-up-web:
     dependencies:
-      '@ergon/application-follow-up':
-        specifier: workspace:*
-        version: link:../../application/follow-up
       '@ergon/domain-follow-up':
         specifier: workspace:*
         version: link:../../domain/follow-up

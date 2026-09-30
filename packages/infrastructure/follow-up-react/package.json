@@ -13,7 +13,6 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@ergon/application-follow-up": "workspace:*",
     "@ergon/domain-follow-up": "workspace:*",
     "@ergon/infrastructure-follow-up-web": "workspace:*",
     "@ergon/ui-web": "workspace:*",

@@ -1,4 +1,4 @@
-import type { HumanFollowUpClaimFailure } from '@ergon/application-follow-up';
+import type { HumanFollowUpClaimFailure } from '../client';
 import type { HumanFollowUpClaim } from '@ergon/domain-follow-up';
 import { Effect, Schema } from 'effect';
 
