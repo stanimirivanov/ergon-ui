@@ -131,15 +131,6 @@ export const LEGACY_PROJECT_LOCATIONS = new Map([
     },
   ],
   [
-    'packages/infrastructure/follow-up-react',
-    {
-      type: 'type:feature',
-      scope: 'scope:follow-up',
-      platform: 'platform:web',
-      target: 'packages/follow-up/feature-web',
-    },
-  ],
-  [
     'packages/infrastructure/session-web',
     {
       type: 'type:data-access',

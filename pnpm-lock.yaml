@@ -360,7 +360,7 @@ importers:
     dependencies:
       '@ergon/infrastructure-follow-up-react':
         specifier: workspace:*
-        version: link:../../packages/infrastructure/follow-up-react
+        version: link:../../packages/follow-up/feature-web
       '@ergon/infrastructure-follow-up-web':
         specifier: workspace:*
         version: link:../../packages/follow-up/data-access-web
@@ -402,16 +402,14 @@ importers:
         specifier: 9.3.0
         version: 9.3.0(@types/react@19.3.0)(react@19.3.0)(redux@5.0.1)
 
-  packages/follow-up/model: {}
-
-  packages/infrastructure/follow-up-react:
+  packages/follow-up/feature-web:
     dependencies:
       '@ergon/domain-follow-up':
         specifier: workspace:*
-        version: link:../../follow-up/model
+        version: link:../model
       '@ergon/infrastructure-follow-up-web':
         specifier: workspace:*
-        version: link:../../follow-up/data-access-web
+        version: link:../data-access-web
       '@ergon/ui-web':
         specifier: workspace:*
         version: link:../../ui-web
@@ -427,6 +425,8 @@ importers:
       react-router:
         specifier: 8.4.0
         version: 8.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+
+  packages/follow-up/model: {}
 
   packages/infrastructure/session-web:
     dependencies:

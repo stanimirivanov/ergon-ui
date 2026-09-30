@@ -46,8 +46,9 @@ animation, requester app, or native app.
 - a capability-located follow-up web data-access package with separated wire
   contracts, read execution, claim/CSRF execution, protocol failure
   translation, and explicit RTK Query cache integration;
-- a follow-up web feature package with capability-owned orchestration,
-  presentation, failure copy, and independently verified component tests;
+- a capability-located follow-up web feature package with capability-owned
+  orchestration, presentation, failure copy, and independently verified
+  component tests;
 - a session web data-access package owning its typed client contract, wire
   decoding, failure classification, read execution, cancellation normalization,
   and tenant-keyed RTK Query integration;

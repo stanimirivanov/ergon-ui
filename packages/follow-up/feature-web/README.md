@@ -1,10 +1,9 @@
-# Follow-up web feature — transitional location
+# Follow-up web feature
 
 ## Purpose
 
-Own the workbench's human-follow-up React behavior until the project moves to
-`packages/follow-up/feature-web`, keeping capability behavior out of the
-deployable app and domain-agnostic UI primitives.
+Own the workbench's human-follow-up React behavior, keeping capability behavior
+out of the deployable app and domain-agnostic UI primitives.
 
 ## Owns
 

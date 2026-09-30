@@ -20,10 +20,10 @@
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "references": [
     {
-      "path": "../../follow-up/model/tsconfig.lib.json"
+      "path": "../model/tsconfig.lib.json"
     },
     {
-      "path": "../../follow-up/data-access-web/tsconfig.lib.json"
+      "path": "../data-access-web/tsconfig.lib.json"
     },
     {
       "path": "../../ui-web/tsconfig.lib.json"

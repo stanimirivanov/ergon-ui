@@ -66,14 +66,14 @@ feature -> application use case -> consumed port <- data-access implementation
 ```
 
 The repository is migrating to that shape without changing runtime behavior.
-The follow-up model and web data access now live under `packages/follow-up/`;
-their existing `@ergon/domain-follow-up` and
-`@ergon/infrastructure-follow-up-web` import names remain stable. Other current
-paths and import names remain temporarily unchanged:
+The follow-up model, web data access, and web feature now live under
+`packages/follow-up/`. Their existing `@ergon/domain-follow-up`,
+`@ergon/infrastructure-follow-up-web`, and
+`@ergon/infrastructure-follow-up-react` import names remain stable. Other
+current paths and import names remain temporarily unchanged:
 
 | Current project or source                                 | Declared type / migration status  | Target                             |
 | :-------------------------------------------------------- | :-------------------------------- | :--------------------------------- |
-| `@ergon/infrastructure-follow-up-react`                   | `type:feature`                    | `packages/follow-up/feature-web`   |
 | `@ergon/domain-session`                                   | `type:model`                      | `packages/session/model`           |
 | `@ergon/infrastructure-session-web`                       | `type:data-access`                | `packages/session/data-access-web` |
 | `apps/ergon-workbench/src/session/current-actor-page.tsx` | `type:app` (session-feature debt) | `packages/session/feature-web`     |
