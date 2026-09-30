@@ -19,9 +19,9 @@ until the project moves to `packages/follow-up/data-access-web`.
 
 ## Does not own
 
-- Follow-up model semantics or executable application policy. The package
-  temporarily performs case-summary semantic refinements; moving those pure
-  checks to the follow-up model is explicit migration debt.
+- Follow-up model semantics or executable application policy. It checks that a
+  decoded case summary matches the requested work, case, and run before using
+  the follow-up model's pure cross-field refinement.
 - Redux store composition or non-remote client state.
 - React routes, feature components, or presentation.
 - Session identity resolution or control-plane implementation details.

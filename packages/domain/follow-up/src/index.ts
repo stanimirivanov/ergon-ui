@@ -3,4 +3,8 @@ export type {
   HumanFollowUpWorkItem,
   ResolverOwnedHumanFollowUpWork,
 } from './human-follow-up';
-export type { ResolverFollowUpCaseSummary } from './resolver-follow-up-case-summary';
+export {
+  isResolverFollowUpCaseSummary,
+  type ResolverFollowUpCaseSummary,
+  type ResolverFollowUpCaseSummaryCandidate,
+} from './resolver-follow-up-case-summary';

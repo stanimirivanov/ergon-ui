@@ -157,10 +157,3 @@ export type BrowserCsrfToken = Schema.Schema.Type<typeof csrfTokenSchema>;
 
 /** Validated problem fields used by the protocol-to-typed-failure mapper. */
 export type ProblemDetail = Schema.Schema.Type<typeof problemDetailSchema>;
-
-/**
- * Structurally decoded case-context payload awaiting cross-field validation.
- */
-export type ResolverFollowUpCaseSummaryPayload = Schema.Schema.Type<
-  typeof resolverFollowUpCaseSummarySchema
->;

@@ -145,11 +145,12 @@ entering application state. Tagged UI errors distinguish authentication,
 authorization, absence, conflict, invalid input, timeout, network failure,
 invalid response, and unexpected defects.
 
-Owned case context is a read-only confidential-BFF projection. The browser
-checks response identity, positive revisions, pinned-contract consistency,
+Owned case context is a read-only confidential-BFF projection. Data access
+checks response identity against the request and decodes the wire shape. The
+follow-up model refines positive revisions, pinned-contract consistency,
 evidence bounds, observation order, and the failed-execution-to-escalation
-sequence before caching it. Evidence text remains untrusted content and is
-rendered only through React text nodes.
+sequence before the browser caches it. Evidence text remains untrusted content
+and is rendered only through React text nodes.
 
 A tenant selected in the URL is navigation context only. The backend remains
 authoritative for subject mapping, authority evidence, tenant isolation, and
