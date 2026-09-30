@@ -6,6 +6,7 @@ import type {
   ResolverOwnedHumanFollowUpPage,
 } from '../client';
 import {
+  isResolverOwnedHumanFollowUpWork,
   isResolverFollowUpCaseSummary,
   type ResolverFollowUpCaseSummary,
 } from '@ergon/domain-follow-up';
@@ -47,8 +48,8 @@ export function decodeHumanFollowUpPage(
 }
 
 /**
- * Decodes resolver-owned work and rejects any claim/work-item identity
- * mismatch enforced by the wire schema.
+ * Decodes resolver-owned work, then rejects claim/work-item identity mismatches
+ * through the model's pure refinement before data enters the remote cache.
  */
 export function decodeResolverOwnedHumanFollowUpPage(
   response: Response,
@@ -57,6 +58,11 @@ export function decodeResolverOwnedHumanFollowUpPage(
     return readJson(response).pipe(
       Effect.flatMap(
         Schema.decodeUnknown(resolverOwnedHumanFollowUpPageSchema),
+      ),
+      Effect.flatMap((page) =>
+        page.items.every(isResolverOwnedHumanFollowUpWork)
+          ? Effect.succeed(page)
+          : Effect.fail(INVALID_RESPONSE),
       ),
       Effect.map((page): ResolverOwnedHumanFollowUpPage => page),
       Effect.mapError(() => INVALID_RESPONSE),

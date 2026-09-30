@@ -41,9 +41,9 @@ animation, requester app, or native app.
   client owned by session web data access, with no ceremonial application
   project;
 - capability-located follow-up model with platform-neutral values, pure
-  case-summary refinements, and verified Nx project metadata; follow-up request
-  and failure contracts live in web data access without an interface-only
-  application project;
+  claim/work-item pairing and case-summary refinements, and verified Nx project
+  metadata; follow-up request and failure contracts live in web data access
+  without an interface-only application project;
 - a capability-located follow-up web data-access package with separated wire
   contracts, read execution, claim/CSRF execution, protocol failure
   translation, and explicit RTK Query cache integration;

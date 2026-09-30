@@ -201,6 +201,7 @@ describe('follow-up inbox BFF adapter', () => {
         jsonResponse({
           ...page,
           items: [
+            page.items[0],
             {
               ...page.items[0],
               claim: { ...validClaim(), workItemId: CASE_ID },

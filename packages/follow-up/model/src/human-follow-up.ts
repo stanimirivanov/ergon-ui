@@ -35,11 +35,21 @@ export interface HumanFollowUpClaim {
  * Open follow-up paired with the current resolver's active claim.
  *
  * The pair is valid only when `claim.workItemId` equals
- * `workItem.workItemId`. Data-access decoders currently enforce that
- * relationship before constructing this value; moving the pure refinement to
- * the model is migration debt.
+ * `workItem.workItemId`. A consumer must apply the pure refinement below after
+ * separately validating the shape of untrusted input.
  */
 export interface ResolverOwnedHumanFollowUpWork {
   readonly workItem: HumanFollowUpWorkItem;
   readonly claim: HumanFollowUpClaim;
+}
+
+/**
+ * Checks that an active claim identifies its paired open work item.
+ * This does not validate wire fields or establish current resolver authority;
+ * those checks remain at the BFF/data-access boundary.
+ */
+export function isResolverOwnedHumanFollowUpWork(
+  candidate: ResolverOwnedHumanFollowUpWork,
+): boolean {
+  return candidate.claim.workItemId === candidate.workItem.workItemId;
 }
