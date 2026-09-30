@@ -75,3 +75,71 @@ export interface ResolverFollowUpCaseSummary {
     readonly recordedAt: string;
   };
 }
+
+/**
+ * Structurally decoded case context before its cross-field invariants are
+ * established. A missing pinned contract is representable here but never in
+ * a resolver-visible summary.
+ */
+export type ResolverFollowUpCaseSummaryCandidate = Omit<
+  ResolverFollowUpCaseSummary,
+  'case'
+> & {
+  readonly case: Omit<
+    ResolverFollowUpCaseSummary['case'],
+    'resolutionContract'
+  > & {
+    readonly resolutionContract:
+      ResolverFollowUpCaseSummary['case']['resolutionContract'] | null;
+  };
+};
+
+/**
+ * Refines structurally decoded, server-authorized context into a coherent
+ * case/run/evidence/handoff projection. This does not establish that the
+ * caller owns the work item or that the response matches a particular request;
+ * those checks remain at the BFF boundary. Invalid candidates return false.
+ */
+export function isResolverFollowUpCaseSummary(
+  summary: ResolverFollowUpCaseSummaryCandidate,
+): summary is ResolverFollowUpCaseSummary {
+  const contract = summary.case.resolutionContract;
+  const positiveIntegers = [
+    summary.case.streamVersion,
+    summary.resolutionRun.caseEvidenceStreamVersion,
+    summary.resolutionRun.contractRevision,
+    summary.resolutionRun.attemptNumber,
+    summary.resolutionRun.stateVersion,
+    summary.escalation.sourceAttemptNumber,
+    summary.escalation.maximumAttempts,
+    ...summary.observations.map((observation) => observation.streamVersion),
+  ];
+
+  return (
+    contract !== null &&
+    contract.key === summary.resolutionRun.contractKey &&
+    contract.revision === summary.resolutionRun.contractRevision &&
+    summary.resolutionRun.caseEvidenceStreamVersion <=
+      summary.case.streamVersion &&
+    positiveIntegers.every(isPositiveInteger) &&
+    summary.escalation.sourceAttemptNumber ===
+      summary.resolutionRun.attemptNumber &&
+    summary.escalation.sourceAttemptNumber >=
+      summary.escalation.maximumAttempts &&
+    summary.escalation.occurredAt === summary.followUp.openedAt &&
+    Date.parse(summary.failedExecution.completedAt) <=
+      Date.parse(summary.escalation.occurredAt) &&
+    summary.observations.every((observation, index, observations) => {
+      const previousObservation = observations[index - 1];
+      return (
+        observation.streamVersion <= summary.case.streamVersion &&
+        (previousObservation === undefined ||
+          previousObservation.streamVersion < observation.streamVersion)
+      );
+    })
+  );
+}
+
+function isPositiveInteger(value: number): boolean {
+  return Number.isSafeInteger(value) && value > 0;
+}

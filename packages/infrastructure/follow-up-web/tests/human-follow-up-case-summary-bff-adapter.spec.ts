@@ -122,6 +122,42 @@ describe('follow-up case-summary BFF adapter', () => {
     });
   });
 
+  it('rejects case context for a different work item', async () => {
+    const summary = validCaseSummary();
+    const adapter = createHumanFollowUpBffAdapter({
+      fetch: async () =>
+        jsonResponse({
+          ...summary,
+          followUp: {
+            ...summary.followUp,
+            workItemId: '99999999-9999-4999-8999-999999999999',
+          },
+        }),
+    });
+
+    await expect(
+      adapter.getOwnedCaseSummary(query, new AbortController().signal),
+    ).resolves.toEqual({ ok: false, error: { kind: 'invalid-response' } });
+  });
+
+  it('rejects case context for a different resolution run', async () => {
+    const summary = validCaseSummary();
+    const adapter = createHumanFollowUpBffAdapter({
+      fetch: async () =>
+        jsonResponse({
+          ...summary,
+          resolutionRun: {
+            ...summary.resolutionRun,
+            runId: '99999999-9999-4999-8999-999999999999',
+          },
+        }),
+    });
+
+    await expect(
+      adapter.getOwnedCaseSummary(query, new AbortController().signal),
+    ).resolves.toEqual({ ok: false, error: { kind: 'invalid-response' } });
+  });
+
   it('maps unavailable case context without disclosing its cause', async () => {
     const adapter = createHumanFollowUpBffAdapter({
       fetch: async () =>

@@ -39,9 +39,10 @@ animation, requester app, or native app.
   ESLint project boundaries, Prettier, Vitest, and Playwright;
 - a transitional session model plus a cancellation-aware current-actor client
   owned by session web data access, with no ceremonial application project;
-- transitional follow-up model with platform-neutral values and verified Nx
-  project metadata; follow-up request and failure contracts live in web data
-  access without an interface-only application project;
+- transitional follow-up model with platform-neutral values, pure case-summary
+  refinements, and verified Nx project metadata; follow-up request and failure
+  contracts live in web data access without an interface-only application
+  project;
 - a follow-up web data-access package with separated wire contracts, read
   execution, claim/CSRF execution, protocol failure translation, and explicit
   RTK Query cache integration;

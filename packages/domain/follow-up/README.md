@@ -10,8 +10,8 @@ claims, and resolver-visible case context until the project moves to
 
 - Follow-up work-item and claim values.
 - Resolver-owned work projections.
-- Server-authorized case-summary projections. Their semantic refinements are
-  currently performed by data access and will move in a dedicated change.
+- Server-authorized case-summary projections and pure contract, version,
+  evidence-order, and retry-handoff refinements.
 
 ## Does not own
 
@@ -30,5 +30,6 @@ data-access projects, or feature projects.
 ```powershell
 pnpm nx lint @ergon/domain-follow-up
 pnpm nx typecheck @ergon/domain-follow-up
+pnpm nx test @ergon/domain-follow-up
 pnpm nx build @ergon/domain-follow-up
 ```
