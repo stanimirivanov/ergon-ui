@@ -2,7 +2,7 @@ import type {
   HumanFollowUpClaimFailure,
   HumanFollowUpFailure,
   ResolverFollowUpCaseSummaryFailure,
-} from '@ergon/application-follow-up';
+} from '../client';
 
 import type { ProblemDetail } from './follow-up-wire-schemas';
 

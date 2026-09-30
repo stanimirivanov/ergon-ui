@@ -4,7 +4,7 @@ import type {
   ResolverFollowUpCaseSummaryFailure,
   ResolverFollowUpCaseSummaryQuery,
   ResolverOwnedHumanFollowUpPage,
-} from '@ergon/application-follow-up';
+} from '../client';
 import type { ResolverFollowUpCaseSummary } from '@ergon/domain-follow-up';
 import { Effect, Schema } from 'effect';
 

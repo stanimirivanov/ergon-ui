@@ -4,7 +4,7 @@ import type {
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
-} from '@ergon/application-follow-up';
+} from '@ergon/infrastructure-follow-up-web';
 import {
   type HumanFollowUpCacheDependencies,
   humanFollowUpApi,

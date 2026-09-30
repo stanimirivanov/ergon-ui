@@ -68,15 +68,14 @@ feature -> application use case -> consumed port <- data-access implementation
 The repository is migrating to that shape without changing runtime behavior.
 Current paths and import names remain temporarily unchanged:
 
-| Current project or source                                 | Declared type / migration status  | Target                                  |
-| :-------------------------------------------------------- | :-------------------------------- | :-------------------------------------- |
-| `@ergon/domain-follow-up`                                 | `type:model`                      | `packages/follow-up/model`              |
-| `@ergon/application-follow-up`                            | `type:application` (debt)         | Remove, or move after it gains behavior |
-| `@ergon/infrastructure-follow-up-web`                     | `type:data-access`                | `packages/follow-up/data-access-web`    |
-| `@ergon/infrastructure-follow-up-react`                   | `type:feature`                    | `packages/follow-up/feature-web`        |
-| `@ergon/domain-session`                                   | `type:model`                      | `packages/session/model`                |
-| `@ergon/infrastructure-session-web`                       | `type:data-access`                | `packages/session/data-access-web`      |
-| `apps/ergon-workbench/src/session/current-actor-page.tsx` | `type:app` (session-feature debt) | `packages/session/feature-web`          |
+| Current project or source                                 | Declared type / migration status  | Target                               |
+| :-------------------------------------------------------- | :-------------------------------- | :----------------------------------- |
+| `@ergon/domain-follow-up`                                 | `type:model`                      | `packages/follow-up/model`           |
+| `@ergon/infrastructure-follow-up-web`                     | `type:data-access`                | `packages/follow-up/data-access-web` |
+| `@ergon/infrastructure-follow-up-react`                   | `type:feature`                    | `packages/follow-up/feature-web`     |
+| `@ergon/domain-session`                                   | `type:model`                      | `packages/session/model`             |
+| `@ergon/infrastructure-session-web`                       | `type:data-access`                | `packages/session/data-access-web`   |
+| `apps/ergon-workbench/src/session/current-actor-page.tsx` | `type:app` (session-feature debt) | `packages/session/feature-web`       |
 
 The finite legacy-location ledger in the architecture checker rejects new
 projects under the old global-layer directories and becomes stale when a listed
@@ -89,13 +88,10 @@ follow-up feature owns capability React behavior. Follow-up and session data
 access own BFF protocols, Effect execution, typed failure translation, timeout,
 retry, cancellation, cache identity, and generated hooks.
 
-The remaining follow-up application project contains contracts rather than an
-executable use case. It is recorded migration debt, not a precedent for new
-interface-only application projects. Its `AbortSignal` contracts and DOM
-TypeScript library remain a known portability mismatch. Session request,
-cancellation, result, and failure contracts already belong to session web data
-access, so that capability has no application project. Model and genuine
-application library builds extend the checked, DOM-free `tsconfig.core.json`.
+Follow-up and session request, cancellation, result, and failure contracts
+belong to their web data-access projects. Neither capability currently has a
+client-owned application use case. Model and genuine application library builds
+extend the checked, DOM-free `tsconfig.core.json`.
 
 ## State ownership
 

@@ -3,7 +3,7 @@ import type {
   HumanFollowUpResult,
   ResolverOwnedHumanFollowUpCursor,
   ResolverOwnedHumanFollowUpResult,
-} from '@ergon/application-follow-up';
+} from '@ergon/infrastructure-follow-up-web';
 import type {
   HumanFollowUpClaim,
   HumanFollowUpWorkItem,

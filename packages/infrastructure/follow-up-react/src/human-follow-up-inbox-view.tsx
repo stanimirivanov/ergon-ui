@@ -1,4 +1,4 @@
-import type { HumanFollowUpClaimFailure } from '@ergon/application-follow-up';
+import type { HumanFollowUpClaimFailure } from '@ergon/infrastructure-follow-up-web';
 import type { HumanFollowUpWorkItem } from '@ergon/domain-follow-up';
 import { Button } from '@ergon/ui-web';
 import type { FormEvent } from 'react';

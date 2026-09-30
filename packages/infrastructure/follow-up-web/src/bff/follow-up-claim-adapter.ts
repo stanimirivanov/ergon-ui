@@ -3,7 +3,7 @@ import type {
   HumanFollowUpClaimCommand,
   HumanFollowUpClaimFailure,
   HumanFollowUpClaimResult,
-} from '@ergon/application-follow-up';
+} from '../client';
 import type { HumanFollowUpClaim } from '@ergon/domain-follow-up';
 import { Effect, Either, SynchronizedRef } from 'effect';
 

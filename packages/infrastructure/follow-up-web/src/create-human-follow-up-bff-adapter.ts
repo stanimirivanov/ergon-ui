@@ -3,7 +3,7 @@ import type {
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
-} from '@ergon/application-follow-up';
+} from './client';
 
 import { createFollowUpClaimAdapter } from './bff/follow-up-claim-adapter';
 import { createFollowUpReadAdapter } from './bff/follow-up-read-adapter';
@@ -25,7 +25,7 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
   ClaimHumanFollowUp;
 
 /**
- * Adapts the confidential browser BFF to the transitional follow-up contracts.
+ * Adapts the confidential browser BFF to the follow-up data-access contracts.
  *
  * Responses are fully decoded before reaching application state. Read
  * operations retry one classified transient failure; claim commands are never

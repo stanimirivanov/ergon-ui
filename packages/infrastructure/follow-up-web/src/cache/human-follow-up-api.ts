@@ -14,7 +14,7 @@ import type {
   ResolverOwnedHumanFollowUpQuery,
   ResolverFollowUpCaseSummaryFailure,
   ResolverFollowUpCaseSummaryQuery,
-} from '@ergon/application-follow-up';
+} from '../client';
 import type {
   HumanFollowUpClaim,
   ResolverFollowUpCaseSummary,

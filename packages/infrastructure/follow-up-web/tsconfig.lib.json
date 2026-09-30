@@ -12,9 +12,6 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
-      "path": "../../application/follow-up/tsconfig.lib.json"
-    },
-    {
       "path": "../../domain/follow-up/tsconfig.lib.json"
     }
   ]
