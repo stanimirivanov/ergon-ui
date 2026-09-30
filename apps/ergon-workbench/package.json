@@ -11,9 +11,9 @@
     "@ergon/infrastructure-follow-up-react": "workspace:*",
     "@ergon/infrastructure-follow-up-web": "workspace:*",
     "@ergon/infrastructure-session-web": "workspace:*",
+    "@ergon/session-feature-web": "workspace:*",
     "@ergon/ui-web": "workspace:*",
     "@reduxjs/toolkit": "2.12.0",
-    "effect": "3.22.2",
     "react-redux": "9.3.0"
   },
   "nx": {

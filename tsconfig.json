@@ -26,6 +26,9 @@
     },
     {
       "path": "./packages/session/data-access-web"
+    },
+    {
+      "path": "./packages/session/feature-web"
     }
   ],
   "compilerOptions": {}

@@ -65,15 +65,10 @@ a genuine client-owned use case:
 feature -> application use case -> consumed port <- data-access implementation
 ```
 
-The repository is migrating to that shape without changing runtime behavior.
-The follow-up model, web data access, and web feature now live under
-`packages/follow-up/`. The session model and web data access live under
-`packages/session/`. Their existing import names remain stable. One session
-feature remains in the workbench during the migration:
-
-| Current project or source                                 | Declared type / migration status  | Target                         |
-| :-------------------------------------------------------- | :-------------------------------- | :----------------------------- |
-| `apps/ergon-workbench/src/session/current-actor-page.tsx` | `type:app` (session-feature debt) | `packages/session/feature-web` |
+The follow-up and session model, web data-access, and web feature projects now
+live under their capability paths. The existing model, data-access, and
+follow-up feature import names remain stable; the new session feature uses
+`@ergon/session-feature-web`.
 
 The now-empty legacy-location ledger in the architecture checker rejects new
 projects under the old global-layer directories. Moving each listed project
@@ -81,10 +76,12 @@ removed its exception in the same change.
 
 The workbench remains the app composition root. It registers the RTK Query
 reducers and middleware, supplies runtime dependencies, owns route hierarchy
-and session gating, and provides trusted same-origin navigation inputs. The
-follow-up feature owns capability React behavior. Follow-up and session data
-access own BFF protocols, Effect execution, typed failure translation, timeout,
-retry, cancellation, cache identity, and generated hooks.
+and shell, and provides trusted same-origin navigation inputs. The session
+feature validates the tenant route value and gates authenticated content until
+the BFF verifies the actor. The follow-up feature owns the workspace
+introduction and its work views. Follow-up and session data access own BFF
+protocols, Effect execution, typed failure translation, timeout, retry,
+cancellation, cache identity, and generated hooks.
 
 Follow-up and session request, cancellation, result, and failure contracts
 belong to their web data-access projects. Neither capability currently has a
