@@ -122,15 +122,6 @@ const ACCEPTED_DECISION_PATH =
  */
 export const LEGACY_PROJECT_LOCATIONS = new Map([
   [
-    'packages/domain/follow-up',
-    {
-      type: 'type:model',
-      scope: 'scope:follow-up',
-      platform: 'platform:shared',
-      target: 'packages/follow-up/model',
-    },
-  ],
-  [
     'packages/domain/session',
     {
       type: 'type:model',

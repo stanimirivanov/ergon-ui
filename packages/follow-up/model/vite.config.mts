@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
-  cacheDir: '../../../node_modules/.vite/packages/domain/follow-up',
+  cacheDir: '../../../node_modules/.vite/packages/follow-up/model',
   test: {
     name: '@ergon/domain-follow-up',
     watch: false,
