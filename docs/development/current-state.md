@@ -37,8 +37,9 @@ animation, requester app, or native app.
   handoff explanation;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
-- a transitional session model plus a cancellation-aware current-actor client
-  owned by session web data access, with no ceremonial application project;
+- a capability-located session model plus a cancellation-aware current-actor
+  client owned by session web data access, with no ceremonial application
+  project;
 - capability-located follow-up model with platform-neutral values, pure
   case-summary refinements, and verified Nx project metadata; follow-up request
   and failure contracts live in web data access without an interface-only
