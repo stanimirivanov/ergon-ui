@@ -32,7 +32,8 @@ The first foundation provides:
 - Vitest component tests and a Chromium Playwright smoke path;
 - enforced capability-first project roles and an accepted application-topology
   decision; and
-- a contributor, security, issue, pull-request, and CI harness.
+- a progressively routed contributor harness with repository and architecture
+  policy sensors, review templates, and staged CI feedback.
 
 The control-plane contracts are connected through same-origin cookies. A live
 login and inbox require an OIDC-enabled control plane, identity provider, actor
@@ -91,10 +92,12 @@ Ergon's product and backend contracts remain authoritative in the
 
 ## Working agreement
 
-Read [AGENTS.md](AGENTS.md), [CONTRIBUTING.md](CONTRIBUTING.md), and the
-[engineering standards](docs/development/engineering-standards.md) before
-changing the workspace. Each change delivers one reviewable capability and is
-assigned to the existing Ergon milestone that owns that behavior.
+Read [AGENTS.md](AGENTS.md) and [CONTRIBUTING.md](CONTRIBUTING.md), then use the
+[documentation map](docs/README.md) to load only the relevant engineering,
+package, security, and decision sources. The
+[coding harness](docs/development/harness.md) explains feedback tiers. Each
+change delivers one reviewable capability and is assigned to the existing
+Ergon milestone that owns that behavior.
 
 ## License
 

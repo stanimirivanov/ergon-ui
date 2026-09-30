@@ -5,6 +5,20 @@
 Accepted ADRs are durable historical records. Supersede rather than rewrite a
 decision whose context or outcome changes.
 
+## Naming and lifecycle
+
+Published decisions use `NNNN-lowercase-kebab.md`, a matching
+`# ADR NNNN: Title`, a real ISO date, one `MNN - Outcome` milestone, and the
+section order in the template. Supported statuses are `Proposed`, `Accepted`,
+`Rejected`, `Deprecated`, or `Superseded by` an exact ADR link.
+
+A replacement adds `- Supersedes:` with exact links to every decision it
+replaces; each older record points back through its status. The published ADR
+high-water mark is `0012`. It may advance with the next decision but must never
+decrease, even when the newest record is later superseded or deprecated.
+
+## Index
+
 | ADR                                                                | Status     | Decision                                                      |
 | :----------------------------------------------------------------- | :--------- | :------------------------------------------------------------ |
 | [0001](0001-adopt-nx-and-separate-browser-trust-boundaries.md)     | Accepted   | Adopt Nx and separate workbench/requester browser deployables |
@@ -18,6 +32,7 @@ decision whose context or outcome changes.
 | [0009](0009-enforce-capability-and-dependency-boundaries.md)       | Superseded | Enforce capability-specific ports and inward dependencies     |
 | [0010](0010-extract-capability-react-adapters.md)                  | Superseded | Extract capability React code as inbound adapters             |
 | [0011](0011-adopt-capability-first-frontend-boundaries.md)         | Accepted   | Adopt capability-first roles and selective application cores  |
+| [0012](0012-enforce-repository-documentation-policy.md)            | Accepted   | Enforce repository documentation policy                       |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

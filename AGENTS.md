@@ -11,9 +11,10 @@ accessibility and security boundaries, and report checks exactly as run.
 
 ## Before changing anything
 
-1. Read [CONTRIBUTING.md](CONTRIBUTING.md), the relevant application or package
-   README, [engineering standards](docs/development/engineering-standards.md),
-   and accepted ADRs.
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md), then use the
+   [documentation map](docs/README.md) to load only the application, package,
+   engineering, security, and accepted-decision sources relevant to the task.
+   Do not bulk-read unrelated guides or ADRs.
 2. Inspect the branch and working tree. Preserve pre-existing changes and keep
    unrelated work out of the task.
 3. Define one independently reviewable behavior and its existing Ergon
@@ -22,6 +23,10 @@ accessibility and security boundaries, and report checks exactly as run.
    accessibility, responsive behavior, telemetry, and deployment configuration.
 5. For every affected architectural responsibility, identify its current and
    proposed owner, public API, and dependency direction before editing code.
+
+Use the [coding harness](docs/development/harness.md) to choose the shortest
+useful feedback loop. Run `pnpm repository:check` and
+`pnpm architecture:check` while changing structure or policy.
 
 ## Architecture
 
@@ -86,8 +91,8 @@ accessibility and security boundaries, and report checks exactly as run.
 
 ## Completion
 
-Run `pnpm verify`, including its architecture check. A skipped or unavailable
-check is not a pass. Finish every
+Run `pnpm verify`, including repository and architecture policy. A skipped or
+unavailable check is not a pass. Finish every
 coding task with the exact milestone, copy/paste-ready issue title and body,
 limitations, and passed/failed/not-run checks described in
 [CONTRIBUTING.md](CONTRIBUTING.md#completion-report).
