@@ -19,14 +19,14 @@ Own the platform-neutral identity projection for a server-verified session.
 
 ## Public API and dependencies
 
-Consumers import only `@ergon/domain-session`. This `type:model` project has no
+Consumers import only `@ergon/session-model`. This `type:model` project has no
 runtime dependencies and may not import frameworks, platform APIs, data-access
 projects, or feature projects.
 
 ## Verification
 
 ```powershell
-pnpm nx lint @ergon/domain-session
-pnpm nx typecheck @ergon/domain-session
-pnpm nx build @ergon/domain-session
+pnpm nx lint @ergon/session-model
+pnpm nx typecheck @ergon/session-model
+pnpm nx build @ergon/session-model
 ```

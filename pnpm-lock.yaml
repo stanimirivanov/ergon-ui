@@ -428,7 +428,7 @@ importers:
 
   packages/session/data-access-web:
     dependencies:
-      '@ergon/domain-session':
+      '@ergon/session-model':
         specifier: workspace:*
         version: link:../model
       '@reduxjs/toolkit':
@@ -446,12 +446,12 @@ importers:
 
   packages/session/feature-web:
     dependencies:
-      '@ergon/domain-session':
-        specifier: workspace:*
-        version: link:../model
       '@ergon/session-data-access-web':
         specifier: workspace:*
         version: link:../data-access-web
+      '@ergon/session-model':
+        specifier: workspace:*
+        version: link:../model
       '@ergon/ui-web':
         specifier: workspace:*
         version: link:../../ui-web

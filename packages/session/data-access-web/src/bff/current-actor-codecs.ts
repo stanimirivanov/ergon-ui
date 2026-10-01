@@ -1,4 +1,4 @@
-import type { CurrentActor } from '@ergon/domain-session';
+import type { CurrentActor } from '@ergon/session-model';
 import { Effect, Either, Schema } from 'effect';
 
 import type { CurrentActorFailure } from '../current-actor-client';

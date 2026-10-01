@@ -1,5 +1,5 @@
 import { Button } from '@ergon/ui-web';
-import type { CurrentActor } from '@ergon/domain-session';
+import type { CurrentActor } from '@ergon/session-model';
 import {
   type CurrentActorFailure,
   useCurrentActorQuery,

@@ -1,6 +1,6 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import type { CurrentActor } from '@ergon/domain-session';
+import type { CurrentActor } from '@ergon/session-model';
 
 import type {
   CurrentActorClient,
