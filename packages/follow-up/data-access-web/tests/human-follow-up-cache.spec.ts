@@ -20,6 +20,8 @@ import {
 
 const OTHER_TENANT_ID = '1f262f80-c0c6-4c31-9fa0-5e701b8636ee';
 const OTHER_WORK_ITEM_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const OTHER_CASE_ID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const OTHER_RUN_ID = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 
 describe('human follow-up cache adapter', () => {
   it('deduplicates identical inbox keys and isolates tenant and filter keys', async () => {
@@ -68,10 +70,24 @@ describe('human follow-up cache adapter', () => {
     otherTenant.unsubscribe();
   });
 
-  it('keys case summaries by tenant and work item', async () => {
+  it('keys case summaries by the full validated request identity', async () => {
     const getOwnedCaseSummary = vi
       .fn<GetOwnedFollowUpCaseSummary['getOwnedCaseSummary']>()
-      .mockResolvedValue({ ok: true, summary: validCaseSummary() });
+      .mockImplementation(async (request) => {
+        const summary = validCaseSummary();
+        return {
+          ok: true,
+          summary: {
+            ...summary,
+            followUp: {
+              ...summary.followUp,
+              workItemId: request.workItemId,
+            },
+            case: { ...summary.case, caseId: request.caseId },
+            resolutionRun: { ...summary.resolutionRun, runId: request.runId },
+          },
+        };
+      });
     const store = createFollowUpCacheStore({
       ...defaultDependencies(),
       getOwnedFollowUpCaseSummary: { getOwnedCaseSummary },
@@ -95,21 +111,54 @@ describe('human follow-up cache adapter', () => {
         workItemId: OTHER_WORK_ITEM_ID,
       }),
     );
+    const otherCase = store.dispatch(
+      humanFollowUpApi.endpoints.resolverFollowUpCaseSummary.initiate({
+        ...query,
+        caseId: OTHER_CASE_ID,
+      }),
+    );
+    const otherRun = store.dispatch(
+      humanFollowUpApi.endpoints.resolverFollowUpCaseSummary.initiate({
+        ...query,
+        runId: OTHER_RUN_ID,
+      }),
+    );
+    const otherTenant = store.dispatch(
+      humanFollowUpApi.endpoints.resolverFollowUpCaseSummary.initiate({
+        ...query,
+        tenantId: OTHER_TENANT_ID,
+      }),
+    );
 
     await Promise.all([
       first.unwrap(),
       duplicate.unwrap(),
       otherWorkItem.unwrap(),
+      otherCase.unwrap(),
+      otherRun.unwrap(),
+      otherTenant.unwrap(),
     ]);
-    expect(getOwnedCaseSummary).toHaveBeenCalledTimes(2);
+    await expect(otherCase.unwrap()).resolves.toMatchObject({
+      case: { caseId: OTHER_CASE_ID },
+    });
+    await expect(otherRun.unwrap()).resolves.toMatchObject({
+      resolutionRun: { runId: OTHER_RUN_ID },
+    });
+    expect(getOwnedCaseSummary).toHaveBeenCalledTimes(5);
     expect(getOwnedCaseSummary.mock.calls.map(([request]) => request)).toEqual([
       query,
       { ...query, workItemId: OTHER_WORK_ITEM_ID },
+      { ...query, caseId: OTHER_CASE_ID },
+      { ...query, runId: OTHER_RUN_ID },
+      { ...query, tenantId: OTHER_TENANT_ID },
     ]);
 
     first.unsubscribe();
     duplicate.unsubscribe();
     otherWorkItem.unsubscribe();
+    otherCase.unsubscribe();
+    otherRun.unsubscribe();
+    otherTenant.unsubscribe();
   });
 
   it('refreshes subscribed inbox and owned-work caches after a successful claim', async () => {

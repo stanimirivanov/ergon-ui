@@ -14,7 +14,7 @@ section order in the template. Supported statuses are `Proposed`, `Accepted`,
 
 A replacement adds `- Supersedes:` with exact links to every decision it
 replaces; each older record points back through its status. The published ADR
-high-water mark is `0017`. It may advance with the next decision but must never
+high-water mark is `0018`. It may advance with the next decision but must never
 decrease, even when the newest record is later superseded or deprecated.
 
 ## Index
@@ -27,7 +27,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0004](0004-consume-read-only-resolver-inbox.md)                   | Accepted   | Consume the read-only resolver follow-up inbox                |
 | [0005](0005-claim-follow-up-with-ephemeral-csrf-tokens.md)         | Accepted   | Claim follow-up work with ephemeral CSRF tokens               |
 | [0006](0006-recover-resolver-owned-follow-up-work.md)              | Accepted   | Recover active claims from the confidential BFF               |
-| [0007](0007-render-owned-follow-up-case-context.md)                | Accepted   | Render server-authorized context inside owned follow-ups      |
+| [0007](0007-render-owned-follow-up-case-context.md)                | Superseded | Render server-authorized context inside owned follow-ups      |
 | [0008](0008-render-failed-execution-and-retry-handoff.md)          | Accepted   | Explain failed execution and exhausted retry handoff          |
 | [0009](0009-enforce-capability-and-dependency-boundaries.md)       | Superseded | Enforce capability-specific ports and inward dependencies     |
 | [0010](0010-extract-capability-react-adapters.md)                  | Superseded | Extract capability React code as inbound adapters             |
@@ -38,6 +38,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0015](0015-name-follow-up-model-by-capability-and-role.md)        | Accepted   | Name the follow-up model by capability and role               |
 | [0016](0016-name-session-data-access-by-capability-and-role.md)    | Accepted   | Name session data access by capability and role               |
 | [0017](0017-name-session-model-by-capability-and-role.md)          | Accepted   | Name the session model by capability and role                 |
+| [0018](0018-bind-case-context-cache-to-full-request-identity.md)   | Accepted   | Bind case-context cache to the validated request tuple        |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

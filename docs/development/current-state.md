@@ -32,9 +32,9 @@ animation, requester app, or native app.
 - browser-owned work decoding, neutral empty-state handling, reversible exact
   claim-cursor pagination, and post-claim cache refresh;
 - lazy owned-follow-up case context with contract/run consistency checks,
-  evidence-boundary validation, neutral absence handling, plain-text
-  observation rendering, and an explicit failed-execution and exhausted-retry
-  handoff explanation;
+  evidence-boundary validation, full request-tuple cache identity, neutral
+  absence handling, plain-text observation rendering, and an explicit
+  failed-execution and exhausted-retry handoff explanation;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
 - a capability-located session model plus a cancellation-aware current-actor
