@@ -35,9 +35,10 @@ useful feedback loop. Run `pnpm repository:check` and
   in ADR 0011. Every Nx project has one `type:*`, `scope:*`, and `platform:*`
   tag and is consumed only through its public API.
 - New packages use `packages/<scope>/<role[-platform]>`; only `packages/ui-web`
-  is a current special location. Old global-layer paths are a finite migration
-  ledger, not a naming option. Deployables and end-to-end projects use `apps/*`
-  with `type:app` and `type:test`, respectively.
+  is a current special location. Their names mirror those paths as
+  `@ergon/<scope>-<role[-platform]>` or `@ergon/ui-web`. Old global-layer paths
+  are a finite migration ledger, not a naming option. Deployables and
+  end-to-end projects use `apps/*` with `type:app` and `type:test`, respectively.
 - Models own platform-neutral values and pure semantic refinements. Data-access
   projects own protocols, Effect execution, transport state, and RTK Query.
   Feature projects own capability React behavior and presentation. Apps own

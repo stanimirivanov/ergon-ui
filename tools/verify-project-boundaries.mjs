@@ -21,7 +21,7 @@ if (errors.length > 0) {
   process.exitCode = 1;
 } else {
   console.log(
-    `Verified type, scope, platform, and workspace dependency boundaries for ${projects.length} projects.`,
+    `Verified package names, type, scope, platform, and workspace dependency boundaries for ${projects.length} projects.`,
   );
 }
 

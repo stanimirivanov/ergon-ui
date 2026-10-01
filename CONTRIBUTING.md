@@ -110,10 +110,12 @@ future task.
   and deliberately excludes. Supported types are `model`, `application`,
   `data-access`, `feature`, `ui`, `app`, and `test`.
 - New package projects MUST use `packages/<scope>/<role[-platform]>`, with
-  `packages/ui-web` as the current explicit exception. Existing global-layer
-  paths are finite migration entries and MUST NOT be copied. Deployables and
-  end-to-end projects live under `apps/*` with `type:app` and `type:test`,
-  respectively.
+  `packages/ui-web` as the current explicit exception. The package name MUST
+  match the path as `@ergon/<scope>-<role[-platform]>`; `packages/ui-web` is
+  named `@ergon/ui-web`. Existing global-layer paths are finite migration
+  entries and MUST NOT be copied. Deployables and end-to-end projects live
+  under `apps/*` with `type:app` and `type:test`, respectively; their names
+  are not derived from this package convention.
 - Dependency direction is enforced independently by type, scope, and platform.
   Model depends on model; application on application and model; data access on
   data access, application, and model; feature on data access, application,

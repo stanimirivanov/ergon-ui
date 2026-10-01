@@ -95,6 +95,7 @@ const SPECIAL_PACKAGE_LOCATIONS = new Map([
   [
     'packages/ui-web',
     {
+      name: '@ergon/ui-web',
       type: 'type:ui',
       scope: 'scope:shared',
       platform: 'platform:web',
@@ -250,7 +251,7 @@ export function validateProjectBoundaries(
     }
 
     if (!isAppProject && legacyLocation === undefined) {
-      validatePackageLocation(project.path, tagsByDimension, errors);
+      validatePackageLocation(project.path, name, tagsByDimension, errors);
     }
 
     if (
@@ -407,10 +408,11 @@ function declaredDependencyNames(manifest) {
   return declaredDependencies(manifest).keys();
 }
 
-function validatePackageLocation(path, tags, errors) {
+function validatePackageLocation(path, name, tags, errors) {
   const specialLocation = SPECIAL_PACKAGE_LOCATIONS.get(path);
   if (specialLocation !== undefined) {
     validateExpectedTags(path, specialLocation, tags, errors);
+    validatePackageName(path, name, specialLocation.name, errors);
     return;
   }
 
@@ -424,6 +426,7 @@ function validatePackageLocation(path, tags, errors) {
 
   const [, capability, role] = match;
   const roleMetadata = ROLE_METADATA.get(role);
+  validatePackageName(path, name, `@ergon/${capability}-${role}`, errors);
   validateExpectedTags(
     path,
     {
@@ -433,6 +436,13 @@ function validatePackageLocation(path, tags, errors) {
     tags,
     errors,
   );
+}
+
+function validatePackageName(path, actual, expected, errors) {
+  // A missing name is reported by the manifest check; avoid a second diagnosis.
+  if (typeof actual === 'string' && actual.length > 0 && actual !== expected) {
+    errors.push(`${path}: package name must be ${expected}, found ${actual}`);
+  }
 }
 
 function validateExpectedTags(path, expected, actual, errors) {
