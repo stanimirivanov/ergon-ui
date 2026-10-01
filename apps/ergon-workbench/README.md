@@ -24,7 +24,7 @@ pnpm nx e2e @ergon/workbench-e2e
 
 - Compose routes and application providers here.
 - Render follow-up behavior through
-  the `@ergon/infrastructure-follow-up-react` feature package; do
+  the `@ergon/follow-up-feature-web` feature package; do
   not recreate capability-specific orchestration or presentation in the app.
 - Compose session HTTP and remote caching through
   `@ergon/infrastructure-session-web`; do not recreate its wire decoding,
@@ -45,7 +45,7 @@ The app binds `@ergon/infrastructure-follow-up-web` to four transitional
 follow-up contracts: open-work listing, owned-work listing, owned case-context
 loading, and claiming. That data-access package owns the follow-up RTK Query
 API; the workbench registers its reducer and middleware and renders the
-`@ergon/infrastructure-follow-up-react` feature that consumes its generated
+`@ergon/follow-up-feature-web` feature that consumes its generated
 hooks. The workbench supplies tenant request context and the trusted same-origin
 sign-in URL after session verification.
 
