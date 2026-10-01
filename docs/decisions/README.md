@@ -14,7 +14,7 @@ section order in the template. Supported statuses are `Proposed`, `Accepted`,
 
 A replacement adds `- Supersedes:` with exact links to every decision it
 replaces; each older record points back through its status. The published ADR
-high-water mark is `0016`. It may advance with the next decision but must never
+high-water mark is `0017`. It may advance with the next decision but must never
 decrease, even when the newest record is later superseded or deprecated.
 
 ## Index
@@ -37,6 +37,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0014](0014-name-follow-up-data-access-by-capability-and-role.md)  | Accepted   | Name follow-up data access by capability and role             |
 | [0015](0015-name-follow-up-model-by-capability-and-role.md)        | Accepted   | Name the follow-up model by capability and role               |
 | [0016](0016-name-session-data-access-by-capability-and-role.md)    | Accepted   | Name session data access by capability and role               |
+| [0017](0017-name-session-model-by-capability-and-role.md)          | Accepted   | Name the session model by capability and role                 |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

@@ -1,4 +1,4 @@
-import type { CurrentActor } from '@ergon/domain-session';
+import type { CurrentActor } from '@ergon/session-model';
 
 /**
  * Presentation-safe failures from reading the current confidential session.

@@ -13,7 +13,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@ergon/domain-session": "workspace:*",
+    "@ergon/session-model": "workspace:*",
     "@ergon/session-data-access-web": "workspace:*",
     "@ergon/ui-web": "workspace:*",
     "@reduxjs/toolkit": "2.12.0",

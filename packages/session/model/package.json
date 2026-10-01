@@ -1,5 +1,5 @@
 {
-  "name": "@ergon/domain-session",
+  "name": "@ergon/session-model",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",
