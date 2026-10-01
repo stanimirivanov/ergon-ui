@@ -18,6 +18,11 @@ Own confidential-browser BFF execution and follow-up remote-cache integration.
 - Follow-up RTK Query cache identity, request lifecycle, tag invalidation, and
   generated React hooks.
 
+Case-summary cache entries use the full tenant, work-item, case, and run request
+tuple. A different tuple must fetch and pass BFF response validation before it
+can be displayed; the cache never substitutes a summary validated for another
+case or run.
+
 ## Does not own
 
 - Follow-up model semantics or executable application policy. It checks that a

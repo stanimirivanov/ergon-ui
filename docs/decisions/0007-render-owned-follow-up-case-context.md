@@ -1,6 +1,6 @@
 # ADR 0007: Render owned follow-up case context
 
-- Status: Accepted
+- Status: Superseded by [ADR 0018](0018-bind-case-context-cache-to-full-request-identity.md)
 - Date: 2026-09-25
 - Milestone: M05 - Human follow-up and resolver console
 

@@ -39,8 +39,9 @@ export interface HumanFollowUpCacheDependencies {
  * Query functions delegate to injected follow-up operations and forward RTK
  * Query's abort signal. Successful claims invalidate both visible and owned
  * work; stale claim outcomes invalidate only the visible inbox. Case evidence
- * cache identity is tenant plus work item; on fetch, the data-access boundary
- * validates the response against the full requested identity tuple.
+ * cache identity includes the full requested tenant, work-item, case, and run
+ * tuple. On fetch, the data-access boundary validates that same tuple before
+ * a summary enters the cache.
  */
 export const humanFollowUpApi = createApi({
   reducerPath: 'humanFollowUpApi',
@@ -82,8 +83,6 @@ export const humanFollowUpApi = createApi({
       ResolverFollowUpCaseSummary,
       ResolverFollowUpCaseSummaryQuery
     >({
-      serializeQueryArgs: ({ endpointName, queryArgs }) =>
-        `${endpointName}:${queryArgs.tenantId}:${queryArgs.workItemId}`,
       async queryFn(query, queryApi) {
         const capability = getOwnedFollowUpCaseSummaryFrom(queryApi.extra);
         const result = await capability.getOwnedCaseSummary(
