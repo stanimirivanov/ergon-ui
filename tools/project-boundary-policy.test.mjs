@@ -154,6 +154,67 @@ describe('project boundary policy', () => {
     assert(errors.some((error) => error.includes('requires platform:web')));
   });
 
+  it('rejects package names that disagree with capability-first paths', () => {
+    const errors = validateProjectBoundaries(
+      [
+        project('packages/follow-up/model', '@ergon/domain-follow-up', [
+          'type:model',
+          'scope:follow-up',
+          'platform:shared',
+        ]),
+        project(
+          'packages/follow-up/data-access-web',
+          '@ergon/session-data-access-web',
+          ['type:data-access', 'scope:follow-up', 'platform:web'],
+        ),
+        project('packages/ui-web', '@ergon/ui', [
+          'type:ui',
+          'scope:shared',
+          'platform:web',
+        ]),
+      ],
+      { legacyProjectLocations: NO_LEGACY_LOCATIONS },
+    );
+
+    assert(
+      errors.some((error) =>
+        error.includes(
+          'packages/follow-up/model: package name must be @ergon/follow-up-model, found @ergon/domain-follow-up',
+        ),
+      ),
+    );
+    assert(
+      errors.some((error) =>
+        error.includes(
+          'packages/follow-up/data-access-web: package name must be @ergon/follow-up-data-access-web, found @ergon/session-data-access-web',
+        ),
+      ),
+    );
+    assert(
+      errors.some((error) =>
+        error.includes(
+          'packages/ui-web: package name must be @ergon/ui-web, found @ergon/ui',
+        ),
+      ),
+    );
+  });
+
+  it('does not duplicate the missing package-name diagnosis', () => {
+    const errors = validateProjectBoundaries(
+      [
+        project('packages/follow-up/model', undefined, [
+          'type:model',
+          'scope:follow-up',
+          'platform:shared',
+        ]),
+      ],
+      { legacyProjectLocations: NO_LEGACY_LOCATIONS },
+    );
+
+    assert(errors.some((error) => error.includes('requires a non-empty name')));
+    assert(!errors.some((error) => error.includes('package name must be')));
+  });
+
   it('keeps deployable and end-to-end projects under apps', () => {
     const errors = validateProjectBoundaries(
       [

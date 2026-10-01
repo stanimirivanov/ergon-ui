@@ -43,8 +43,9 @@ import web or native projects. `@ergon/ui-web` is a domain-agnostic DOM,
 Tailwind, and shadcn boundary; it is not a React Native design system.
 
 Each project has exactly one `type:*`, `scope:*`, and `platform:*` tag. The
-architecture check validates both metadata and declared workspace dependencies;
-ESLint validates source imports. The intended capability-first shape is:
+architecture check validates package names against capability paths, metadata,
+and declared workspace dependencies; ESLint validates source imports. The
+intended capability-first shape is:
 
 ```text
 @ergon/workbench (app)
