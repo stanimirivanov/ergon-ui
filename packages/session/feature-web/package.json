@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@ergon/domain-session": "workspace:*",
-    "@ergon/infrastructure-session-web": "workspace:*",
+    "@ergon/session-data-access-web": "workspace:*",
     "@ergon/ui-web": "workspace:*",
     "@reduxjs/toolkit": "2.12.0",
     "effect": "3.22.2",

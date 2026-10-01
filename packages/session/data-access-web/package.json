@@ -1,5 +1,5 @@
 {
-  "name": "@ergon/infrastructure-session-web",
+  "name": "@ergon/session-data-access-web",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",

@@ -5,7 +5,7 @@ export default defineConfig(() => ({
   root: import.meta.dirname,
   cacheDir: '../../../node_modules/.vite/packages/session/data-access-web',
   test: {
-    name: '@ergon/infrastructure-session-web',
+    name: '@ergon/session-data-access-web',
     watch: false,
     globals: true,
     environment: 'node',

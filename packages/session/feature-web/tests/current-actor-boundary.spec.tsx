@@ -4,7 +4,7 @@ import {
   type CurrentActorClient,
   type CurrentActorResult,
   currentActorApi,
-} from '@ergon/infrastructure-session-web';
+} from '@ergon/session-data-access-web';
 import { Provider } from 'react-redux';
 import { describe, expect, it, vi } from 'vitest';
 

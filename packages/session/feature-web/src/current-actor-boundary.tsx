@@ -3,7 +3,7 @@ import type { CurrentActor } from '@ergon/domain-session';
 import {
   type CurrentActorFailure,
   useCurrentActorQuery,
-} from '@ergon/infrastructure-session-web';
+} from '@ergon/session-data-access-web';
 import { Schema } from 'effect';
 import type { ReactElement, ReactNode } from 'react';
 

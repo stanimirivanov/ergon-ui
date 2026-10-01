@@ -27,7 +27,7 @@ pnpm nx e2e @ergon/workbench-e2e
   the `@ergon/follow-up-feature-web` feature package; do
   not recreate capability-specific orchestration or presentation in the app.
 - Compose session HTTP and remote caching through
-  `@ergon/infrastructure-session-web`; do not recreate its wire decoding,
+  `@ergon/session-data-access-web`; do not recreate its wire decoding,
   typed client contract, execution policy, or RTK Query API in the composition
   root.
 - Render session verification and actor presentation through
@@ -50,7 +50,7 @@ hooks. The workbench supplies tenant request context and the trusted same-origin
 sign-in URL after session verification.
 
 The composition root creates the `CurrentActorClient` exported by
-`@ergon/infrastructure-session-web` and supplies it to that package's cache
+`@ergon/session-data-access-web` and supplies it to that package's cache
 dependency contract. The data-access project owns session HTTP, wire decoding,
 failure classification, timeout, retry, cancellation semantics, and the
 current-actor RTK Query API. The workbench supplies the executable client and
