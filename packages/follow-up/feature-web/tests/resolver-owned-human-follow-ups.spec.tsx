@@ -4,6 +4,7 @@ import type {
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
+  ResolverFollowUpCaseSummaryResult,
 } from '@ergon/follow-up-data-access-web';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
@@ -188,6 +189,56 @@ describe('resolver-owned human follow-ups', () => {
       },
       expect.any(AbortSignal),
     );
+  });
+
+  it('rechecks ownership and hides cached evidence when case context reopens', async () => {
+    let finishSecondRead: (
+      result: ResolverFollowUpCaseSummaryResult,
+    ) => void = () => undefined;
+    const secondRead = new Promise<ResolverFollowUpCaseSummaryResult>(
+      (resolve) => {
+        finishSecondRead = resolve;
+      },
+    );
+    const getOwnedCaseSummary = vi
+      .fn<GetOwnedFollowUpCaseSummary['getOwnedCaseSummary']>()
+      .mockResolvedValueOnce({
+        ok: true,
+        summary: resolverFollowUpCaseSummary(
+          FIRST_WORK_ITEM_ID,
+          'Private evidence',
+        ),
+      })
+      .mockImplementationOnce(() => secondRead);
+    renderOwned({
+      listOwned: async () =>
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      getOwnedCaseSummary,
+    });
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Review case context' }),
+    );
+    expect(await screen.findByText('Private evidence')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Hide case context' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Review case context' }),
+    );
+
+    expect(screen.queryByText('Private evidence')).toBeNull();
+    await waitFor(() => expect(getOwnedCaseSummary).toHaveBeenCalledTimes(2));
+    expect(screen.queryByText('Private evidence')).toBeNull();
+    expect(
+      screen.getByRole('heading', { name: 'Loading case context…' }),
+    ).toBeTruthy();
+
+    finishSecondRead({ ok: false, error: { kind: 'not-found' } });
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Case context is no longer available.',
+      }),
+    ).toBeTruthy();
+    expect(screen.queryByText('Private evidence')).toBeNull();
   });
 
   it('keeps unavailable case context non-disclosing', async () => {
