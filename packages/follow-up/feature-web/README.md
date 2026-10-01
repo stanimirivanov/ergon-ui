@@ -25,7 +25,7 @@ out of the deployable app and domain-agnostic UI primitives.
 
 Consumers import `HumanFollowUpWorkspace`, `HumanFollowUpInbox`, and
 `ResolverOwnedHumanFollowUps` from
-`@ergon/infrastructure-follow-up-react`. The workbench supplies tenant request
+`@ergon/follow-up-feature-web`. The workbench supplies tenant request
 context and a trusted same-origin sign-in URL after its session boundary has
 been composed. This `type:feature` project consumes generated cache hooks from
 `@ergon/infrastructure-follow-up-web` and presentation primitives from
@@ -35,7 +35,7 @@ display as an opaque slot; this feature never inspects session identity.
 ## Verification
 
 ```powershell
-pnpm nx lint @ergon/infrastructure-follow-up-react
-pnpm nx typecheck @ergon/infrastructure-follow-up-react
-pnpm nx test @ergon/infrastructure-follow-up-react
+pnpm nx lint @ergon/follow-up-feature-web
+pnpm nx typecheck @ergon/follow-up-feature-web
+pnpm nx test @ergon/follow-up-feature-web
 ```

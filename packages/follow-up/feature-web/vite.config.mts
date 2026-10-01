@@ -7,7 +7,7 @@ export default defineConfig(() => ({
   cacheDir: '../../../node_modules/.vite/packages/follow-up/feature-web',
   plugins: [react()],
   test: {
-    name: '@ergon/infrastructure-follow-up-react',
+    name: '@ergon/follow-up-feature-web',
     watch: false,
     globals: true,
     environment: 'jsdom',

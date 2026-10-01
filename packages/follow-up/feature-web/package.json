@@ -1,5 +1,5 @@
 {
-  "name": "@ergon/infrastructure-follow-up-react",
+  "name": "@ergon/follow-up-feature-web",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",

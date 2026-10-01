@@ -1,4 +1,4 @@
-import { HumanFollowUpWorkspace } from '@ergon/infrastructure-follow-up-react';
+import { HumanFollowUpWorkspace } from '@ergon/follow-up-feature-web';
 import {
   CurrentActorBoundary,
   VerifiedActorDetails,

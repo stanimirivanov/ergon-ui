@@ -358,7 +358,7 @@ importers:
 
   apps/ergon-workbench:
     dependencies:
-      '@ergon/infrastructure-follow-up-react':
+      '@ergon/follow-up-feature-web':
         specifier: workspace:*
         version: link:../../packages/follow-up/feature-web
       '@ergon/infrastructure-follow-up-web':

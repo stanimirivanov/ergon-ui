@@ -14,7 +14,7 @@ section order in the template. Supported statuses are `Proposed`, `Accepted`,
 
 A replacement adds `- Supersedes:` with exact links to every decision it
 replaces; each older record points back through its status. The published ADR
-high-water mark is `0012`. It may advance with the next decision but must never
+high-water mark is `0013`. It may advance with the next decision but must never
 decrease, even when the newest record is later superseded or deprecated.
 
 ## Index
@@ -33,6 +33,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0010](0010-extract-capability-react-adapters.md)                  | Superseded | Extract capability React code as inbound adapters             |
 | [0011](0011-adopt-capability-first-frontend-boundaries.md)         | Accepted   | Adopt capability-first roles and selective application cores  |
 | [0012](0012-enforce-repository-documentation-policy.md)            | Accepted   | Enforce repository documentation policy                       |
+| [0013](0013-name-follow-up-feature-by-capability-and-role.md)      | Accepted   | Name the follow-up feature by capability and role             |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple
