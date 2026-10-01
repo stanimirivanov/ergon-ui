@@ -83,6 +83,8 @@ export const humanFollowUpApi = createApi({
       ResolverFollowUpCaseSummary,
       ResolverFollowUpCaseSummaryQuery
     >({
+      // Case evidence must not remain available after the last disclosure closes.
+      keepUnusedDataFor: 0,
       async queryFn(query, queryApi) {
         const capability = getOwnedFollowUpCaseSummaryFrom(queryApi.extra);
         const result = await capability.getOwnedCaseSummary(

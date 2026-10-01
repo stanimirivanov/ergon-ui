@@ -161,6 +161,30 @@ describe('human follow-up cache adapter', () => {
     otherTenant.unsubscribe();
   });
 
+  it('evicts case evidence when its last reader leaves', async () => {
+    const store = createFollowUpCacheStore(defaultDependencies());
+    const query = {
+      tenantId: TENANT_ID,
+      workItemId: WORK_ITEM_ID,
+      caseId: CASE_ID,
+      runId: RUN_ID,
+    };
+    const subscription = store.dispatch(
+      humanFollowUpApi.endpoints.resolverFollowUpCaseSummary.initiate(query),
+    );
+
+    await expect(subscription.unwrap()).resolves.toEqual(validCaseSummary());
+    subscription.unsubscribe();
+
+    await vi.waitFor(() => {
+      expect(
+        humanFollowUpApi.endpoints.resolverFollowUpCaseSummary.select(query)(
+          store.getState(),
+        ).data,
+      ).toBeUndefined();
+    });
+  });
+
   it('refreshes subscribed inbox and owned-work caches after a successful claim', async () => {
     const listOpen = vi
       .fn<ListOpenHumanFollowUps['listOpen']>()

@@ -33,7 +33,8 @@ animation, requester app, or native app.
   claim-cursor pagination, and post-claim cache refresh;
 - lazy owned-follow-up case context with contract/run consistency checks,
   evidence-boundary validation, full request-tuple cache identity, neutral
-  absence handling, plain-text observation rendering, and an explicit
+  absence handling, cache eviction on disclosure close, fail-closed
+  revalidation on reopen, plain-text observation rendering, and an explicit
   failed-execution and exhausted-retry handoff explanation;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;

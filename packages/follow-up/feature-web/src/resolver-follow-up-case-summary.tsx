@@ -11,7 +11,8 @@ import { ResolverFollowUpCaseSummaryView } from './resolver-follow-up-case-summa
  *
  * The opaque tenant, work-item, case, and run identity tuple is request context
  * only. Current ownership and authority are re-evaluated by the BFF for every
- * query before validated evidence reaches the view.
+ * query before validated evidence reaches the view. Reopening the disclosure
+ * revalidates even if an earlier cache entry has not yet been evicted.
  */
 export function ResolverFollowUpCaseSummary({
   tenantId,
@@ -28,14 +29,12 @@ export function ResolverFollowUpCaseSummary({
   readonly runId: string;
   readonly regionId: string;
 }) {
-  const result = useResolverFollowUpCaseSummaryQuery({
-    tenantId,
-    workItemId,
-    caseId,
-    runId,
-  });
+  const result = useResolverFollowUpCaseSummaryQuery(
+    { tenantId, workItemId, caseId, runId },
+    { refetchOnMountOrArgChange: true },
+  );
 
-  if (result.isLoading || (result.isFetching && result.data === undefined)) {
+  if (result.isLoading || result.isFetching) {
     return (
       <CaseContextMessage
         id={regionId}
@@ -46,7 +45,8 @@ export function ResolverFollowUpCaseSummary({
     );
   }
 
-  if (result.data === undefined) {
+  // RTK Query retains previous data after a failed refetch; failure wins here.
+  if (result.isError || result.data === undefined) {
     const failure = normalizeFollowUpCaseSummaryFailure(result.error);
     const copy = caseSummaryFailureCopy(failure);
     const action =

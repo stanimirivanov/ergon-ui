@@ -21,7 +21,8 @@ Own confidential-browser BFF execution and follow-up remote-cache integration.
 Case-summary cache entries use the full tenant, work-item, case, and run request
 tuple. A different tuple must fetch and pass BFF response validation before it
 can be displayed; the cache never substitutes a summary validated for another
-case or run.
+case or run. The entry is evicted after its last active reader leaves, rather
+than retaining case evidence for the general query-cache grace period.
 
 ## Does not own
 

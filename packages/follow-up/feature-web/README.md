@@ -8,7 +8,8 @@ out of the deployable app and domain-agnostic UI primitives.
 ## Owns
 
 - Shared-inbox queue filtering, pagination, claim interaction, and presentation.
-- Resolver-owned pagination and lazy case-context disclosure.
+- Resolver-owned pagination and lazy case-context disclosure, including a fresh
+  ownership check on reopening and hiding prior evidence during revalidation.
 - Follow-up workspace introduction and composition of the two work views.
 - Translation of typed follow-up failures into resolver-facing copy.
 - Accessible follow-up-specific interaction and rendering.
