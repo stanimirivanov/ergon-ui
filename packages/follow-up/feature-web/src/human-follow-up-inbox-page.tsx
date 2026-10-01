@@ -2,7 +2,7 @@ import type {
   HumanFollowUpCursor,
   HumanFollowUpQuery,
 } from '@ergon/follow-up-data-access-web';
-import type { HumanFollowUpWorkItem } from '@ergon/domain-follow-up';
+import type { HumanFollowUpWorkItem } from '@ergon/follow-up-model';
 import {
   useClaimHumanFollowUpMutation,
   useHumanFollowUpsQuery,

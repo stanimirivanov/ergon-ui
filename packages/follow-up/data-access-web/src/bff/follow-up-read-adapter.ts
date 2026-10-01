@@ -13,7 +13,7 @@ import type {
   ResolverOwnedHumanFollowUpQuery,
   ResolverOwnedHumanFollowUpResult,
 } from '../client';
-import type { ResolverFollowUpCaseSummary } from '@ergon/domain-follow-up';
+import type { ResolverFollowUpCaseSummary } from '@ergon/follow-up-model';
 import { Effect, Either } from 'effect';
 
 import {

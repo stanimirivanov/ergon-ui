@@ -5,7 +5,7 @@ export default defineConfig(() => ({
   root: import.meta.dirname,
   cacheDir: '../../../node_modules/.vite/packages/follow-up/model',
   test: {
-    name: '@ergon/domain-follow-up',
+    name: '@ergon/follow-up-model',
     watch: false,
     globals: true,
     environment: 'node',

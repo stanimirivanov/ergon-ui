@@ -1,4 +1,4 @@
-import type { ResolverOwnedHumanFollowUpWork } from '@ergon/domain-follow-up';
+import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-model';
 import { Button } from '@ergon/ui-web';
 import { useState } from 'react';
 

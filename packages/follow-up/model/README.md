@@ -20,15 +20,15 @@ claims, and resolver-visible case context.
 
 ## Public API and dependencies
 
-Consumers import only `@ergon/domain-follow-up`. This `type:model` project has
+Consumers import only `@ergon/follow-up-model`. This `type:model` project has
 no runtime dependencies and may not import frameworks, platform APIs,
 data-access projects, or feature projects.
 
 ## Verification
 
 ```powershell
-pnpm nx lint @ergon/domain-follow-up
-pnpm nx typecheck @ergon/domain-follow-up
-pnpm nx test @ergon/domain-follow-up
-pnpm nx build @ergon/domain-follow-up
+pnpm nx lint @ergon/follow-up-model
+pnpm nx typecheck @ergon/follow-up-model
+pnpm nx test @ergon/follow-up-model
+pnpm nx build @ergon/follow-up-model
 ```

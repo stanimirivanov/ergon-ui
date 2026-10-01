@@ -1,4 +1,4 @@
-import type { HumanFollowUpWorkItem } from '@ergon/domain-follow-up';
+import type { HumanFollowUpWorkItem } from '@ergon/follow-up-model';
 
 import type { HumanFollowUpFailure } from './human-follow-up-failures';
 

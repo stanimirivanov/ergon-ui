@@ -1,4 +1,4 @@
-import type { ResolverFollowUpCaseSummary } from '@ergon/domain-follow-up';
+import type { ResolverFollowUpCaseSummary } from '@ergon/follow-up-model';
 import type { ReactNode } from 'react';
 
 const observedAtFormatter = new Intl.DateTimeFormat('en-GB', {

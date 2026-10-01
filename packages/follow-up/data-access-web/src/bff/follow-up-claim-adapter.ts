@@ -4,7 +4,7 @@ import type {
   HumanFollowUpClaimFailure,
   HumanFollowUpClaimResult,
 } from '../client';
-import type { HumanFollowUpClaim } from '@ergon/domain-follow-up';
+import type { HumanFollowUpClaim } from '@ergon/follow-up-model';
 import { Effect, Either, SynchronizedRef } from 'effect';
 
 import {

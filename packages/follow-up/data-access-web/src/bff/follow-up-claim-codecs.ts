@@ -1,5 +1,5 @@
 import type { HumanFollowUpClaimFailure } from '../client';
-import type { HumanFollowUpClaim } from '@ergon/domain-follow-up';
+import type { HumanFollowUpClaim } from '@ergon/follow-up-model';
 import { Effect, Schema } from 'effect';
 
 import { INVALID_RESPONSE, mapClaimHttpFailure } from './follow-up-failures';

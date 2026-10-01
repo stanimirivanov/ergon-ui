@@ -384,7 +384,7 @@ importers:
 
   packages/follow-up/data-access-web:
     dependencies:
-      '@ergon/domain-follow-up':
+      '@ergon/follow-up-model':
         specifier: workspace:*
         version: link:../model
       '@reduxjs/toolkit':
@@ -402,12 +402,12 @@ importers:
 
   packages/follow-up/feature-web:
     dependencies:
-      '@ergon/domain-follow-up':
-        specifier: workspace:*
-        version: link:../model
       '@ergon/follow-up-data-access-web':
         specifier: workspace:*
         version: link:../data-access-web
+      '@ergon/follow-up-model':
+        specifier: workspace:*
+        version: link:../model
       '@ergon/ui-web':
         specifier: workspace:*
         version: link:../../ui-web
