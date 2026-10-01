@@ -24,7 +24,7 @@ Own confidential-browser session execution and remote-cache integration.
 
 ## Public API and dependencies
 
-Consumers import only from `@ergon/infrastructure-session-web`. This
+Consumers import only from `@ergon/session-data-access-web`. This
 `type:data-access` package exposes `createCurrentActorBffAdapter`,
 `CurrentActorClient`, the presentation-safe result and failure types,
 `currentActorApi`, `useCurrentActorQuery`, and the thunk-extra dependency
@@ -35,7 +35,7 @@ payload types.
 ## Verification
 
 ```powershell
-pnpm nx lint @ergon/infrastructure-session-web
-pnpm nx typecheck @ergon/infrastructure-session-web
-pnpm nx test @ergon/infrastructure-session-web
+pnpm nx lint @ergon/session-data-access-web
+pnpm nx typecheck @ergon/session-data-access-web
+pnpm nx test @ergon/session-data-access-web
 ```

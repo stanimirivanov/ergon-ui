@@ -26,7 +26,7 @@ Consumers import `CurrentActorBoundary` and `VerifiedActorDetails` from
 `@ergon/session-feature-web`. The app supplies its shell, trusted same-origin
 sign-in URL builder, and authenticated content renderer. This `type:feature`
 project consumes the current-actor cache hook from
-`@ergon/infrastructure-session-web`, the actor model from
+`@ergon/session-data-access-web`, the actor model from
 `@ergon/domain-session`, and the web button primitive from `@ergon/ui-web`.
 The tenant route value is navigation context, never authorization evidence.
 

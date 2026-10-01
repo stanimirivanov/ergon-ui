@@ -1,5 +1,5 @@
 import type { HumanFollowUpCacheDependencies } from '@ergon/follow-up-data-access-web';
-import type { CurrentActorCacheDependencies } from '@ergon/infrastructure-session-web';
+import type { CurrentActorCacheDependencies } from '@ergon/session-data-access-web';
 
 /**
  * Capability-level dependencies supplied once by the workbench composition

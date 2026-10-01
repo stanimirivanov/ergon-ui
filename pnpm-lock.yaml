@@ -364,7 +364,7 @@ importers:
       '@ergon/follow-up-feature-web':
         specifier: workspace:*
         version: link:../../packages/follow-up/feature-web
-      '@ergon/infrastructure-session-web':
+      '@ergon/session-data-access-web':
         specifier: workspace:*
         version: link:../../packages/session/data-access-web
       '@ergon/session-feature-web':
@@ -449,7 +449,7 @@ importers:
       '@ergon/domain-session':
         specifier: workspace:*
         version: link:../model
-      '@ergon/infrastructure-session-web':
+      '@ergon/session-data-access-web':
         specifier: workspace:*
         version: link:../data-access-web
       '@ergon/ui-web':

@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type {
   CurrentActorClient,
   CurrentActorResult,
-} from '@ergon/infrastructure-session-web';
+} from '@ergon/session-data-access-web';
 import { Provider } from 'react-redux';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
