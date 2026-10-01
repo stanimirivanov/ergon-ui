@@ -1,12 +1,12 @@
 import type {
   HumanFollowUpCursor,
   HumanFollowUpQuery,
-} from '@ergon/infrastructure-follow-up-web';
+} from '@ergon/follow-up-data-access-web';
 import type { HumanFollowUpWorkItem } from '@ergon/domain-follow-up';
 import {
   useClaimHumanFollowUpMutation,
   useHumanFollowUpsQuery,
-} from '@ergon/infrastructure-follow-up-web';
+} from '@ergon/follow-up-data-access-web';
 import { Button } from '@ergon/ui-web';
 import { useState } from 'react';
 

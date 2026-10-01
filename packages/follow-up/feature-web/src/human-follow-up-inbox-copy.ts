@@ -1,7 +1,7 @@
 import type {
   HumanFollowUpClaimFailure,
   HumanFollowUpFailure,
-} from '@ergon/infrastructure-follow-up-web';
+} from '@ergon/follow-up-data-access-web';
 
 export interface FollowUpFailureCopy {
   readonly title: string;

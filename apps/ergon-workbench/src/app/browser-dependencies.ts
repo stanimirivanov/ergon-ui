@@ -1,4 +1,4 @@
-import { createHumanFollowUpBffAdapter } from '@ergon/infrastructure-follow-up-web';
+import { createHumanFollowUpBffAdapter } from '@ergon/follow-up-data-access-web';
 import { createCurrentActorBffAdapter } from '@ergon/infrastructure-session-web';
 
 import type { WorkbenchDependencies } from './workbench-dependencies';

@@ -1,4 +1,4 @@
-import { useResolverFollowUpCaseSummaryQuery } from '@ergon/infrastructure-follow-up-web';
+import { useResolverFollowUpCaseSummaryQuery } from '@ergon/follow-up-data-access-web';
 import { Button } from '@ergon/ui-web';
 import type { ReactNode } from 'react';
 

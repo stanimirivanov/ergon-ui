@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { humanFollowUpApi } from '@ergon/infrastructure-follow-up-web';
+import { humanFollowUpApi } from '@ergon/follow-up-data-access-web';
 import { currentActorApi } from '@ergon/infrastructure-session-web';
 
 import type { WorkbenchDependencies } from './workbench-dependencies';

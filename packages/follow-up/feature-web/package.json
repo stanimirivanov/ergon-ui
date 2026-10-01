@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@ergon/domain-follow-up": "workspace:*",
-    "@ergon/infrastructure-follow-up-web": "workspace:*",
+    "@ergon/follow-up-data-access-web": "workspace:*",
     "@ergon/ui-web": "workspace:*",
     "@reduxjs/toolkit": "2.12.0",
     "react": "19.3.0",

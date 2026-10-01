@@ -3,7 +3,7 @@ import path from 'node:path';
 import { diagnostic } from './diagnostic.mjs';
 
 const POLICY = 'docs/decisions/README.md';
-export const LATEST_PUBLISHED_DECISION = 13;
+export const LATEST_PUBLISHED_DECISION = 14;
 const DECISION_FILE = /^(\d{4})-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/u;
 const REQUIRED_SECTIONS = [
   'TL;DR',

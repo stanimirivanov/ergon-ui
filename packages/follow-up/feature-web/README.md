@@ -28,7 +28,7 @@ Consumers import `HumanFollowUpWorkspace`, `HumanFollowUpInbox`, and
 `@ergon/follow-up-feature-web`. The workbench supplies tenant request
 context and a trusted same-origin sign-in URL after its session boundary has
 been composed. This `type:feature` project consumes generated cache hooks from
-`@ergon/infrastructure-follow-up-web` and presentation primitives from
+`@ergon/follow-up-data-access-web` and presentation primitives from
 `@ergon/ui-web`. The workbench supplies the session-owned verified-actor
 display as an opaque slot; this feature never inspects session identity.
 

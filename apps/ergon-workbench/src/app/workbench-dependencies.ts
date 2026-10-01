@@ -1,4 +1,4 @@
-import type { HumanFollowUpCacheDependencies } from '@ergon/infrastructure-follow-up-web';
+import type { HumanFollowUpCacheDependencies } from '@ergon/follow-up-data-access-web';
 import type { CurrentActorCacheDependencies } from '@ergon/infrastructure-session-web';
 
 /**
