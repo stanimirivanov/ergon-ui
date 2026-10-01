@@ -34,14 +34,14 @@ pnpm nx e2e @ergon/workbench-e2e
   `@ergon/session-feature-web`; the app owns the route, shell, and trusted
   same-origin sign-in URL builder.
 - Compose follow-up BFF and remote-cache data access from
-  `@ergon/infrastructure-follow-up-web`; do not recreate protocol or remote
+  `@ergon/follow-up-data-access-web`; do not recreate protocol or remote
   cache handling in the composition root.
 - Keep reusable DOM primitives in `@ergon/ui-web`.
 - Keep API execution outside presentational components.
 - Do not consume `/internal/v1` as a production browser contract.
 - Do not create requester, studio, simulation, or native placeholder routes.
 
-The app binds `@ergon/infrastructure-follow-up-web` to four transitional
+The app binds `@ergon/follow-up-data-access-web` to four transitional
 follow-up contracts: open-work listing, owned-work listing, owned case-context
 loading, and claiming. That data-access package owns the follow-up RTK Query
 API; the workbench registers its reducer and middleware and renders the

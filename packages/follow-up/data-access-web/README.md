@@ -31,7 +31,7 @@ Own confidential-browser BFF execution and follow-up remote-cache integration.
 
 Consumers import the BFF client factory, typed client contracts,
 `humanFollowUpApi`, generated hooks, and `HumanFollowUpCacheDependencies` from
-`@ergon/infrastructure-follow-up-web`. The package maps validated responses to
+`@ergon/follow-up-data-access-web`. The package maps validated responses to
 follow-up model values without exposing Effect programs or wire DTOs.
 Composition roots provide executable operation dependencies through Redux
 thunk extra arguments and register the API reducer and middleware.
@@ -39,7 +39,7 @@ thunk extra arguments and register the API reducer and middleware.
 ## Verification
 
 ```powershell
-pnpm nx lint @ergon/infrastructure-follow-up-web
-pnpm nx typecheck @ergon/infrastructure-follow-up-web
-pnpm nx test @ergon/infrastructure-follow-up-web
+pnpm nx lint @ergon/follow-up-data-access-web
+pnpm nx typecheck @ergon/follow-up-data-access-web
+pnpm nx test @ergon/follow-up-data-access-web
 ```

@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@ergon/follow-up-feature-web": "workspace:*",
-    "@ergon/infrastructure-follow-up-web": "workspace:*",
+    "@ergon/follow-up-data-access-web": "workspace:*",
     "@ergon/infrastructure-session-web": "workspace:*",
     "@ergon/session-feature-web": "workspace:*",
     "@ergon/ui-web": "workspace:*",

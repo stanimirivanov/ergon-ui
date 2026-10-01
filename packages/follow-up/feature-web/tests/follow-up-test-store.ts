@@ -4,11 +4,11 @@ import type {
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
-} from '@ergon/infrastructure-follow-up-web';
+} from '@ergon/follow-up-data-access-web';
 import {
   type HumanFollowUpCacheDependencies,
   humanFollowUpApi,
-} from '@ergon/infrastructure-follow-up-web';
+} from '@ergon/follow-up-data-access-web';
 
 /**
  * Capability implementations enabled for one follow-up component test.

@@ -157,14 +157,14 @@ test('long guides require a visible first TLDR section', () => {
 
 test('ADR high-water mark detects deletion of the newest published record', () => {
   const files = decisionFixture();
-  delete files['docs/decisions/0013-decision-13.md'];
-  files['docs/decisions/README.md'] = decisionIndex(12);
+  delete files['docs/decisions/0014-decision-14.md'];
+  files['docs/decisions/README.md'] = decisionIndex(13);
   const diagnostics = checkDecisions(loadRepository(fixture(files)));
   assert.ok(
     diagnostics.some(
       (value) =>
         value.rule === 'adr.sequence' &&
-        value.message.includes('policy records 0013'),
+        value.message.includes('policy records 0014'),
     ),
   );
 });
@@ -176,7 +176,7 @@ test('ADR supersession must be reciprocal', () => {
     'Superseded by [ADR 0002](0002-decision-2.md)',
   );
   files['docs/decisions/README.md'] = decisionIndex(
-    13,
+    14,
     new Map([[1, 'Superseded']]),
   );
   const diagnostics = checkDecisions(loadRepository(fixture(files)));
@@ -200,7 +200,7 @@ test('ADR supersession references must be unique', () => {
     '- Milestone: M05 - Human follow-up and resolver console\n- Supersedes: [ADR 0001](0001-decision-1.md), [ADR 0001](0001-decision-1.md)',
   );
   files['docs/decisions/README.md'] = decisionIndex(
-    13,
+    14,
     new Map([[1, 'Superseded']]),
   );
   const diagnostics = checkDecisions(loadRepository(fixture(files)));
@@ -228,7 +228,7 @@ test('ADR supersession reads wrapped metadata continuations', () => {
     '- Milestone: M05 - Human follow-up and resolver console\n- Supersedes: [ADR 0001](0001-decision-1.md)\n  and [ADR 0002](0002-decision-2.md)',
   );
   files['docs/decisions/README.md'] = decisionIndex(
-    13,
+    14,
     new Map([
       [1, 'Superseded'],
       [2, 'Superseded'],
@@ -251,7 +251,7 @@ test('ADR metadata, sections, and index status are checked independently', () =>
     )
     .replace('## Consequences', '## Effects');
   files['docs/decisions/README.md'] = decisionIndex(
-    13,
+    14,
     new Map([[12, 'Proposed']]),
   );
   const rules = checkDecisions(loadRepository(fixture(files))).map(
@@ -396,11 +396,11 @@ function fixture(files) {
 
 function decisionFixture() {
   const files = {
-    'docs/decisions/README.md': decisionIndex(13),
+    'docs/decisions/README.md': decisionIndex(14),
     'docs/decisions/0000-template.md':
       '# ADR NNNN: Title\n\n- Status: Proposed\n- Date: YYYY-MM-DD\n- Milestone: MNN - Outcome\n\n## TL;DR\n\nSummary.\n\n## Context\n\nContext.\n\n## Decision\n\nDecision.\n\n## Consequences\n\nConsequences.\n\n## Alternatives considered\n\nAlternatives.\n',
   };
-  for (let number = 1; number <= 13; number += 1) {
+  for (let number = 1; number <= 14; number += 1) {
     files[
       `docs/decisions/${String(number).padStart(4, '0')}-decision-${number}.md`
     ] = decisionBody(number);

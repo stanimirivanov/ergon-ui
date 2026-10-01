@@ -1,4 +1,4 @@
-import type { HumanFollowUpFailure } from '@ergon/infrastructure-follow-up-web';
+import type { HumanFollowUpFailure } from '@ergon/follow-up-data-access-web';
 
 interface OwnedWorkFailureCopy {
   readonly title: string;

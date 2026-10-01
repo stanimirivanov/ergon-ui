@@ -1,4 +1,4 @@
-import type { ResolverFollowUpCaseSummaryFailure } from '@ergon/infrastructure-follow-up-web';
+import type { ResolverFollowUpCaseSummaryFailure } from '@ergon/follow-up-data-access-web';
 
 interface CaseSummaryFailureCopy {
   readonly title: string;

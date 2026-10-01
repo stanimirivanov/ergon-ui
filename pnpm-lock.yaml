@@ -358,12 +358,12 @@ importers:
 
   apps/ergon-workbench:
     dependencies:
+      '@ergon/follow-up-data-access-web':
+        specifier: workspace:*
+        version: link:../../packages/follow-up/data-access-web
       '@ergon/follow-up-feature-web':
         specifier: workspace:*
         version: link:../../packages/follow-up/feature-web
-      '@ergon/infrastructure-follow-up-web':
-        specifier: workspace:*
-        version: link:../../packages/follow-up/data-access-web
       '@ergon/infrastructure-session-web':
         specifier: workspace:*
         version: link:../../packages/session/data-access-web
@@ -405,7 +405,7 @@ importers:
       '@ergon/domain-follow-up':
         specifier: workspace:*
         version: link:../model
-      '@ergon/infrastructure-follow-up-web':
+      '@ergon/follow-up-data-access-web':
         specifier: workspace:*
         version: link:../data-access-web
       '@ergon/ui-web':
