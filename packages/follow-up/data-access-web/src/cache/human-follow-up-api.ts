@@ -18,7 +18,7 @@ import type {
 import type {
   HumanFollowUpClaim,
   ResolverFollowUpCaseSummary,
-} from '@ergon/domain-follow-up';
+} from '@ergon/follow-up-model';
 
 /**
  * Thunk-extra contract required by the follow-up cache adapter.

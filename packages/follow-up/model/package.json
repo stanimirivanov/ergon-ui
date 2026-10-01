@@ -1,5 +1,5 @@
 {
-  "name": "@ergon/domain-follow-up",
+  "name": "@ergon/follow-up-model",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",

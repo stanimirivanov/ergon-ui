@@ -13,7 +13,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@ergon/domain-follow-up": "workspace:*",
+    "@ergon/follow-up-model": "workspace:*",
     "@reduxjs/toolkit": "2.12.0",
     "effect": "3.22.2",
     "react": "19.3.0",

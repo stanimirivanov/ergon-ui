@@ -66,11 +66,11 @@ feature -> application use case -> consumed port <- data-access implementation
 ```
 
 The follow-up and session model, web data-access, and web feature projects now
-live under their capability paths. The follow-up web data-access and feature
-packages use `@ergon/follow-up-data-access-web` and
+live under their capability paths. Follow-up packages use
+`@ergon/follow-up-model`, `@ergon/follow-up-data-access-web`, and
 `@ergon/follow-up-feature-web`; the session feature uses
-`@ergon/session-feature-web`. Existing model and session data-access import
-names remain stable.
+`@ergon/session-feature-web`. Session model and data-access import names remain
+stable.
 
 The now-empty legacy-location ledger in the architecture checker rejects new
 projects under the old global-layer directories. Moving each listed project

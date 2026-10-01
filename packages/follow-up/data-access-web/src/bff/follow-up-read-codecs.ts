@@ -9,7 +9,7 @@ import {
   isResolverOwnedHumanFollowUpWork,
   isResolverFollowUpCaseSummary,
   type ResolverFollowUpCaseSummary,
-} from '@ergon/domain-follow-up';
+} from '@ergon/follow-up-model';
 import { Effect, Schema } from 'effect';
 
 import {

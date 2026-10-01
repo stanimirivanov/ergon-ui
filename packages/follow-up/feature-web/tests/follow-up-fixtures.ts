@@ -8,7 +8,7 @@ import type {
   HumanFollowUpClaim,
   HumanFollowUpWorkItem,
   ResolverFollowUpCaseSummary,
-} from '@ergon/domain-follow-up';
+} from '@ergon/follow-up-model';
 
 export const TENANT_ID = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
 export const FIRST_WORK_ITEM_ID = '11111111-1111-4111-8111-111111111111';
