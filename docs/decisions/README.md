@@ -14,7 +14,7 @@ section order in the template. Supported statuses are `Proposed`, `Accepted`,
 
 A replacement adds `- Supersedes:` with exact links to every decision it
 replaces; each older record points back through its status. The published ADR
-high-water mark is `0019`. It may advance with the next decision but must never
+high-water mark is `0020`. It may advance with the next decision but must never
 decrease, even when the newest record is later superseded or deprecated.
 
 ## Index
@@ -25,7 +25,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0002](0002-resolve-browser-sessions-with-rtk-query-and-effect.md) | Superseded | Resolve actor sessions through RTK Query and Effect           |
 | [0003](0003-consume-confidential-bff-sessions.md)                  | Accepted   | Consume confidential same-origin BFF sessions                 |
 | [0004](0004-consume-read-only-resolver-inbox.md)                   | Accepted   | Consume the read-only resolver follow-up inbox                |
-| [0005](0005-claim-follow-up-with-ephemeral-csrf-tokens.md)         | Accepted   | Claim follow-up work with ephemeral CSRF tokens               |
+| [0005](0005-claim-follow-up-with-ephemeral-csrf-tokens.md)         | Superseded | Claim follow-up work with ephemeral CSRF tokens               |
 | [0006](0006-recover-resolver-owned-follow-up-work.md)              | Accepted   | Recover active claims from the confidential BFF               |
 | [0007](0007-render-owned-follow-up-case-context.md)                | Superseded | Render server-authorized context inside owned follow-ups      |
 | [0008](0008-render-failed-execution-and-retry-handoff.md)          | Accepted   | Explain failed execution and exhausted retry handoff          |
@@ -40,6 +40,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0017](0017-name-session-model-by-capability-and-role.md)          | Accepted   | Name the session model by capability and role                 |
 | [0018](0018-bind-case-context-cache-to-full-request-identity.md)   | Accepted   | Bind case-context cache to the validated request tuple        |
 | [0019](0019-revalidate-case-context-after-disclosure-closes.md)    | Accepted   | Recheck case context after disclosure closes                  |
+| [0020](0020-use-revision-checked-browser-claim-commands.md)        | Accepted   | Use revision-checked browser claim commands                   |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

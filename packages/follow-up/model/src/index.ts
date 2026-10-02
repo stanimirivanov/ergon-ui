@@ -3,7 +3,10 @@ export type {
   HumanFollowUpWorkItem,
   ResolverOwnedHumanFollowUpWork,
 } from './human-follow-up';
-export { isResolverOwnedHumanFollowUpWork } from './human-follow-up';
+export {
+  isAvailableHumanFollowUpWorkItem,
+  isResolverOwnedHumanFollowUpWork,
+} from './human-follow-up';
 export {
   isResolverFollowUpCaseSummary,
   type ResolverFollowUpCaseSummary,

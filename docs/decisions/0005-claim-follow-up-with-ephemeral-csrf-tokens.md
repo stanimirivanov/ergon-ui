@@ -1,6 +1,6 @@
 # ADR 0005: Claim follow-up work with ephemeral CSRF tokens
 
-- Status: Accepted
+- Status: Superseded by [ADR 0020](0020-use-revision-checked-browser-claim-commands.md)
 - Date: 2026-09-25
 - Milestone: M05 - Human follow-up and resolver console
 

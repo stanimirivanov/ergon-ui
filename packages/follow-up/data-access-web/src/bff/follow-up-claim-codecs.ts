@@ -1,11 +1,14 @@
-import type { HumanFollowUpClaimFailure } from '../client';
+import type {
+  HumanFollowUpClaimCommand,
+  HumanFollowUpClaimFailure,
+} from '../client';
 import type { HumanFollowUpClaim } from '@ergon/follow-up-model';
 import { Effect, Schema } from 'effect';
 
 import { INVALID_RESPONSE, mapClaimHttpFailure } from './follow-up-failures';
 import {
   csrfTokenSchema,
-  humanFollowUpClaimSchema,
+  humanFollowUpClaimCommandSchema,
   type BrowserCsrfToken,
 } from './follow-up-wire-schemas';
 import { readJson, readOptionalProblem } from './json-response';
@@ -34,16 +37,23 @@ export function decodeCsrfToken(
 }
 
 /**
- * Decodes a created or replayed same-resolver claim.
- * Both 200 and 201 are successful because the server's idempotent contract may
- * return existing ownership rather than create a duplicate claim.
+ * Decodes a new or exactly replayed command receipt and verifies that it
+ * belongs to the submitted intent before any claim enters remote cache state.
  */
 export function decodeHumanFollowUpClaim(
   response: Response,
+  command: HumanFollowUpClaimCommand,
 ): Effect.Effect<HumanFollowUpClaim, HumanFollowUpClaimFailure, never> {
   if (response.status === 200 || response.status === 201) {
     return readJson(response).pipe(
-      Effect.flatMap(Schema.decodeUnknown(humanFollowUpClaimSchema)),
+      Effect.flatMap(Schema.decodeUnknown(humanFollowUpClaimCommandSchema)),
+      Effect.flatMap((receipt) =>
+        receipt.commandId === command.commandId &&
+        receipt.ownershipRevision === command.expectedOwnershipRevision + 1 &&
+        receipt.claim.workItemId === command.workItemId
+          ? Effect.succeed(receipt.claim)
+          : Effect.fail(INVALID_RESPONSE),
+      ),
       Effect.map((claim): HumanFollowUpClaim => claim),
       Effect.mapError((): HumanFollowUpClaimFailure => INVALID_RESPONSE),
     );

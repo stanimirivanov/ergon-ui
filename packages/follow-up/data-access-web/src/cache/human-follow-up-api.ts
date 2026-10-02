@@ -229,5 +229,9 @@ function isClaimHumanFollowUp(value: unknown): value is ClaimHumanFollowUp {
 function invalidatesStaleInbox(
   error: HumanFollowUpFailure | HumanFollowUpClaimFailure | undefined,
 ): boolean {
-  return error?.kind === 'already-claimed' || error?.kind === 'not-found';
+  return (
+    error?.kind === 'already-claimed' ||
+    error?.kind === 'ownership-revision-conflict' ||
+    error?.kind === 'not-found'
+  );
 }

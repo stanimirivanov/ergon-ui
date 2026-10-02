@@ -81,6 +81,27 @@ const claimFailureCases = [
     expected: { kind: 'already-claimed' },
   },
   {
+    status: 409,
+    problem: {
+      type: 'urn:ergon:problem:human-follow-up-ownership-revision-conflict',
+    },
+    expected: { kind: 'ownership-revision-conflict' },
+  },
+  {
+    status: 409,
+    problem: {
+      type: 'urn:ergon:problem:human-follow-up-claim-command-conflict',
+    },
+    expected: { kind: 'claim-command-conflict' },
+  },
+  {
+    status: 400,
+    problem: {
+      type: 'urn:ergon:problem:invalid-human-follow-up-claim-command',
+    },
+    expected: { kind: 'invalid-claim-command' },
+  },
+  {
     status: 404,
     problem: {
       type: 'urn:ergon:problem:human-follow-up-work-item-not-found',

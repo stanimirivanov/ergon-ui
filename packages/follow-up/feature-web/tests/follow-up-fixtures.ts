@@ -18,11 +18,12 @@ export const RUN_ID = '33333333-3333-4333-8333-333333333333';
 export function successfulOpenFollowUpResult(
   workItemId: string,
   nextCursor: HumanFollowUpCursor | null,
+  ownershipRevision = 0,
 ): HumanFollowUpResult {
   return {
     ok: true,
     page: {
-      items: [followUpWorkItem(workItemId)],
+      items: [{ ...followUpWorkItem(workItemId), ownershipRevision }],
       nextCursor,
     },
   };
@@ -37,7 +38,7 @@ export function successfulOwnedFollowUpResult(
     page: {
       items: [
         {
-          workItem: followUpWorkItem(workItemId),
+          workItem: { ...followUpWorkItem(workItemId), ownershipRevision: 1 },
           claim: followUpClaim(workItemId),
         },
       ],
@@ -130,6 +131,7 @@ function followUpWorkItem(workItemId: string): HumanFollowUpWorkItem {
     reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
     queueKey: 'access-restoration',
     status: 'OPEN',
+    ownershipRevision: 0,
     openedAt: '2026-09-21T09:30:00Z',
     recordedAt: '2026-09-21T09:30:01Z',
   };

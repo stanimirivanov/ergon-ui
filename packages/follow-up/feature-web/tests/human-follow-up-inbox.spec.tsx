@@ -168,10 +168,41 @@ describe('human follow-up inbox', () => {
       await screen.findByRole('status', { name: /follow-up claimed/i }),
     ).toBeTruthy();
     expect(claim).toHaveBeenCalledWith(
-      { tenantId: TENANT_ID, workItemId: FIRST_WORK_ITEM_ID },
+      {
+        tenantId: TENANT_ID,
+        workItemId: FIRST_WORK_ITEM_ID,
+        commandId: expect.any(String),
+        expectedOwnershipRevision: 0,
+      },
       expect.any(AbortSignal),
     );
     await waitFor(() => expect(listOpen).toHaveBeenCalledTimes(2));
+  });
+
+  it('uses the returned-to-queue ownership revision for a new claim', async () => {
+    const claim = vi.fn<ClaimHumanFollowUp['claim']>().mockResolvedValue({
+      ok: true,
+      claim: followUpClaim(FIRST_WORK_ITEM_ID),
+    });
+    renderInbox(`/tenants/${TENANT_ID}`, {
+      ...listOpenReturning(
+        successfulOpenFollowUpResult(FIRST_WORK_ITEM_ID, null, 2),
+      ),
+      claim,
+    });
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Claim Retry attempt limit reached follow-up',
+      }),
+    );
+
+    await waitFor(() =>
+      expect(claim).toHaveBeenCalledWith(
+        expect.objectContaining({ expectedOwnershipRevision: 2 }),
+        expect.any(AbortSignal),
+      ),
+    );
   });
 
   it('announces a competing claim and refreshes stale work', async () => {
@@ -226,6 +257,7 @@ describe('human follow-up inbox', () => {
 
     expect(await screen.findByText('Follow-up claimed.')).toBeTruthy();
     expect(claim).toHaveBeenCalledTimes(2);
+    expect(claim.mock.calls[1]?.[0]).toEqual(claim.mock.calls[0]?.[0]);
   });
 });
 

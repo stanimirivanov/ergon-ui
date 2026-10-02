@@ -3,14 +3,18 @@ import type { HumanFollowUpClaim } from '@ergon/follow-up-model';
 import type { HumanFollowUpClaimFailure } from './human-follow-up-failures';
 
 /**
- * Idempotent ownership request for one tenant-scoped follow-up item.
+ * Revision-checked ownership intent for one tenant-scoped follow-up item.
  *
  * `tenantId` selects request context but does not confer authority; the server
  * binds ownership to the authenticated resolver.
+ * `commandId` must remain stable across explicit retries of this intent;
+ * `expectedOwnershipRevision` comes from the authorized inbox row.
  */
 export interface HumanFollowUpClaimCommand {
   readonly tenantId: string;
   readonly workItemId: string;
+  readonly commandId: string;
+  readonly expectedOwnershipRevision: number;
 }
 
 /** Recorded ownership or an explicit claim failure. */
@@ -23,8 +27,8 @@ export type HumanFollowUpClaimResult =
  *
  * Implementations must honor `signal` and resolve cancellation as
  * `request-cancelled`. They must not automatically retry the mutation merely
- * because its server operation is idempotent: the UI owns explicit retry after
- * an ambiguous transport result.
+ * because its server operation has a durable exact-replay receipt: the UI owns
+ * explicit retry with the same command ID after an ambiguous result.
  */
 export interface ClaimHumanFollowUp {
   claim(

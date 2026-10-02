@@ -2,11 +2,20 @@ import { describe, expect, it } from 'vitest';
 
 import { createHumanFollowUpBffAdapter } from '../src';
 import {
+  COMMAND_ID,
   jsonResponse,
   TENANT_ID,
   validClaim,
+  validClaimReceipt,
   WORK_ITEM_ID,
 } from './follow-up-fixtures';
+
+const command = {
+  tenantId: TENANT_ID,
+  workItemId: WORK_ITEM_ID,
+  commandId: COMMAND_ID,
+  expectedOwnershipRevision: 0,
+};
 
 describe('follow-up claim BFF adapter', () => {
   it('obtains an ephemeral CSRF token before claiming with the same-origin session', async () => {
@@ -15,6 +24,8 @@ describe('follow-up claim BFF adapter', () => {
       readonly method: string | undefined;
       readonly csrf: string | null;
       readonly credentials: RequestInit['credentials'];
+      readonly contentType: string | null;
+      readonly body: unknown;
     }> = [];
     const adapter = createHumanFollowUpBffAdapter({
       fetch: async (input, init) => {
@@ -23,17 +34,19 @@ describe('follow-up claim BFF adapter', () => {
           method: init?.method,
           csrf: new Headers(init?.headers).get('X-CSRF-TOKEN'),
           credentials: init?.credentials,
+          contentType: new Headers(init?.headers).get('Content-Type'),
+          body:
+            init?.body === undefined
+              ? undefined
+              : JSON.parse(String(init.body)),
         });
         return input.toString() === '/bff/v1/csrf'
           ? jsonResponse({ headerName: 'X-CSRF-TOKEN', token: 'token-1' })
-          : jsonResponse(validClaim(), 201);
+          : jsonResponse(validClaimReceipt(), 201);
       },
     });
 
-    const result = await adapter.claim(
-      { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
-      new AbortController().signal,
-    );
+    const result = await adapter.claim(command, new AbortController().signal);
 
     expect(result).toEqual({ ok: true, claim: validClaim() });
     expect(requests).toEqual([
@@ -42,12 +55,16 @@ describe('follow-up claim BFF adapter', () => {
         method: 'GET',
         csrf: null,
         credentials: 'same-origin',
+        contentType: null,
+        body: undefined,
       },
       {
-        url: `/bff/v1/tenants/${TENANT_ID}/human-follow-ups/${WORK_ITEM_ID}/claims`,
+        url: `/bff/v1/tenants/${TENANT_ID}/human-follow-ups/${WORK_ITEM_ID}/claim-commands`,
         method: 'POST',
         csrf: 'token-1',
         credentials: 'same-origin',
+        contentType: 'application/json',
+        body: { commandId: COMMAND_ID, expectedOwnershipRevision: 0 },
       },
     ]);
   });
@@ -68,22 +85,51 @@ describe('follow-up claim BFF adapter', () => {
               { type: 'urn:ergon:problem:invalid-browser-csrf-token' },
               403,
             )
-          : jsonResponse(validClaim());
+          : jsonResponse(validClaimReceipt());
       },
     });
 
-    const first = await adapter.claim(
-      { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
-      new AbortController().signal,
-    );
-    const retry = await adapter.claim(
-      { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
-      new AbortController().signal,
-    );
+    const first = await adapter.claim(command, new AbortController().signal);
+    const retry = await adapter.claim(command, new AbortController().signal);
 
     expect(first).toEqual({ ok: false, error: { kind: 'csrf-rejected' } });
     expect(retry).toEqual({ ok: true, claim: validClaim() });
     expect(requestCount).toBe(4);
+  });
+
+  it('claims previously released work at its current even revision', async () => {
+    const releasedCommand = { ...command, expectedOwnershipRevision: 2 };
+    const adapter = createHumanFollowUpBffAdapter({
+      fetch: async (input, init) =>
+        input.toString() === '/bff/v1/csrf'
+          ? jsonResponse({ headerName: 'X-CSRF-TOKEN', token: 'token-1' })
+          : jsonResponse(
+              validClaimReceipt(
+                JSON.parse(String(init?.body)).commandId,
+                releasedCommand.expectedOwnershipRevision,
+              ),
+              201,
+            ),
+    });
+
+    await expect(
+      adapter.claim(releasedCommand, new AbortController().signal),
+    ).resolves.toEqual({ ok: true, claim: validClaim() });
+  });
+
+  it('rejects a receipt for another command or ownership revision', async () => {
+    const adapter = createHumanFollowUpBffAdapter({
+      fetch: async (input) =>
+        input.toString() === '/bff/v1/csrf'
+          ? jsonResponse({ headerName: 'X-CSRF-TOKEN', token: 'token-1' })
+          : jsonResponse(
+              validClaimReceipt('99999999-9999-4999-8999-999999999999'),
+            ),
+    });
+
+    await expect(
+      adapter.claim(command, new AbortController().signal),
+    ).resolves.toEqual({ ok: false, error: { kind: 'invalid-response' } });
   });
 
   it('shares one in-flight CSRF request between concurrent claims', async () => {
@@ -109,18 +155,12 @@ describe('follow-up claim BFF adapter', () => {
           });
         }
         claimRequestCount += 1;
-        return jsonResponse(validClaim());
+        return jsonResponse(validClaimReceipt());
       },
     });
 
-    const firstClaim = adapter.claim(
-      { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
-      new AbortController().signal,
-    );
-    const secondClaim = adapter.claim(
-      { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
-      new AbortController().signal,
-    );
+    const firstClaim = adapter.claim(command, new AbortController().signal);
+    const secondClaim = adapter.claim(command, new AbortController().signal);
 
     await tokenRequested;
     expect(csrfRequestCount).toBe(1);
@@ -141,20 +181,19 @@ describe('follow-up claim BFF adapter', () => {
         return input.toString() === '/bff/v1/csrf'
           ? jsonResponse({ headerName: 'X-CSRF-TOKEN', token: 'token-1' })
           : jsonResponse(
-              { type: 'urn:ergon:problem:human-follow-up-already-claimed' },
+              {
+                type: 'urn:ergon:problem:human-follow-up-ownership-revision-conflict',
+              },
               409,
             );
       },
     });
 
-    const result = await adapter.claim(
-      { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
-      new AbortController().signal,
-    );
+    const result = await adapter.claim(command, new AbortController().signal);
 
     expect(result).toEqual({
       ok: false,
-      error: { kind: 'already-claimed' },
+      error: { kind: 'ownership-revision-conflict' },
     });
     expect(requestCount).toBe(2);
   });
@@ -170,10 +209,7 @@ describe('follow-up claim BFF adapter', () => {
     });
 
     await expect(
-      adapter.claim(
-        { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
-        new AbortController().signal,
-      ),
+      adapter.claim(command, new AbortController().signal),
     ).resolves.toEqual({
       ok: false,
       error: { kind: 'timeout' },
@@ -189,12 +225,7 @@ describe('follow-up claim BFF adapter', () => {
         jsonResponse({ headerName: 'X-CSRF-TOKEN', token: 'token-1' }),
     });
 
-    await expect(
-      adapter.claim(
-        { tenantId: TENANT_ID, workItemId: WORK_ITEM_ID },
-        controller.signal,
-      ),
-    ).resolves.toEqual({
+    await expect(adapter.claim(command, controller.signal)).resolves.toEqual({
       ok: false,
       error: { kind: 'request-cancelled' },
     });

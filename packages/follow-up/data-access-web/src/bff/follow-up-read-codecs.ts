@@ -6,6 +6,7 @@ import type {
   ResolverOwnedHumanFollowUpPage,
 } from '../client';
 import {
+  isAvailableHumanFollowUpWorkItem,
   isResolverOwnedHumanFollowUpWork,
   isResolverFollowUpCaseSummary,
   type ResolverFollowUpCaseSummary,
@@ -35,6 +36,11 @@ export function decodeHumanFollowUpPage(
   if (response.ok) {
     return readJson(response).pipe(
       Effect.flatMap(Schema.decodeUnknown(humanFollowUpPageSchema)),
+      Effect.flatMap((page) =>
+        page.items.every(isAvailableHumanFollowUpWorkItem)
+          ? Effect.succeed(page)
+          : Effect.fail(INVALID_RESPONSE),
+      ),
       Effect.map((page): HumanFollowUpPage => page),
       Effect.mapError(() => INVALID_RESPONSE),
     );

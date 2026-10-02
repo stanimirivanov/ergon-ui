@@ -74,8 +74,10 @@ Claiming first obtains the opaque CSRF value from `/bff/v1/csrf` and retains it
 only inside web data access. RTK Query owns mutation state and
 invalidates all cached inbox pages for the tenant after success or a stale-item
 conflict.
-Ambiguous failures offer an explicit retry because the control plane returns an
-existing same-resolver claim instead of creating duplicate ownership.
+Ambiguous failures offer an explicit retry of the same command ID and expected
+revision; the control plane returns the recorded receipt instead of creating
+duplicate ownership. New claims use the current inbox revision, including
+work returned to the queue after release.
 
 The active-work section consumes the browser-owned resource independently from
 the shared queue. RTK Query caches pages by tenant and exact claim cursor;

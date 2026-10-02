@@ -115,6 +115,21 @@ const CLAIM_PROBLEM_FAILURES: ReadonlyMap<
     () => ({ kind: 'already-claimed' }),
   ],
   [
+    problemKey(
+      409,
+      'urn:ergon:problem:human-follow-up-ownership-revision-conflict',
+    ),
+    () => ({ kind: 'ownership-revision-conflict' }),
+  ],
+  [
+    problemKey(409, 'urn:ergon:problem:human-follow-up-claim-command-conflict'),
+    () => ({ kind: 'claim-command-conflict' }),
+  ],
+  [
+    problemKey(400, 'urn:ergon:problem:invalid-human-follow-up-claim-command'),
+    () => ({ kind: 'invalid-claim-command' }),
+  ],
+  [
     problemKey(404, 'urn:ergon:problem:human-follow-up-work-item-not-found'),
     () => ({ kind: 'not-found' }),
   ],

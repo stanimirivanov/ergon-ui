@@ -1,4 +1,7 @@
-import type { HumanFollowUpClaimFailure } from '@ergon/follow-up-data-access-web';
+import type {
+  HumanFollowUpClaimCommand,
+  HumanFollowUpClaimFailure,
+} from '@ergon/follow-up-data-access-web';
 import type { HumanFollowUpWorkItem } from '@ergon/follow-up-model';
 import { Button } from '@ergon/ui-web';
 import type { FormEvent } from 'react';
@@ -17,6 +20,7 @@ export type ClaimNotice =
   | {
       readonly kind: 'failure';
       readonly item: HumanFollowUpWorkItem;
+      readonly command: HumanFollowUpClaimCommand;
       readonly failure: HumanFollowUpClaimFailure;
     };
 
@@ -30,6 +34,10 @@ interface HumanFollowUpPageViewProps {
   readonly claimNotice: ClaimNotice | undefined;
   readonly signInHref: string;
   readonly onClaim: (item: HumanFollowUpWorkItem) => Promise<void>;
+  readonly onRetry: (
+    item: HumanFollowUpWorkItem,
+    command: HumanFollowUpClaimCommand,
+  ) => Promise<void>;
   readonly onPrevious: () => void;
   readonly onNext: () => void;
 }
@@ -45,6 +53,7 @@ export function HumanFollowUpPageView({
   claimNotice,
   signInHref,
   onClaim,
+  onRetry,
   onPrevious,
   onNext,
 }: HumanFollowUpPageViewProps) {
@@ -54,7 +63,7 @@ export function HumanFollowUpPageView({
         <ClaimResultNotice
           notice={claimNotice}
           signInHref={signInHref}
-          onRetry={onClaim}
+          onRetry={onRetry}
         />
       )}
 
@@ -217,7 +226,10 @@ function ClaimResultNotice({
 }: {
   readonly notice: ClaimNotice;
   readonly signInHref: string;
-  readonly onRetry: (item: HumanFollowUpWorkItem) => Promise<void>;
+  readonly onRetry: (
+    item: HumanFollowUpWorkItem,
+    command: HumanFollowUpClaimCommand,
+  ) => Promise<void>;
 }) {
   if (notice.kind === 'success') {
     return (
@@ -244,7 +256,7 @@ function ClaimResultNotice({
       <Button
         type="button"
         variant="quiet"
-        onClick={() => void onRetry(notice.item)}
+        onClick={() => void onRetry(notice.item, notice.command)}
       >
         Try claim again
       </Button>
