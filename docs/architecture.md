@@ -113,6 +113,10 @@ component-local while each requested page is cached by RTK Query; the UI keeps
 the cursor timestamp and work-item ID together as one immutable value. Claim
 success and stale-item conflicts invalidate every cached inbox page for that
 tenant rather than attempting to repair filtered keyset pages optimistically.
+The BFF supplies ownership revisions on inbox and owned rows. Data access
+validates their availability parity and decodes revision-checked claim command
+receipts; the feature retains a command ID across an explicit ambiguous-result
+retry. A stale revision refreshes the inbox instead of guessing current state.
 Owned-work pages use a separate tenant-and-cursor cache. Successful claims also
 invalidate that cache so active ownership is recovered from server truth; stale
 shared-inbox conflicts do not imply a change to the current resolver's claims.

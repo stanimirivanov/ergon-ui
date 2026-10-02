@@ -1,4 +1,5 @@
 import type {
+  HumanFollowUpClaimCommand,
   HumanFollowUpCursor,
   HumanFollowUpQuery,
 } from '@ergon/follow-up-data-access-web';
@@ -50,17 +51,27 @@ export function HumanFollowUpInboxPage({
   const followUps = useHumanFollowUpsQuery(query);
 
   async function claim(item: HumanFollowUpWorkItem): Promise<void> {
-    setClaimNotice(undefined);
-    const result = await claimHumanFollowUp({
+    return submitClaim(item, {
       tenantId,
       workItemId: item.workItemId,
+      commandId: crypto.randomUUID(),
+      expectedOwnershipRevision: item.ownershipRevision,
     });
+  }
+
+  async function submitClaim(
+    item: HumanFollowUpWorkItem,
+    command: HumanFollowUpClaimCommand,
+  ): Promise<void> {
+    setClaimNotice(undefined);
+    const result = await claimHumanFollowUp(command);
     setClaimNotice(
       'data' in result
         ? { kind: 'success' }
         : {
             kind: 'failure',
             item,
+            command,
             failure: normalizeFollowUpClaimFailure(result.error),
           },
     );
@@ -129,6 +140,7 @@ export function HumanFollowUpInboxPage({
       claimNotice={claimNotice}
       signInHref={signInHref}
       onClaim={claim}
+      onRetry={submitClaim}
       onPrevious={() =>
         setPosition((current) => {
           const previous = current.history[current.history.length - 1];

@@ -5,6 +5,9 @@ const utcInstant = Schema.String.pipe(
   Schema.filter((value) => !Number.isNaN(Date.parse(value))),
 );
 const queueKey = Schema.String.pipe(Schema.pattern(/^[a-z][a-z0-9-]{0,62}$/));
+const ownershipRevision = Schema.Int.pipe(
+  Schema.between(0, Number.MAX_SAFE_INTEGER),
+);
 const cursorSchema = Schema.Struct({
   afterOpenedAt: utcInstant,
   afterWorkItemId: Schema.UUID,
@@ -19,6 +22,7 @@ const workItemSchema = Schema.Struct({
   status: Schema.Literal('OPEN'),
   openedAt: utcInstant,
   recordedAt: utcInstant,
+  ownershipRevision,
 });
 const claimSchema = Schema.Struct({
   claimId: Schema.UUID,
@@ -136,7 +140,11 @@ export const csrfTokenSchema = Schema.Struct({
 });
 
 /** Structural wire contract for a recorded follow-up claim. */
-export const humanFollowUpClaimSchema = claimSchema;
+export const humanFollowUpClaimCommandSchema = Schema.Struct({
+  commandId: Schema.UUID,
+  ownershipRevision,
+  claim: claimSchema,
+});
 
 /**
  * Minimal problem-detail fields accepted for failure classification.

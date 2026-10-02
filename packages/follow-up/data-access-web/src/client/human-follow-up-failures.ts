@@ -35,8 +35,9 @@ export type ResolverFollowUpCaseSummaryFailure =
  * Failures specific to acquiring resolver ownership.
  *
  * `csrf-rejected` requires obtaining a fresh ephemeral token;
- * `already-claimed` is a competing ownership result; and `not-found` covers a
- * stale or no-longer-visible item. Raw browser and network causes are omitted
+ * `ownership-revision-conflict` means the inbox row is stale;
+ * `claim-command-conflict` means a command ID was reused for different intent;
+ * and `not-found` covers a no-longer-visible item. Raw causes are omitted
  * so results remain safe for presentation and Redux state.
  */
 export type HumanFollowUpClaimFailure =
@@ -47,6 +48,9 @@ export type HumanFollowUpClaimFailure =
   | { readonly kind: 'resolver-authority-required' }
   | { readonly kind: 'csrf-rejected' }
   | { readonly kind: 'already-claimed' }
+  | { readonly kind: 'ownership-revision-conflict' }
+  | { readonly kind: 'claim-command-conflict' }
+  | { readonly kind: 'invalid-claim-command' }
   | { readonly kind: 'not-found' }
   | { readonly kind: 'forbidden' }
   | { readonly kind: 'timeout' }

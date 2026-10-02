@@ -215,6 +215,8 @@ describe('human follow-up cache adapter', () => {
       humanFollowUpApi.endpoints.claimHumanFollowUp.initiate({
         tenantId: TENANT_ID,
         workItemId: WORK_ITEM_ID,
+        commandId: '66666666-6666-4666-8666-666666666666',
+        expectedOwnershipRevision: 0,
       }),
     );
 
@@ -241,7 +243,7 @@ describe('human follow-up cache adapter', () => {
       listOwnedHumanFollowUps: { listOwned },
       claimHumanFollowUp: {
         async claim() {
-          return { ok: false, error: { kind: 'already-claimed' } };
+          return { ok: false, error: { kind: 'ownership-revision-conflict' } };
         },
       },
     });
@@ -263,10 +265,14 @@ describe('human follow-up cache adapter', () => {
       humanFollowUpApi.endpoints.claimHumanFollowUp.initiate({
         tenantId: TENANT_ID,
         workItemId: WORK_ITEM_ID,
+        commandId: '66666666-6666-4666-8666-666666666666',
+        expectedOwnershipRevision: 0,
       }),
     );
 
-    await expect(claim.unwrap()).rejects.toEqual({ kind: 'already-claimed' });
+    await expect(claim.unwrap()).rejects.toEqual({
+      kind: 'ownership-revision-conflict',
+    });
     await vi.waitFor(() => expect(listOpen).toHaveBeenCalledTimes(2));
     expect(listOwned).toHaveBeenCalledTimes(1);
 

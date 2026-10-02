@@ -85,14 +85,14 @@ const CLAIM_IDENTITY_REJECTED = {
 const AMBIGUOUS_CLAIM_RESULT = {
   title: 'The claim result is not yet known.',
   description:
-    'Retrying is safe: if the first request succeeded, the control plane returns your existing claim.',
+    'Retrying this command is safe: if the first request succeeded, the control plane returns its recorded result.',
   canRetry: true,
 } as const;
 
 const UNUSABLE_CLAIM_RESPONSE = {
   title: 'The claim result could not be verified.',
   description:
-    'The response was not safe to use. Retrying is safe because your claim is idempotent.',
+    'The response was not safe to use. Retrying the same command is safe because its result is recorded.',
   canRetry: true,
 } as const;
 
@@ -122,6 +122,24 @@ const CLAIM_FAILURE_COPY = {
     title: 'Another resolver claimed this work.',
     description:
       'The shared inbox is refreshing so the stale item can be removed.',
+    canRetry: false,
+  },
+  'ownership-revision-conflict': {
+    title: 'This follow-up changed before you claimed it.',
+    description:
+      'The shared inbox is refreshing so you can use the current ownership revision.',
+    canRetry: false,
+  },
+  'claim-command-conflict': {
+    title: 'This claim request could not be reused.',
+    description:
+      'The command identity was already used for different intent. Refresh the inbox before trying again.',
+    canRetry: false,
+  },
+  'invalid-claim-command': {
+    title: 'This claim request was rejected.',
+    description:
+      'The command was invalid. Refresh the inbox or contact an operator if this continues.',
     canRetry: false,
   },
   'not-found': {

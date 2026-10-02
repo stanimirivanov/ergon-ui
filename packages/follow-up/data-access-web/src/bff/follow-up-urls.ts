@@ -41,7 +41,7 @@ export function caseSummaryUrl(
   return `/bff/v1/tenants/${encodeURIComponent(query.tenantId)}/human-follow-ups/${encodeURIComponent(query.workItemId)}/case-summary`;
 }
 
-/** Builds the idempotent ownership-claim URL for one visible work item. */
+/** Builds the revision-checked claim-command URL for one visible work item. */
 export function claimUrl(command: HumanFollowUpClaimCommand): string {
-  return `/bff/v1/tenants/${encodeURIComponent(command.tenantId)}/human-follow-ups/${encodeURIComponent(command.workItemId)}/claims`;
+  return `/bff/v1/tenants/${encodeURIComponent(command.tenantId)}/human-follow-ups/${encodeURIComponent(command.workItemId)}/claim-commands`;
 }

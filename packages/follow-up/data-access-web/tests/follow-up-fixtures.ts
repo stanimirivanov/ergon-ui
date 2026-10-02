@@ -1,5 +1,6 @@
 export const TENANT_ID = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
 export const WORK_ITEM_ID = '11111111-1111-4111-8111-111111111111';
+export const COMMAND_ID = '66666666-6666-4666-8666-666666666666';
 export const CASE_ID = '22222222-2222-4222-8222-222222222222';
 export const RUN_ID = '33333333-3333-4333-8333-333333333333';
 const EVENT_ID = '44444444-4444-4444-8444-444444444444';
@@ -15,6 +16,7 @@ export function validPage() {
         reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
         queueKey: 'access-restoration',
         status: 'OPEN' as const,
+        ownershipRevision: 0,
         openedAt: '2026-09-21T09:30:00Z',
         recordedAt: '2026-09-21T09:30:01Z',
       },
@@ -35,9 +37,25 @@ export function validClaim() {
   };
 }
 
+export function validClaimReceipt(
+  commandId = COMMAND_ID,
+  expectedOwnershipRevision = 0,
+) {
+  return {
+    commandId,
+    ownershipRevision: expectedOwnershipRevision + 1,
+    claim: validClaim(),
+  };
+}
+
 export function validOwnedPage() {
   return {
-    items: [{ workItem: validPage().items[0], claim: validClaim() }],
+    items: [
+      {
+        workItem: { ...validPage().items[0], ownershipRevision: 1 },
+        claim: validClaim(),
+      },
+    ],
     nextCursor: {
       afterClaimedAt: '2026-09-22T10:15:00Z',
       afterClaimId: '77777777-7777-4777-8777-777777777777',

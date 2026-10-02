@@ -157,11 +157,18 @@ function requestClaim(
         method: 'POST',
         headers: {
           Accept: 'application/json, application/problem+json',
+          'Content-Type': 'application/json',
           [csrfToken.headerName]: csrfToken.token,
         },
         credentials: 'same-origin',
         signal,
+        body: JSON.stringify({
+          commandId: command.commandId,
+          expectedOwnershipRevision: command.expectedOwnershipRevision,
+        }),
       }),
     catch: (): HumanFollowUpClaimFailure => TRANSPORT_FAILURE,
-  }).pipe(Effect.flatMap(decodeHumanFollowUpClaim));
+  }).pipe(
+    Effect.flatMap((response) => decodeHumanFollowUpClaim(response, command)),
+  );
 }

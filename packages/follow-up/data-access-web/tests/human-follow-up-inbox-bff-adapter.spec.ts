@@ -65,6 +65,23 @@ describe('follow-up inbox BFF adapter', () => {
     });
   });
 
+  it('rejects odd-revision shared work before it enters the inbox cache', async () => {
+    const adapter = createHumanFollowUpBffAdapter({
+      fetch: async () =>
+        jsonResponse({
+          items: [{ ...validPage().items[0], ownershipRevision: 1 }],
+          nextCursor: null,
+        }),
+    });
+
+    await expect(
+      adapter.listOpen(
+        { tenantId: TENANT_ID, limit: 25 },
+        new AbortController().signal,
+      ),
+    ).resolves.toEqual({ ok: false, error: { kind: 'invalid-response' } });
+  });
+
   it('maps a rejected queue without exposing problem detail', async () => {
     const adapter = createHumanFollowUpBffAdapter({
       fetch: async () =>

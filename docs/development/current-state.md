@@ -26,8 +26,8 @@ animation, requester app, or native app.
 - URL-owned queue filtering, local reversible keyset navigation, and explicit
   loading, empty, failure, and populated inbox states;
 - session-bound CSRF acquisition kept outside Redux and persistent storage;
-- idempotent follow-up claiming with explicit conflict, expiry, authority,
-  ambiguous-result, and safe-retry states;
+- revision-checked follow-up claiming, including released work, with explicit
+  conflict, expiry, authority, ambiguous-result, and same-command retry states;
 - tenant-wide inbox invalidation after successful or stale-item claim results;
 - browser-owned work decoding, neutral empty-state handling, reversible exact
   claim-cursor pagination, and post-claim cache refresh;

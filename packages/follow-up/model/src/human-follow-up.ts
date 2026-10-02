@@ -16,6 +16,8 @@ export interface HumanFollowUpWorkItem {
   readonly status: 'OPEN';
   readonly openedAt: string;
   readonly recordedAt: string;
+  /** Current server ownership revision; zero before the first claim. */
+  readonly ownershipRevision: number;
 }
 
 /**
@@ -35,8 +37,9 @@ export interface HumanFollowUpClaim {
  * Open follow-up paired with the current resolver's active claim.
  *
  * The pair is valid only when `claim.workItemId` equals
- * `workItem.workItemId`. A consumer must apply the pure refinement below after
- * separately validating the shape of untrusted input.
+ * `workItem.workItemId` and its ownership revision is positive and odd. A
+ * consumer must apply the pure refinement below after separately validating
+ * the shape of untrusted input.
  */
 export interface ResolverOwnedHumanFollowUpWork {
   readonly workItem: HumanFollowUpWorkItem;
@@ -51,5 +54,16 @@ export interface ResolverOwnedHumanFollowUpWork {
 export function isResolverOwnedHumanFollowUpWork(
   candidate: ResolverOwnedHumanFollowUpWork,
 ): boolean {
-  return candidate.claim.workItemId === candidate.workItem.workItemId;
+  return (
+    candidate.claim.workItemId === candidate.workItem.workItemId &&
+    candidate.workItem.ownershipRevision > 0 &&
+    candidate.workItem.ownershipRevision % 2 === 1
+  );
+}
+
+/** Unowned inbox work starts at revision zero and returns on even releases. */
+export function isAvailableHumanFollowUpWorkItem(
+  candidate: HumanFollowUpWorkItem,
+): boolean {
+  return candidate.ownershipRevision % 2 === 0;
 }

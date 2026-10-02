@@ -102,6 +102,7 @@ test('reveals visible follow-up work after the BFF session is verified', async (
                 reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
                 queueKey: 'access-restoration',
                 status: 'OPEN',
+                ownershipRevision: 0,
                 openedAt: '2026-09-21T09:30:00Z',
                 recordedAt: '2026-09-21T09:30:01Z',
               },
@@ -128,6 +129,7 @@ test('reveals visible follow-up work after the BFF session is verified', async (
                     reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
                     queueKey: 'access-restoration',
                     status: 'OPEN',
+                    ownershipRevision: 1,
                     openedAt: '2026-09-21T09:30:00Z',
                     recordedAt: '2026-09-21T09:30:01Z',
                   },
@@ -228,18 +230,28 @@ test('reveals visible follow-up work after the BFF session is verified', async (
     });
   });
   await page.route(
-    '**/bff/v1/tenants/*/human-follow-ups/*/claims',
+    '**/bff/v1/tenants/*/human-follow-ups/*/claim-commands',
     async (route) => {
       submittedCsrfToken = route.request().headers()['x-csrf-token'];
+      const command = route.request().postDataJSON() as {
+        commandId: string;
+        expectedOwnershipRevision: number;
+      };
+      expect(command.commandId).toMatch(/^[0-9a-f-]{36}$/);
+      expect(command.expectedOwnershipRevision).toBe(0);
       claimed = true;
       await route.fulfill({
         status: 201,
         contentType: 'application/json',
         body: JSON.stringify({
-          claimId: '77777777-7777-4777-8777-777777777777',
-          workItemId: '11111111-1111-4111-8111-111111111111',
-          claimedAt: '2026-09-22T10:15:00Z',
-          recordedAt: '2026-09-22T10:15:01Z',
+          commandId: command.commandId,
+          ownershipRevision: 1,
+          claim: {
+            claimId: '77777777-7777-4777-8777-777777777777',
+            workItemId: '11111111-1111-4111-8111-111111111111',
+            claimedAt: '2026-09-22T10:15:00Z',
+            recordedAt: '2026-09-22T10:15:01Z',
+          },
         }),
       });
     },
