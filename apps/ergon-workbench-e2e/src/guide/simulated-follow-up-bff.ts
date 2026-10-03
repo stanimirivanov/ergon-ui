@@ -1,6 +1,6 @@
-import { expect, type Page, type Route } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
-import { SIMULATED_BFF_HEADER } from './simulated-guide-network-boundary';
+import { fulfillSimulatedBff } from './simulated-bff-response';
 
 const workItemId = '11111111-1111-4111-8111-111111111111';
 const caseId = '22222222-2222-4222-8222-222222222222';
@@ -87,19 +87,6 @@ const caseSummary = {
   },
 } as const;
 
-async function fulfillJson(
-  route: Route,
-  body: unknown,
-  status = 200,
-): Promise<void> {
-  await route.fulfill({
-    status,
-    contentType: 'application/json',
-    headers: { [SIMULATED_BFF_HEADER]: 'simulated-bff' },
-    body: JSON.stringify(body),
-  });
-}
-
 /**
  * Installs synthetic BFF responses for the browser interaction test and guide.
  * This fixture proves UI behavior only; it does not replace backend security
@@ -113,7 +100,7 @@ export async function installSimulatedFollowUpBff(
   let submittedCsrfToken: string | undefined;
 
   await page.route('**/bff/v1/tenants/*/session', (route) =>
-    fulfillJson(route, {
+    fulfillSimulatedBff(route, {
       actorId: '741bcdba-9521-4e96-bfcc-7a5a2830eec8',
       identityProvider: 'workforce-sso',
       registeredAt: '2026-09-20T12:34:56Z',
@@ -121,13 +108,13 @@ export async function installSimulatedFollowUpBff(
     }),
   );
   await page.route('**/bff/v1/tenants/*/human-follow-ups?*', (route) =>
-    fulfillJson(route, {
+    fulfillSimulatedBff(route, {
       items: claimed ? [] : [{ ...workItem, ownershipRevision }],
       nextCursor: null,
     }),
   );
   await page.route('**/bff/v1/tenants/*/human-follow-ups/owned?*', (route) =>
-    fulfillJson(route, {
+    fulfillSimulatedBff(route, {
       items: claimed
         ? [{ workItem: { ...workItem, ownershipRevision }, claim }]
         : [],
@@ -136,10 +123,10 @@ export async function installSimulatedFollowUpBff(
   );
   await page.route(
     '**/bff/v1/tenants/*/human-follow-ups/*/case-summary',
-    (route) => fulfillJson(route, caseSummary),
+    (route) => fulfillSimulatedBff(route, caseSummary),
   );
   await page.route('**/bff/v1/csrf', (route) =>
-    fulfillJson(route, {
+    fulfillSimulatedBff(route, {
       headerName: 'X-CSRF-TOKEN',
       token: 'browser-session-token',
     }),
@@ -156,7 +143,7 @@ export async function installSimulatedFollowUpBff(
       expect(command.expectedOwnershipRevision).toBe(0);
       claimed = true;
       ownershipRevision = 1;
-      await fulfillJson(
+      await fulfillSimulatedBff(
         route,
         { commandId: command.commandId, ownershipRevision, claim },
         201,
@@ -174,7 +161,7 @@ export async function installSimulatedFollowUpBff(
       });
       claimed = false;
       ownershipRevision = 2;
-      await fulfillJson(
+      await fulfillSimulatedBff(
         route,
         {
           claimId,

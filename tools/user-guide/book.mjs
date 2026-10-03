@@ -77,7 +77,7 @@ export async function readGuideManifest(manifestPath) {
   if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
     fail(manifestPath, 'root must be an object');
   }
-  if (parsed.schemaVersion !== 1) fail(manifestPath, 'schemaVersion must be 1');
+  if (parsed.schemaVersion !== 2) fail(manifestPath, 'schemaVersion must be 2');
   if (!Number.isSafeInteger(parsed.order) || parsed.order < 0) {
     fail(manifestPath, 'order must be a non-negative integer');
   }
@@ -90,6 +90,9 @@ export async function readGuideManifest(manifestPath) {
   }
   if (parsed.verification !== 'simulated-bff') {
     fail(manifestPath, 'verification must explicitly identify simulated-bff');
+  }
+  if (!['workflow', 'state-comparison'].includes(parsed.presentation)) {
+    fail(manifestPath, 'presentation must be workflow or state-comparison');
   }
   const overview = requiredTextList(parsed.overview, 'overview', manifestPath);
   const prerequisites = requiredTextList(
@@ -166,6 +169,7 @@ export async function readGuideManifest(manifestPath) {
     summary: requiredString(parsed.summary, 'summary', manifestPath),
     audience: requiredString(parsed.audience, 'audience', manifestPath),
     verification: parsed.verification,
+    presentation: parsed.presentation,
     overview,
     prerequisites,
     steps,
@@ -188,7 +192,7 @@ export async function readGuideManifest(manifestPath) {
   if (readerWords < 400) {
     fail(
       manifestPath,
-      `guide has only ${readerWords} reader-facing words; a workflow guide needs substantive context, outcomes, and recovery`,
+      `guide has only ${readerWords} reader-facing words; a chapter needs substantive context, outcomes, and recovery`,
     );
   }
   return guide;
@@ -205,6 +209,10 @@ const markdownList = (entries) =>
   entries.map((entry) => `- ${entry}`).join('\n');
 
 function renderMarkdown(guide) {
+  const stepsHeading =
+    guide.presentation === 'workflow'
+      ? 'Follow the workflow'
+      : 'Compare the access states';
   const steps = guide.steps
     .map(
       (step, index) =>
@@ -214,7 +222,7 @@ function renderMarkdown(guide) {
   const recovery = guide.troubleshooting
     .map((item) => `### ${item.symptom}\n\n${item.guidance}`)
     .join('\n\n');
-  return `# ${guide.title}\n\n## TL;DR\n\n${guide.summary}\n\n> Illustrated with simulated BFF responses and synthetic data; this is not a live backend verification.\n\n<video controls src="./${guide.video}">Your browser does not support embedded video.</video>\n\n## About this workflow\n\n**Audience:** ${guide.audience}\n\n${guide.overview.join('\n\n')}\n\n## Before you begin\n\n${markdownList(guide.prerequisites)}\n\n## Follow the workflow\n\n${steps}\n\n## Troubleshooting\n\n${recovery}\n\n## Limits of this walkthrough\n\n${markdownList(guide.limitations)}\n`;
+  return `# ${guide.title}\n\n## TL;DR\n\n${guide.summary}\n\n> Illustrated with simulated BFF responses and synthetic data; this is not a live backend verification.\n\n<video controls src="./${guide.video}">Your browser does not support embedded video.</video>\n\n## About this ${guide.presentation === 'workflow' ? 'workflow' : 'guide'}\n\n**Audience:** ${guide.audience}\n\n${guide.overview.join('\n\n')}\n\n## Before you begin\n\n${markdownList(guide.prerequisites)}\n\n## ${stepsHeading}\n\n${steps}\n\n## Troubleshooting\n\n${recovery}\n\n## Limits of this walkthrough\n\n${markdownList(guide.limitations)}\n`;
 }
 
 function documentHtml(title, description, navigation, content, fromGuide) {
@@ -235,6 +243,10 @@ function navigationHtml(guides, current, fromGuide) {
 }
 
 function renderGuideHtml(guide, guides) {
+  const isWorkflow = guide.presentation === 'workflow';
+  const stepsHeading = isWorkflow
+    ? 'Follow the workflow'
+    : 'Compare the access states';
   const paragraphs = (items) =>
     items.map((item) => `<p>${escapeHtml(item)}</p>`).join('');
   const list = (items) =>
@@ -251,7 +263,7 @@ function renderGuideHtml(guide, guides) {
         `<section><h3>${escapeHtml(item.symptom)}</h3><p>${escapeHtml(item.guidance)}</p></section>`,
     )
     .join('');
-  const content = `<article><p class="eyebrow">Illustrative workflow</p><h1>${escapeHtml(guide.title)}</h1><p class="lead">${escapeHtml(guide.summary)}</p><div class="notice" role="note">Simulated BFF responses and synthetic data. This recording does not verify a live backend.</div><video controls preload="metadata"><source src="./${guide.video}" type="video/webm">Your browser does not support embedded video.</video><section><h2>About this workflow</h2><p><strong>Audience:</strong> ${escapeHtml(guide.audience)}</p>${paragraphs(guide.overview)}</section><section><h2>Before you begin</h2>${list(guide.prerequisites)}</section><section><h2>Follow the workflow</h2>${steps}</section><section><h2>Troubleshooting</h2>${recovery}</section><section><h2>Limits of this walkthrough</h2>${list(guide.limitations)}</section></article>`;
+  const content = `<article><p class="eyebrow">Illustrative ${isWorkflow ? 'workflow' : 'state comparison'}</p><h1>${escapeHtml(guide.title)}</h1><p class="lead">${escapeHtml(guide.summary)}</p><div class="notice" role="note">Simulated BFF responses and synthetic data. This recording does not verify a live backend.</div><video controls preload="metadata"><source src="./${guide.video}" type="video/webm">Your browser does not support embedded video.</video><section><h2>About this ${isWorkflow ? 'workflow' : 'guide'}</h2><p><strong>Audience:</strong> ${escapeHtml(guide.audience)}</p>${paragraphs(guide.overview)}</section><section><h2>Before you begin</h2>${list(guide.prerequisites)}</section><section><h2>${stepsHeading}</h2>${steps}</section><section><h2>Troubleshooting</h2>${recovery}</section><section><h2>Limits of this walkthrough</h2>${list(guide.limitations)}</section></article>`;
   return documentHtml(
     guide.title,
     guide.summary,
@@ -304,7 +316,7 @@ export async function assembleBook(outputRoot) {
         `<li><a class="card" href="./${guide.slug}/"><strong>${escapeHtml(guide.title)}</strong><span>${escapeHtml(guide.summary)}</span></a></li>`,
     )
     .join('');
-  const indexContent = `<section><p class="eyebrow">Executable documentation</p><h1>Learn Ergon through illustrated browser workflows</h1><p class="lead">Each chapter includes a recording, annotated screenshots, context, expected results, and recovery guidance. Current chapters use simulated BFF data and are marked accordingly.</p><ol class="cards">${cards}</ol></section>`;
+  const indexContent = `<section><p class="eyebrow">Executable documentation</p><h1>Learn Ergon through illustrated browser guides</h1><p class="lead">Each chapter includes a recording, annotated screenshots, context, expected results, and recovery guidance. Current chapters use simulated BFF data and are marked accordingly.</p><ol class="cards">${cards}</ol></section>`;
   await writeFile(
     path.join(outputRoot, 'index.html'),
     documentHtml(

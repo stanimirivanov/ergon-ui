@@ -9,7 +9,7 @@ import type {
   Video,
 } from '@playwright/test';
 
-import type { GuideChapter, GuideStep } from './follow-up-guide';
+import type { GuideChapter, GuideStep } from './guide-chapter';
 import { installSimulatedGuideNetworkBoundary } from './simulated-guide-network-boundary';
 
 const guideOutputRoot = path.join(workspaceRoot, 'dist', 'user-guide');
@@ -261,5 +261,22 @@ export class UserGuideSession {
     await this.clearAnnotation();
     await this.context.close();
     this.contextClosed = true;
+  }
+}
+
+/** Runs an asserted chapter and discards partial recordings on any failure. */
+export async function runGuideScenario(
+  browser: Browser,
+  baseURL: string,
+  chapter: GuideChapter,
+  scenario: (session: UserGuideSession) => Promise<void>,
+): Promise<void> {
+  const session = await UserGuideSession.start(browser, baseURL, chapter);
+  try {
+    await scenario(session);
+    await session.finish();
+  } catch (error: unknown) {
+    await session.abort();
+    throw error;
   }
 }

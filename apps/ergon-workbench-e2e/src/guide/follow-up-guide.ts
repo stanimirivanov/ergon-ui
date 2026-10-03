@@ -1,40 +1,18 @@
-export interface GuideStep {
-  readonly id: string;
-  readonly title: string;
-  readonly body: string;
-  readonly expected: string;
-}
-
-export interface GuideChapter {
-  readonly schemaVersion: 1;
-  readonly order: number;
-  readonly slug: string;
-  readonly title: string;
-  readonly summary: string;
-  readonly verification: 'simulated-bff';
-  readonly audience: string;
-  readonly overview: readonly string[];
-  readonly prerequisites: readonly string[];
-  readonly steps: readonly GuideStep[];
-  readonly troubleshooting: readonly {
-    readonly symptom: string;
-    readonly guidance: string;
-  }[];
-  readonly limitations: readonly string[];
-}
+import type { GuideChapter } from './guide-chapter';
 
 /**
  * Reader-facing content for the executable, simulated follow-up workflow.
  * Each step ID must be recorded exactly once by the tagged Playwright scenario.
  */
 export const followUpGuide: GuideChapter = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   order: 10,
   slug: 'handle-escalated-follow-up',
   title: 'Handle an escalated follow-up',
   summary:
     'Find work in the shared queue, claim it, inspect the escalation evidence, and return the claim to the queue when you cannot continue.',
   verification: 'simulated-bff',
+  presentation: 'workflow',
   audience: 'Resolvers working in the Ergon Workbench.',
   overview: [
     'An automated resolution run can stop after its allowed attempts without closing the customer case. Ergon then opens a human follow-up in a named queue. The shared inbox shows work you may be able to claim; the active-work list shows claims currently owned by your verified resolver identity. Neither list grants authority by itself. The control plane checks your session and current resolver authority for each request.',
