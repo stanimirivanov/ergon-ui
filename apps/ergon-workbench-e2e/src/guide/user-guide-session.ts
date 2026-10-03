@@ -10,6 +10,7 @@ import type {
 } from '@playwright/test';
 
 import type { GuideChapter, GuideStep } from './follow-up-guide';
+import { installSimulatedGuideNetworkBoundary } from './simulated-guide-network-boundary';
 
 const guideOutputRoot = path.join(workspaceRoot, 'dist', 'user-guide');
 const guideViewport = { width: 1440, height: 900 } as const;
@@ -34,6 +35,9 @@ export class UserGuideSession {
   private readonly directory: string;
   private readonly recordsGuide: boolean;
   private readonly video: Video | null;
+  private readonly networkBoundary: {
+    assertNoUnexpectedRequests: () => Promise<void>;
+  } | null;
   private readonly images: { id: string; image: string }[] = [];
   private nextStepIndex = 0;
   private contextClosed = false;
@@ -44,6 +48,7 @@ export class UserGuideSession {
     chapter: GuideChapter,
     directory: string,
     recordsGuide: boolean,
+    networkBoundary: { assertNoUnexpectedRequests: () => Promise<void> } | null,
   ) {
     this.context = context;
     this.page = page;
@@ -51,6 +56,7 @@ export class UserGuideSession {
     this.directory = directory;
     this.recordsGuide = recordsGuide;
     this.video = page.video();
+    this.networkBoundary = networkBoundary;
   }
 
   static async start(
@@ -82,6 +88,7 @@ export class UserGuideSession {
       reducedMotion: 'reduce',
       timezoneId: 'UTC',
       viewport: guideViewport,
+      ...(recordsGuide ? { serviceWorkers: 'block' as const } : {}),
       ...(recordsGuide
         ? {
             recordVideo: {
@@ -91,6 +98,9 @@ export class UserGuideSession {
           }
         : {}),
     });
+    const networkBoundary = recordsGuide
+      ? await installSimulatedGuideNetworkBoundary(context, url.origin)
+      : null;
     const page = await context.newPage();
     return new UserGuideSession(
       context,
@@ -98,6 +108,7 @@ export class UserGuideSession {
       chapter,
       directory,
       recordsGuide,
+      networkBoundary,
     );
   }
 
@@ -138,6 +149,7 @@ export class UserGuideSession {
     }
     await this.closeContext();
     if (!this.recordsGuide) return;
+    await this.networkBoundary?.assertNoUnexpectedRequests();
     if (this.video === null) {
       throw new Error('Playwright did not create the requested guide video.');
     }
