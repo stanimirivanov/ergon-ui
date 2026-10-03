@@ -41,6 +41,9 @@ animation, requester app, or native app.
   failed-execution and exhausted-retry handoff explanation;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
+- a local executable guide for the simulated claim, evidence-review, and
+  release workflow, with annotated screenshots, video, substantive recovery
+  guidance, and validated Markdown/static HTML output;
 - a capability-located session model plus a cancellation-aware current-actor
   client owned by session web data access, with no ceremonial application
   project;
@@ -72,14 +75,16 @@ animation, requester app, or native app.
 
 - OIDC client credentials and provider tokens remain entirely server-side.
 - No logout, refresh, or revocation UI exists.
-- Claimed work includes read-only case context, but there is no release,
-  resolution, reassignment, or dedicated case route yet.
+- Claimed work includes read-only case context and confirmed release, but there
+  is no completion, resolution, reassignment, or dedicated case route yet.
 - The BFF session contains no provider subject, and none is cached or shown.
 - No production deployment configuration or ingress exists.
+- The local guide uses synthetic BFF responses; no live OIDC, database-backed
+  browser guide environment or publication pipeline exists yet.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.
 
-The next resolver slice should add an explicit ownership lifecycle operation
-after a reviewed browser contract exists. Existing `/internal/v1` routes remain
+Future resolver slices must use reviewed browser contracts for priority,
+reassignment, completion, or resolution. Existing `/internal/v1` routes remain
 ineligible for production UI use.

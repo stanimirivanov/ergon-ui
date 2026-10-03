@@ -60,6 +60,8 @@ Dependency resolution is a separate networked, mutating bootstrap step:
 | `pnpm architecture:check` | Nx project metadata, capability paths and package names, platform boundaries, application-core approvals, and dependency direction | T1    |
 | `pnpm verify:workspace`   | Formatting, linting, type checking, unit/component behavior, and production builds                                                 | T2    |
 | `pnpm e2e`                | Critical resolver behavior in Chromium                                                                                             | T3    |
+| `pnpm guide:check`        | User-guide manifest, content, and media-path validation tests                                                                      | T1    |
+| `pnpm guide:generate`     | Tagged browser recording and local static-book generation from simulated fixtures                                                  | T3    |
 | `pnpm verify`             | The complete current local acceptance sequence                                                                                     | T1–T3 |
 
 Focused project checks remain useful during editing but do not replace an
