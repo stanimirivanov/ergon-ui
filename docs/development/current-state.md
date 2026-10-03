@@ -5,8 +5,8 @@
 The repository contains a verified resolver-workbench shell, a fail-closed
 confidential-BFF session boundary, a shared resolver inbox, and a web-only UI
 package. Resolvers can claim visible work with an ephemeral session-bound CSRF
-token, recover their active claims, and inspect server-authorized case context.
-It has no release action, resolution action, logout flow, form workflow, Motion
+token, recover their active claims, release exact owned claims, and inspect
+server-authorized case context. It has no resolution action, logout flow, form workflow, Motion
 animation, requester app, or native app.
 
 ## Implemented
@@ -28,6 +28,9 @@ animation, requester app, or native app.
 - session-bound CSRF acquisition kept outside Redux and persistent storage;
 - revision-checked follow-up claiming, including released work, with explicit
   conflict, expiry, authority, ambiguous-result, and same-command retry states;
+- confirmed exact-claim release with typed disabled/stale/absence outcomes,
+  same-tuple explicit retry, and server-cache revalidation; release still
+  requires the backend's operator-controlled rollout flag;
 - tenant-wide inbox invalidation after successful or stale-item claim results;
 - browser-owned work decoding, neutral empty-state handling, reversible exact
   claim-cursor pagination, and post-claim cache refresh;

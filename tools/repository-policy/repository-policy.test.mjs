@@ -157,14 +157,14 @@ test('long guides require a visible first TLDR section', () => {
 
 test('ADR high-water mark detects deletion of the newest published record', () => {
   const files = decisionFixture();
-  delete files['docs/decisions/0020-decision-20.md'];
-  files['docs/decisions/README.md'] = decisionIndex(19);
+  delete files['docs/decisions/0021-decision-21.md'];
+  files['docs/decisions/README.md'] = decisionIndex(20);
   const diagnostics = checkDecisions(loadRepository(fixture(files)));
   assert.ok(
     diagnostics.some(
       (value) =>
         value.rule === 'adr.sequence' &&
-        value.message.includes('policy records 0020'),
+        value.message.includes('policy records 0021'),
     ),
   );
 });
@@ -396,11 +396,11 @@ function fixture(files) {
 
 function decisionFixture() {
   const files = {
-    'docs/decisions/README.md': decisionIndex(20),
+    'docs/decisions/README.md': decisionIndex(21),
     'docs/decisions/0000-template.md':
       '# ADR NNNN: Title\n\n- Status: Proposed\n- Date: YYYY-MM-DD\n- Milestone: MNN - Outcome\n\n## TL;DR\n\nSummary.\n\n## Context\n\nContext.\n\n## Decision\n\nDecision.\n\n## Consequences\n\nConsequences.\n\n## Alternatives considered\n\nAlternatives.\n',
   };
-  for (let number = 1; number <= 20; number += 1) {
+  for (let number = 1; number <= 21; number += 1) {
     files[
       `docs/decisions/${String(number).padStart(4, '0')}-decision-${number}.md`
     ] = decisionBody(number);

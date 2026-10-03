@@ -3,6 +3,7 @@ import type {
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
+  ReleaseHumanFollowUp,
 } from '../src/client';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -16,6 +17,7 @@ import {
   validClaim,
   validOwnedPage,
   validPage,
+  validRelease,
 } from './follow-up-fixtures';
 
 const OTHER_TENANT_ID = '1f262f80-c0c6-4c31-9fa0-5e701b8636ee';
@@ -279,6 +281,122 @@ describe('human follow-up cache adapter', () => {
     inbox.unsubscribe();
     owned.unsubscribe();
   });
+
+  it('refreshes both work views and rechecks active case context after release', async () => {
+    const listOpen = vi
+      .fn<ListOpenHumanFollowUps['listOpen']>()
+      .mockResolvedValue({
+        ok: true,
+        page: validPage(),
+      });
+    const listOwned = vi
+      .fn<ListOwnedHumanFollowUps['listOwned']>()
+      .mockResolvedValue({
+        ok: true,
+        page: validOwnedPage(),
+      });
+    const getOwnedCaseSummary = vi
+      .fn<GetOwnedFollowUpCaseSummary['getOwnedCaseSummary']>()
+      .mockResolvedValueOnce({ ok: true, summary: validCaseSummary() })
+      .mockResolvedValue({ ok: false, error: { kind: 'not-found' } });
+    const store = createFollowUpCacheStore({
+      ...defaultDependencies(),
+      listOpenHumanFollowUps: { listOpen },
+      listOwnedHumanFollowUps: { listOwned },
+      getOwnedFollowUpCaseSummary: { getOwnedCaseSummary },
+    });
+    const inbox = store.dispatch(
+      humanFollowUpApi.endpoints.humanFollowUps.initiate({
+        tenantId: TENANT_ID,
+        limit: 25,
+      }),
+    );
+    const owned = store.dispatch(
+      humanFollowUpApi.endpoints.resolverOwnedHumanFollowUps.initiate({
+        tenantId: TENANT_ID,
+        limit: 25,
+      }),
+    );
+    const summary = store.dispatch(
+      humanFollowUpApi.endpoints.resolverFollowUpCaseSummary.initiate({
+        tenantId: TENANT_ID,
+        workItemId: WORK_ITEM_ID,
+        caseId: CASE_ID,
+        runId: RUN_ID,
+      }),
+    );
+    await Promise.all([inbox.unwrap(), owned.unwrap(), summary.unwrap()]);
+
+    const release = store.dispatch(
+      humanFollowUpApi.endpoints.releaseHumanFollowUp.initiate({
+        tenantId: TENANT_ID,
+        workItemId: WORK_ITEM_ID,
+        claimId: validClaim().claimId,
+        expectedOwnershipRevision: 1,
+      }),
+    );
+    await expect(release.unwrap()).resolves.toEqual(validRelease());
+    await vi.waitFor(() => {
+      expect(listOpen).toHaveBeenCalledTimes(2);
+      expect(listOwned).toHaveBeenCalledTimes(2);
+      expect(getOwnedCaseSummary).toHaveBeenCalledTimes(2);
+    });
+    inbox.unsubscribe();
+    owned.unsubscribe();
+    summary.unsubscribe();
+  });
+
+  it('refreshes owned work but not the shared inbox after a stale release', async () => {
+    const listOpen = vi
+      .fn<ListOpenHumanFollowUps['listOpen']>()
+      .mockResolvedValue({
+        ok: true,
+        page: validPage(),
+      });
+    const listOwned = vi
+      .fn<ListOwnedHumanFollowUps['listOwned']>()
+      .mockResolvedValue({
+        ok: true,
+        page: validOwnedPage(),
+      });
+    const release = vi.fn<ReleaseHumanFollowUp['release']>().mockResolvedValue({
+      ok: false,
+      error: { kind: 'not-found' },
+    });
+    const store = createFollowUpCacheStore({
+      ...defaultDependencies(),
+      listOpenHumanFollowUps: { listOpen },
+      listOwnedHumanFollowUps: { listOwned },
+      releaseHumanFollowUp: { release },
+    });
+    const inbox = store.dispatch(
+      humanFollowUpApi.endpoints.humanFollowUps.initiate({
+        tenantId: TENANT_ID,
+        limit: 25,
+      }),
+    );
+    const owned = store.dispatch(
+      humanFollowUpApi.endpoints.resolverOwnedHumanFollowUps.initiate({
+        tenantId: TENANT_ID,
+        limit: 25,
+      }),
+    );
+    await Promise.all([inbox.unwrap(), owned.unwrap()]);
+
+    const mutation = store.dispatch(
+      humanFollowUpApi.endpoints.releaseHumanFollowUp.initiate({
+        tenantId: TENANT_ID,
+        workItemId: WORK_ITEM_ID,
+        claimId: validClaim().claimId,
+        expectedOwnershipRevision: 1,
+      }),
+    );
+    await expect(mutation.unwrap()).rejects.toEqual({ kind: 'not-found' });
+    await vi.waitFor(() => expect(listOwned).toHaveBeenCalledTimes(2));
+    expect(listOpen).toHaveBeenCalledTimes(1);
+    inbox.unsubscribe();
+    owned.unsubscribe();
+  });
 });
 
 function defaultDependencies(): HumanFollowUpCacheDependencies {
@@ -301,6 +419,11 @@ function defaultDependencies(): HumanFollowUpCacheDependencies {
     claimHumanFollowUp: {
       async claim() {
         return { ok: true, claim: validClaim() };
+      },
+    },
+    releaseHumanFollowUp: {
+      async release() {
+        return { ok: true, release: validRelease() };
       },
     },
   };

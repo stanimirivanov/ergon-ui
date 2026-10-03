@@ -37,6 +37,16 @@ export function validClaim() {
   };
 }
 
+export function validRelease() {
+  return {
+    claimId: validClaim().claimId,
+    workItemId: WORK_ITEM_ID,
+    ownershipRevision: 2,
+    releasedAt: '2026-09-22T11:00:00Z',
+    recordedAt: '2026-09-22T11:00:01Z',
+  };
+}
+
 export function validClaimReceipt(
   commandId = COMMAND_ID,
   expectedOwnershipRevision = 0,

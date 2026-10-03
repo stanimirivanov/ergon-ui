@@ -4,6 +4,7 @@ import type {
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
+  ReleaseHumanFollowUp,
   ResolverFollowUpCaseSummaryResult,
 } from '@ergon/follow-up-data-access-web';
 import { Provider } from 'react-redux';
@@ -13,6 +14,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   FIRST_WORK_ITEM_ID,
   followUpClaim,
+  followUpRelease,
   resolverFollowUpCaseSummary,
   RUN_ID,
   SECOND_WORK_ITEM_ID,
@@ -137,6 +139,145 @@ describe('resolver-owned human follow-ups', () => {
 
     await waitFor(() => expect(listOwned).toHaveBeenCalledTimes(2));
     expect(await screen.findByText('22 Sept 2026, 10:15 UTC')).toBeTruthy();
+  });
+
+  it('requires confirmation and releases the exact visible claim', async () => {
+    const listOwned = vi
+      .fn<ListOwnedHumanFollowUps['listOwned']>()
+      .mockResolvedValueOnce(
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      )
+      .mockResolvedValue({ ok: true, page: { items: [], nextCursor: null } });
+    const release = vi.fn<ReleaseHumanFollowUp['release']>().mockResolvedValue({
+      ok: true,
+      release: followUpRelease(FIRST_WORK_ITEM_ID),
+    });
+    renderOwned({ listOwned, release });
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Release Retry attempt limit reached follow-up',
+      }),
+    );
+    expect(release).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm release' }));
+
+    expect(
+      await screen.findByRole('status', { name: 'Follow-up released' }),
+    ).toBeTruthy();
+    expect(release).toHaveBeenCalledWith(
+      {
+        tenantId: TENANT_ID,
+        workItemId: FIRST_WORK_ITEM_ID,
+        claimId: followUpClaim(FIRST_WORK_ITEM_ID).claimId,
+        expectedOwnershipRevision: 1,
+      },
+      expect.any(AbortSignal),
+    );
+    await waitFor(() => expect(listOwned).toHaveBeenCalledTimes(2));
+    expect(
+      await screen.findByRole('heading', {
+        name: 'No active claimed work in this view.',
+      }),
+    ).toBeTruthy();
+  });
+
+  it('retries an uncertain release with the exact same claim and revision', async () => {
+    const release = vi
+      .fn<ReleaseHumanFollowUp['release']>()
+      .mockResolvedValueOnce({ ok: false, error: { kind: 'transport' } })
+      .mockResolvedValueOnce({
+        ok: true,
+        release: followUpRelease(FIRST_WORK_ITEM_ID),
+      });
+    renderOwned({
+      listOwned: async () =>
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      release,
+    });
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: /Release Retry attempt limit reached follow-up/,
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm release' }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Try release again' }),
+    );
+
+    expect(await screen.findByText('Follow-up released.')).toBeTruthy();
+    expect(release).toHaveBeenCalledTimes(2);
+    expect(release.mock.calls[1]?.[0]).toEqual(release.mock.calls[0]?.[0]);
+  });
+
+  it('reports disabled release without offering an unsafe retry', async () => {
+    renderOwned({
+      listOwned: async () =>
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      release: async () => ({
+        ok: false,
+        error: { kind: 'release-unavailable' },
+      }),
+    });
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: /Release Retry attempt limit reached follow-up/,
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm release' }));
+
+    expect(
+      await screen.findByRole('alert', {
+        name: 'Releasing work is not enabled.',
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole('button', { name: 'Try release again' }),
+    ).toBeNull();
+  });
+
+  it('closes private case context before submitting release', async () => {
+    let finishRelease: (
+      value: Awaited<ReturnType<ReleaseHumanFollowUp['release']>>,
+    ) => void = () => undefined;
+    const pendingRelease = new Promise<
+      Awaited<ReturnType<ReleaseHumanFollowUp['release']>>
+    >((resolve) => {
+      finishRelease = resolve;
+    });
+    renderOwned({
+      listOwned: async () =>
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      getOwnedCaseSummary: async () => ({
+        ok: true,
+        summary: resolverFollowUpCaseSummary(
+          FIRST_WORK_ITEM_ID,
+          'Private evidence',
+        ),
+      }),
+      release: async () => pendingRelease,
+    });
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Review case context' }),
+    );
+    expect(await screen.findByText('Private evidence')).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /Release Retry attempt limit reached follow-up/,
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm release' }));
+
+    expect(screen.queryByText('Private evidence')).toBeNull();
+    finishRelease({ ok: false, error: { kind: 'release-unavailable' } });
+    expect(
+      await screen.findByRole('alert', {
+        name: 'Releasing work is not enabled.',
+      }),
+    ).toBeTruthy();
   });
 
   it('lazily reveals validated case context and renders evidence as text', async () => {

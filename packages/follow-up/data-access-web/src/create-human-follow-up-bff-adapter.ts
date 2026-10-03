@@ -3,9 +3,10 @@ import type {
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
+  ReleaseHumanFollowUp,
 } from './client';
 
-import { createFollowUpClaimAdapter } from './bff/follow-up-claim-adapter';
+import { createFollowUpOwnershipAdapter } from './bff/follow-up-ownership-adapter';
 import { createFollowUpReadAdapter } from './bff/follow-up-read-adapter';
 
 /** Dependencies and per-request policy for the confidential-BFF adapter. */
@@ -22,14 +23,15 @@ export interface HumanFollowUpBffAdapterOptions {
 type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
   ListOwnedHumanFollowUps &
   GetOwnedFollowUpCaseSummary &
-  ClaimHumanFollowUp;
+  ClaimHumanFollowUp &
+  ReleaseHumanFollowUp;
 
 /**
  * Adapts the confidential browser BFF to the follow-up data-access contracts.
  *
  * Responses are fully decoded before reaching application state. Read
- * operations retry one classified transient failure; claim commands are never
- * replayed automatically. The session-bound CSRF value remains inside the
+ * operations retry one classified transient failure; ownership mutations are
+ * never replayed automatically. The session-bound CSRF value remains inside the
  * returned adapter and is discarded when the server rejects it. Caller
  * cancellation interrupts Effect, propagates to the signal supplied to fetch,
  * and returns the operations' typed cancellation failure.
@@ -38,7 +40,7 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
  * browser-session composition lifetime and discard it when that session is
  * replaced; do not share it across authenticated browser sessions.
  *
- * @returns The four follow-up operations backed by one adapter state.
+ * @returns The five follow-up operations backed by one adapter state.
  * @throws A `RangeError` when `requestTimeout` is not a positive finite number.
  */
 export function createHumanFollowUpBffAdapter({
@@ -51,6 +53,6 @@ export function createHumanFollowUpBffAdapter({
 
   return {
     ...createFollowUpReadAdapter({ fetch, requestTimeout }),
-    ...createFollowUpClaimAdapter({ fetch, requestTimeout }),
+    ...createFollowUpOwnershipAdapter({ fetch, requestTimeout }),
   };
 }

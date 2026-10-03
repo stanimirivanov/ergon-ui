@@ -79,6 +79,11 @@ revision; the control plane returns the recorded receipt instead of creating
 duplicate ownership. New claims use the current inbox revision, including
 work returned to the queue after release.
 
+Active-work cards also offer a confirmed release. The browser submits the
+exact claim and current ownership revision with the shared ephemeral CSRF
+token. A successful release rechecks both work views and case context; a
+disabled-release response identifies the operator-controlled rollout state.
+
 The active-work section consumes the browser-owned resource independently from
 the shared queue. RTK Query caches pages by tenant and exact claim cursor;
 Effect validates each work-item/claim pair before caching. A successful claim

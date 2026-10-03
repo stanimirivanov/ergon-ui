@@ -146,6 +146,15 @@ export const humanFollowUpClaimCommandSchema = Schema.Struct({
   claim: claimSchema,
 });
 
+/** Browser-safe receipt for an exact active-claim release. */
+export const humanFollowUpReleaseSchema = Schema.Struct({
+  claimId: Schema.UUID,
+  workItemId: Schema.UUID,
+  ownershipRevision,
+  releasedAt: utcInstant,
+  recordedAt: utcInstant,
+});
+
 /**
  * Minimal problem-detail fields accepted for failure classification.
  * Unused descriptive fields are deliberately not admitted into application

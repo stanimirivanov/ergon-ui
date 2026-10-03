@@ -1,6 +1,7 @@
 import type {
   HumanFollowUpClaimFailure,
   HumanFollowUpFailure,
+  HumanFollowUpReleaseFailure,
   ResolverFollowUpCaseSummaryFailure,
 } from '@ergon/follow-up-data-access-web';
 
@@ -35,6 +36,25 @@ const CLAIM_FAILURES: Readonly<Record<string, HumanFollowUpClaimFailure>> = {
   'invalid-response': INVALID_RESPONSE,
   'request-cancelled': { kind: 'request-cancelled' },
 };
+
+const RELEASE_FAILURES: Readonly<Record<string, HumanFollowUpReleaseFailure>> =
+  {
+    'authentication-required': { kind: 'authentication-required' },
+    'authentication-unavailable': { kind: 'authentication-unavailable' },
+    'actor-not-registered': { kind: 'actor-not-registered' },
+    'identity-rejected': { kind: 'identity-rejected' },
+    'resolver-authority-required': { kind: 'resolver-authority-required' },
+    'csrf-rejected': { kind: 'csrf-rejected' },
+    'ownership-revision-conflict': { kind: 'ownership-revision-conflict' },
+    'invalid-release-command': { kind: 'invalid-release-command' },
+    'release-unavailable': { kind: 'release-unavailable' },
+    'not-found': { kind: 'not-found' },
+    forbidden: { kind: 'forbidden' },
+    timeout: { kind: 'timeout' },
+    transport: { kind: 'transport' },
+    'invalid-response': INVALID_RESPONSE,
+    'request-cancelled': { kind: 'request-cancelled' },
+  };
 
 const CASE_SUMMARY_FAILURES: Readonly<
   Record<string, ResolverFollowUpCaseSummaryFailure>
@@ -72,6 +92,19 @@ export function normalizeFollowUpClaimFailure(
   return kind === undefined
     ? INVALID_RESPONSE
     : (CLAIM_FAILURES[kind] ?? INVALID_RESPONSE);
+}
+
+/** Preserves release-specific failures and rejects unknown RTK Query error data. */
+export function normalizeFollowUpReleaseFailure(
+  error: unknown,
+): HumanFollowUpReleaseFailure {
+  const kind = failureKind(error);
+  if (kind === 'service-unavailable' || kind === 'unexpected-response') {
+    return { kind, status: failureStatus(error) };
+  }
+  return kind === undefined
+    ? INVALID_RESPONSE
+    : (RELEASE_FAILURES[kind] ?? INVALID_RESPONSE);
 }
 
 /** Preserves the case-summary `not-found` non-disclosure outcome. */

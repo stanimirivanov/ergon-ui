@@ -117,6 +117,10 @@ The BFF supplies ownership revisions on inbox and owned rows. Data access
 validates their availability parity and decodes revision-checked claim command
 receipts; the feature retains a command ID across an explicit ambiguous-result
 retry. A stale revision refreshes the inbox instead of guessing current state.
+Release uses the same session-bound CSRF client with an exact active claim and
+revision. Its receipt is checked before success; the owned feature closes case
+context before submission. Success revalidates both work views and that item's
+case-context cache. Release availability remains a backend rollout decision.
 Owned-work pages use a separate tenant-and-cursor cache. Successful claims also
 invalidate that cache so active ownership is recovered from server truth; stale
 shared-inbox conflicts do not imply a change to the current resolver's claims.

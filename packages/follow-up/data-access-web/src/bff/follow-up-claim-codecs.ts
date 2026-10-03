@@ -1,11 +1,16 @@
 import type {
   HumanFollowUpClaimCommand,
   HumanFollowUpClaimFailure,
+  HumanFollowUpCommandFailure,
 } from '../client';
 import type { HumanFollowUpClaim } from '@ergon/follow-up-model';
 import { Effect, Schema } from 'effect';
 
-import { INVALID_RESPONSE, mapClaimHttpFailure } from './follow-up-failures';
+import {
+  INVALID_RESPONSE,
+  mapClaimHttpFailure,
+  mapCsrfHttpFailure,
+} from './follow-up-failures';
 import {
   csrfTokenSchema,
   humanFollowUpClaimCommandSchema,
@@ -20,18 +25,18 @@ import { readJson, readOptionalProblem } from './json-response';
  */
 export function decodeCsrfToken(
   response: Response,
-): Effect.Effect<BrowserCsrfToken, HumanFollowUpClaimFailure, never> {
+): Effect.Effect<BrowserCsrfToken, HumanFollowUpCommandFailure, never> {
   if (response.status === 200) {
     return readJson(response).pipe(
       Effect.flatMap(Schema.decodeUnknown(csrfTokenSchema)),
       Effect.map((token): BrowserCsrfToken => token),
-      Effect.mapError((): HumanFollowUpClaimFailure => INVALID_RESPONSE),
+      Effect.mapError((): HumanFollowUpCommandFailure => INVALID_RESPONSE),
     );
   }
 
   return readOptionalProblem(response).pipe(
     Effect.flatMap((problem) =>
-      Effect.fail(mapClaimHttpFailure(response.status, problem)),
+      Effect.fail(mapCsrfHttpFailure(response.status, problem)),
     ),
   );
 }

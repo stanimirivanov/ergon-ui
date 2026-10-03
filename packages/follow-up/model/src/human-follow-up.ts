@@ -34,6 +34,21 @@ export interface HumanFollowUpClaim {
 }
 
 /**
+ * Browser-safe receipt for releasing an exact active claim.
+ *
+ * The revision is the new even ownership revision. A repeated release returns
+ * the original receipt; neither resolver identity nor authority evidence is
+ * exposed to the browser.
+ */
+export interface HumanFollowUpRelease {
+  readonly claimId: string;
+  readonly workItemId: string;
+  readonly ownershipRevision: number;
+  readonly releasedAt: string;
+  readonly recordedAt: string;
+}
+
+/**
  * Open follow-up paired with the current resolver's active claim.
  *
  * The pair is valid only when `claim.workItemId` equals

@@ -4,6 +4,7 @@ import type {
   GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
+  ReleaseHumanFollowUp,
 } from '@ergon/follow-up-data-access-web';
 import {
   type HumanFollowUpCacheDependencies,
@@ -22,6 +23,7 @@ export interface FollowUpTestCapabilities {
   readonly listOwned?: ListOwnedHumanFollowUps['listOwned'];
   readonly getOwnedCaseSummary?: GetOwnedFollowUpCaseSummary['getOwnedCaseSummary'];
   readonly claim?: ClaimHumanFollowUp['claim'];
+  readonly release?: ReleaseHumanFollowUp['release'];
 }
 
 type FollowUpTestStore = ReturnType<typeof configureFollowUpStore>;
@@ -43,6 +45,9 @@ export function createFollowUpTestStore(
     },
     claimHumanFollowUp: {
       claim: capabilities.claim ?? unusedClaim,
+    },
+    releaseHumanFollowUp: {
+      release: capabilities.release ?? unusedRelease,
     },
   };
 
@@ -76,4 +81,8 @@ const unusedGetOwnedCaseSummary: GetOwnedFollowUpCaseSummary['getOwnedCaseSummar
 
 const unusedClaim: ClaimHumanFollowUp['claim'] = async () => {
   throw new Error('Claiming was not configured for this test');
+};
+
+const unusedRelease: ReleaseHumanFollowUp['release'] = async () => {
+  throw new Error('Release was not configured for this test');
 };
