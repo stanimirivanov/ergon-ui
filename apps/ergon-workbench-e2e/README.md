@@ -27,6 +27,13 @@ select another loopback port. The preview server supports range requests for
 video, rejects path escape, and serves no external scripts. Do not commit
 generated screenshots, recordings, manifests, or rendered pages.
 
+The `User guide artifact` GitHub Actions workflow runs on pull requests and
+`main` pushes (or manually). Download its `simulated-user-guide-*` artifact
+from the workflow run to review the rendered book before any future publication
+decision. The artifact expires after seven days; the workflow has read-only
+repository permission and no Pages deployment or production credentials. A
+failed recording uploads available guide and Playwright evidence separately.
+
 ## Content and trust boundary
 
 The reader-facing chapter definition is co-located with the browser scenario
@@ -57,5 +64,5 @@ inside this `type:test` project and adds no browser-bundle dependency.
 A failed browser scenario removes its incomplete chapter directory and retains
 the normal Playwright failure artifacts. The assembler runs only after all
 tagged scenarios pass. The guide scripts do not start, reset, or mutate a
-shared database. A live guide environment, CI artifact, and publication
-workflow are outside this slice.
+shared database. A live guide environment and publication workflow remain out
+of scope. The CI artifact has the same synthetic trust boundary as local output.

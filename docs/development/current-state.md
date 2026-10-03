@@ -43,7 +43,8 @@ animation, requester app, or native app.
   ESLint project boundaries, Prettier, Vitest, and Playwright;
 - a local executable guide for the simulated claim, evidence-review, and
   release workflow, with annotated screenshots, video, substantive recovery
-  guidance, and validated Markdown/static HTML output;
+  guidance, and validated Markdown/static HTML output; CI also uploads it as
+  an expiring review artifact without publishing it;
 - a capability-located session model plus a cancellation-aware current-actor
   client owned by session web data access, with no ceremonial application
   project;
@@ -79,7 +80,7 @@ animation, requester app, or native app.
   is no completion, resolution, reassignment, or dedicated case route yet.
 - The BFF session contains no provider subject, and none is cached or shown.
 - No production deployment configuration or ingress exists.
-- The local guide uses synthetic BFF responses; no live OIDC, database-backed
+- The guide uses synthetic BFF responses; no live OIDC, database-backed
   browser guide environment or publication pipeline exists yet.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.

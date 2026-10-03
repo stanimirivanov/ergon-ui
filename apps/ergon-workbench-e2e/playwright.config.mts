@@ -29,8 +29,8 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL,
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    // Guide mode has no retries, so retain its failed first-attempt trace.
+    trace: recordsUserGuides ? 'retain-on-failure' : 'on-first-retry',
   },
   /* Run your local dev server before starting the tests */
   webServer: {
