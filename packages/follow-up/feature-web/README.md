@@ -12,7 +12,8 @@ out of the deployable app and domain-agnostic UI primitives.
 - Resolver-owned pagination and lazy case-context disclosure, including a fresh
   ownership check on reopening and hiding prior evidence during revalidation.
 - Confirmed owned-claim release, explicit same-tuple retry after uncertainty,
-  and closing case disclosure before release submission.
+  closing case disclosure before release submission, and retiring success
+  feedback when a later server-observed ownership revision supersedes it.
 - Follow-up workspace introduction and composition of the two work views.
 - Translation of typed follow-up failures into resolver-facing copy.
 - Accessible follow-up-specific interaction and rendering.

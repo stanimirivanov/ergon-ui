@@ -9,7 +9,7 @@ import {
   useHumanFollowUpsQuery,
 } from '@ergon/follow-up-data-access-web';
 import { Button } from '@ergon/ui-web';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   normalizeFollowUpClaimFailure,
@@ -50,6 +50,21 @@ export function HumanFollowUpInboxPage({
   };
   const followUps = useHumanFollowUpsQuery(query);
 
+  useEffect(() => {
+    // Server-observed revisions supersede local success feedback; a page change
+    // alone must not retire a claim whose later state has not been observed.
+    if (
+      claimNotice?.kind === 'success' &&
+      followUps.data?.items.some(
+        (item) =>
+          item.workItemId === claimNotice.workItemId &&
+          item.ownershipRevision > claimNotice.ownershipRevision,
+      )
+    ) {
+      setClaimNotice(undefined);
+    }
+  }, [claimNotice, followUps.data]);
+
   async function claim(item: HumanFollowUpWorkItem): Promise<void> {
     return submitClaim(item, {
       tenantId,
@@ -67,7 +82,11 @@ export function HumanFollowUpInboxPage({
     const result = await claimHumanFollowUp(command);
     setClaimNotice(
       'data' in result
-        ? { kind: 'success' }
+        ? {
+            kind: 'success',
+            workItemId: command.workItemId,
+            ownershipRevision: command.expectedOwnershipRevision + 1,
+          }
         : {
             kind: 'failure',
             item,

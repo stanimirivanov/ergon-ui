@@ -32,14 +32,16 @@ export function successfulOpenFollowUpResult(
 export function successfulOwnedFollowUpResult(
   workItemId: string,
   nextCursor: ResolverOwnedHumanFollowUpCursor | null,
+  ownershipRevision = 1,
+  claimId = followUpClaim(workItemId).claimId,
 ): ResolverOwnedHumanFollowUpResult {
   return {
     ok: true,
     page: {
       items: [
         {
-          workItem: { ...followUpWorkItem(workItemId), ownershipRevision: 1 },
-          claim: followUpClaim(workItemId),
+          workItem: { ...followUpWorkItem(workItemId), ownershipRevision },
+          claim: { ...followUpClaim(workItemId), claimId },
         },
       ],
       nextCursor,

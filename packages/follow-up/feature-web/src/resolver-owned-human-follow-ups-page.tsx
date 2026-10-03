@@ -9,7 +9,7 @@ import {
 } from '@ergon/follow-up-data-access-web';
 import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-model';
 import { Button } from '@ergon/ui-web';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   normalizeFollowUpReadFailure,
@@ -48,6 +48,21 @@ export function ResolverOwnedHumanFollowUpsPage({
   };
   const ownedWork = useResolverOwnedHumanFollowUpsQuery(query);
 
+  useEffect(() => {
+    // A later claim can return this work to the owned list. Its server revision
+    // retires feedback about the earlier release, even across cached pages.
+    if (
+      releaseNotice?.kind === 'success' &&
+      ownedWork.data?.items.some(
+        (item) =>
+          item.workItem.workItemId === releaseNotice.workItemId &&
+          item.workItem.ownershipRevision > releaseNotice.ownershipRevision,
+      )
+    ) {
+      setReleaseNotice(undefined);
+    }
+  }, [releaseNotice, ownedWork.data]);
+
   async function release(item: ResolverOwnedHumanFollowUpWork): Promise<void> {
     return submitRelease({
       tenantId,
@@ -62,8 +77,13 @@ export function ResolverOwnedHumanFollowUpsPage({
   ): Promise<void> {
     setReleaseNotice(undefined);
     const result = await releaseHumanFollowUp(command);
-    if ('data' in result) {
-      setReleaseNotice({ kind: 'success', claimId: command.claimId });
+    if (result.data !== undefined) {
+      setReleaseNotice({
+        kind: 'success',
+        claimId: command.claimId,
+        workItemId: command.workItemId,
+        ownershipRevision: result.data.ownershipRevision,
+      });
       setPosition({ history: [] });
     } else {
       setReleaseNotice({
