@@ -1,5 +1,6 @@
 export type {
   HumanFollowUpClaim,
+  HumanFollowUpRelease,
   HumanFollowUpWorkItem,
   ResolverOwnedHumanFollowUpWork,
 } from './human-follow-up';

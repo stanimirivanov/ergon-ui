@@ -8,8 +8,11 @@ import type {
   HumanFollowUpFailure,
   HumanFollowUpPage,
   HumanFollowUpQuery,
+  HumanFollowUpReleaseCommand,
+  HumanFollowUpReleaseFailure,
   ListOpenHumanFollowUps,
   ListOwnedHumanFollowUps,
+  ReleaseHumanFollowUp,
   ResolverOwnedHumanFollowUpPage,
   ResolverOwnedHumanFollowUpQuery,
   ResolverFollowUpCaseSummaryFailure,
@@ -17,6 +20,7 @@ import type {
 } from '../client';
 import type {
   HumanFollowUpClaim,
+  HumanFollowUpRelease,
   ResolverFollowUpCaseSummary,
 } from '@ergon/follow-up-model';
 
@@ -31,6 +35,7 @@ export interface HumanFollowUpCacheDependencies {
   readonly listOwnedHumanFollowUps: ListOwnedHumanFollowUps;
   readonly getOwnedFollowUpCaseSummary: GetOwnedFollowUpCaseSummary;
   readonly claimHumanFollowUp: ClaimHumanFollowUp;
+  readonly releaseHumanFollowUp: ReleaseHumanFollowUp;
 }
 
 /**
@@ -48,6 +53,7 @@ export const humanFollowUpApi = createApi({
   baseQuery: fakeBaseQuery<
     | HumanFollowUpFailure
     | HumanFollowUpClaimFailure
+    | HumanFollowUpReleaseFailure
     | ResolverFollowUpCaseSummaryFailure
   >(),
   tagTypes: [
@@ -124,12 +130,50 @@ export const humanFollowUpApi = createApi({
           : [];
       },
     }),
+    releaseHumanFollowUp: build.mutation<
+      HumanFollowUpRelease,
+      HumanFollowUpReleaseCommand
+    >({
+      async queryFn(command, queryApi) {
+        const capability = releaseHumanFollowUpFrom(queryApi.extra);
+        const result = await capability.release(command, queryApi.signal);
+        return result.ok ? { data: result.release } : { error: result.error };
+      },
+      invalidatesTags: (result, error, command) => {
+        if (result !== undefined) {
+          return [
+            { type: 'HumanFollowUpInbox' as const, id: command.tenantId },
+            {
+              type: 'ResolverOwnedHumanFollowUps' as const,
+              id: command.tenantId,
+            },
+            {
+              type: 'ResolverFollowUpCaseSummary' as const,
+              id: `${command.tenantId}:${command.workItemId}`,
+            },
+          ];
+        }
+        return invalidatesStaleOwnedWork(error)
+          ? [
+              {
+                type: 'ResolverOwnedHumanFollowUps' as const,
+                id: command.tenantId,
+              },
+              {
+                type: 'ResolverFollowUpCaseSummary' as const,
+                id: `${command.tenantId}:${command.workItemId}`,
+              },
+            ]
+          : [];
+      },
+    }),
   }),
 });
 
 export const {
   useClaimHumanFollowUpMutation,
   useHumanFollowUpsQuery,
+  useReleaseHumanFollowUpMutation,
   useResolverFollowUpCaseSummaryQuery,
   useResolverOwnedHumanFollowUpsQuery,
 } = humanFollowUpApi;
@@ -226,12 +270,43 @@ function isClaimHumanFollowUp(value: unknown): value is ClaimHumanFollowUp {
   );
 }
 
-function invalidatesStaleInbox(
-  error: HumanFollowUpFailure | HumanFollowUpClaimFailure | undefined,
-): boolean {
+function releaseHumanFollowUpFrom(extra: unknown): ReleaseHumanFollowUp {
+  if (
+    typeof extra === 'object' &&
+    extra !== null &&
+    'releaseHumanFollowUp' in extra &&
+    isReleaseHumanFollowUp(extra.releaseHumanFollowUp)
+  ) {
+    return extra.releaseHumanFollowUp;
+  }
+  throw new Error('Release follow-up capability is not configured');
+}
+
+function isReleaseHumanFollowUp(value: unknown): value is ReleaseHumanFollowUp {
   return (
-    error?.kind === 'already-claimed' ||
-    error?.kind === 'ownership-revision-conflict' ||
-    error?.kind === 'not-found'
+    typeof value === 'object' &&
+    value !== null &&
+    'release' in value &&
+    typeof value.release === 'function'
+  );
+}
+
+function invalidatesStaleOwnedWork(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'kind' in error &&
+    (error.kind === 'not-found' || error.kind === 'ownership-revision-conflict')
+  );
+}
+
+function invalidatesStaleInbox(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'kind' in error &&
+    (error.kind === 'already-claimed' ||
+      error.kind === 'ownership-revision-conflict' ||
+      error.kind === 'not-found')
   );
 }

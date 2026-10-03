@@ -14,6 +14,8 @@ Own confidential-browser BFF execution and follow-up remote-cache integration.
   pairing and ownership-revision refinement before remote caching.
 - Revision-checked claim command construction and echoed-receipt validation;
   the command POST is never automatically retried.
+- Exact-claim release construction, receipt validation, typed failure mapping,
+  and targeted work/context invalidation using the same CSRF token lifecycle.
 - Bounded read retries, per-request timeouts, and cancellation conversion.
 - The in-memory, session-bound CSRF token lifecycle for claim commands,
   including single-flight acquisition and compare-and-clear invalidation.

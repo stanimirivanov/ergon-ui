@@ -73,6 +73,7 @@ test('reveals visible follow-up work after the BFF session is verified', async (
   page,
 }) => {
   let claimed = false;
+  let ownershipRevision = 0;
   let submittedCsrfToken: string | undefined;
   await page.route('**/bff/v1/tenants/*/session', async (route) => {
     await route.fulfill({
@@ -102,7 +103,7 @@ test('reveals visible follow-up work after the BFF session is verified', async (
                 reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
                 queueKey: 'access-restoration',
                 status: 'OPEN',
-                ownershipRevision: 0,
+                ownershipRevision,
                 openedAt: '2026-09-21T09:30:00Z',
                 recordedAt: '2026-09-21T09:30:01Z',
               },
@@ -129,7 +130,7 @@ test('reveals visible follow-up work after the BFF session is verified', async (
                     reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
                     queueKey: 'access-restoration',
                     status: 'OPEN',
-                    ownershipRevision: 1,
+                    ownershipRevision,
                     openedAt: '2026-09-21T09:30:00Z',
                     recordedAt: '2026-09-21T09:30:01Z',
                   },
@@ -240,6 +241,7 @@ test('reveals visible follow-up work after the BFF session is verified', async (
       expect(command.commandId).toMatch(/^[0-9a-f-]{36}$/);
       expect(command.expectedOwnershipRevision).toBe(0);
       claimed = true;
+      ownershipRevision = 1;
       await route.fulfill({
         status: 201,
         contentType: 'application/json',
@@ -252,6 +254,30 @@ test('reveals visible follow-up work after the BFF session is verified', async (
             claimedAt: '2026-09-22T10:15:00Z',
             recordedAt: '2026-09-22T10:15:01Z',
           },
+        }),
+      });
+    },
+  );
+  await page.route(
+    '**/bff/v1/tenants/*/human-follow-ups/*/claims/*/release',
+    async (route) => {
+      expect(route.request().headers()['x-csrf-token']).toBe(
+        'browser-session-token',
+      );
+      expect(route.request().postDataJSON()).toEqual({
+        expectedOwnershipRevision: 1,
+      });
+      claimed = false;
+      ownershipRevision = 2;
+      await route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          claimId: '77777777-7777-4777-8777-777777777777',
+          workItemId: '11111111-1111-4111-8111-111111111111',
+          ownershipRevision,
+          releasedAt: '2026-09-22T11:00:00Z',
+          recordedAt: '2026-09-22T11:00:01Z',
         }),
       });
     },
@@ -314,6 +340,40 @@ test('reveals visible follow-up work after the BFF session is verified', async (
   ).toBeVisible();
   await expect(page.getByText('identity-stub', { exact: true })).toBeVisible();
   await expect(page.getByText('2 of 2', { exact: true })).toBeVisible();
+
+  await page
+    .getByRole('button', {
+      name: 'Release Retry attempt limit reached follow-up',
+    })
+    .click();
+  await expect(
+    page.getByText(
+      'Releasing returns this work to its original shared queue. It does not complete the case.',
+    ),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Confirm release' }).click();
+  await expect(
+    page.getByRole('status', { name: 'Follow-up released' }),
+  ).toBeVisible();
+  await expect(
+    page.getByText('The sign-in link returns an expired-token message.'),
+  ).toHaveCount(0);
+  await expect(
+    page
+      .getByRole('region', { name: 'Claimed follow-ups' })
+      .getByRole('heading', {
+        level: 3,
+        name: 'No active claimed work in this view.',
+      }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole('region', { name: 'Open follow-up work' })
+      .getByRole('heading', {
+        level: 3,
+        name: 'Retry attempt limit reached',
+      }),
+  ).toBeVisible();
 
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);

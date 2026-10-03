@@ -40,18 +40,13 @@ export type ResolverFollowUpCaseSummaryFailure =
  * and `not-found` covers a no-longer-visible item. Raw causes are omitted
  * so results remain safe for presentation and Redux state.
  */
-export type HumanFollowUpClaimFailure =
+export type HumanFollowUpCommandFailure =
   | { readonly kind: 'authentication-required' }
   | { readonly kind: 'authentication-unavailable' }
   | { readonly kind: 'actor-not-registered' }
   | { readonly kind: 'identity-rejected' }
   | { readonly kind: 'resolver-authority-required' }
   | { readonly kind: 'csrf-rejected' }
-  | { readonly kind: 'already-claimed' }
-  | { readonly kind: 'ownership-revision-conflict' }
-  | { readonly kind: 'claim-command-conflict' }
-  | { readonly kind: 'invalid-claim-command' }
-  | { readonly kind: 'not-found' }
   | { readonly kind: 'forbidden' }
   | { readonly kind: 'timeout' }
   | { readonly kind: 'transport' }
@@ -59,3 +54,19 @@ export type HumanFollowUpClaimFailure =
   | { readonly kind: 'unexpected-response'; readonly status: number }
   | { readonly kind: 'invalid-response' }
   | { readonly kind: 'request-cancelled' };
+
+export type HumanFollowUpClaimFailure =
+  | HumanFollowUpCommandFailure
+  | { readonly kind: 'already-claimed' }
+  | { readonly kind: 'ownership-revision-conflict' }
+  | { readonly kind: 'claim-command-conflict' }
+  | { readonly kind: 'invalid-claim-command' }
+  | { readonly kind: 'not-found' };
+
+/** Release-specific failures preserve stale, unavailable, and non-disclosing outcomes. */
+export type HumanFollowUpReleaseFailure =
+  | HumanFollowUpCommandFailure
+  | { readonly kind: 'ownership-revision-conflict' }
+  | { readonly kind: 'invalid-release-command' }
+  | { readonly kind: 'release-unavailable' }
+  | { readonly kind: 'not-found' };

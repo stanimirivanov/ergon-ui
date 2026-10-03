@@ -1,6 +1,8 @@
 import type {
   HumanFollowUpClaimFailure,
+  HumanFollowUpCommandFailure,
   HumanFollowUpFailure,
+  HumanFollowUpReleaseFailure,
   ResolverFollowUpCaseSummaryFailure,
 } from '../client';
 
@@ -94,10 +96,10 @@ const READ_PROBLEM_FAILURES: ReadonlyMap<
   ],
 ]);
 
-const CLAIM_PROBLEM_FAILURES: ReadonlyMap<
+const COMMAND_PROBLEM_FAILURES: ReadonlyMap<
   string,
-  ProblemFailureFactory<HumanFollowUpClaimFailure>
-> = new Map<string, ProblemFailureFactory<HumanFollowUpClaimFailure>>([
+  ProblemFailureFactory<HumanFollowUpCommandFailure>
+> = new Map<string, ProblemFailureFactory<HumanFollowUpCommandFailure>>([
   ...SHARED_PROBLEM_FAILURES,
   [
     problemKey(403, 'urn:ergon:problem:invalid-browser-csrf-token'),
@@ -110,6 +112,13 @@ const CLAIM_PROBLEM_FAILURES: ReadonlyMap<
     ),
     () => ({ kind: 'resolver-authority-required' }),
   ],
+]);
+
+const CLAIM_PROBLEM_FAILURES: ReadonlyMap<
+  string,
+  ProblemFailureFactory<HumanFollowUpClaimFailure>
+> = new Map<string, ProblemFailureFactory<HumanFollowUpClaimFailure>>([
+  ...COMMAND_PROBLEM_FAILURES,
   [
     problemKey(409, 'urn:ergon:problem:human-follow-up-already-claimed'),
     () => ({ kind: 'already-claimed' }),
@@ -132,6 +141,35 @@ const CLAIM_PROBLEM_FAILURES: ReadonlyMap<
   [
     problemKey(404, 'urn:ergon:problem:human-follow-up-work-item-not-found'),
     () => ({ kind: 'not-found' }),
+  ],
+]);
+
+const RELEASE_PROBLEM_FAILURES: ReadonlyMap<
+  string,
+  ProblemFailureFactory<HumanFollowUpReleaseFailure>
+> = new Map<string, ProblemFailureFactory<HumanFollowUpReleaseFailure>>([
+  ...COMMAND_PROBLEM_FAILURES,
+  [
+    problemKey(404, 'urn:ergon:problem:human-follow-up-release-not-found'),
+    () => ({ kind: 'not-found' }),
+  ],
+  [
+    problemKey(
+      409,
+      'urn:ergon:problem:human-follow-up-ownership-revision-conflict',
+    ),
+    () => ({ kind: 'ownership-revision-conflict' }),
+  ],
+  [
+    problemKey(
+      400,
+      'urn:ergon:problem:invalid-human-follow-up-release-command',
+    ),
+    () => ({ kind: 'invalid-release-command' }),
+  ],
+  [
+    problemKey(503, 'urn:ergon:problem:human-follow-up-release-unavailable'),
+    () => ({ kind: 'release-unavailable' }),
   ],
 ]);
 
@@ -193,6 +231,28 @@ export function mapClaimHttpFailure(
 ): HumanFollowUpClaimFailure {
   return (
     lookupProblemFailure(CLAIM_PROBLEM_FAILURES, status, problem) ??
+    mapStatusFailure(status)
+  );
+}
+
+/** Classifies CSRF acquisition without admitting claim- or release-only failures. */
+export function mapCsrfHttpFailure(
+  status: number,
+  problem?: ProblemDetail,
+): HumanFollowUpCommandFailure {
+  return (
+    lookupProblemFailure(COMMAND_PROBLEM_FAILURES, status, problem) ??
+    mapStatusFailure(status)
+  );
+}
+
+/** Maps a release response without disclosing a different owner or stale claim. */
+export function mapReleaseHttpFailure(
+  status: number,
+  problem?: ProblemDetail,
+): HumanFollowUpReleaseFailure {
+  return (
+    lookupProblemFailure(RELEASE_PROBLEM_FAILURES, status, problem) ??
     mapStatusFailure(status)
   );
 }
@@ -263,7 +323,7 @@ export function isRetryableReadFailure(
  * Timeouts are deliberately excluded to keep claim setup latency bounded.
  */
 export function isRetryableClaimSetupFailure(
-  failure: HumanFollowUpClaimFailure,
+  failure: HumanFollowUpCommandFailure,
 ): boolean {
   return failure.kind === 'transport' || failure.kind === 'service-unavailable';
 }

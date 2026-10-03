@@ -164,6 +164,7 @@ const emptyFollowUpDependencies: Pick<
   | 'listOwnedHumanFollowUps'
   | 'getOwnedFollowUpCaseSummary'
   | 'claimHumanFollowUp'
+  | 'releaseHumanFollowUp'
 > = {
   listOpenHumanFollowUps: {
     async listOpen() {
@@ -183,6 +184,11 @@ const emptyFollowUpDependencies: Pick<
   claimHumanFollowUp: {
     async claim() {
       throw new Error('Claiming is not used by this test');
+    },
+  },
+  releaseHumanFollowUp: {
+    async release() {
+      throw new Error('Release is not used by this test');
     },
   },
 };

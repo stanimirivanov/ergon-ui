@@ -1,5 +1,6 @@
 import type {
   HumanFollowUpClaimCommand,
+  HumanFollowUpReleaseCommand,
   HumanFollowUpQuery,
   ResolverFollowUpCaseSummaryQuery,
   ResolverOwnedHumanFollowUpQuery,
@@ -44,4 +45,9 @@ export function caseSummaryUrl(
 /** Builds the revision-checked claim-command URL for one visible work item. */
 export function claimUrl(command: HumanFollowUpClaimCommand): string {
   return `/bff/v1/tenants/${encodeURIComponent(command.tenantId)}/human-follow-ups/${encodeURIComponent(command.workItemId)}/claim-commands`;
+}
+
+/** Builds the exact-claim release URL from opaque identifiers. */
+export function releaseUrl(command: HumanFollowUpReleaseCommand): string {
+  return `/bff/v1/tenants/${encodeURIComponent(command.tenantId)}/human-follow-ups/${encodeURIComponent(command.workItemId)}/claims/${encodeURIComponent(command.claimId)}/release`;
 }

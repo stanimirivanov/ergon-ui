@@ -56,6 +56,16 @@ export function followUpClaim(workItemId: string): HumanFollowUpClaim {
   };
 }
 
+export function followUpRelease(workItemId: string) {
+  return {
+    claimId: followUpClaim(workItemId).claimId,
+    workItemId,
+    ownershipRevision: 2,
+    releasedAt: '2026-09-22T11:00:00Z',
+    recordedAt: '2026-09-22T11:00:01Z',
+  };
+}
+
 export function resolverFollowUpCaseSummary(
   workItemId: string,
   content: string,
