@@ -30,6 +30,8 @@ The first foundation provides:
   pinned resolution contract, escalated run, bounded observation evidence,
   failed connector execution, and exhausted retry decision;
 - Vitest component tests and a Chromium Playwright smoke path;
+- a [local executable follow-up guide](apps/ergon-workbench-e2e/README.md)
+  generated from that browser path with explicitly simulated BFF data;
 - enforced capability-first project roles and an accepted application-topology
   decision; and
 - a progressively routed contributor harness with repository and architecture

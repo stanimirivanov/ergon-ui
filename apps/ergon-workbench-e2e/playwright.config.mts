@@ -4,6 +4,7 @@ import { workspaceRoot } from '@nx/devkit';
 
 // For CI, you may want to set BASE_URL to the deployed application.
 const baseURL = process.env['BASE_URL'] || 'http://localhost:4300';
+const recordsUserGuides = process.env['ERGON_E2E_MODE'] === 'user-guide';
 
 /**
  * Read environment variables from file.
@@ -23,6 +24,8 @@ const baseURL = process.env['BASE_URL'] || 'http://localhost:4300';
  */
 export default defineConfig({
   ...nxE2EPreset(import.meta.dirname, { testDir: './src' }),
+  timeout: recordsUserGuides ? 180_000 : 60_000,
+  ...(recordsUserGuides ? { workers: 1, retries: 0 } : {}),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL,
@@ -33,7 +36,7 @@ export default defineConfig({
   webServer: {
     command: 'pnpm exec nx run @ergon/workbench:preview',
     url: 'http://localhost:4300',
-    reuseExistingServer: true,
+    reuseExistingServer: !recordsUserGuides,
     cwd: workspaceRoot,
   },
   projects: [
