@@ -2,11 +2,12 @@
 
 ## TL;DR
 
-The tagged follow-up scenario is an ordinary assertion-first Playwright test in
-`pnpm e2e`. `pnpm guide:generate` reruns that same scenario with annotations,
-screenshots, and video, then assembles a local Markdown and static HTML guide.
-Its BFF responses and case data are simulated; the result is **not** a live
-backend or OIDC verification and is not published.
+The tagged access-state and follow-up scenarios are ordinary assertion-first
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns both with
+annotations, screenshots, and video, then assembles a local two-chapter
+Markdown and static HTML guide. Their BFF responses and case data are
+simulated; the result is **not** a live backend or OIDC verification and is not
+published.
 
 ## Commands
 
@@ -45,13 +46,15 @@ chapter too thin to explain a multi-step workflow. These checks are a floor,
 not a substitute for reviewing the rendered prose and screenshots for clarity
 and accuracy.
 
-The current scenario uses Playwright route responses for a synthetic resolver,
-case, and follow-up. It verifies real browser UI interactions, CSRF header
-submission, claim/release revisions, evidence disclosure, and accessibility
-against those fixtures. It does not verify a real provider, control plane,
-database, or authorization decision. Keep that distinction visible in the
-chapter and index. A later disposable full-stack environment is required
-before calling any generated chapter an operational guide.
+The access chapter compares mutually exclusive synthetic session states; the
+recording swaps fixture responses between reloads and never performs a real
+login. It verifies the safe local sign-in path, failure-state non-disclosure,
+and retry into a simulated verified session. The follow-up chapter uses a
+synthetic resolver, case, and follow-up to verify browser claim/release,
+evidence disclosure, and accessibility. Neither chapter verifies a real
+provider, control plane, database, or authorization decision. Keep that
+distinction visible in each chapter and the index. A later disposable
+full-stack environment is required before calling either an operational guide.
 
 Recording mode blocks service workers and permits only local preview documents
 and static assets to reach the preview server. The synthetic BFF routes must
