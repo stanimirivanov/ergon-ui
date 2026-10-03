@@ -18,7 +18,7 @@
     "typecheck": "nx run-many -t typecheck",
     "test": "nx run-many -t test",
     "e2e": "nx e2e @ergon/workbench-e2e",
-    "guide:check": "node --test tools/user-guide/book.test.mjs",
+    "guide:check": "node --test tools/user-guide/book.test.mjs tools/user-guide/workflow.test.mjs",
     "guide:generate": "node tools/user-guide/generate.mjs",
     "guide:preview": "node tools/user-guide/preview.mjs",
     "verify:workspace": "pnpm format:check && pnpm guide:check && pnpm nx run-many -t lint typecheck test build",

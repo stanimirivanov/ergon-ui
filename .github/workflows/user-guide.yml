@@ -1,0 +1,66 @@
+name: User guide artifact
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: user-guide-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    name: Generate simulated user guide
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.16.0
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium and system dependencies
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Generate and validate the simulated guide
+        run: pnpm guide:generate
+
+      - name: Upload review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulated-user-guide-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist/user-guide
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: user-guide-failure-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            dist/user-guide
+            test-output/playwright
+          if-no-files-found: ignore
+          retention-days: 7
