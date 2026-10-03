@@ -3,6 +3,10 @@ import { expect, test as base } from '@playwright/test';
 
 import { followUpGuide } from './guide/follow-up-guide';
 import { installSimulatedFollowUpBff } from './guide/simulated-follow-up-bff';
+import {
+  installSimulatedGuideNetworkBoundary,
+  SIMULATED_BFF_HEADER,
+} from './guide/simulated-guide-network-boundary';
 import { UserGuideSession } from './guide/user-guide-session';
 
 const test = base.extend<{ guide: UserGuideSession }>({
@@ -87,6 +91,66 @@ test('offers the local BFF sign-in path without revealing tenant work', async ({
   );
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
+});
+
+test('simulated guide traffic stays inside its fixture boundary', async ({
+  browser,
+  baseURL,
+}) => {
+  const previewURL = baseURL ?? 'http://localhost:4300';
+  const context = await browser.newContext({
+    baseURL: previewURL,
+    serviceWorkers: 'block',
+  });
+  try {
+    const boundary = await installSimulatedGuideNetworkBoundary(
+      context,
+      new URL(previewURL).origin,
+    );
+    const page = await context.newPage();
+    await page.route('**/bff/fixture', (route) =>
+      route.fulfill({
+        status: 200,
+        headers: { [SIMULATED_BFF_HEADER]: 'simulated-bff' },
+        body: 'simulated',
+      }),
+    );
+    await page.route('**/bff/unmarked', (route) =>
+      route.fulfill({ status: 200, body: 'unmarked' }),
+    );
+    await page.goto('/');
+    await expect(page.getByText('Session gate ready')).toBeVisible();
+    expect(
+      await page.evaluate(async () => (await fetch('/bff/fixture')).text()),
+    ).toBe('simulated');
+    await expect(
+      boundary.assertNoUnexpectedRequests(),
+    ).resolves.toBeUndefined();
+
+    const failures = await page.evaluate(async () =>
+      Promise.all(
+        [
+          '/bff/unmocked',
+          '/internal/v1/unexpected',
+          'https://example.invalid/unexpected',
+        ].map((url) =>
+          fetch(url).then(
+            () => false,
+            () => true,
+          ),
+        ),
+      ),
+    );
+    expect(failures).toEqual([true, true, true]);
+    expect(
+      await page.evaluate(async () => (await fetch('/bff/unmarked')).text()),
+    ).toBe('unmarked');
+    await expect(boundary.assertNoUnexpectedRequests()).rejects.toThrow(
+      /GET \/bff\/unmarked, GET \/bff\/unmocked, GET \/internal\/v1\/unexpected, GET https:\/\/example\.invalid\/unexpected/u,
+    );
+  } finally {
+    await context.close();
+  }
 });
 
 test(

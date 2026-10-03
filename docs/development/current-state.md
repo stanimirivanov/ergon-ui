@@ -44,7 +44,8 @@ animation, requester app, or native app.
 - a local executable guide for the simulated claim, evidence-review, and
   release workflow, with annotated screenshots, video, substantive recovery
   guidance, and validated Markdown/static HTML output; CI also uploads it as
-  an expiring review artifact without publishing it;
+  an expiring review artifact without publishing it, and recording fails on
+  unexpected HTTP(S) traffic or unmarked synthetic BFF responses;
 - a capability-located session model plus a cancellation-aware current-actor
   client owned by session web data access, with no ceremonial application
   project;

@@ -1,5 +1,7 @@
 import { expect, type Page, type Route } from '@playwright/test';
 
+import { SIMULATED_BFF_HEADER } from './simulated-guide-network-boundary';
+
 const workItemId = '11111111-1111-4111-8111-111111111111';
 const caseId = '22222222-2222-4222-8222-222222222222';
 const runId = '33333333-3333-4333-8333-333333333333';
@@ -93,6 +95,7 @@ async function fulfillJson(
   await route.fulfill({
     status,
     contentType: 'application/json',
+    headers: { [SIMULATED_BFF_HEADER]: 'simulated-bff' },
     body: JSON.stringify(body),
   });
 }

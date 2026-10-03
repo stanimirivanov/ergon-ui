@@ -53,6 +53,14 @@ database, or authorization decision. Keep that distinction visible in the
 chapter and index. A later disposable full-stack environment is required
 before calling any generated chapter an operational guide.
 
+Recording mode blocks service workers and permits only local preview documents
+and static assets to reach the preview server. The synthetic BFF routes must
+fulfill their responses with a fixture marker. An unmatched request, external
+HTTP(S) request, or unmarked BFF response fails generation even if the browser
+UI recovers; request diagnostics omit query values. This guards the simulated
+artifact against accidental live-data capture, but it is not a substitute for
+reviewing test routes and generated media before sharing an artifact.
+
 The generator and static-book layout adapt the
 [Omoikane user-guide pattern](https://github.com/stanimirivanov/chat-hub-99);
 Ergon owns the richer content
