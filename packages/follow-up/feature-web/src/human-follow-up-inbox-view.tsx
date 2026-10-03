@@ -16,7 +16,11 @@ const openedAtFormatter = new Intl.DateTimeFormat('en-GB', {
 });
 
 export type ClaimNotice =
-  | { readonly kind: 'success' }
+  | {
+      readonly kind: 'success';
+      readonly workItemId: string;
+      readonly ownershipRevision: number;
+    }
   | {
       readonly kind: 'failure';
       readonly item: HumanFollowUpWorkItem;
@@ -240,7 +244,7 @@ function ClaimResultNotice({
       >
         <p className="font-bold text-ink">Follow-up claimed.</p>
         <p className="mt-1 text-sm leading-6 text-ink-muted">
-          Ownership was recorded. The shared inbox is refreshing now.
+          Ownership was recorded for that claim.
         </p>
       </div>
     );

@@ -17,7 +17,12 @@ const claimedAtFormatter = new Intl.DateTimeFormat('en-GB', {
 });
 
 export type ReleaseNotice =
-  | { readonly kind: 'success'; readonly claimId: string }
+  | {
+      readonly kind: 'success';
+      readonly claimId: string;
+      readonly workItemId: string;
+      readonly ownershipRevision: number;
+    }
   | {
       readonly kind: 'failure';
       readonly command: HumanFollowUpReleaseCommand;
@@ -266,7 +271,7 @@ function ReleaseResultNotice({
       >
         <p className="font-bold text-ink">Follow-up released.</p>
         <p className="mt-1 text-sm leading-6 text-ink-muted">
-          The shared inbox and your active work are refreshing.
+          That claim was released back to its shared queue.
         </p>
       </div>
     );

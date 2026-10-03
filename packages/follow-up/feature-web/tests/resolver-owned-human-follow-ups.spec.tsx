@@ -141,6 +141,96 @@ describe('resolver-owned human follow-ups', () => {
     expect(await screen.findByText('22 Sept 2026, 10:15 UTC')).toBeTruthy();
   });
 
+  it('retires success feedback when a later ownership revision supersedes it', async () => {
+    let ownershipRevision = 0;
+    const listOpen = vi.fn<ListOpenHumanFollowUps['listOpen']>(async () =>
+      ownershipRevision % 2 === 0
+        ? successfulOpenFollowUpResult(
+            FIRST_WORK_ITEM_ID,
+            null,
+            ownershipRevision,
+          )
+        : { ok: true, page: { items: [], nextCursor: null } },
+    );
+    const listOwned = vi.fn<ListOwnedHumanFollowUps['listOwned']>(async () =>
+      ownershipRevision % 2 === 1
+        ? successfulOwnedFollowUpResult(
+            FIRST_WORK_ITEM_ID,
+            null,
+            ownershipRevision,
+            '99999999-9999-4999-8999-999999999999',
+          )
+        : { ok: true, page: { items: [], nextCursor: null } },
+    );
+    const claim = vi.fn<ClaimHumanFollowUp['claim']>(async (command) => {
+      ownershipRevision = command.expectedOwnershipRevision + 1;
+      return { ok: true, claim: followUpClaim(command.workItemId) };
+    });
+    const release = vi.fn<ReleaseHumanFollowUp['release']>(async () => {
+      ownershipRevision = 2;
+      return { ok: true, release: followUpRelease(FIRST_WORK_ITEM_ID) };
+    });
+    const store = createFollowUpTestStore({
+      listOpen,
+      listOwned,
+      claim,
+      release,
+    });
+    render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <ResolverOwnedHumanFollowUps
+            tenantId={TENANT_ID}
+            signInHref={SIGN_IN_HREF}
+          />
+          <HumanFollowUpInbox tenantId={TENANT_ID} signInHref={SIGN_IN_HREF} />
+        </MemoryRouter>
+      </Provider>,
+    );
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Claim Retry attempt limit reached follow-up',
+      }),
+    );
+    expect(
+      await screen.findByRole('status', { name: 'Follow-up claimed' }),
+    ).toBeTruthy();
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Release Retry attempt limit reached follow-up',
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm release' }));
+
+    expect(
+      await screen.findByRole('status', { name: 'Follow-up released' }),
+    ).toBeTruthy();
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('status', { name: 'Follow-up claimed' }),
+      ).toBeNull(),
+    );
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Claim Retry attempt limit reached follow-up',
+      }),
+    );
+
+    await waitFor(() => expect(claim).toHaveBeenCalledTimes(2));
+    expect(claim.mock.calls[1]?.[0].expectedOwnershipRevision).toBe(2);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('status', { name: 'Follow-up released' }),
+      ).toBeNull(),
+    );
+    expect(
+      await screen.findByRole('button', {
+        name: 'Release Retry attempt limit reached follow-up',
+      }),
+    ).toHaveProperty('disabled', false);
+  });
+
   it('requires confirmation and releases the exact visible claim', async () => {
     const listOwned = vi
       .fn<ListOwnedHumanFollowUps['listOwned']>()
