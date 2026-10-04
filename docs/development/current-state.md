@@ -45,10 +45,10 @@ animation, requester app, or native app.
   shared-inbox pagination and filtering, the claim and release workflow,
   owned-case-context revalidation, competing or uncertain claim recovery, and
   disabled or uncertain release recovery, with annotated screenshots, video,
-  recovery guidance, and validated Markdown/static HTML output; CI
-  uploads them as an expiring review artifact without publishing them, and
-  recording fails on unexpected HTTP(S) traffic or unmarked synthetic BFF
-  responses;
+  recovery guidance, and validated Markdown/static HTML output; CI uploads
+  them as an expiring review artifact and has a `main`-only GitHub Pages
+  publication job; recording fails on unexpected HTTP(S) traffic or unmarked
+  synthetic BFF responses;
 - a capability-located session model plus a cancellation-aware current-actor
   client owned by session web data access, with no ceremonial application
   project;
@@ -84,8 +84,10 @@ animation, requester app, or native app.
   is no completion, resolution, reassignment, or dedicated case route yet.
 - The BFF session contains no provider subject, and none is cached or shown.
 - No production deployment configuration or ingress exists.
-- The guide uses synthetic BFF responses; no live OIDC, database-backed
-  browser guide environment or publication pipeline exists yet.
+- The guide uses synthetic BFF responses; no live OIDC or database-backed
+  browser guide environment exists. Pages publication requires repository
+  settings and a successful `main` workflow run; neither a live deployment nor
+  its public URL has been verified locally.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.
