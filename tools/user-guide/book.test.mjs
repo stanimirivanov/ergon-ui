@@ -13,13 +13,14 @@ const substantialContext =
 
 function validManifest() {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     order: 10,
     slug,
     title: 'Handle work',
     summary: 'Claim and inspect an illustrative follow-up.',
     audience: 'Resolvers with current queue authority.',
     verification: 'simulated-bff',
+    presentation: 'workflow',
     overview: [substantialContext],
     prerequisites: ['Use a verified browser session.'],
     steps: [
@@ -80,6 +81,62 @@ test('assembles substantial simulated chapters with relative media and escaped H
   });
 });
 
+test('orders and links multiple substantial chapters in both book formats', async () => {
+  await withGuide(async ({ root }) => {
+    const accessSlug = 'understand-access';
+    const accessDirectory = path.join(root, accessSlug);
+    const accessGuide = {
+      ...validManifest(),
+      order: 5,
+      slug: accessSlug,
+      title: 'Understand access',
+      presentation: 'state-comparison',
+      steps: [
+        {
+          ...validManifest().steps[0],
+          image: 'assets/step-01.png',
+        },
+      ],
+      video: `assets/${accessSlug}.webm`,
+    };
+    await mkdir(path.join(accessDirectory, 'assets'), { recursive: true });
+    await writeFile(
+      path.join(accessDirectory, 'guide.json'),
+      JSON.stringify(accessGuide),
+    );
+    await writeFile(
+      path.join(accessDirectory, 'assets', 'step-01.png'),
+      'image',
+    );
+    await writeFile(
+      path.join(accessDirectory, 'assets', `${accessSlug}.webm`),
+      'video',
+    );
+
+    assert.equal(await assembleBook(root), 2);
+    const index = await readFile(path.join(root, 'index.html'), 'utf8');
+    const readme = await readFile(path.join(root, 'README.md'), 'utf8');
+    const followUpPage = await readFile(
+      path.join(root, slug, 'index.html'),
+      'utf8',
+    );
+    assert.ok(
+      index.indexOf('Understand access') < index.indexOf('Handle work'),
+    );
+    assert.ok(
+      readme.indexOf('Understand access') < readme.indexOf('Handle work'),
+    );
+    assert.match(followUpPage, /\.\.\/understand-access\//u);
+    assert.match(followUpPage, /aria-current="page"/u);
+    const accessPage = await readFile(
+      path.join(accessDirectory, 'index.html'),
+      'utf8',
+    );
+    assert.match(accessPage, /Compare the access states/u);
+    assert.doesNotMatch(accessPage, /Follow the workflow/u);
+  });
+});
+
 test('rejects a thin chapter even when every required field exists', async () => {
   await withGuide(async ({ manifestPath }) => {
     const manifest = validManifest();
@@ -112,5 +169,17 @@ test('rejects a guide that conceals its simulation boundary', async () => {
     manifest.verification = 'live-backend';
     await writeFile(manifestPath, JSON.stringify(manifest));
     await assert.rejects(readGuideManifest(manifestPath), /simulated-bff/u);
+  });
+});
+
+test('rejects an unknown chapter presentation', async () => {
+  await withGuide(async ({ manifestPath }) => {
+    const manifest = validManifest();
+    manifest.presentation = 'unreviewed-layout';
+    await writeFile(manifestPath, JSON.stringify(manifest));
+    await assert.rejects(
+      readGuideManifest(manifestPath),
+      /presentation must be/u,
+    );
   });
 });

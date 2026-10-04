@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test as base } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 import { followUpGuide } from './guide/follow-up-guide';
 import { installSimulatedFollowUpBff } from './guide/simulated-follow-up-bff';
@@ -7,28 +7,7 @@ import {
   installSimulatedGuideNetworkBoundary,
   SIMULATED_BFF_HEADER,
 } from './guide/simulated-guide-network-boundary';
-import { UserGuideSession } from './guide/user-guide-session';
-
-const test = base.extend<{ guide: UserGuideSession }>({
-  guide: async ({ browser, baseURL }, use, testInfo) => {
-    const guide = await UserGuideSession.start(
-      browser,
-      baseURL ?? 'http://localhost:4300',
-      followUpGuide,
-    );
-    try {
-      await use(guide);
-      if (testInfo.status === 'passed') {
-        await guide.finish();
-      } else {
-        await guide.abort();
-      }
-    } catch (error: unknown) {
-      await guide.abort();
-      throw error;
-    }
-  },
-});
+import { runGuideScenario } from './guide/user-guide-session';
 
 test('presents the workbench foundation', async ({ page }) => {
   await page.goto('/');
@@ -156,146 +135,162 @@ test('simulated guide traffic stays inside its fixture boundary', async ({
 test(
   'reveals visible follow-up work after the BFF session is verified',
   { tag: '@user-guide' },
-  async ({ guide }) => {
-    const page = guide.page;
-    const bff = await installSimulatedFollowUpBff(page);
-    await page.goto('/tenants/9ad66e9b-e81a-4b61-8d8f-5708312772d8');
+  async ({ browser, baseURL }) =>
+    runGuideScenario(
+      browser,
+      baseURL ?? 'http://localhost:4300',
+      followUpGuide,
+      async (guide) => {
+        const page = guide.page;
+        const bff = await installSimulatedFollowUpBff(page);
+        await page.goto('/tenants/9ad66e9b-e81a-4b61-8d8f-5708312772d8');
 
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Human follow-up inbox' }),
-    ).toBeVisible();
-    await expect(page.getByText('workforce-sso')).toBeVisible();
-    await guide.result(
-      'verified-session',
-      page.getByRole('heading', { level: 1, name: 'Human follow-up inbox' }),
-    );
-    await expect(
-      page.getByRole('heading', {
-        level: 3,
-        name: 'Retry attempt limit reached',
-      }),
-    ).toBeVisible();
-    await expect(page.getByText('access-restoration')).toBeVisible();
-    await expect(page.getByText('employee-42')).toHaveCount(0);
-    await guide.result(
-      'shared-work',
-      page
-        .getByRole('region', { name: 'Open follow-up work' })
-        .getByRole('heading', {
-          level: 3,
-          name: 'Retry attempt limit reached',
-        }),
-    );
+        await expect(
+          page.getByRole('heading', {
+            level: 1,
+            name: 'Human follow-up inbox',
+          }),
+        ).toBeVisible();
+        await expect(page.getByText('workforce-sso')).toBeVisible();
+        await guide.result(
+          'verified-session',
+          page.getByRole('heading', {
+            level: 1,
+            name: 'Human follow-up inbox',
+          }),
+        );
+        await expect(
+          page.getByRole('heading', {
+            level: 3,
+            name: 'Retry attempt limit reached',
+          }),
+        ).toBeVisible();
+        await expect(page.getByText('access-restoration')).toBeVisible();
+        await expect(page.getByText('employee-42')).toHaveCount(0);
+        await guide.result(
+          'shared-work',
+          page
+            .getByRole('region', { name: 'Open follow-up work' })
+            .getByRole('heading', {
+              level: 3,
+              name: 'Retry attempt limit reached',
+            }),
+        );
 
-    const claimButton = page.getByRole('button', {
-      name: 'Claim Retry attempt limit reached follow-up',
-    });
-    await guide.action('claim-work', claimButton, () => claimButton.click());
-    await expect(page.getByText('Follow-up claimed.')).toBeVisible();
-    await expect(page.getByText('Claimed', { exact: true })).toBeVisible();
-    await expect(
-      page
-        .getByRole('region', { name: 'Open follow-up work' })
-        .getByRole('heading', {
-          level: 3,
-          name: 'Retry attempt limit reached',
-        }),
-    ).toHaveCount(0);
-    await expect(
-      page
-        .getByRole('region', { name: 'Claimed follow-ups' })
-        .getByRole('heading', {
-          level: 3,
-          name: 'Retry attempt limit reached',
-        }),
-    ).toBeVisible();
-    expect(bff.submittedCsrfToken()).toBe('browser-session-token');
-    await guide.result(
-      'owned-work',
-      page
-        .getByRole('region', { name: 'Claimed follow-ups' })
-        .getByRole('heading', {
-          level: 3,
-          name: 'Retry attempt limit reached',
-        }),
-    );
+        const claimButton = page.getByRole('button', {
+          name: 'Claim Retry attempt limit reached follow-up',
+        });
+        await guide.action('claim-work', claimButton, () =>
+          claimButton.click(),
+        );
+        await expect(page.getByText('Follow-up claimed.')).toBeVisible();
+        await expect(page.getByText('Claimed', { exact: true })).toBeVisible();
+        await expect(
+          page
+            .getByRole('region', { name: 'Open follow-up work' })
+            .getByRole('heading', {
+              level: 3,
+              name: 'Retry attempt limit reached',
+            }),
+        ).toHaveCount(0);
+        await expect(
+          page
+            .getByRole('region', { name: 'Claimed follow-ups' })
+            .getByRole('heading', {
+              level: 3,
+              name: 'Retry attempt limit reached',
+            }),
+        ).toBeVisible();
+        expect(bff.submittedCsrfToken()).toBe('browser-session-token');
+        await guide.result(
+          'owned-work',
+          page
+            .getByRole('region', { name: 'Claimed follow-ups' })
+            .getByRole('heading', {
+              level: 3,
+              name: 'Retry attempt limit reached',
+            }),
+        );
 
-    const contextButton = page.getByRole('button', {
-      name: 'Review case context',
-    });
-    await guide.action('review-context', contextButton, () =>
-      contextButton.click(),
-    );
-    await expect(
-      page.getByRole('heading', {
-        level: 4,
-        name: 'Restore access to the customer workspace',
-      }),
-    ).toBeVisible();
-    await expect(
-      page.getByText('The sign-in link returns an expired-token message.'),
-    ).toBeVisible();
-    await expect(page.getByText('HIGH risk')).toBeVisible();
-    await expect(
-      page.getByRole('heading', { level: 5, name: 'Automation handoff' }),
-    ).toBeVisible();
-    await expect(
-      page.getByText('identity-stub', { exact: true }),
-    ).toBeVisible();
-    await expect(page.getByText('2 of 2', { exact: true })).toBeVisible();
-    await guide.result(
-      'handoff-evidence',
-      page.getByRole('heading', { level: 5, name: 'Automation handoff' }),
-    );
+        const contextButton = page.getByRole('button', {
+          name: 'Review case context',
+        });
+        await guide.action('review-context', contextButton, () =>
+          contextButton.click(),
+        );
+        await expect(
+          page.getByRole('heading', {
+            level: 4,
+            name: 'Restore access to the customer workspace',
+          }),
+        ).toBeVisible();
+        await expect(
+          page.getByText('The sign-in link returns an expired-token message.'),
+        ).toBeVisible();
+        await expect(page.getByText('HIGH risk')).toBeVisible();
+        await expect(
+          page.getByRole('heading', { level: 5, name: 'Automation handoff' }),
+        ).toBeVisible();
+        await expect(
+          page.getByText('identity-stub', { exact: true }),
+        ).toBeVisible();
+        await expect(page.getByText('2 of 2', { exact: true })).toBeVisible();
+        await guide.result(
+          'handoff-evidence',
+          page.getByRole('heading', { level: 5, name: 'Automation handoff' }),
+        );
 
-    const releaseButton = page.getByRole('button', {
-      name: 'Release Retry attempt limit reached follow-up',
-    });
-    await guide.action('request-release', releaseButton, () =>
-      releaseButton.click(),
-    );
-    await expect(
-      page.getByText(
-        'Releasing returns this work to its original shared queue. It does not complete the case.',
-      ),
-    ).toBeVisible();
-    const confirmButton = page.getByRole('button', { name: 'Confirm release' });
-    await guide.action('confirm-release', confirmButton, () =>
-      confirmButton.click(),
-    );
-    await expect(
-      page.getByRole('status', { name: 'Follow-up released' }),
-    ).toBeVisible();
-    await expect(
-      page.getByText('The sign-in link returns an expired-token message.'),
-    ).toHaveCount(0);
-    await expect(
-      page
-        .getByRole('region', { name: 'Claimed follow-ups' })
-        .getByRole('heading', {
-          level: 3,
-          name: 'No active claimed work in this view.',
-        }),
-    ).toBeVisible();
-    await expect(
-      page
-        .getByRole('region', { name: 'Open follow-up work' })
-        .getByRole('heading', {
-          level: 3,
-          name: 'Retry attempt limit reached',
-        }),
-    ).toBeVisible();
-    await guide.result(
-      'returned-work',
-      page
-        .getByRole('region', { name: 'Open follow-up work' })
-        .getByRole('heading', {
-          level: 3,
-          name: 'Retry attempt limit reached',
-        }),
-    );
+        const releaseButton = page.getByRole('button', {
+          name: 'Release Retry attempt limit reached follow-up',
+        });
+        await guide.action('request-release', releaseButton, () =>
+          releaseButton.click(),
+        );
+        await expect(
+          page.getByText(
+            'Releasing returns this work to its original shared queue. It does not complete the case.',
+          ),
+        ).toBeVisible();
+        const confirmButton = page.getByRole('button', {
+          name: 'Confirm release',
+        });
+        await guide.action('confirm-release', confirmButton, () =>
+          confirmButton.click(),
+        );
+        await expect(
+          page.getByRole('status', { name: 'Follow-up released' }),
+        ).toBeVisible();
+        await expect(
+          page.getByText('The sign-in link returns an expired-token message.'),
+        ).toHaveCount(0);
+        await expect(
+          page
+            .getByRole('region', { name: 'Claimed follow-ups' })
+            .getByRole('heading', {
+              level: 3,
+              name: 'No active claimed work in this view.',
+            }),
+        ).toBeVisible();
+        await expect(
+          page
+            .getByRole('region', { name: 'Open follow-up work' })
+            .getByRole('heading', {
+              level: 3,
+              name: 'Retry attempt limit reached',
+            }),
+        ).toBeVisible();
+        await guide.result(
+          'returned-work',
+          page
+            .getByRole('region', { name: 'Open follow-up work' })
+            .getByRole('heading', {
+              level: 3,
+              name: 'Retry attempt limit reached',
+            }),
+        );
 
-    const accessibility = await new AxeBuilder({ page }).analyze();
-    expect(accessibility.violations).toEqual([]);
-  },
+        const accessibility = await new AxeBuilder({ page }).analyze();
+        expect(accessibility.violations).toEqual([]);
+      },
+    ),
 );
