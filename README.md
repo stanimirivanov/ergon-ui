@@ -31,8 +31,9 @@ The first foundation provides:
   failed connector execution, and exhausted retry decision;
 - Vitest component tests and a Chromium Playwright smoke path;
 - [local executable guides](apps/ergon-workbench-e2e/README.md) for workbench
-  access states, shared-inbox navigation, and follow-up handling, generated
-  from asserted browser paths with explicitly simulated BFF data;
+  access states, shared-inbox navigation, follow-up handling, and claim
+  recovery, generated from asserted browser paths with explicitly simulated
+  BFF data;
 - enforced capability-first project roles and an accepted application-topology
   decision; and
 - a progressively routed contributor harness with repository and architecture

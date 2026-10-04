@@ -2,10 +2,11 @@
 
 ## TL;DR
 
-The tagged access-state, inbox-navigation, and follow-up scenarios are ordinary
-assertion-first Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all
-three with annotations, screenshots, and video, then assembles a local three-chapter
-Markdown and static HTML guide. Their BFF responses and case data are
+The tagged access-state, inbox-navigation, follow-up, and claim-recovery
+scenarios are ordinary assertion-first Playwright tests in `pnpm e2e`.
+`pnpm guide:generate` reruns all four with annotations, screenshots, and video,
+then assembles a local four-chapter Markdown and static HTML guide. Their BFF
+responses and case data are
 simulated; the result is **not** a live backend or OIDC verification and is not
 published.
 
@@ -53,7 +54,9 @@ and retry into a simulated verified session. The inbox chapter uses 26 synthetic
 items to exercise the real 25-row UI page boundary, a paired keyset cursor,
 shareable exact-queue filtering, and a neutral empty result. The follow-up
 chapter uses a synthetic resolver, case, and follow-up to verify browser
-claim/release, evidence disclosure, and accessibility. None verifies a real
+claim/release, evidence disclosure, and accessibility. The claim-recovery
+chapter distinguishes a definite competing claim from an uncertain response
+and asserts an explicit replay of the original command. None verifies a real
 provider, control plane, database, or authorization decision. Keep that
 distinction visible in each chapter and the index. A later disposable
 full-stack environment is required before calling these operational guides.
