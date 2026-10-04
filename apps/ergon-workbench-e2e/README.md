@@ -2,12 +2,12 @@
 
 ## TL;DR
 
-The tagged access-state, inbox-navigation, follow-up, owned-context, and
-claim-recovery scenarios are ordinary assertion-first Playwright tests in
-`pnpm e2e`. `pnpm guide:generate` reruns all five with annotations,
-screenshots, and video, then assembles a local five-chapter Markdown and static
-HTML guide. Their BFF responses and case data are simulated; the result is
-**not** a live backend or OIDC verification and is not published.
+The tagged access-state, inbox-navigation, follow-up, owned-context,
+claim-recovery, and release-recovery scenarios are ordinary assertion-first
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all six with
+annotations, screenshots, and video, then assembles a local six-chapter Markdown
+and static HTML guide. Their BFF responses and case data are simulated; the
+result is **not** a live backend or OIDC verification and is not published.
 
 ## Commands
 
@@ -57,7 +57,9 @@ claim/release, evidence disclosure, and accessibility. The claim-recovery
 chapter distinguishes a definite competing claim from an uncertain response
 and asserts an explicit replay of the original command. The owned-context
 chapter demonstrates lazy disclosure, hidden evidence during revalidation,
-and a neutral unavailable result. None verifies a real
+and a neutral unavailable result. The release-recovery chapter compares a
+disabled rollout with a separately enabled synthetic state, then verifies
+exact claim-and-revision replay after a lost response. None verifies a real
 provider, control plane, database, or authorization decision. Keep that
 distinction visible in each chapter and the index. A later disposable
 full-stack environment is required before calling these operational guides.

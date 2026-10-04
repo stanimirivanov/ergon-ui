@@ -32,8 +32,8 @@ The first foundation provides:
 - Vitest component tests and a Chromium Playwright smoke path;
 - [local executable guides](apps/ergon-workbench-e2e/README.md) for workbench
   access states, shared-inbox navigation, follow-up handling, owned-context
-  revalidation, and claim recovery, generated from asserted browser paths with
-  explicitly simulated BFF data;
+  revalidation, claim recovery, and release recovery, generated from asserted
+  browser paths with explicitly simulated BFF data;
 - enforced capability-first project roles and an accepted application-topology
   decision; and
 - a progressively routed contributor harness with repository and architecture
