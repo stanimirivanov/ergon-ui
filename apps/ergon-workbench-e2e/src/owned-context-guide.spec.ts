@@ -121,3 +121,53 @@ test(
       },
     ),
 );
+
+test('places evidence before handoff without overflow at desktop and narrow widths', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await installSimulatedOwnedContextBff(page);
+  await page.goto(tenantPath);
+  await page.getByRole('button', { name: 'Review case context' }).click();
+
+  const context = page.getByRole('region', { name: caseGoal });
+  const evidence = context.getByRole('region', {
+    name: 'Recorded observations',
+  });
+  const handoff = context.getByRole('region', { name: 'Automation handoff' });
+  const contract = context.getByRole('region', { name: 'Case and contract' });
+  await expect(evidence).toBeVisible();
+  await expect(handoff).toBeVisible();
+  await expect(contract).toBeVisible();
+  const desktopEvidence = await evidence.boundingBox();
+  const desktopHandoff = await handoff.boundingBox();
+  if (desktopEvidence === null || desktopHandoff === null) {
+    throw new Error('Case inspection regions have no desktop bounds');
+  }
+  expect(desktopEvidence.x + desktopEvidence.width).toBeLessThan(
+    desktopHandoff.x,
+  );
+
+  await page.setViewportSize({ width: 375, height: 812 });
+  const narrowEvidence = await evidence.boundingBox();
+  const narrowHandoff = await handoff.boundingBox();
+  const narrowContract = await contract.boundingBox();
+  if (
+    narrowEvidence === null ||
+    narrowHandoff === null ||
+    narrowContract === null
+  ) {
+    throw new Error('Case inspection regions have no narrow viewport bounds');
+  }
+  expect(narrowEvidence.y + narrowEvidence.height).toBeLessThan(
+    narrowHandoff.y,
+  );
+  expect(narrowHandoff.y + narrowHandoff.height).toBeLessThan(narrowContract.y);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  const accessibility = await new AxeBuilder({ page }).analyze();
+  expect(accessibility.violations).toEqual([]);
+});

@@ -38,7 +38,9 @@ animation, requester app, or native app.
   evidence-boundary validation, full request-tuple cache identity, neutral
   absence handling, cache eviction on disclosure close, fail-closed
   revalidation on reopen, plain-text observation rendering, and an explicit
-  failed-execution and exhausted-retry handoff explanation;
+  failed-execution and exhausted-retry handoff explanation; its responsive
+  read-only inspection presents evidence with source and occurrence/recording
+  times before the automation handoff and pinned case contract;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
 - six local executable guides for simulated workbench access states,

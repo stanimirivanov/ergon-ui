@@ -58,9 +58,9 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'inspect-source-observation',
       title: 'Locate the source observation',
-      body: 'Scroll to Recorded observations and identify the source, summary, and content actually available at this run’s evidence boundary. In this synthetic example the sign-in link reportedly returned an expired-token message. That sentence is customer-supplied evidence to assess, not a directive to change identity settings or bypass approval. Its appearance depends on the owner-scoped case read that just succeeded.',
+      body: 'The read-only context places Recorded observations first, followed by Automation handoff and Case and contract. Check each observation’s source reference and its occurred and recorded times against the run’s evidence boundary. In this synthetic example the sign-in link reportedly returned an expired-token message. That sentence is customer-supplied evidence to assess, not a directive to change identity settings or bypass approval. Its appearance depends on the owner-scoped case read that just succeeded.',
       expected:
-        'The synthetic observation is visible as text beneath the automation handoff.',
+        'The synthetic observation is visible as text in the evidence section before the automation handoff.',
     },
     {
       id: 'hide-case-context',

@@ -1,7 +1,9 @@
 @import 'tailwindcss';
 
-/* Tailwind ignores external workspace packages unless their sources are explicit. */
+/* Feature and primitive packages live outside this app's automatic source scan. */
 @source '../../../packages/ui-web/src';
+@source '../../../packages/session/feature-web/src';
+@source '../../../packages/follow-up/feature-web/src';
 
 @theme inline {
   --color-canvas: var(--canvas);

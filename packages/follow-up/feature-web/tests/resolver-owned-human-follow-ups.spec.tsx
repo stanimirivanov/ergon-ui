@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import type {
   ClaimHumanFollowUp,
   GetOwnedFollowUpCaseSummary,
@@ -405,6 +411,27 @@ describe('resolver-owned human follow-ups', () => {
     expect(
       screen.getByRole('heading', { level: 5, name: 'Automation handoff' }),
     ).toBeTruthy();
+    const evidence = screen.getByRole('region', {
+      name: 'Recorded observations',
+    });
+    expect(
+      within(evidence).getByText('EMAIL via support-mailbox'),
+    ).toBeTruthy();
+    expect(within(evidence).getByText('message-42')).toBeTruthy();
+    expect(within(evidence).getByText('Occurred')).toBeTruthy();
+    expect(within(evidence).getByText('Recorded')).toBeTruthy();
+    expect(
+      within(evidence).getByText('21 Sept 2026, 09:20:00 UTC'),
+    ).toBeTruthy();
+    expect(
+      within(evidence).getByText('21 Sept 2026, 09:20:01 UTC'),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole('region', { name: 'Case and contract' }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(/no verified resolution in this view/i),
+    ).toBeTruthy();
     expect(screen.getByText('identity-stub')).toBeTruthy();
     expect(
       screen.getByText(/Automated attempt 2 reached the configured limit of 2/),
@@ -420,6 +447,34 @@ describe('resolver-owned human follow-ups', () => {
       },
       expect.any(AbortSignal),
     );
+  });
+
+  it('makes an empty evidence boundary explicit without inventing observations', async () => {
+    const summary = resolverFollowUpCaseSummary(FIRST_WORK_ITEM_ID, 'unused');
+    renderOwned({
+      listOwned: async () =>
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      getOwnedCaseSummary: async () => ({
+        ok: true,
+        summary: { ...summary, observations: [] },
+      }),
+    });
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Review case context' }),
+    );
+
+    expect(
+      await screen.findByText(
+        'No observations were recorded at this evidence boundary.',
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole('list', { name: 'Case observations' }),
+    ).toBeNull();
+    expect(
+      screen.getByRole('heading', { level: 5, name: 'Automation handoff' }),
+    ).toBeTruthy();
   });
 
   it('rechecks ownership and hides cached evidence when case context reopens', async () => {
