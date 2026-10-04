@@ -7,7 +7,8 @@ claim-recovery, and release-recovery scenarios are ordinary assertion-first
 Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all six with
 annotations, screenshots, and video, then assembles a local six-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
-result is **not** a live backend or OIDC verification and is not published.
+result is **not** a live backend or OIDC verification. A successful `main` run
+can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Commands
 
@@ -30,10 +31,27 @@ generated screenshots, recordings, manifests, or rendered pages.
 
 The `User guide artifact` GitHub Actions workflow runs on pull requests and
 `main` pushes (or manually). Download its `simulated-user-guide-*` artifact
-from the workflow run to review the rendered book before any future publication
-decision. The artifact expires after seven days; the workflow has read-only
-repository permission and no Pages deployment or production credentials. A
-failed recording uploads available guide and Playwright evidence separately.
+from the workflow run to review the rendered book. The artifact expires after
+seven days. A failed recording uploads available guide and Playwright evidence
+separately. The generation job has read-only repository permission.
+
+## Publication
+
+The [publication decision](../../docs/decisions/0022-publish-simulated-user-guide-from-main.md)
+limits the Pages artifact and deployment job to successful `main` runs. Pull
+requests and manual runs from other refs remain review-only. The separate
+deployment job receives only `pages: write` and `id-token: write`, uses the
+`github-pages` environment, and reports the URL supplied by GitHub. No
+generated files are committed to a publishing branch.
+
+Before the first deployment, a maintainer must set **Settings → Pages → Build
+and deployment → Source** to **GitHub Actions** and review the `github-pages`
+environment protection rules. The workflow does not change that setting. See
+[GitHub's Pages source instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+GitHub Pages may be public even for a private repository: review the generated
+media and text for synthetic-only data before merging. A missing Pages setting
+or failed build prevents publication; it must not be bypassed by relaxing
+the simulation boundary or granting PR jobs deployment authority.
 
 ## Content and trust boundary
 
@@ -83,5 +101,6 @@ inside this `type:test` project and adds no browser-bundle dependency.
 A failed browser scenario removes its incomplete chapter directory and retains
 the normal Playwright failure artifacts. The assembler runs only after all
 tagged scenarios pass. The guide scripts do not start, reset, or mutate a
-shared database. A live guide environment and publication workflow remain out
-of scope. The CI artifact has the same synthetic trust boundary as local output.
+shared database. A live guide environment remains out of scope. Both the
+review artifact and Pages output have the same synthetic trust boundary as
+local output.

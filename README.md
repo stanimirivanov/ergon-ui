@@ -33,7 +33,8 @@ The first foundation provides:
 - [local executable guides](apps/ergon-workbench-e2e/README.md) for workbench
   access states, shared-inbox navigation, follow-up handling, owned-context
   revalidation, claim recovery, and release recovery, generated from asserted
-  browser paths with explicitly simulated BFF data;
+  browser paths with explicitly simulated BFF data and a `main`-only Pages
+  publication workflow;
 - enforced capability-first project roles and an accepted application-topology
   decision; and
 - a progressively routed contributor harness with repository and architecture

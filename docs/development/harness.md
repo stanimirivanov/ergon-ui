@@ -62,7 +62,7 @@ Dependency resolution is a separate networked, mutating bootstrap step:
 | `pnpm e2e`                | Critical resolver behavior in Chromium                                                                                             | T3    |
 | `pnpm guide:check`        | User-guide manifest, content, and media-path validation tests                                                                      | T1    |
 | `pnpm guide:generate`     | Tagged browser recording, fixture-network isolation, and static-book generation                                                    | T3    |
-| `User guide artifact` CI  | Regenerated, validated simulated book uploaded for short-lived review; no Pages or live-service authority                          | T3    |
+| `User guide artifact` CI  | Regenerated, validated simulated book uploaded for review; `main` alone packages and deploys it to Pages after repository setup    | T3    |
 | `pnpm verify`             | The complete current local acceptance sequence                                                                                     | T1–T3 |
 
 Focused project checks remain useful during editing but do not replace an
