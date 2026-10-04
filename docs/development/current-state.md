@@ -41,8 +41,9 @@ animation, requester app, or native app.
   failed-execution and exhausted-retry handoff explanation;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
-- two local executable guides for simulated workbench access states and the
-  claim, evidence-review, and release workflow, with annotated screenshots,
+- three local executable guides for simulated workbench access states,
+  shared-inbox pagination and filtering, and the claim, evidence-review, and
+  release workflow, with annotated screenshots,
   video, recovery guidance, and validated Markdown/static HTML output; CI
   uploads them as an expiring review artifact without publishing them, and
   recording fails on unexpected HTTP(S) traffic or unmarked synthetic BFF
