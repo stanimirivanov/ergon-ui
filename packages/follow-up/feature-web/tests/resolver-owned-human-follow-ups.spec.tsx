@@ -429,6 +429,19 @@ describe('resolver-owned human follow-ups', () => {
     expect(
       screen.getByRole('region', { name: 'Case and contract' }),
     ).toBeTruthy();
+    const attempts = screen.getByRole('list', {
+      name: 'Resolution attempts',
+    });
+    expect(within(attempts).getAllByRole('listitem')).toHaveLength(2);
+    expect(within(attempts).getByText('Attempt 1 · SUPERSEDED')).toBeTruthy();
+    expect(within(attempts).getByText('Attempt 2 · ESCALATED')).toBeTruthy();
+    const proof = screen.getByRole('region', { name: 'Not assessed' });
+    expect(
+      within(proof).getByText(/account\.access\.state\s*=\s*ACTIVE/u),
+    ).toBeTruthy();
+    expect(
+      within(proof).getByText(/no accepted proof of resolution/u),
+    ).toBeTruthy();
     expect(
       screen.getByText(/no verified resolution in this view/i),
     ).toBeTruthy();

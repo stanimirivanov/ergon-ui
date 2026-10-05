@@ -72,6 +72,35 @@ const caseObservationSchema = Schema.Struct({
   occurredAt: utcInstant,
   recordedAt: utcInstant,
 });
+const runAttemptSchema = Schema.Struct({
+  runId: Schema.UUID,
+  attemptNumber: Schema.Number,
+  predecessorRunId: Schema.NullOr(Schema.UUID),
+  startedRecordedAt: utcInstant,
+  state: Schema.Literal('SUPERSEDED', 'ESCALATED'),
+  stateVersion: Schema.Number,
+  stateUpdatedAt: utcInstant,
+  capabilityResult: Schema.Struct({
+    sequence: Schema.Number,
+    fromState: Schema.Literal(
+      'WAITING_FOR_APPROVAL',
+      'READY_FOR_AUTHORIZATION',
+    ),
+    toState: Schema.Literal('ACTION_FAILED'),
+    connector: Schema.NonEmptyString,
+    outcome: Schema.Literal('FAILED'),
+    completedAt: utcInstant,
+    recordedAt: utcInstant,
+  }),
+  retry: Schema.NullOr(
+    Schema.Struct({
+      sequence: Schema.Number,
+      replacementRunId: Schema.UUID,
+      occurredAt: utcInstant,
+      recordedAt: utcInstant,
+    }),
+  ),
+});
 
 /**
  * Structural wire contract for the resolver case-context response.
@@ -125,6 +154,13 @@ export const resolverFollowUpCaseSummarySchema = Schema.Struct({
     maximumAttempts: Schema.Number,
     occurredAt: utcInstant,
     recordedAt: utcInstant,
+  }),
+  runHistory: Schema.Struct({ attempts: Schema.Array(runAttemptSchema) }),
+  outcomeProof: Schema.Struct({
+    fact: Schema.NonEmptyString,
+    expectedValue: Schema.NonEmptyString,
+    assessmentStatus: Schema.Literal('NOT_ASSESSED'),
+    reason: Schema.Literal('RUN_NOT_VERIFYING'),
   }),
 });
 

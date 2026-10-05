@@ -46,9 +46,9 @@ function validSummary(): ResolverFollowUpCaseSummaryCandidate {
       effectiveRisk: 'HIGH',
       requiredApproval: 'RESOLVER',
       attemptNumber: 2,
-      predecessorRunId: null,
+      predecessorRunId: 'run-previous',
       state: 'ESCALATED',
-      stateVersion: 3,
+      stateVersion: 2,
       stateUpdatedAt: '2026-09-21T09:30:00Z',
       recordedAt: '2026-09-21T09:30:01Z',
     },
@@ -64,6 +64,59 @@ function validSummary(): ResolverFollowUpCaseSummaryCandidate {
       maximumAttempts: 2,
       occurredAt: '2026-09-21T09:30:00Z',
       recordedAt: '2026-09-21T09:30:01Z',
+    },
+    runHistory: {
+      attempts: [
+        {
+          runId: 'run-previous',
+          attemptNumber: 1,
+          predecessorRunId: null,
+          startedRecordedAt: '2026-09-21T09:25:00Z',
+          state: 'SUPERSEDED',
+          stateVersion: 2,
+          stateUpdatedAt: '2026-09-21T09:27:00Z',
+          capabilityResult: {
+            sequence: 1,
+            fromState: 'READY_FOR_AUTHORIZATION',
+            toState: 'ACTION_FAILED',
+            connector: 'identity-stub',
+            outcome: 'FAILED',
+            completedAt: '2026-09-21T09:26:00Z',
+            recordedAt: '2026-09-21T09:26:02Z',
+          },
+          retry: {
+            sequence: 2,
+            replacementRunId: 'run-1',
+            occurredAt: '2026-09-21T09:27:00Z',
+            recordedAt: '2026-09-21T09:27:01Z',
+          },
+        },
+        {
+          runId: 'run-1',
+          attemptNumber: 2,
+          predecessorRunId: 'run-previous',
+          startedRecordedAt: '2026-09-21T09:28:00Z',
+          state: 'ESCALATED',
+          stateVersion: 2,
+          stateUpdatedAt: '2026-09-21T09:30:00Z',
+          capabilityResult: {
+            sequence: 1,
+            fromState: 'READY_FOR_AUTHORIZATION',
+            toState: 'ACTION_FAILED',
+            connector: 'identity-stub',
+            outcome: 'FAILED',
+            completedAt: '2026-09-21T09:29:30Z',
+            recordedAt: '2026-09-21T09:29:32Z',
+          },
+          retry: null,
+        },
+      ],
+    },
+    outcomeProof: {
+      fact: 'account.access.state',
+      expectedValue: 'ACTIVE',
+      assessmentStatus: 'NOT_ASSESSED',
+      reason: 'RUN_NOT_VERIFYING',
     },
   };
 }
@@ -174,6 +227,45 @@ describe('resolver follow-up case-summary refinement', () => {
           { ...firstObservation(s), streamVersion: 2 },
           { ...firstObservation(s), streamVersion: 1 },
         ],
+      }),
+    ],
+    [
+      'history ending at another run',
+      (s: ResolverFollowUpCaseSummaryCandidate) => ({
+        ...s,
+        runHistory: {
+          attempts: s.runHistory.attempts.map((attempt, index) =>
+            index === 1 ? { ...attempt, runId: 'wrong-run' } : attempt,
+          ),
+        },
+      }),
+    ],
+    [
+      'history that omits the first attempt',
+      (s: ResolverFollowUpCaseSummaryCandidate) => ({
+        ...s,
+        runHistory: { attempts: s.runHistory.attempts.slice(1) },
+      }),
+    ],
+    [
+      'retry not linked to its successor',
+      (s: ResolverFollowUpCaseSummaryCandidate) => ({
+        ...s,
+        runHistory: {
+          attempts: s.runHistory.attempts.map((attempt, index) =>
+            index === 0
+              ? {
+                  ...attempt,
+                  retry: {
+                    sequence: 2,
+                    replacementRunId: 'wrong-run',
+                    occurredAt: '2026-09-21T09:27:00Z',
+                    recordedAt: '2026-09-21T09:27:01Z',
+                  },
+                }
+              : attempt,
+          ),
+        },
       }),
     ],
   ] as const)('rejects %s', (_, change) => {

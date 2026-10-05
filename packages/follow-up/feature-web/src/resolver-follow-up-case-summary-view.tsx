@@ -182,11 +182,83 @@ export function ResolverFollowUpCaseSummaryView({
           </section>
 
           <section
+            aria-labelledby={`${regionId}-run-history-heading`}
+            className="min-w-0 rounded-xl border border-border bg-canvas/60 p-4 sm:p-5"
+          >
+            <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
+              03 · Run history
+            </p>
+            <h5
+              id={`${regionId}-run-history-heading`}
+              className="mt-2 text-base font-bold text-ink"
+            >
+              Recorded attempts
+            </h5>
+            <p className="mt-2 text-sm leading-6 text-ink-muted">
+              These are durable attempt and transition records, not a live tool
+              trace.
+            </p>
+            <ol className="mt-4 grid gap-3" aria-label="Resolution attempts">
+              {summary.runHistory.attempts.map((attempt) => (
+                <li
+                  key={attempt.runId}
+                  className="min-w-0 rounded-lg border border-border bg-surface-strong p-3"
+                >
+                  <p className="font-bold text-ink">
+                    Attempt {attempt.attemptNumber} · {attempt.state}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-ink-muted">
+                    {attempt.capabilityResult.connector} reported{' '}
+                    {attempt.capabilityResult.outcome} at{' '}
+                    <time dateTime={attempt.capabilityResult.completedAt}>
+                      {formatUtcInstant(attempt.capabilityResult.completedAt)}
+                    </time>
+                    .
+                  </p>
+                  {attempt.retry === null ? null : (
+                    <p className="mt-2 text-sm leading-6 text-ink-muted">
+                      Retry recorded at{' '}
+                      <time dateTime={attempt.retry.occurredAt}>
+                        {formatUtcInstant(attempt.retry.occurredAt)}
+                      </time>
+                      ; a successor attempt was started.
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <section
+            aria-labelledby={`${regionId}-proof-heading`}
+            className="min-w-0 rounded-xl border border-border bg-canvas/60 p-4 sm:p-5"
+          >
+            <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
+              04 · Outcome proof
+            </p>
+            <h5
+              id={`${regionId}-proof-heading`}
+              className="mt-2 text-base font-bold text-ink"
+            >
+              Not assessed
+            </h5>
+            <p className="mt-2 text-sm leading-6 text-ink-muted">
+              The pinned success condition is{' '}
+              <span className="break-words font-semibold text-ink">
+                {summary.outcomeProof.fact} ={' '}
+                {summary.outcomeProof.expectedValue}
+              </span>
+              . This escalated run did not enter verification, so there is no
+              accepted proof of resolution.
+            </p>
+          </section>
+
+          <section
             aria-labelledby={`${regionId}-contract-heading`}
             className="min-w-0 rounded-xl border border-border bg-canvas/60 p-4 sm:p-5"
           >
             <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
-              03 · Case
+              05 · Case
             </p>
             <h5
               id={`${regionId}-contract-heading`}

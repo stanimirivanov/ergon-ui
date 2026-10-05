@@ -65,6 +65,27 @@ test(
           owned.getByText(observation),
         );
 
+        const context = owned.getByRole('region', { name: caseGoal });
+        const attempts = context.getByRole('list', {
+          name: 'Resolution attempts',
+        });
+        const proof = context.getByRole('region', { name: 'Not assessed' });
+        await expect(attempts.getByRole('listitem')).toHaveCount(2);
+        await expect(attempts.getByRole('listitem').nth(0)).toContainText(
+          'Attempt 1 · SUPERSEDED',
+        );
+        await expect(attempts.getByRole('listitem').nth(1)).toContainText(
+          'Attempt 2 · ESCALATED',
+        );
+        await expect(
+          proof.getByText(/account\.access\.state\s*=\s*ACTIVE/u),
+        ).toBeVisible();
+        await expect(proof).toContainText(
+          'there is no accepted proof of resolution',
+        );
+        await guide.result('inspect-attempt-history', attempts);
+        await guide.result('inspect-proof', proof);
+
         const hideContext = owned.getByRole('button', {
           name: 'Hide case context',
         });
@@ -136,8 +157,12 @@ test('places evidence before handoff without overflow at desktop and narrow widt
   });
   const handoff = context.getByRole('region', { name: 'Automation handoff' });
   const contract = context.getByRole('region', { name: 'Case and contract' });
+  const attempts = context.getByRole('region', { name: 'Recorded attempts' });
+  const proof = context.getByRole('region', { name: 'Not assessed' });
   await expect(evidence).toBeVisible();
   await expect(handoff).toBeVisible();
+  await expect(attempts).toBeVisible();
+  await expect(proof).toBeVisible();
   await expect(contract).toBeVisible();
   const desktopEvidence = await evidence.boundingBox();
   const desktopHandoff = await handoff.boundingBox();
@@ -152,9 +177,13 @@ test('places evidence before handoff without overflow at desktop and narrow widt
   const narrowEvidence = await evidence.boundingBox();
   const narrowHandoff = await handoff.boundingBox();
   const narrowContract = await contract.boundingBox();
+  const narrowAttempts = await attempts.boundingBox();
+  const narrowProof = await proof.boundingBox();
   if (
     narrowEvidence === null ||
     narrowHandoff === null ||
+    narrowAttempts === null ||
+    narrowProof === null ||
     narrowContract === null
   ) {
     throw new Error('Case inspection regions have no narrow viewport bounds');
@@ -162,7 +191,9 @@ test('places evidence before handoff without overflow at desktop and narrow widt
   expect(narrowEvidence.y + narrowEvidence.height).toBeLessThan(
     narrowHandoff.y,
   );
-  expect(narrowHandoff.y + narrowHandoff.height).toBeLessThan(narrowContract.y);
+  expect(narrowHandoff.y + narrowHandoff.height).toBeLessThan(narrowAttempts.y);
+  expect(narrowAttempts.y + narrowAttempts.height).toBeLessThan(narrowProof.y);
+  expect(narrowProof.y + narrowProof.height).toBeLessThan(narrowContract.y);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,

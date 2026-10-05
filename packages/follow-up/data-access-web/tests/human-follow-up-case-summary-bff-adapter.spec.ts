@@ -101,6 +101,43 @@ describe('follow-up case-summary BFF adapter', () => {
     });
   });
 
+  it('rejects a run history whose final attempt does not match the escalated run', async () => {
+    const summary = validCaseSummary();
+    const adapter = createHumanFollowUpBffAdapter({
+      fetch: async () =>
+        jsonResponse({
+          ...summary,
+          runHistory: {
+            attempts: summary.runHistory.attempts.map((attempt, index) =>
+              index === 1 ? { ...attempt, runId: WORK_ITEM_ID } : attempt,
+            ),
+          },
+        }),
+    });
+
+    await expect(
+      adapter.getOwnedCaseSummary(query, new AbortController().signal),
+    ).resolves.toEqual({ ok: false, error: { kind: 'invalid-response' } });
+  });
+
+  it('rejects a purported proof assessment for an escalated run', async () => {
+    const summary = validCaseSummary();
+    const adapter = createHumanFollowUpBffAdapter({
+      fetch: async () =>
+        jsonResponse({
+          ...summary,
+          outcomeProof: {
+            ...summary.outcomeProof,
+            assessmentStatus: 'ACCEPTED',
+          },
+        }),
+    });
+
+    await expect(
+      adapter.getOwnedCaseSummary(query, new AbortController().signal),
+    ).resolves.toEqual({ ok: false, error: { kind: 'invalid-response' } });
+  });
+
   it('rejects case context associated with a different owned case', async () => {
     const summary = validCaseSummary();
     const adapter = createHumanFollowUpBffAdapter({

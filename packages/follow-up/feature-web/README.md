@@ -12,8 +12,9 @@ out of the deployable app and domain-agnostic UI primitives.
 - Resolver-owned pagination and lazy case-context disclosure, including a fresh
   ownership check on reopening and hiding prior evidence during revalidation.
 - Evidence-first, responsive read-only case inspection: source observations and
-  their provenance precede the failed automation handoff and pinned case
-  contract. The view introduces no client-side authority or resolution claim.
+  their provenance precede the failed automation handoff, ordered durable run
+  attempts, unassessed pinned outcome condition, and case contract. The view
+  introduces no client-side authority, live trace, or resolution claim.
 - Confirmed owned-claim release, explicit same-tuple retry after uncertainty,
   closing case disclosure before release submission, and retiring success
   feedback when a later server-observed ownership revision supersedes it.
