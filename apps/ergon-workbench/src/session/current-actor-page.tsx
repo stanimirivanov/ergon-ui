@@ -22,6 +22,7 @@ export function CurrentActorPage(): ReactElement {
       )}
       renderVerified={({ actor, tenantId: verifiedTenantId, signInHref }) => (
         <HumanFollowUpWorkspace
+          key={verifiedTenantId}
           tenantId={verifiedTenantId}
           signInHref={signInHref}
           actorDetails={<VerifiedActorDetails actor={actor} />}

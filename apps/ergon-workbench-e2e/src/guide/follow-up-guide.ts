@@ -47,23 +47,30 @@ export const followUpGuide: GuideChapter = {
     {
       id: 'owned-work',
       title: 'Confirm your active claim',
-      body: 'Check the claimed-work section after the lists refresh. This is the place to recover work you own after navigation. The visible card is not the full case record; open its context before deciding what action is safe.',
+      body: 'Check the claimed-work section after the lists refresh. This is the place to recover work you own after navigation. The visible card is not the full case record; open its Resolver Console before deciding what action is safe.',
       expected:
         'The same follow-up appears in your active work and no longer appears as open shared work.',
     },
     {
       id: 'review-context',
-      title: 'Open the authorized case context',
-      body: 'Select Review case context. Ergon requests the summary only when you open it and checks current ownership again. If the claim or your authority has changed, the workbench shows a neutral unavailable state instead of retaining previously displayed evidence.',
+      title: 'Open the owner-scoped Resolver Console',
+      body: 'Select Open resolver console. Ergon requests the case summary only when you open it and checks current ownership again. The console is a read-only view of source observations, recorded run attempts, and an unassessed outcome target; it is not a live execution trace. If the claim or your authority has changed, the workbench shows a neutral unavailable state instead of retaining previously displayed evidence.',
       expected:
         'The case goal, source observation, pinned contract, and escalated run become visible.',
     },
     {
       id: 'handoff-evidence',
       title: 'Understand why automation stopped',
-      body: 'Read the automation handoff alongside the source observation. A failed connector attempt and an exhausted retry budget explain the escalation, but they do not prove the customer problem was resolved. Treat observation content as evidence to evaluate, not as trusted instructions.',
+      body: 'Read the automation handoff in the center pane alongside the source observation on the left. A failed connector attempt and an exhausted retry budget explain the escalation, but they do not prove the customer problem was resolved. Treat observation content as evidence to evaluate, not as a verified claim or trusted instruction.',
       expected:
         'The handoff identifies the failed execution and shows that attempt 2 reached the limit of 2.',
+    },
+    {
+      id: 'return-to-active-work',
+      title: 'Return to active work before releasing',
+      body: 'Select Back to active work. This closes the Resolver Console and removes its owner-scoped case evidence from the screen; it does not release the claim. The release control belongs to the active-work card, not to the read-only console.',
+      expected:
+        'The claimed-work card is visible again and the case observation is no longer displayed.',
     },
     {
       id: 'request-release',
@@ -74,9 +81,8 @@ export const followUpGuide: GuideChapter = {
     {
       id: 'confirm-release',
       title: 'Confirm the exact claim release',
-      body: 'Confirm release only after checking that you are returning the intended claim. The browser submits the current claim ID and ownership revision. It closes visible case context before the request so evidence is not left on screen while ownership is being rechecked.',
-      expected:
-        'A release notice appears and the case evidence is removed from the page.',
+      body: 'Confirm release only after checking that you are returning the intended claim. The browser submits the current claim ID and ownership revision. The Resolver Console was closed before this action, so its case evidence is not left on screen while ownership is being rechecked.',
+      expected: 'A release notice appears and no case evidence is displayed.',
     },
     {
       id: 'returned-work',

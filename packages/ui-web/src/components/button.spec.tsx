@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { createRef } from 'react';
 
 import { Button } from './button';
 
@@ -8,6 +9,15 @@ describe('Button', () => {
 
     expect(screen.getByRole('button', { name: 'Continue' }).tagName).toBe(
       'BUTTON',
+    );
+  });
+
+  it('exposes the native button for focus restoration', () => {
+    const ref = createRef<HTMLButtonElement>();
+    render(<Button ref={ref}>Return to work</Button>);
+
+    expect(ref.current).toBe(
+      screen.getByRole('button', { name: 'Return to work' }),
     );
   });
 

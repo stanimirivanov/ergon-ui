@@ -4,7 +4,8 @@
 
 This application is Ergon's internal browser experience. It delivers the
 accessible shell, a typed fail-closed current-actor session boundary, and the
-shared and resolver-owned follow-up views. It consumes the control plane's
+shared and resolver-owned follow-up views, including a locally selected,
+read-only Resolver Console. It consumes the control plane's
 confidential BFF without exposing provider tokens or internal API
 representations to browser code. Resolvers can claim visible work through the
 session-bound CSRF contract and recover active ownership after navigation.
@@ -43,10 +44,10 @@ pnpm nx e2e @ergon/workbench-e2e
 - Do not consume `/internal/v1` as a production browser contract.
 - Do not create requester, studio, simulation, or native placeholder routes.
 
-The app binds `@ergon/follow-up-data-access-web` to four transitional
-follow-up contracts: open-work listing, owned-work listing, owned case-context
-loading, and claiming. That data-access package owns the follow-up RTK Query
-API; the workbench registers its reducer and middleware and renders the
+The app binds `@ergon/follow-up-data-access-web` to the browser follow-up
+contracts for open-work listing, owned-work listing, owned case-context
+loading, claiming, and releasing. That data-access package owns the follow-up
+RTK Query API; the workbench registers its reducer and middleware and renders the
 `@ergon/follow-up-feature-web` feature that consumes its generated
 hooks. The workbench supplies tenant request context and the trusted same-origin
 sign-in URL after session verification.
@@ -93,15 +94,21 @@ invalidates both views so newly acquired ownership appears without optimistic
 keyset-page reconstruction. Empty owned pages remain neutral because absence
 and current-authority non-disclosure intentionally share one representation.
 
-Each active-work card can lazily request its case context. The BFF rechecks
-current ownership and authority before returning the open case, pinned
-resolution contract, escalated run, observations, failed connector execution,
-and exhausted retry decision. Effect rejects malformed identities, invalid
-positive versions, contract drift, out-of-bound evidence, unordered
-observations, or handoff facts that contradict the run before RTK Query caches
-the response. A missing resource remains deliberately neutral because closure,
-ownership change, and authority change share the same non-disclosing response.
-Observation content is rendered as text and is never interpreted as HTML.
+Selecting an active-work card opens a full-width Resolver Console on the same
+tenant route; selection stays local rather than becoming a case URL or durable
+browser state. Its case context is requested lazily. The BFF rechecks current
+ownership and authority before returning the open case, pinned resolution
+contract, escalated run, observations, failed connector execution, ordered
+attempt history, and unassessed outcome condition. Effect rejects malformed
+identities, invalid positive versions, contract drift, out-of-bound evidence,
+unordered observations, or inconsistent handoff and attempt facts before RTK
+Query caches the response under the complete request identity. The feature
+hides prior evidence during revalidation and unmounts the Console when its
+exact claim is no longer in the owned-work view. A missing resource remains
+deliberately neutral because closure, ownership change, and authority change
+share the same non-disclosing response. Observation content is rendered as text
+and is never interpreted as HTML. The Console is read-only: it does not imply
+a live run, lease, approval, or verified resolution.
 
 Local Vite development proxies `/bff`, `/oauth2`, and `/login/oauth2` to
 `http://localhost:8090`. Override the target with the server-side

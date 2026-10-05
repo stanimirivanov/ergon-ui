@@ -212,33 +212,72 @@ test(
             }),
         );
 
-        const contextButton = page.getByRole('button', {
-          name: 'Review case context',
+        const consoleButton = page.getByRole('button', {
+          name: 'Open resolver console',
         });
-        await guide.action('review-context', contextButton, () =>
-          contextButton.click(),
+        await guide.action('review-context', consoleButton, () =>
+          consoleButton.click(),
         );
+        const consoleView = page.getByRole('region', {
+          name: 'Resolver Console',
+        });
+        await expect(consoleView).toBeVisible();
         await expect(
-          page.getByRole('heading', {
-            level: 4,
+          consoleView.getByRole('heading', {
+            level: 2,
             name: 'Restore access to the customer workspace',
           }),
         ).toBeVisible();
         await expect(
-          page.getByText('The sign-in link returns an expired-token message.'),
+          consoleView.getByText(
+            'The sign-in link returns an expired-token message.',
+          ),
         ).toBeVisible();
-        await expect(page.getByText('HIGH risk')).toBeVisible();
+        await expect(consoleView.getByText('HIGH risk')).toBeVisible();
+        const handoff = consoleView.getByRole('region', {
+          name: 'Automation handoff',
+        });
         await expect(
-          page.getByRole('heading', { level: 5, name: 'Automation handoff' }),
+          handoff.getByRole('heading', {
+            level: 4,
+            name: 'Automation handoff',
+          }),
         ).toBeVisible();
+        await expect(handoff).toContainText('identity-stub connector failed');
         await expect(
-          page.getByText('identity-stub', { exact: true }),
+          handoff.getByText('2 of 2', { exact: true }),
         ).toBeVisible();
-        await expect(page.getByText('2 of 2', { exact: true })).toBeVisible();
         await guide.result(
           'handoff-evidence',
-          page.getByRole('heading', { level: 5, name: 'Automation handoff' }),
+          handoff.getByRole('heading', {
+            level: 4,
+            name: 'Automation handoff',
+          }),
         );
+
+        await expect(
+          consoleView.getByRole('button', {
+            name: 'Release Retry attempt limit reached follow-up',
+          }),
+        ).toHaveCount(0);
+        const backToWork = consoleView.getByRole('button', {
+          name: 'Back to active work',
+        });
+        await guide.action('return-to-active-work', backToWork, () =>
+          backToWork.click(),
+        );
+        await expect(consoleView).toHaveCount(0);
+        await expect(
+          page.getByText('The sign-in link returns an expired-token message.'),
+        ).toHaveCount(0);
+        await expect(
+          page
+            .getByRole('region', { name: 'Claimed follow-ups' })
+            .getByRole('heading', {
+              level: 3,
+              name: 'Retry attempt limit reached',
+            }),
+        ).toBeVisible();
 
         const releaseButton = page.getByRole('button', {
           name: 'Release Retry attempt limit reached follow-up',
