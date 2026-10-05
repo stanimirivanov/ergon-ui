@@ -37,6 +37,8 @@ pnpm nx e2e @ergon/workbench-e2e
   `@ergon/follow-up-data-access-web`; do not recreate protocol or remote
   cache handling in the composition root.
 - Keep reusable DOM primitives in `@ergon/ui-web`.
+- Keep feature-package source paths declared in `src/styles.css` so Tailwind
+  includes presentation classes owned outside the app directory.
 - Keep API execution outside presentational components.
 - Do not consume `/internal/v1` as a production browser contract.
 - Do not create requester, studio, simulation, or native placeholder routes.
