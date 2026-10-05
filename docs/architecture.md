@@ -9,12 +9,12 @@ native UI, application state, and authentication adapters platform-specific.
 
 ## Application topology
 
-| Deployable        | Audience and responsibility                                        | Status                            |
-| :---------------- | :----------------------------------------------------------------- | :-------------------------------- |
-| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Shared and owned follow-up views  |
-| `ergon-requester` | External adaptive resolution canvas                                | Deferred to first requester slice |
-| widget SDK        | Embeddable headless client and web components                      | Deferred                          |
-| native clients    | Selected requester or resolver workflows                           | Deferred until required           |
+| Deployable        | Audience and responsibility                                        | Status                                                     |
+| :---------------- | :----------------------------------------------------------------- | :--------------------------------------------------------- |
+| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Shared and owned follow-up views; locally selected Console |
+| `ergon-requester` | External adaptive resolution canvas                                | Deferred to first requester slice                          |
+| widget SDK        | Embeddable headless client and web components                      | Deferred                                                   |
+| native clients    | Selected requester or resolver workflows                           | Deferred until required                                    |
 
 The workbench and requester experience use distinct deployment artifacts,
 identity clients, CSPs, URLs, performance budgets, and release decisions. Studio
@@ -82,7 +82,8 @@ reducers and middleware, supplies runtime dependencies, owns route hierarchy
 and shell, and provides trusted same-origin navigation inputs. The session
 feature validates the tenant route value and gates authenticated content until
 the BFF verifies the actor. The follow-up feature owns the workspace
-introduction and its work views. Follow-up and session data access own BFF
+introduction, its work views, and local selection of an exact owned claim for
+the read-only Console. Follow-up and session data access own BFF
 protocols, Effect execution, typed failure translation, timeout, retry,
 cancellation, cache identity, and generated hooks.
 
@@ -97,9 +98,9 @@ extend the checked, DOM-free `tsconfig.core.json`.
 | :--------------------------------------------------------------- | :------------------ |
 | Remote resources, request lifecycle, deduplication, invalidation | RTK Query           |
 | Cross-route client-only state                                    | Redux Toolkit slice |
-| Shareable filter, selection, and navigation state                | React Router URL    |
+| Shareable filters and navigation state                           | React Router URL    |
 | Form values, field errors, touched state                         | React Hook Form     |
-| Component-local interaction                                      | React state         |
+| Private case selection and component-local interaction           | React state         |
 | HTTP execution, decoding, timeout, typed failure mapping         | Effect              |
 
 RTK Query and Effect were introduced by current-actor resolution. Effect
@@ -124,10 +125,14 @@ case-context cache. Release availability remains a backend rollout decision.
 Owned-work pages use a separate tenant-and-cursor cache. Successful claims also
 invalidate that cache so active ownership is recovered from server truth; stale
 shared-inbox conflicts do not imply a change to the current resolver's claims.
-Owned case summaries use a tenant-and-work-item cache key and are mounted only
-while their local disclosure is open. Failed-execution and retry-handoff facts
-remain part of that same response and cache entry. The URL and persistent
-storage do not retain this short-lived resolver context.
+Owned case summaries use the complete tenant, work-item, case, and run request
+tuple as their cache identity. They mount only while the exact claim remains
+locally selected and the Console is open; closing it evicts private context.
+Failed-execution, retry-handoff, ordered attempt, and unassessed proof facts
+remain part of that response and cache entry. The feature hides case context
+during revalidation, after a failed owned-work refresh, and when the selected
+claim is absent or replaced. The URL and persistent storage do not retain this
+short-lived resolver context.
 
 ## Routing and rendering
 
@@ -135,6 +140,13 @@ The browser applications are Vite-built React SPAs using React Router Data
 Mode. Route definitions own hierarchy, lazy boundaries, parameters, and error
 pages. RTK Query, once introduced, owns API data; route loaders must not create
 a second cache for the same resource.
+
+The selected Resolver Console is a local work surface within the existing
+tenant route, not a durable case route. Its three panes render recorded
+observations, durable failed-attempt history, and the pinned but unassessed
+outcome condition. The presentation does not infer verified claims, a live
+trace, lease authority, approval decisions, or completed verification from
+this read model.
 
 The static artifact reads only public runtime configuration. Secrets never
 enter JavaScript bundles. The workbench consumes the confidential BFF through
@@ -169,8 +181,10 @@ slice must first establish a reviewed browser-facing endpoint.
 
 Tailwind owns utility generation and semantic theme tokens. shadcn source is
 checked-in and reviewed in `@ergon/ui-web`. Feature components remain near
-their behavior. Motion is reserved for transitions that clarify state change
-and must honor reduced-motion preferences; CSS handles simple visual feedback.
+their behavior. The selected Console scopes dark semantic tokens to its work
+surface without recoloring the unauthenticated or inbox views. Motion is
+reserved for transitions that clarify state change and must honor
+reduced-motion preferences; CSS handles simple visual feedback.
 
 All slices preserve semantic landmarks, keyboard operation, visible focus,
 accessible names, heading order, contrast, zoom, and responsive reflow. Color,

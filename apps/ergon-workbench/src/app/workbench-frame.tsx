@@ -8,7 +8,7 @@ interface WorkbenchFrameProps extends PropsWithChildren {
 /** Shared workbench landmarks, skip navigation, status, and milestone footer. */
 export function WorkbenchFrame({ children, statusLabel }: WorkbenchFrameProps) {
   return (
-    <div className="min-h-screen">
+    <div className="workbench-frame min-h-screen">
       <a
         href="#main-content"
         className="sr-only z-50 rounded-md bg-ink px-4 py-2 text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
@@ -16,7 +16,7 @@ export function WorkbenchFrame({ children, statusLabel }: WorkbenchFrameProps) {
         Skip to main content
       </a>
 
-      <header className="border-b border-border/80 bg-surface/70 backdrop-blur-md">
+      <header className="workbench-frame-header border-b border-border/80 bg-surface/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
           <Link
             className="flex items-center gap-3"
@@ -46,7 +46,7 @@ export function WorkbenchFrame({ children, statusLabel }: WorkbenchFrameProps) {
 
       <main id="main-content">{children}</main>
 
-      <footer className="mx-auto flex max-w-7xl flex-col gap-2 px-6 py-8 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between lg:px-10">
+      <footer className="workbench-frame-footer mx-auto flex max-w-7xl flex-col gap-2 px-6 py-8 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between lg:px-10">
         <p>Ergon open resolution infrastructure.</p>
         <p>M05 · Human follow-up and resolver console</p>
       </footer>

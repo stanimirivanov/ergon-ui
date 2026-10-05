@@ -13,6 +13,7 @@ import type {
   ReleaseHumanFollowUp,
   ResolverFollowUpCaseSummaryResult,
 } from '@ergon/follow-up-data-access-web';
+import { humanFollowUpApi } from '@ergon/follow-up-data-access-web';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
@@ -334,7 +335,7 @@ describe('resolver-owned human follow-ups', () => {
     ).toBeNull();
   });
 
-  it('closes private case context before submitting release', async () => {
+  it('hides private case context before a resolver can release work', async () => {
     let finishRelease: (
       value: Awaited<ReturnType<ReleaseHumanFollowUp['release']>>,
     ) => void = () => undefined;
@@ -357,9 +358,18 @@ describe('resolver-owned human follow-ups', () => {
     });
 
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Review case context' }),
+      await screen.findByRole('button', { name: 'Open resolver console' }),
     );
     expect(await screen.findByText('Private evidence')).toBeTruthy();
+    expect(
+      screen.queryByRole('button', {
+        name: /Release Retry attempt limit reached follow-up/,
+      }),
+    ).toBeNull();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Back to active work' }),
+    );
+    expect(screen.queryByText('Private evidence')).toBeNull();
     fireEvent.click(
       screen.getByRole('button', {
         name: /Release Retry attempt limit reached follow-up/,
@@ -392,15 +402,15 @@ describe('resolver-owned human follow-ups', () => {
       getOwnedCaseSummary,
     });
 
-    const disclosure = await screen.findByRole('button', {
-      name: 'Review case context',
+    const openConsole = await screen.findByRole('button', {
+      name: 'Open resolver console',
     });
     expect(getOwnedCaseSummary).not.toHaveBeenCalled();
-    fireEvent.click(disclosure);
+    fireEvent.click(openConsole);
 
     expect(
       await screen.findByRole('heading', {
-        level: 4,
+        level: 2,
         name: 'Restore access to the customer workspace',
       }),
     ).toBeTruthy();
@@ -409,7 +419,7 @@ describe('resolver-owned human follow-ups', () => {
     ).toBeTruthy();
     expect(screen.queryByRole('img')).toBeNull();
     expect(
-      screen.getByRole('heading', { level: 5, name: 'Automation handoff' }),
+      screen.getByRole('heading', { level: 4, name: 'Automation handoff' }),
     ).toBeTruthy();
     const evidence = screen.getByRole('region', {
       name: 'Recorded observations',
@@ -445,12 +455,23 @@ describe('resolver-owned human follow-ups', () => {
     expect(
       screen.getByText(/no verified resolution in this view/i),
     ).toBeTruthy();
-    expect(screen.getByText('identity-stub')).toBeTruthy();
+    expect(screen.getAllByText(/identity-stub reported/)).toHaveLength(2);
     expect(
       screen.getByText(/Automated attempt 2 reached the configured limit of 2/),
     ).toBeTruthy();
     expect(screen.getByText('2 of 2')).toBeTruthy();
-    expect(disclosure.getAttribute('aria-expanded')).toBe('true');
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Resolver Console' }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole('button', { name: 'Open resolver console' }),
+    ).toBeNull();
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { level: 1, name: 'Resolver Console' }),
+    );
+    expect(
+      screen.queryByRole('button', { name: /Authorize|Steer|Handover/ }),
+    ).toBeNull();
     expect(getOwnedCaseSummary).toHaveBeenCalledWith(
       {
         tenantId: TENANT_ID,
@@ -474,19 +495,59 @@ describe('resolver-owned human follow-ups', () => {
     });
 
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Review case context' }),
+      await screen.findByRole('button', { name: 'Open resolver console' }),
     );
 
     expect(
-      await screen.findByText(
-        'No observations were recorded at this evidence boundary.',
-      ),
+      await screen.findByText('No observations are recorded for this case.'),
     ).toBeTruthy();
     expect(
       screen.queryByRole('list', { name: 'Case observations' }),
     ).toBeNull();
     expect(
-      screen.getByRole('heading', { level: 5, name: 'Automation handoff' }),
+      screen.getByRole('heading', { level: 4, name: 'Automation handoff' }),
+    ).toBeTruthy();
+  });
+
+  it('distinguishes observations recorded after the run evidence boundary', async () => {
+    const summary = resolverFollowUpCaseSummary(FIRST_WORK_ITEM_ID, 'Earlier');
+    const first = summary.observations[0];
+    if (first === undefined) {
+      throw new Error('The fixture must contain an observation');
+    }
+    renderOwned({
+      listOwned: async () =>
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      getOwnedCaseSummary: async () => ({
+        ok: true,
+        summary: {
+          ...summary,
+          case: { ...summary.case, streamVersion: 5 },
+          observations: [
+            first,
+            {
+              ...first,
+              observationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+              streamVersion: 5,
+              content: 'Later evidence',
+            },
+          ],
+        },
+      }),
+    });
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Open resolver console' }),
+    );
+    const evidence = await screen.findByRole('region', {
+      name: 'Recorded observations',
+    });
+    expect(
+      within(evidence).getByText(/1 available at the run snapshot/),
+    ).toBeTruthy();
+    expect(within(evidence).getByText('Later evidence')).toBeTruthy();
+    expect(
+      within(evidence).getByText('Recorded after this run’s evidence snapshot'),
     ).toBeTruthy();
   });
 
@@ -516,12 +577,17 @@ describe('resolver-owned human follow-ups', () => {
     });
 
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Review case context' }),
+      await screen.findByRole('button', { name: 'Open resolver console' }),
     );
     expect(await screen.findByText('Private evidence')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Hide case context' }));
     fireEvent.click(
-      screen.getByRole('button', { name: 'Review case context' }),
+      screen.getByRole('button', { name: 'Back to active work' }),
+    );
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Open resolver console' }),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Open resolver console' }),
     );
 
     expect(screen.queryByText('Private evidence')).toBeNull();
@@ -540,6 +606,149 @@ describe('resolver-owned human follow-ups', () => {
     expect(screen.queryByText('Private evidence')).toBeNull();
   });
 
+  it('unmounts private context while owned work is rechecked and after claim loss', async () => {
+    let finishOwnedRead: (
+      result: Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>,
+    ) => void = () => undefined;
+    const pendingOwnedRead = new Promise<
+      Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>
+    >((resolve) => {
+      finishOwnedRead = resolve;
+    });
+    const listOwned = vi
+      .fn<ListOwnedHumanFollowUps['listOwned']>()
+      .mockResolvedValueOnce(
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      )
+      .mockImplementationOnce(() => pendingOwnedRead);
+    const store = createFollowUpTestStore({
+      listOwned,
+      getOwnedCaseSummary: async () => ({
+        ok: true,
+        summary: resolverFollowUpCaseSummary(
+          FIRST_WORK_ITEM_ID,
+          'Private evidence',
+        ),
+      }),
+    });
+    render(
+      <Provider store={store}>
+        <ResolverOwnedHumanFollowUps
+          tenantId={TENANT_ID}
+          signInHref={SIGN_IN_HREF}
+        />
+      </Provider>,
+    );
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Open resolver console' }),
+    );
+    expect(await screen.findByText('Private evidence')).toBeTruthy();
+
+    store.dispatch(
+      humanFollowUpApi.util.invalidateTags([
+        { type: 'ResolverOwnedHumanFollowUps', id: TENANT_ID },
+      ]),
+    );
+    await waitFor(() => expect(listOwned).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(screen.queryByText('Private evidence')).toBeNull(),
+    );
+
+    finishOwnedRead({ ok: true, page: { items: [], nextCursor: null } });
+    expect(
+      await screen.findByRole('heading', {
+        name: 'No active claimed work in this view.',
+      }),
+    ).toBeTruthy();
+    expect(screen.queryByText('Private evidence')).toBeNull();
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { name: 'Claimed follow-ups' }),
+    );
+  });
+
+  it('keeps private context hidden when an owned-work recheck fails with cached data', async () => {
+    let finishOwnedRead: (
+      result: Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>,
+    ) => void = () => undefined;
+    const pendingOwnedRead = new Promise<
+      Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>
+    >((resolve) => {
+      finishOwnedRead = resolve;
+    });
+    const listOwned = vi
+      .fn<ListOwnedHumanFollowUps['listOwned']>()
+      .mockResolvedValueOnce(
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      )
+      .mockImplementationOnce(() => pendingOwnedRead)
+      .mockResolvedValueOnce(
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      );
+    const store = createFollowUpTestStore({
+      listOwned,
+      getOwnedCaseSummary: async () => ({
+        ok: true,
+        summary: resolverFollowUpCaseSummary(
+          FIRST_WORK_ITEM_ID,
+          'Private evidence',
+        ),
+      }),
+    });
+    render(
+      <Provider store={store}>
+        <ResolverOwnedHumanFollowUps
+          tenantId={TENANT_ID}
+          signInHref={SIGN_IN_HREF}
+        />
+      </Provider>,
+    );
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Open resolver console' }),
+    );
+    expect(await screen.findByText('Private evidence')).toBeTruthy();
+
+    store.dispatch(
+      humanFollowUpApi.util.invalidateTags([
+        { type: 'ResolverOwnedHumanFollowUps', id: TENANT_ID },
+      ]),
+    );
+    await waitFor(() => expect(listOwned).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(screen.queryByText('Private evidence')).toBeNull(),
+    );
+
+    finishOwnedRead({ ok: false, error: { kind: 'transport' } });
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Your active work is temporarily unavailable.',
+      }),
+    ).toBeTruthy();
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', {
+        name: 'Your active work is temporarily unavailable.',
+      }),
+    );
+    expect(screen.queryByText('Private evidence')).toBeNull();
+    expect(
+      screen.queryByRole('heading', { name: 'Resolver Console' }),
+    ).toBeNull();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Back to active work' }),
+    );
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { name: 'Claimed follow-ups' }),
+    );
+    expect(screen.queryByText('Private evidence')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    await waitFor(() => expect(listOwned).toHaveBeenCalledTimes(3));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Open resolver console' }),
+    );
+    expect(await screen.findByText('Private evidence')).toBeTruthy();
+  });
+
   it('keeps unavailable case context non-disclosing', async () => {
     renderOwned({
       listOwned: async () =>
@@ -551,12 +760,12 @@ describe('resolver-owned human follow-ups', () => {
     });
 
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Review case context' }),
+      await screen.findByRole('button', { name: 'Open resolver console' }),
     );
 
     expect(
       await screen.findByRole('heading', {
-        level: 4,
+        level: 2,
         name: 'Case context is no longer available.',
       }),
     ).toBeTruthy();

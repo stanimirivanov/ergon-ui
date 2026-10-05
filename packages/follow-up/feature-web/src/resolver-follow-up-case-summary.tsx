@@ -95,12 +95,12 @@ function CaseContextMessage({
     <section
       id={id}
       aria-labelledby={`${id}-heading`}
-      className="mt-5 border-t border-border pt-5"
+      className="mx-1 mt-5 rounded-md border border-border bg-surface p-5"
       aria-live={live ? 'polite' : undefined}
     >
-      <h4 id={`${id}-heading`} className="font-bold text-ink">
+      <h2 id={`${id}-heading`} className="font-bold text-ink">
         {title}
-      </h4>
+      </h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">
         {description}
       </p>

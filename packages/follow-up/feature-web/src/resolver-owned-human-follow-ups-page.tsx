@@ -9,13 +9,14 @@ import {
 } from '@ergon/follow-up-data-access-web';
 import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-model';
 import { Button } from '@ergon/ui-web';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   normalizeFollowUpReadFailure,
   normalizeFollowUpReleaseFailure,
 } from './follow-up-failure-normalization';
 import { FollowUpMessage } from './follow-up-message';
+import { ResolverFollowUpConsole } from './resolver-follow-up-console';
 import { ownedWorkFailureCopy } from './resolver-owned-human-follow-ups-copy';
 import {
   type ReleaseNotice,
@@ -33,12 +34,21 @@ interface PagePosition {
 export function ResolverOwnedHumanFollowUpsPage({
   tenantId,
   signInHref,
+  selectedWork,
+  returnFocusToWorkItemId,
+  onMissingReturnFocus,
+  onSelectWork,
 }: {
   readonly tenantId: string;
   readonly signInHref: string;
+  readonly selectedWork: ResolverOwnedHumanFollowUpWork | null;
+  readonly returnFocusToWorkItemId: string | null;
+  readonly onMissingReturnFocus: () => void;
+  readonly onSelectWork: (item: ResolverOwnedHumanFollowUpWork | null) => void;
 }) {
   const [position, setPosition] = useState<PagePosition>({ history: [] });
   const [releaseNotice, setReleaseNotice] = useState<ReleaseNotice>();
+  const readFailureHeading = useRef<HTMLHeadingElement>(null);
   const [releaseHumanFollowUp, releaseRequest] =
     useReleaseHumanFollowUpMutation();
   const query: ResolverOwnedHumanFollowUpQuery = {
@@ -47,6 +57,53 @@ export function ResolverOwnedHumanFollowUpsPage({
     ...(position.cursor === undefined ? {} : { cursor: position.cursor }),
   };
   const ownedWork = useResolverOwnedHumanFollowUpsQuery(query);
+  const currentSelection =
+    selectedWork === null
+      ? undefined
+      : ownedWork.data?.items.find((item) =>
+          isExactSelectedClaim(item, selectedWork),
+        );
+
+  useEffect(() => {
+    if (selectedWork !== null && ownedWork.isError) {
+      readFailureHeading.current?.focus();
+    }
+  }, [selectedWork, ownedWork.isError]);
+
+  useEffect(() => {
+    if (
+      selectedWork === null &&
+      returnFocusToWorkItemId !== null &&
+      ownedWork.isError
+    ) {
+      onMissingReturnFocus();
+    }
+  }, [
+    selectedWork,
+    returnFocusToWorkItemId,
+    ownedWork.isError,
+    onMissingReturnFocus,
+  ]);
+
+  useEffect(() => {
+    // A refreshed owned page may withdraw or replace a claim. Unmount its
+    // private summary before showing any newly observed work.
+    if (
+      selectedWork !== null &&
+      !ownedWork.isFetching &&
+      !ownedWork.isError &&
+      (ownedWork.data === undefined || currentSelection === undefined)
+    ) {
+      onSelectWork(null);
+    }
+  }, [
+    selectedWork,
+    ownedWork.isFetching,
+    ownedWork.isError,
+    ownedWork.data,
+    currentSelection,
+    onSelectWork,
+  ]);
 
   useEffect(() => {
     // A later claim can return this work to the owned list. Its server revision
@@ -96,18 +153,32 @@ export function ResolverOwnedHumanFollowUpsPage({
 
   if (
     ownedWork.isLoading ||
-    (ownedWork.isFetching && ownedWork.data === undefined)
+    (ownedWork.isFetching &&
+      (ownedWork.data === undefined || selectedWork !== null))
   ) {
     return (
       <FollowUpMessage
         title="Loading your active work…"
         description="The control plane is checking current ownership and resolver authority."
+        action={
+          selectedWork === null ? undefined : (
+            <Button
+              type="button"
+              variant="quiet"
+              onClick={() => onSelectWork(null)}
+            >
+              Back to active work
+            </Button>
+          )
+        }
         live
       />
     );
   }
 
-  if (ownedWork.data === undefined) {
+  // RTK Query can retain successful data after a failed refetch. A stale
+  // owned page cannot authorize the selected private case read.
+  if (ownedWork.isError || ownedWork.data === undefined) {
     const failure = normalizeFollowUpReadFailure(ownedWork.error);
     const copy = ownedWorkFailureCopy(failure);
     const action =
@@ -136,15 +207,47 @@ export function ResolverOwnedHumanFollowUpsPage({
       <FollowUpMessage
         title={copy.title}
         description={copy.description}
-        action={action}
+        action={
+          selectedWork === null ? (
+            action
+          ) : (
+            <div className="flex flex-wrap gap-3">
+              {action}
+              <Button
+                type="button"
+                variant="quiet"
+                onClick={() => onSelectWork(null)}
+              >
+                Back to active work
+              </Button>
+            </div>
+          )
+        }
+        {...(selectedWork === null ? {} : { headingRef: readFailureHeading })}
       />
     );
   }
 
   const { items, nextCursor } = ownedWork.data;
+  if (selectedWork !== null) {
+    return currentSelection === undefined ? (
+      <FollowUpMessage
+        title="Returning to active work…"
+        description="This exact claim is no longer present in the current owned-work view. Its case context is hidden."
+        live
+      />
+    ) : (
+      <ResolverFollowUpConsole
+        tenantId={tenantId}
+        signInHref={signInHref}
+        item={currentSelection}
+        onBack={() => onSelectWork(null)}
+      />
+    );
+  }
+
   return (
     <ResolverOwnedHumanFollowUpsList
-      tenantId={tenantId}
       signInHref={signInHref}
       items={items}
       releaseNotice={releaseNotice}
@@ -157,6 +260,9 @@ export function ResolverOwnedHumanFollowUpsPage({
       canGoBack={position.history.length > 0}
       canGoNext={nextCursor !== null}
       onRelease={release}
+      onOpenConsole={onSelectWork}
+      returnFocusToWorkItemId={returnFocusToWorkItemId}
+      onMissingReturnFocus={onMissingReturnFocus}
       onRetryRelease={submitRelease}
       onPrevious={() =>
         setPosition((current) => {
@@ -176,5 +282,18 @@ export function ResolverOwnedHumanFollowUpsPage({
         }
       }}
     />
+  );
+}
+
+function isExactSelectedClaim(
+  current: ResolverOwnedHumanFollowUpWork,
+  selected: ResolverOwnedHumanFollowUpWork,
+): boolean {
+  return (
+    current.claim.claimId === selected.claim.claimId &&
+    current.workItem.workItemId === selected.workItem.workItemId &&
+    current.workItem.caseId === selected.workItem.caseId &&
+    current.workItem.runId === selected.workItem.runId &&
+    current.workItem.ownershipRevision === selected.workItem.ownershipRevision
   );
 }

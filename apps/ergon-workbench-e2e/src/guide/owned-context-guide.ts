@@ -1,30 +1,30 @@
 import type { GuideChapter } from './guide-chapter';
 
-/** Executable, synthetic guidance for owner-scoped case disclosure. */
+/** Executable, synthetic guidance for the owner-scoped Resolver Console. */
 export const ownedContextGuide: GuideChapter = {
   schemaVersion: 2,
   order: 12,
   slug: 'recheck-owned-case-context',
   title: 'Recheck owned case context',
   summary:
-    'Recover an active follow-up after reload, inspect its evidence only on demand, and respond safely when a fresh context check no longer permits disclosure.',
+    'Recover an active follow-up after reload, open its Resolver Console on demand, and respond safely when a fresh ownership check no longer permits disclosure.',
   verification: 'simulated-bff',
   presentation: 'workflow',
   audience:
     'Resolvers returning to active work and reviewing an escalated case.',
   overview: [
-    'Claimed follow-ups are recovered from the server-backed active-work view, not from a browser-stored claim. A card in that view identifies work currently visible under your resolver session, but its case evidence is a separate, owner-scoped disclosure. The workbench requests the case summary only when you choose Review case context. Hiding and reopening it triggers another read, because ownership and resolver authority can change while a page remains open.',
+    'Claimed follow-ups are recovered from the server-backed active-work view, not from a browser-stored claim. A card in that view identifies work currently visible under your resolver session, but its case evidence is a separate, owner-scoped read. The workbench requests the case summary only when you choose Open resolver console. Returning to active work closes the console; reopening it triggers another read because ownership and resolver authority can change while a page remains open. The selection is local to this page, not a shareable case route.',
     'This walkthrough uses one synthetic owned follow-up and a deliberately controlled BFF response. The first context request returns synthetic evidence; the second pauses and then returns the same neutral absence response used for several protected states. A later owned-work read returns an empty page. Those fixture choices illustrate the browser response, not why a real claim became unavailable. Every screenshot and the recording are labelled SIMULATED DATA; they do not verify OIDC, database transactions, authorization, or live revocation.',
   ],
   prerequisites: [
     'In a deployed environment, sign in to the correct tenant with a registered resolver identity and current authority. The tenant URL, an old screenshot, and an earlier claim receipt are not ongoing authorization. This recording begins with a simulated verified session and does not perform a real login or claim.',
-    'Use the claimed-work section to return to work already assigned to your identity. Open context only for a case you intend to handle, and treat source observations as untrusted evidence rather than instructions from the application.',
+    'Use the claimed-work section to return to work already assigned to your identity. Open the Resolver Console only for a case you intend to handle, and treat source observations as untrusted evidence rather than instructions from the application.',
   ],
   steps: [
     {
       id: 'owned-work-on-entry',
       title: 'Find your active follow-up',
-      body: 'The claimed-work section contains the synthetic access-restoration follow-up, while the shared inbox is empty. Its card shows the queue, reason, case identifier, and claimed state. No case-summary request has been made yet. The card is a starting point, not permission to assume its evidence or ownership will remain available indefinitely.',
+      body: 'The claimed-work section contains the synthetic access-restoration follow-up, while the shared inbox is empty. Its card shows the queue, reason, case identifier, and claimed state. No case-summary request has been made yet. The card is an entry point to the Resolver Console, not permission to assume its evidence or ownership will remain available indefinitely.',
       expected:
         'One active card is visible and no case goal or source observation has been disclosed.',
     },
@@ -43,22 +43,22 @@ export const ownedContextGuide: GuideChapter = {
     },
     {
       id: 'open-case-context',
-      title: 'Request case context on demand',
-      body: 'Choose Review case context. This starts a separate owner-scoped read for the exact follow-up. The BFF must establish that the item is open, claimed by your verified actor, and visible under current resolver authority before assembling the case and run evidence. The card alone does not bypass that check.',
+      title: 'Open the Resolver Console on demand',
+      body: 'Choose Open resolver console. The workbench replaces the active-work list with a read-only console and starts a separate owner-scoped read for the exact follow-up. The BFF must establish that the item is open, claimed by your verified actor, and visible under current resolver authority before assembling the case and run evidence. The card alone does not bypass that check.',
       expected:
         'The workbench requests the case summary only after this action.',
     },
     {
       id: 'review-evidence',
       title: 'Read the bounded evidence snapshot',
-      body: 'The synthetic summary shows the case goal, pinned contract revision, escalated run, failed connector, exhausted attempt budget, and source observation. Read the observation as data; its content is rendered as plain text, not markup or executable instructions. The evidence boundary and timestamps describe the run’s context, not proof that the customer problem has been resolved.',
+      body: 'The console shows the case goal, pinned contract revision, escalated run, failed connector, exhausted attempt budget, and source observation. Its three panes put observations on the left, recorded attempts and handoff in the center, and the unassessed outcome target on the right at desktop width. Read the observation as data; its content is rendered as plain text, not markup or executable instructions. The evidence boundary and timestamps describe the run’s context, not proof that the customer problem has been resolved.',
       expected:
         'The case goal and source observation appear with the automation handoff.',
     },
     {
       id: 'inspect-source-observation',
       title: 'Locate the source observation',
-      body: 'The read-only context places Recorded observations first, followed by Automation handoff, Recorded attempts, Outcome proof, and Case and contract. Check each observation’s source reference and its occurred and recorded times against the run’s evidence boundary. In this synthetic example the sign-in link reportedly returned an expired-token message. That sentence is customer-supplied evidence to assess, not a directive to change identity settings or bypass approval. Its appearance depends on the owner-scoped case read that just succeeded.',
+      body: 'The left pane presents Recorded observations with source reference, occurrence time, recording time, and whether each observation was available at this run’s pinned evidence snapshot. The center pane holds Recorded attempts and Automation handoff; the right pane holds the outcome target and Case and contract. In this synthetic example the sign-in link reportedly returned an expired-token message. That sentence is source evidence to assess, not a verified claim or a directive to bypass approval. Its appearance depends on the owner-scoped case read that just succeeded.',
       expected:
         'The synthetic observation is visible as text in the evidence section before the automation handoff.',
     },
@@ -72,40 +72,41 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'inspect-proof',
       title: 'Distinguish a target condition from verified proof',
-      body: 'Outcome proof shows the pinned condition account.access.state = ACTIVE but says Not assessed because the escalated run never entered verification. The target condition describes what success would require, not something this failed automation established. A failed connector does not prove the customer outcome was achieved or disproved; a resolver needs further authorized evidence before claiming resolution.',
+      body: 'The right pane shows the pinned condition account.access.state = ACTIVE but says Not assessed because the escalated run never entered verification. The target condition describes what success would require, not something this failed automation established. A failed connector does not prove the customer outcome was achieved or disproved; a resolver needs further authorized evidence before claiming resolution.',
       expected:
         'The pinned condition and Not assessed state are visible without a verified-resolution claim.',
     },
     {
       id: 'hide-case-context',
-      title: 'Close the evidence disclosure',
-      body: 'Choose Hide case context when you no longer need the details. The visible case evidence disappears immediately, and the case-summary cache is configured for eviction when the last disclosure closes. Closing the panel is not a release of the claim; the owned card remains available for a later deliberate context check.',
-      expected: 'The case goal and observation are no longer visible.',
+      title: 'Return to active work',
+      body: 'Choose Back to active work when you no longer need the details. The console unmounts and visible case evidence disappears immediately. The case-summary cache is configured for eviction when the last console closes. Returning is not a release of the claim; the owned card remains available for a later deliberate check.',
+      expected:
+        'The Resolver Console closes, and the case goal and observation are no longer visible.',
     },
     {
       id: 'context-hidden',
       title: 'Confirm the evidence is hidden',
-      body: 'The owned card remains, but its case goal, observation, and handoff details are no longer on screen. The button returns to Review case context. This distinction matters: hiding evidence changes the browser disclosure, while ownership remains a server fact that must be checked again before the evidence can be shown.',
+      body: 'The owned card remains, but its case goal, observation, and handoff details are no longer on screen. Open resolver console is available again. This distinction matters: closing the console changes browser disclosure, while ownership remains a server fact that must be checked again before the evidence can be shown.',
       expected:
         'The card remains claimed while its previously displayed case context is absent.',
     },
     {
       id: 'reopen-case-context',
       title: 'Reopen with a fresh ownership check',
-      body: 'Choose Review case context again. The workbench does not simply reveal the old snapshot: it starts a new BFF read for the same tenant, work item, case, and run. The synthetic fixture pauses this request so the loading state is visible. In a real session, ownership or authority could have changed since the first disclosure.',
+      body: 'Choose Open resolver console again. The workbench does not simply reveal the old snapshot: it starts a new BFF read for the same tenant, work item, case, and run. The synthetic fixture pauses this request so the loading state is visible. In a real session, ownership or authority could have changed since the first opening.',
       expected: 'A second case-summary request begins.',
     },
     {
       id: 'evidence-hidden-while-loading',
       title: 'Do not rely on stale evidence',
-      body: 'While the new request is pending, the panel says Loading case context and the prior observation is absent. This is intentional: old evidence must not remain on screen while the control plane rechecks permission. Waiting for the fresh result is safer than acting on a screenshot, cached content, or a claim card that has not itself been refreshed.',
+      body: 'While the new request is pending, the console says Loading case context and the prior observation is absent. This is intentional: old evidence must not remain on screen while the control plane rechecks permission. Waiting for the fresh result is safer than acting on a screenshot, cached content, or a claim card that has not itself been refreshed.',
       expected:
         'The loading message is visible and the earlier case goal and observation remain hidden.',
     },
     {
       id: 'context-unavailable',
       title: 'Read the neutral unavailable state',
-      body: 'The fixture now returns the BFF’s non-disclosing case-summary absence response. The workbench says Case context is no longer available and does not restore the old evidence or offer a blind retry for this definite result. The message does not reveal whether the item closed, ownership changed, authority changed, or the item was absent. Refresh active work before deciding what to do next.',
+      body: 'The fixture now returns the BFF’s non-disclosing case-summary absence response. The console says Case context is no longer available and does not restore the old evidence or offer a blind retry for this definite result. The message does not reveal whether the item closed, ownership changed, authority changed, or the item was absent. Refresh active work before deciding what to do next.',
       expected:
         'A neutral unavailable message replaces the evidence without naming another owner or an authorization reason.',
     },
@@ -125,6 +126,12 @@ export const ownedContextGuide: GuideChapter = {
   ],
   troubleshooting: [
     {
+      symptom:
+        'Active work becomes temporarily unavailable while the console is open.',
+      guidance:
+        'The console hides case evidence when the owned-work recheck fails, even if an earlier list is cached. Use Try again to request current ownership before relying on the case context, or Back to active work to leave the console. A failed read does not establish that the claim was lost.',
+    },
+    {
       symptom: 'Your active work is empty after reload.',
       guidance:
         'Confirm the tenant and session first. Current owned-work reads are authority-filtered and reveal no total count or other owner. Do not infer that a case was deleted; seek an operator’s server-side investigation when necessary.',
@@ -142,6 +149,6 @@ export const ownedContextGuide: GuideChapter = {
   ],
   limitations: [
     'The fixture controls the second read and later owned list. It does not verify real revocation, competing claims, transaction isolation, cache memory erasure, or backend authorization; those require backend and disposable full-stack tests.',
-    'The current workbench has read-only case context. It does not provide completion, reassignment, or a detailed audit of why an item is no longer visible. Release recovery is documented separately.',
+    'The Resolver Console is a read-only projection of an escalated run, not a live tool trace, verified-claim graph, lease, approval surface, or proof assessment. It does not provide completion, reassignment, or a detailed audit of why an item is no longer visible. Release recovery is documented separately.',
   ],
 };

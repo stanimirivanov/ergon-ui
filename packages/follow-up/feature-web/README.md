@@ -9,14 +9,17 @@ out of the deployable app and domain-agnostic UI primitives.
 
 - Shared-inbox queue filtering, pagination, revision-checked claim interaction,
   explicit same-command retry, and presentation.
-- Resolver-owned pagination and lazy case-context disclosure, including a fresh
-  ownership check on reopening and hiding prior evidence during revalidation.
-- Evidence-first, responsive read-only case inspection: source observations and
-  their provenance precede the failed automation handoff, ordered durable run
-  attempts, unassessed pinned outcome condition, and case contract. The view
-  introduces no client-side authority, live trace, or resolution claim.
+- Resolver-owned pagination and local selection of an exact owned claim. A
+  selected case opens a full-width Resolver Console on the same tenant route;
+  it is not a shareable case address. The feature hides private context while
+  ownership is rechecked and unmounts it when the claim changes or disappears.
+- Responsive, read-only, three-pane case inspection: recorded observations
+  and provenance, the failed automation handoff and ordered durable attempts,
+  and the pinned but unassessed outcome condition. Evidence precedes execution
+  and proof in the reading order when panes stack. The view introduces no
+  client-side authority, live trace, lease, approval, or resolution claim.
 - Confirmed owned-claim release, explicit same-tuple retry after uncertainty,
-  closing case disclosure before release submission, and retiring success
+  closing selected case context before release submission, and retiring success
   feedback when a later server-observed ownership revision supersedes it.
 - Follow-up workspace introduction and composition of the two work views.
 - Translation of typed follow-up failures into resolver-facing copy.

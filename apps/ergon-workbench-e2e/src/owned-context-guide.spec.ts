@@ -27,11 +27,14 @@ test(
           level: 3,
           name: 'Retry attempt limit reached',
         });
-        const openContext = owned.getByRole('button', {
-          name: 'Review case context',
+        const openConsole = owned.getByRole('button', {
+          name: 'Open resolver console',
         });
-        const caseHeading = owned.getByRole('heading', {
-          level: 4,
+        const consoleView = page.getByRole('region', {
+          name: 'Resolver Console',
+        });
+        const caseHeading = consoleView.getByRole('heading', {
+          level: 2,
           name: caseGoal,
         });
 
@@ -50,22 +53,29 @@ test(
         expect(bff.claimCommands()).toBe(0);
         await guide.result('owned-work-restored', ownedItem);
 
-        await guide.action('open-case-context', openContext, () =>
-          openContext.click(),
+        await guide.action('open-case-context', openConsole, () =>
+          openConsole.click(),
         );
+        await expect(consoleView).toBeVisible();
         await expect(caseHeading).toBeVisible();
-        await expect(owned.getByText(observation)).toBeVisible();
+        await expect(consoleView.getByText(observation)).toBeVisible();
         await expect(
-          owned.getByRole('heading', { level: 5, name: 'Automation handoff' }),
+          consoleView.getByText('In this run’s evidence snapshot'),
+        ).toBeVisible();
+        await expect(
+          consoleView.getByRole('heading', {
+            level: 4,
+            name: 'Automation handoff',
+          }),
         ).toBeVisible();
         expect(bff.summaryReads()).toBe(1);
         await guide.result('review-evidence', caseHeading);
         await guide.result(
           'inspect-source-observation',
-          owned.getByText(observation),
+          consoleView.getByText(observation),
         );
 
-        const context = owned.getByRole('region', { name: caseGoal });
+        const context = consoleView.getByRole('region', { name: caseGoal });
         const attempts = context.getByRole('list', {
           name: 'Resolution attempts',
         });
@@ -86,22 +96,23 @@ test(
         await guide.result('inspect-attempt-history', attempts);
         await guide.result('inspect-proof', proof);
 
-        const hideContext = owned.getByRole('button', {
-          name: 'Hide case context',
+        const backToWork = consoleView.getByRole('button', {
+          name: 'Back to active work',
         });
-        await guide.action('hide-case-context', hideContext, () =>
-          hideContext.click(),
+        await guide.action('hide-case-context', backToWork, () =>
+          backToWork.click(),
         );
+        await expect(consoleView).toHaveCount(0);
         await expect(caseHeading).toHaveCount(0);
         await expect(page.getByText(observation)).toHaveCount(0);
-        await guide.result('context-hidden', openContext);
+        await guide.result('context-hidden', openConsole);
 
-        await guide.action('reopen-case-context', openContext, () =>
-          openContext.click(),
+        await guide.action('reopen-case-context', openConsole, () =>
+          openConsole.click(),
         );
         await expect.poll(() => bff.summaryReads()).toBe(2);
-        const loading = owned.getByRole('heading', {
-          level: 4,
+        const loading = consoleView.getByRole('heading', {
+          level: 2,
           name: 'Loading case context…',
         });
         await expect(loading).toBeVisible();
@@ -110,15 +121,15 @@ test(
         await guide.result('evidence-hidden-while-loading', loading);
 
         bff.denyPendingSummary();
-        const unavailable = owned.getByRole('heading', {
-          level: 4,
+        const unavailable = consoleView.getByRole('heading', {
+          level: 2,
           name: 'Case context is no longer available.',
         });
         await expect(unavailable).toBeVisible();
         await expect(caseHeading).toHaveCount(0);
         await expect(page.getByText(observation)).toHaveCount(0);
         await expect(
-          owned.getByRole('button', { name: 'Try case context again' }),
+          consoleView.getByRole('button', { name: 'Try case context again' }),
         ).toHaveCount(0);
         await guide.result('context-unavailable', unavailable);
 
@@ -143,42 +154,56 @@ test(
     ),
 );
 
-test('places evidence before handoff without overflow at desktop and narrow widths', async ({
+test('places console panes in order without overflow at desktop and narrow widths', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await installSimulatedOwnedContextBff(page);
   await page.goto(tenantPath);
-  await page.getByRole('button', { name: 'Review case context' }).click();
+  await page.getByRole('button', { name: 'Open resolver console' }).click();
 
-  const context = page.getByRole('region', { name: caseGoal });
+  const consoleView = page.getByRole('region', { name: 'Resolver Console' });
+  const context = consoleView.getByRole('region', { name: caseGoal });
   const evidence = context.getByRole('region', {
     name: 'Recorded observations',
   });
-  const handoff = context.getByRole('region', { name: 'Automation handoff' });
-  const contract = context.getByRole('region', { name: 'Case and contract' });
   const attempts = context.getByRole('region', { name: 'Recorded attempts' });
+  const handoff = attempts.getByRole('region', { name: 'Automation handoff' });
+  const contract = context.getByRole('region', { name: 'Case and contract' });
   const proof = context.getByRole('region', { name: 'Not assessed' });
   await expect(evidence).toBeVisible();
   await expect(handoff).toBeVisible();
   await expect(attempts).toBeVisible();
   await expect(proof).toBeVisible();
   await expect(contract).toBeVisible();
+  await expect(
+    consoleView.getByText('not a live tool trace', {
+      exact: false,
+    }),
+  ).toBeVisible();
   const desktopEvidence = await evidence.boundingBox();
-  const desktopHandoff = await handoff.boundingBox();
-  if (desktopEvidence === null || desktopHandoff === null) {
+  const desktopAttempts = await attempts.boundingBox();
+  const desktopProof = await proof.boundingBox();
+  if (
+    desktopEvidence === null ||
+    desktopAttempts === null ||
+    desktopProof === null
+  ) {
     throw new Error('Case inspection regions have no desktop bounds');
   }
   expect(desktopEvidence.x + desktopEvidence.width).toBeLessThan(
-    desktopHandoff.x,
+    desktopAttempts.x,
+  );
+  expect(desktopAttempts.x + desktopAttempts.width).toBeLessThan(
+    desktopProof.x,
   );
 
   await page.setViewportSize({ width: 375, height: 812 });
   const narrowEvidence = await evidence.boundingBox();
-  const narrowHandoff = await handoff.boundingBox();
-  const narrowContract = await contract.boundingBox();
   const narrowAttempts = await attempts.boundingBox();
   const narrowProof = await proof.boundingBox();
+  const narrowHandoff = await handoff.boundingBox();
+  const narrowContract = await contract.boundingBox();
   if (
     narrowEvidence === null ||
     narrowHandoff === null ||
@@ -189,11 +214,11 @@ test('places evidence before handoff without overflow at desktop and narrow widt
     throw new Error('Case inspection regions have no narrow viewport bounds');
   }
   expect(narrowEvidence.y + narrowEvidence.height).toBeLessThan(
-    narrowHandoff.y,
+    narrowAttempts.y,
   );
-  expect(narrowHandoff.y + narrowHandoff.height).toBeLessThan(narrowAttempts.y);
+  expect(narrowHandoff.y + narrowHandoff.height).toBeLessThan(narrowProof.y);
   expect(narrowAttempts.y + narrowAttempts.height).toBeLessThan(narrowProof.y);
-  expect(narrowProof.y + narrowProof.height).toBeLessThan(narrowContract.y);
+  expect(narrowContract.y).toBeGreaterThan(narrowProof.y);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,

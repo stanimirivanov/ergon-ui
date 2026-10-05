@@ -8,11 +8,9 @@ const observedAtFormatter = new Intl.DateTimeFormat('en-GB', {
 });
 
 /**
- * Renders a validated, server-authorized evidence snapshot as inert text.
- *
- * The view owns no fetching or authority decisions. Observation content is
- * rendered through React text nodes and is never interpreted as markup. The
- * evidence-first order is also the reading order when the columns collapse.
+ * Presents owner-authorized observations, durable attempts, and the pinned
+ * outcome target. This is neither a live trace nor verified resolution;
+ * untrusted observation content remains inert React text.
  */
 export function ResolverFollowUpCaseSummaryView({
   summary,
@@ -23,103 +21,112 @@ export function ResolverFollowUpCaseSummaryView({
   readonly regionId: string;
   readonly isFetching: boolean;
 }): ReactNode {
+  const pinnedVersion = summary.resolutionRun.caseEvidenceStreamVersion;
+  const visibleCount = summary.observations.filter(
+    (observation) => observation.streamVersion <= pinnedVersion,
+  ).length;
+
   return (
     <section
       id={regionId}
       aria-labelledby={`${regionId}-heading`}
-      className="mt-5 min-w-0 border-t border-border pt-5"
       aria-busy={isFetching}
+      className="min-w-0 pt-4"
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 px-1">
         <div className="min-w-0">
-          <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
-            Case context · read only
+          <p className="text-xs font-bold tracking-[0.14em] text-accent-strong uppercase">
+            Owner-scoped case context · read only
           </p>
-          <h4
+          <h2
             id={`${regionId}-heading`}
-            className="mt-2 break-words text-xl font-bold text-ink"
+            className="mt-1 break-words text-xl font-bold tracking-tight text-ink sm:text-2xl"
           >
             {summary.case.goal}
-          </h4>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-muted">
-            Review the recorded evidence and failed automation before deciding
-            what to do next. This open case has no verified resolution in this
-            view.
+          </h2>
+          <p className="mt-1 text-sm text-ink-muted">
+            Failed automation needs human follow-up. There is no verified
+            resolution in this view.
           </p>
         </div>
-        <div
-          className="flex shrink-0 flex-wrap gap-2"
-          aria-label="Case and run status"
-        >
-          <ContextBadge>Case {summary.case.status}</ContextBadge>
-          <ContextBadge>Run {summary.resolutionRun.state}</ContextBadge>
-          <ContextBadge>
+        <div className="flex flex-wrap gap-2 text-xs font-bold tracking-wide uppercase">
+          <span className="rounded-md border border-border bg-surface px-2.5 py-1.5 text-ink-muted">
+            Case {summary.case.status}
+          </span>
+          <span className="rounded-md border border-highlight/55 bg-highlight/10 px-2.5 py-1.5 text-highlight">
+            Run {summary.resolutionRun.state}
+          </span>
+          <span className="rounded-md border border-border bg-surface px-2.5 py-1.5 text-ink-muted">
             {summary.resolutionRun.effectiveRisk} risk
-          </ContextBadge>
+          </span>
         </div>
       </div>
 
-      <div className="mt-6 grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start">
+      <div className="grid min-w-0 gap-3 lg:grid-cols-2 xl:grid-cols-[minmax(17rem,0.85fr)_minmax(0,1.8fr)_minmax(19rem,1.05fr)]">
         <section
           aria-labelledby={`${regionId}-evidence-heading`}
-          className="min-w-0 rounded-xl border border-accent/35 bg-surface-strong p-4 sm:p-5"
+          className="min-w-0 rounded-md border border-border bg-surface/90 p-4 xl:min-h-[calc(100vh-10.5rem)]"
         >
           <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
-            01 · Evidence
+            Evidence & sources
           </p>
-          <h5
+          <h3
             id={`${regionId}-evidence-heading`}
-            className="mt-2 text-base font-bold text-ink"
+            className="mt-2 text-xl font-bold text-ink"
           >
             Recorded observations
-          </h5>
-          <p className="mt-1 text-sm leading-6 text-ink-muted">
-            {summary.observations.length}{' '}
-            {summary.observations.length === 1 ? 'observation' : 'observations'}
-            {' · '}evidence through stream version{' '}
-            {summary.resolutionRun.caseEvidenceStreamVersion}
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-ink-muted">
+            {visibleCount} available at the run snapshot ·{' '}
+            {summary.observations.length - visibleCount} recorded later. These
+            are source observations, not verified claims.
           </p>
           {summary.observations.length === 0 ? (
-            <p className="mt-4 text-sm leading-6 text-ink-muted">
-              No observations were recorded at this evidence boundary.
+            <p className="mt-5 rounded-md border border-border bg-canvas p-4 text-sm text-ink-muted">
+              No observations are recorded for this case.
             </p>
           ) : (
-            <ol className="mt-4 grid gap-3" aria-label="Case observations">
+            <ol className="mt-5 grid gap-3" aria-label="Case observations">
               {summary.observations.map((observation) => (
                 <li
                   key={observation.observationId}
-                  className="min-w-0 rounded-lg border border-border bg-canvas/60 p-4"
+                  className="min-w-0 rounded-md border border-border bg-canvas/75 p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <p className="min-w-0 break-words font-bold text-ink">
+                    <p className="min-w-0 break-words font-semibold text-ink">
                       {observation.summary}
                     </p>
-                    <span className="shrink-0 rounded-full border border-border px-2 py-1 text-xs text-ink-muted">
+                    <span className="rounded border border-border px-2 py-1 text-xs text-ink-muted">
                       Version {observation.streamVersion}
                     </span>
                   </div>
+                  <p className="mt-2 text-xs font-semibold text-accent-strong">
+                    {observation.streamVersion <= pinnedVersion
+                      ? 'In this run’s evidence snapshot'
+                      : 'Recorded after this run’s evidence snapshot'}
+                  </p>
                   <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-ink">
                     {observation.content}
                   </p>
-                  <dl className="mt-4 grid gap-x-4 gap-y-3 border-t border-border pt-3 text-xs sm:grid-cols-2">
-                    <ContextFact label="Source">
+                  <dl className="mt-4 grid gap-3 border-t border-border pt-3 text-xs">
+                    <CaseFact label="Source">
                       {observation.originType} via {observation.provider}
-                    </ContextFact>
+                    </CaseFact>
                     {observation.reference === null ? null : (
-                      <ContextFact label="Source reference">
+                      <CaseFact label="Source reference">
                         {observation.reference}
-                      </ContextFact>
+                      </CaseFact>
                     )}
-                    <ContextFact label="Occurred">
+                    <CaseFact label="Occurred">
                       <time dateTime={observation.occurredAt}>
                         {formatUtcInstant(observation.occurredAt)}
                       </time>
-                    </ContextFact>
-                    <ContextFact label="Recorded">
+                    </CaseFact>
+                    <CaseFact label="Recorded">
                       <time dateTime={observation.recordedAt}>
                         {formatUtcInstant(observation.recordedAt)}
                       </time>
-                    </ContextFact>
+                    </CaseFact>
                   </dl>
                 </li>
               ))}
@@ -127,178 +134,164 @@ export function ResolverFollowUpCaseSummaryView({
           )}
         </section>
 
-        <div className="grid min-w-0 gap-4">
+        <section
+          aria-labelledby={`${regionId}-run-heading`}
+          className="min-w-0 rounded-md border border-border bg-surface/90 p-4 xl:min-h-[calc(100vh-10.5rem)]"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
+                Resolution run
+              </p>
+              <h3
+                id={`${regionId}-run-heading`}
+                className="mt-2 text-xl font-bold text-ink"
+              >
+                Recorded attempts
+              </h3>
+            </div>
+            <span className="rounded-md border border-highlight/55 bg-highlight/10 px-2.5 py-1 text-xs font-bold text-highlight">
+              Escalated
+            </span>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-ink-muted">
+            Durable attempt and transition records, not a live tool trace. The
+            retry limit was reached after {summary.escalation.maximumAttempts}{' '}
+            attempts.
+          </p>
+          <ol
+            className="mt-5 grid gap-3 border-l-2 border-accent/45 pl-4"
+            aria-label="Resolution attempts"
+          >
+            {summary.runHistory.attempts.map((attempt) => (
+              <li
+                key={attempt.runId}
+                className="relative min-w-0 rounded-md border border-border bg-canvas/75 p-4 before:absolute before:top-5 before:-left-[1.36rem] before:size-2.5 before:rounded-full before:bg-accent"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h4 className="font-bold text-ink">
+                    Attempt {attempt.attemptNumber} · {attempt.state}
+                  </h4>
+                  <time
+                    className="text-xs text-ink-muted"
+                    dateTime={attempt.stateUpdatedAt}
+                  >
+                    {formatUtcInstant(attempt.stateUpdatedAt)}
+                  </time>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-ink-muted">
+                  {attempt.capabilityResult.connector} reported{' '}
+                  {attempt.capabilityResult.outcome} at{' '}
+                  <time dateTime={attempt.capabilityResult.completedAt}>
+                    {formatUtcInstant(attempt.capabilityResult.completedAt)}
+                  </time>
+                  .
+                </p>
+                {attempt.retry === null ? null : (
+                  <p className="mt-3 border-t border-border pt-3 text-sm leading-6 text-accent-strong">
+                    Retry recorded at{' '}
+                    <time dateTime={attempt.retry.occurredAt}>
+                      {formatUtcInstant(attempt.retry.occurredAt)}
+                    </time>
+                    ; a successor attempt was started.
+                  </p>
+                )}
+              </li>
+            ))}
+          </ol>
           <section
             aria-labelledby={`${regionId}-handoff-heading`}
-            className="min-w-0 rounded-xl border border-border bg-canvas/60 p-4 sm:p-5"
+            className="mt-5 rounded-md border border-highlight/45 bg-highlight/5 p-4"
           >
-            <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
-              02 · Execution
-            </p>
-            <h5
+            <h4
               id={`${regionId}-handoff-heading`}
-              className="mt-2 text-base font-bold text-ink"
+              className="font-bold text-ink"
             >
               Automation handoff
-            </h5>
+            </h4>
             <p className="mt-2 text-sm leading-6 text-ink-muted">
               The {summary.failedExecution.connector} connector failed.
               Automated attempt {summary.escalation.sourceAttemptNumber} reached
               the configured limit of {summary.escalation.maximumAttempts}, so
               the case was escalated to human follow-up.
             </p>
-            <dl className="mt-4 grid gap-x-4 gap-y-4 text-sm sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-              <ContextFact label="Escalated step">
-                {summary.resolutionRun.stepId}
-              </ContextFact>
-              <ContextFact label="Capability">
+            <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+              <CaseFact label="Capability">
                 {summary.resolutionRun.capability}
-              </ContextFact>
-              <ContextFact label="Required approval">
+              </CaseFact>
+              <CaseFact label="Required approval">
                 {summary.resolutionRun.requiredApproval}
-              </ContextFact>
-              <ContextFact label="Connector">
-                {summary.failedExecution.connector}
-              </ContextFact>
-              <ContextFact label="Execution result">Failed</ContextFact>
-              <ContextFact label="Execution completed">
-                <time dateTime={summary.failedExecution.completedAt}>
-                  {formatUtcInstant(summary.failedExecution.completedAt)}
-                </time>
-              </ContextFact>
-              <ContextFact label="Retry policy">
+              </CaseFact>
+              <CaseFact label="Retry policy">
                 {summary.escalation.retryPolicyRevision}
-              </ContextFact>
-              <ContextFact label="Attempt at handoff">
+              </CaseFact>
+              <CaseFact label="Attempt at handoff">
                 {summary.escalation.sourceAttemptNumber} of{' '}
                 {summary.escalation.maximumAttempts}
-              </ContextFact>
-              <ContextFact label="Escalated">
-                <time dateTime={summary.escalation.occurredAt}>
-                  {formatUtcInstant(summary.escalation.occurredAt)}
-                </time>
-              </ContextFact>
+              </CaseFact>
             </dl>
           </section>
+        </section>
 
-          <section
-            aria-labelledby={`${regionId}-run-history-heading`}
-            className="min-w-0 rounded-xl border border-border bg-canvas/60 p-4 sm:p-5"
+        <section
+          aria-labelledby={`${regionId}-proof-heading`}
+          className="min-w-0 rounded-md border border-border bg-surface/90 p-4 lg:col-span-2 xl:col-span-1 xl:min-h-[calc(100vh-10.5rem)]"
+        >
+          <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
+            Outcome target
+          </p>
+          <h3
+            id={`${regionId}-proof-heading`}
+            className="mt-2 text-xl font-bold text-ink"
           >
+            Not assessed
+          </h3>
+          <p className="mt-2 text-sm text-ink-muted">
+            This run never entered verification.
+          </p>
+          <div className="mt-5 rounded-md border border-accent/45 bg-accent/10 p-4 backdrop-blur-sm">
             <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
-              03 · Run history
+              Pinned success condition
             </p>
-            <h5
-              id={`${regionId}-run-history-heading`}
-              className="mt-2 text-base font-bold text-ink"
-            >
-              Recorded attempts
-            </h5>
-            <p className="mt-2 text-sm leading-6 text-ink-muted">
-              These are durable attempt and transition records, not a live tool
-              trace.
+            <p className="mt-3 break-words text-lg font-semibold text-ink">
+              {summary.outcomeProof.fact} = {summary.outcomeProof.expectedValue}
             </p>
-            <ol className="mt-4 grid gap-3" aria-label="Resolution attempts">
-              {summary.runHistory.attempts.map((attempt) => (
-                <li
-                  key={attempt.runId}
-                  className="min-w-0 rounded-lg border border-border bg-surface-strong p-3"
-                >
-                  <p className="font-bold text-ink">
-                    Attempt {attempt.attemptNumber} · {attempt.state}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-ink-muted">
-                    {attempt.capabilityResult.connector} reported{' '}
-                    {attempt.capabilityResult.outcome} at{' '}
-                    <time dateTime={attempt.capabilityResult.completedAt}>
-                      {formatUtcInstant(attempt.capabilityResult.completedAt)}
-                    </time>
-                    .
-                  </p>
-                  {attempt.retry === null ? null : (
-                    <p className="mt-2 text-sm leading-6 text-ink-muted">
-                      Retry recorded at{' '}
-                      <time dateTime={attempt.retry.occurredAt}>
-                        {formatUtcInstant(attempt.retry.occurredAt)}
-                      </time>
-                      ; a successor attempt was started.
-                    </p>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </section>
-
-          <section
-            aria-labelledby={`${regionId}-proof-heading`}
-            className="min-w-0 rounded-xl border border-border bg-canvas/60 p-4 sm:p-5"
-          >
-            <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
-              04 · Outcome proof
-            </p>
-            <h5
-              id={`${regionId}-proof-heading`}
-              className="mt-2 text-base font-bold text-ink"
-            >
-              Not assessed
-            </h5>
-            <p className="mt-2 text-sm leading-6 text-ink-muted">
-              The pinned success condition is{' '}
-              <span className="break-words font-semibold text-ink">
-                {summary.outcomeProof.fact} ={' '}
-                {summary.outcomeProof.expectedValue}
-              </span>
-              . This escalated run did not enter verification, so there is no
-              accepted proof of resolution.
-            </p>
-          </section>
-
+          </div>
+          <p className="mt-4 text-sm leading-6 text-ink-muted">
+            The target is not proof: there is no accepted proof of resolution
+            for this escalated run.
+          </p>
           <section
             aria-labelledby={`${regionId}-contract-heading`}
-            className="min-w-0 rounded-xl border border-border bg-canvas/60 p-4 sm:p-5"
+            className="mt-6 border-t border-border pt-5"
           >
-            <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
-              05 · Case
-            </p>
-            <h5
+            <h4
               id={`${regionId}-contract-heading`}
-              className="mt-2 text-base font-bold text-ink"
+              className="font-bold text-ink"
             >
               Case and contract
-            </h5>
-            <dl className="mt-4 grid gap-x-4 gap-y-4 text-sm sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-              <ContextFact label="Case status">
-                {summary.case.status}
-              </ContextFact>
-              <ContextFact label="Resolution contract">
+            </h4>
+            <dl className="mt-4 grid gap-4 text-sm">
+              <CaseFact label="Case status">{summary.case.status}</CaseFact>
+              <CaseFact label="Resolution contract">
                 {summary.case.resolutionContract.key} revision{' '}
                 {summary.case.resolutionContract.revision}
-              </ContextFact>
-              <ContextFact label="Evidence boundary">
-                Version {summary.resolutionRun.caseEvidenceStreamVersion} of{' '}
-                {summary.case.streamVersion}
-              </ContextFact>
+              </CaseFact>
+              <CaseFact label="Run evidence boundary">
+                Version {pinnedVersion} of {summary.case.streamVersion}
+              </CaseFact>
+              <CaseFact label="Escalated step">
+                {summary.resolutionRun.stepId}
+              </CaseFact>
             </dl>
           </section>
-        </div>
+        </section>
       </div>
     </section>
   );
 }
 
-function ContextBadge({
-  children,
-}: {
-  readonly children: ReactNode;
-}): ReactNode {
-  return (
-    <span className="inline-flex rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-bold tracking-wide text-accent-strong uppercase">
-      {children}
-    </span>
-  );
-}
-
-function ContextFact({
+function CaseFact({
   label,
   children,
 }: {
@@ -307,8 +300,10 @@ function ContextFact({
 }): ReactNode {
   return (
     <div className="min-w-0">
-      <dt className="font-bold text-ink">{label}</dt>
-      <dd className="mt-1 break-words text-ink-muted">{children}</dd>
+      <dt className="text-xs font-bold tracking-wide text-ink-muted uppercase">
+        {label}
+      </dt>
+      <dd className="mt-1 break-words text-ink">{children}</dd>
     </div>
   );
 }

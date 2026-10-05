@@ -4,10 +4,9 @@ import type {
 } from '@ergon/follow-up-data-access-web';
 import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-model';
 import { Button } from '@ergon/ui-web';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { FollowUpMessage } from './follow-up-message';
-import { ResolverFollowUpCaseSummary } from './resolver-follow-up-case-summary';
 import { releaseFailureCopy } from './resolver-owned-release-copy';
 
 const claimedAtFormatter = new Intl.DateTimeFormat('en-GB', {
@@ -30,7 +29,6 @@ export type ReleaseNotice =
     };
 
 interface ResolverOwnedHumanFollowUpsListProps {
-  readonly tenantId: string;
   readonly signInHref: string;
   readonly items: readonly ResolverOwnedHumanFollowUpWork[];
   readonly releaseNotice: ReleaseNotice | undefined;
@@ -41,6 +39,9 @@ interface ResolverOwnedHumanFollowUpsListProps {
   readonly onPrevious: () => void;
   readonly onNext: () => void;
   readonly onRelease: (item: ResolverOwnedHumanFollowUpWork) => Promise<void>;
+  readonly onOpenConsole: (item: ResolverOwnedHumanFollowUpWork) => void;
+  readonly returnFocusToWorkItemId: string | null;
+  readonly onMissingReturnFocus: () => void;
   readonly onRetryRelease: (
     command: HumanFollowUpReleaseCommand,
   ) => Promise<void>;
@@ -48,7 +49,6 @@ interface ResolverOwnedHumanFollowUpsListProps {
 
 /** Renders one claimed-work page without owning its remote or cursor state. */
 export function ResolverOwnedHumanFollowUpsList({
-  tenantId,
   signInHref,
   items,
   releaseNotice,
@@ -59,8 +59,22 @@ export function ResolverOwnedHumanFollowUpsList({
   onPrevious,
   onNext,
   onRelease,
+  onOpenConsole,
+  returnFocusToWorkItemId,
+  onMissingReturnFocus,
   onRetryRelease,
 }: ResolverOwnedHumanFollowUpsListProps) {
+  useEffect(() => {
+    if (
+      returnFocusToWorkItemId !== null &&
+      !items.some(
+        (item) => item.workItem.workItemId === returnFocusToWorkItemId,
+      )
+    ) {
+      onMissingReturnFocus();
+    }
+  }, [items, returnFocusToWorkItemId, onMissingReturnFocus]);
+
   return (
     <div className="pt-7" aria-busy={isFetching}>
       {releaseNotice === undefined ? null : (
@@ -80,8 +94,6 @@ export function ResolverOwnedHumanFollowUpsList({
           {items.map((item) => (
             <li key={item.claim.claimId}>
               <OwnedWorkItem
-                tenantId={tenantId}
-                signInHref={signInHref}
                 item={item}
                 anotherReleaseIsPending={pendingClaimId !== undefined}
                 releaseIsPending={pendingClaimId === item.claim.claimId}
@@ -90,6 +102,10 @@ export function ResolverOwnedHumanFollowUpsList({
                   releaseNotice.claimId === item.claim.claimId
                 }
                 onRelease={onRelease}
+                onOpenConsole={onOpenConsole}
+                shouldRestoreFocus={
+                  returnFocusToWorkItemId === item.workItem.workItemId
+                }
               />
             </li>
           ))}
@@ -130,30 +146,31 @@ export function ResolverOwnedHumanFollowUpsList({
 }
 
 function OwnedWorkItem({
-  tenantId,
-  signInHref,
   item,
   anotherReleaseIsPending,
   releaseIsPending,
   releaseWasRecorded,
   onRelease,
+  onOpenConsole,
+  shouldRestoreFocus,
 }: {
-  readonly tenantId: string;
-  readonly signInHref: string;
   readonly item: ResolverOwnedHumanFollowUpWork;
   readonly anotherReleaseIsPending: boolean;
   readonly releaseIsPending: boolean;
   readonly releaseWasRecorded: boolean;
   readonly onRelease: (item: ResolverOwnedHumanFollowUpWork) => Promise<void>;
+  readonly onOpenConsole: (item: ResolverOwnedHumanFollowUpWork) => void;
+  readonly shouldRestoreFocus: boolean;
 }) {
-  const [isContextOpen, setContextOpen] = useState(false);
   const [isConfirmingRelease, setConfirmingRelease] = useState(false);
+  const openConsoleButton = useRef<HTMLButtonElement>(null);
   const reason = humanizeReason(item.workItem.reason);
-  const regionId = `case-context-${item.workItem.workItemId}`;
+  useEffect(() => {
+    if (shouldRestoreFocus) {
+      openConsoleButton.current?.focus();
+    }
+  }, [shouldRestoreFocus]);
   function confirmRelease(): void {
-    // A released claim must not leave previously authorized case evidence open
-    // while the owned-work cache is refreshing.
-    setContextOpen(false);
     setConfirmingRelease(false);
     void onRelease(item);
   }
@@ -186,14 +203,13 @@ function OwnedWorkItem({
       </div>
       <div className="mt-5">
         <Button
+          ref={openConsoleButton}
           type="button"
           variant="quiet"
-          aria-expanded={isContextOpen}
-          aria-controls={regionId}
           disabled={releaseIsPending || releaseWasRecorded}
-          onClick={() => setContextOpen((current) => !current)}
+          onClick={() => onOpenConsole(item)}
         >
-          {isContextOpen ? 'Hide case context' : 'Review case context'}
+          Open resolver console
         </Button>
         {isConfirmingRelease ? (
           <div
@@ -239,16 +255,6 @@ function OwnedWorkItem({
           </Button>
         )}
       </div>
-      {isContextOpen ? (
-        <ResolverFollowUpCaseSummary
-          tenantId={tenantId}
-          signInHref={signInHref}
-          workItemId={item.workItem.workItemId}
-          caseId={item.workItem.caseId}
-          runId={item.workItem.runId}
-          regionId={regionId}
-        />
-      ) : null}
     </article>
   );
 }

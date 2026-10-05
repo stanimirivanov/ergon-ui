@@ -6,15 +6,17 @@ The repository contains a verified resolver-workbench shell, a fail-closed
 confidential-BFF session boundary, a shared resolver inbox, and a web-only UI
 package. Resolvers can claim visible work with an ephemeral session-bound CSRF
 token, recover their active claims, release exact owned claims, and inspect
-server-authorized case context. It has no resolution action, logout flow, form workflow, Motion
-animation, requester app, or native app.
+server-authorized case context in a locally selected, read-only Resolver
+Console. It has no resolution action, live run, lease, approval control,
+logout flow, form workflow, Motion animation, requester app, or native app.
 
 ## Implemented
 
 - pnpm workspace managed by Nx 23;
 - Node 24 and React 19.3 version contract;
 - Vite-built workbench with React Router Data Mode;
-- Tailwind CSS theme tokens and one shadcn-compatible button primitive;
+- Tailwind CSS theme tokens, a dark scope for the selected Resolver Console,
+  and one shadcn-compatible button primitive;
 - accessible home and unknown-route recovery screens;
 - tenant route validation and confidential BFF session consumption;
 - RTK Query cache ownership with Effect-based HTTP, timeout, bounded retry,
@@ -34,13 +36,18 @@ animation, requester app, or native app.
 - tenant-wide inbox invalidation after successful or stale-item claim results;
 - browser-owned work decoding, neutral empty-state handling, reversible exact
   claim-cursor pagination, and post-claim cache refresh;
+- locally selected, full-width Resolver Console on the existing tenant route,
+  with no case URL or persistent selection. It presents recorded observations,
+  provenance, and occurrence/recording times; the failed handoff and ordered
+  durable attempts; and the pinned, unassessed outcome condition in three
+  responsive panes. It does not portray observations as verified claims or
+  attempts as a live tool trace;
 - lazy owned-follow-up case context with contract/run consistency checks,
   evidence-boundary validation, full request-tuple cache identity, neutral
-  absence handling, cache eviction on disclosure close, fail-closed
-  revalidation on reopen, plain-text observation rendering, and an explicit
-  failed-execution and exhausted-retry handoff explanation; its responsive
-  read-only inspection presents evidence with source and occurrence/recording
-  times before the automation handoff and pinned case contract;
+  absence handling, cache eviction when the Console closes, fail-closed
+  revalidation on reopening, plain-text observation rendering, and private
+  context hidden when an owned-work recheck fails or the exact claim disappears
+  or changes;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
 - six local executable guides for simulated workbench access states,
@@ -82,8 +89,9 @@ animation, requester app, or native app.
 
 - OIDC client credentials and provider tokens remain entirely server-side.
 - No logout, refresh, or revocation UI exists.
-- Claimed work includes read-only case context and confirmed release, but there
-  is no completion, resolution, reassignment, or dedicated case route yet.
+- Claimed work includes the read-only Resolver Console and confirmed release,
+  but no live run, lease countdown, steering, handover, approval, verification
+  checklist, completion, resolution, reassignment, or dedicated case route.
 - The BFF session contains no provider subject, and none is cached or shown.
 - No production deployment configuration or ingress exists.
 - The guide uses synthetic BFF responses; no live OIDC or database-backed
