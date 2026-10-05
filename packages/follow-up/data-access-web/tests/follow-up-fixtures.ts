@@ -1,9 +1,12 @@
+import type { ResolverFollowUpCaseSummary } from '@ergon/follow-up-model';
+
 export const TENANT_ID = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
 export const WORK_ITEM_ID = '11111111-1111-4111-8111-111111111111';
 export const COMMAND_ID = '66666666-6666-4666-8666-666666666666';
 export const CASE_ID = '22222222-2222-4222-8222-222222222222';
 export const RUN_ID = '33333333-3333-4333-8333-333333333333';
 const EVENT_ID = '44444444-4444-4444-8444-444444444444';
+const PREDECESSOR_RUN_ID = '55555555-5555-4555-8555-555555555555';
 
 export function validPage() {
   return {
@@ -73,7 +76,7 @@ export function validOwnedPage() {
   };
 }
 
-export function validCaseSummary() {
+export function validCaseSummary(): ResolverFollowUpCaseSummary {
   return {
     followUp: {
       workItemId: WORK_ITEM_ID,
@@ -114,9 +117,9 @@ export function validCaseSummary() {
       effectiveRisk: 'HIGH' as const,
       requiredApproval: 'RESOLVER',
       attemptNumber: 2,
-      predecessorRunId: null,
+      predecessorRunId: PREDECESSOR_RUN_ID,
       state: 'ESCALATED' as const,
-      stateVersion: 3,
+      stateVersion: 2,
       stateUpdatedAt: '2026-09-21T09:30:00Z',
       recordedAt: '2026-09-21T09:30:01Z',
     },
@@ -132,6 +135,59 @@ export function validCaseSummary() {
       maximumAttempts: 2,
       occurredAt: '2026-09-21T09:30:00Z',
       recordedAt: '2026-09-21T09:30:01Z',
+    },
+    runHistory: {
+      attempts: [
+        {
+          runId: PREDECESSOR_RUN_ID,
+          attemptNumber: 1,
+          predecessorRunId: null,
+          startedRecordedAt: '2026-09-21T09:25:00Z',
+          state: 'SUPERSEDED',
+          stateVersion: 2,
+          stateUpdatedAt: '2026-09-21T09:27:00Z',
+          capabilityResult: {
+            sequence: 1,
+            fromState: 'READY_FOR_AUTHORIZATION',
+            toState: 'ACTION_FAILED',
+            connector: 'identity-stub',
+            outcome: 'FAILED' as const,
+            completedAt: '2026-09-21T09:26:00Z',
+            recordedAt: '2026-09-21T09:26:02Z',
+          },
+          retry: {
+            sequence: 2,
+            replacementRunId: RUN_ID,
+            occurredAt: '2026-09-21T09:27:00Z',
+            recordedAt: '2026-09-21T09:27:01Z',
+          },
+        },
+        {
+          runId: RUN_ID,
+          attemptNumber: 2,
+          predecessorRunId: PREDECESSOR_RUN_ID,
+          startedRecordedAt: '2026-09-21T09:28:00Z',
+          state: 'ESCALATED',
+          stateVersion: 2,
+          stateUpdatedAt: '2026-09-21T09:30:00Z',
+          capabilityResult: {
+            sequence: 1,
+            fromState: 'READY_FOR_AUTHORIZATION',
+            toState: 'ACTION_FAILED',
+            connector: 'identity-stub',
+            outcome: 'FAILED' as const,
+            completedAt: '2026-09-21T09:29:30Z',
+            recordedAt: '2026-09-21T09:29:32Z',
+          },
+          retry: null,
+        },
+      ],
+    },
+    outcomeProof: {
+      fact: 'account.access.state',
+      expectedValue: 'ACTIVE',
+      assessmentStatus: 'NOT_ASSESSED' as const,
+      reason: 'RUN_NOT_VERIFYING' as const,
     },
   };
 }

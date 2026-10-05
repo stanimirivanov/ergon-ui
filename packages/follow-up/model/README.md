@@ -10,7 +10,7 @@ claims, and resolver-visible case context.
 - Follow-up work-item and claim values.
 - Resolver-owned work projections and pure claim/work-item pairing refinement.
 - Server-authorized case-summary projections and pure contract, version,
-  evidence-order, and retry-handoff refinements.
+  evidence-order, retry-chain, and unassessed-proof refinements.
 
 ## Does not own
 

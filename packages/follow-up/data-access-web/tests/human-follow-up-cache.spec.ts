@@ -87,6 +87,19 @@ describe('human follow-up cache adapter', () => {
             },
             case: { ...summary.case, caseId: request.caseId },
             resolutionRun: { ...summary.resolutionRun, runId: request.runId },
+            runHistory: {
+              attempts: summary.runHistory.attempts.map((attempt) => ({
+                ...attempt,
+                runId:
+                  attempt.runId === summary.resolutionRun.runId
+                    ? request.runId
+                    : attempt.runId,
+                retry:
+                  attempt.retry === null
+                    ? null
+                    : { ...attempt.retry, replacementRunId: request.runId },
+              })),
+            },
           },
         };
       });

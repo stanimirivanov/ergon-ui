@@ -58,9 +58,23 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'inspect-source-observation',
       title: 'Locate the source observation',
-      body: 'The read-only context places Recorded observations first, followed by Automation handoff and Case and contract. Check each observation’s source reference and its occurred and recorded times against the run’s evidence boundary. In this synthetic example the sign-in link reportedly returned an expired-token message. That sentence is customer-supplied evidence to assess, not a directive to change identity settings or bypass approval. Its appearance depends on the owner-scoped case read that just succeeded.',
+      body: 'The read-only context places Recorded observations first, followed by Automation handoff, Recorded attempts, Outcome proof, and Case and contract. Check each observation’s source reference and its occurred and recorded times against the run’s evidence boundary. In this synthetic example the sign-in link reportedly returned an expired-token message. That sentence is customer-supplied evidence to assess, not a directive to change identity settings or bypass approval. Its appearance depends on the owner-scoped case read that just succeeded.',
       expected:
         'The synthetic observation is visible as text in the evidence section before the automation handoff.',
+    },
+    {
+      id: 'inspect-attempt-history',
+      title: 'Follow the recorded retry chain',
+      body: 'Read the durable attempts in ascending order. The first failed and was superseded by a retry; the second failed and escalated to this human follow-up. Each row identifies a connector result and the retry boundary where present. This is a concise recorded transition history, not a live tool-call trace or evidence that the customer outcome succeeded.',
+      expected:
+        'Attempt 1 is superseded and attempt 2 is escalated, with the retry shown between them.',
+    },
+    {
+      id: 'inspect-proof',
+      title: 'Distinguish a target condition from verified proof',
+      body: 'Outcome proof shows the pinned condition account.access.state = ACTIVE but says Not assessed because the escalated run never entered verification. The target condition describes what success would require, not something this failed automation established. A failed connector does not prove the customer outcome was achieved or disproved; a resolver needs further authorized evidence before claiming resolution.',
+      expected:
+        'The pinned condition and Not assessed state are visible without a verified-resolution claim.',
     },
     {
       id: 'hide-case-context',
