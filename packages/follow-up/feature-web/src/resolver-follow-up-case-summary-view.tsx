@@ -1,6 +1,8 @@
 import type { ResolverFollowUpCaseSummary } from '@ergon/follow-up-model';
 import type { ReactNode } from 'react';
 
+import { ResolverObservationInspector } from './resolver-observation-inspector';
+
 const observedAtFormatter = new Intl.DateTimeFormat('en-GB', {
   dateStyle: 'medium',
   timeStyle: 'medium',
@@ -81,57 +83,11 @@ export function ResolverFollowUpCaseSummaryView({
             {summary.observations.length - visibleCount} recorded later. These
             are source observations, not verified claims.
           </p>
-          {summary.observations.length === 0 ? (
-            <p className="mt-5 rounded-md border border-border bg-canvas p-4 text-sm text-ink-muted">
-              No observations are recorded for this case.
-            </p>
-          ) : (
-            <ol className="mt-5 grid gap-3" aria-label="Case observations">
-              {summary.observations.map((observation) => (
-                <li
-                  key={observation.observationId}
-                  className="min-w-0 rounded-md border border-border bg-canvas/75 p-4"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <p className="min-w-0 break-words font-semibold text-ink">
-                      {observation.summary}
-                    </p>
-                    <span className="rounded border border-border px-2 py-1 text-xs text-ink-muted">
-                      Version {observation.streamVersion}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-xs font-semibold text-accent-strong">
-                    {observation.streamVersion <= pinnedVersion
-                      ? 'In this run’s evidence snapshot'
-                      : 'Recorded after this run’s evidence snapshot'}
-                  </p>
-                  <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-ink">
-                    {observation.content}
-                  </p>
-                  <dl className="mt-4 grid gap-3 border-t border-border pt-3 text-xs">
-                    <CaseFact label="Source">
-                      {observation.originType} via {observation.provider}
-                    </CaseFact>
-                    {observation.reference === null ? null : (
-                      <CaseFact label="Source reference">
-                        {observation.reference}
-                      </CaseFact>
-                    )}
-                    <CaseFact label="Occurred">
-                      <time dateTime={observation.occurredAt}>
-                        {formatUtcInstant(observation.occurredAt)}
-                      </time>
-                    </CaseFact>
-                    <CaseFact label="Recorded">
-                      <time dateTime={observation.recordedAt}>
-                        {formatUtcInstant(observation.recordedAt)}
-                      </time>
-                    </CaseFact>
-                  </dl>
-                </li>
-              ))}
-            </ol>
-          )}
+          <ResolverObservationInspector
+            observations={summary.observations}
+            pinnedVersion={pinnedVersion}
+            regionId={regionId}
+          />
         </section>
 
         <section

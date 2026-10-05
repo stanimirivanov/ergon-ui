@@ -14,7 +14,7 @@ export const ownedContextGuide: GuideChapter = {
     'Resolvers returning to active work and reviewing an escalated case.',
   overview: [
     'Claimed follow-ups are recovered from the server-backed active-work view, not from a browser-stored claim. A card in that view identifies work currently visible under your resolver session, but its case evidence is a separate, owner-scoped read. The workbench requests the case summary only when you choose Open resolver console. Returning to active work closes the console; reopening it triggers another read because ownership and resolver authority can change while a page remains open. The selection is local to this page, not a shareable case route.',
-    'This walkthrough uses one synthetic owned follow-up and a deliberately controlled BFF response. The first context request returns synthetic evidence; the second pauses and then returns the same neutral absence response used for several protected states. A later owned-work read returns an empty page. Those fixture choices illustrate the browser response, not why a real claim became unavailable. Every screenshot and the recording are labelled SIMULATED DATA; they do not verify OIDC, database transactions, authorization, or live revocation.',
+    'This walkthrough uses one synthetic owned follow-up with two source observations and a deliberately controlled BFF response. One observation was available at the run’s pinned evidence snapshot; the other was recorded later. The first context request returns that synthetic evidence; the second pauses and then returns the same neutral absence response used for several protected states. A later owned-work read returns an empty page. Those fixture choices illustrate the browser response, not why a real claim became unavailable. Every screenshot and the recording are labelled SIMULATED DATA; they do not verify OIDC, database transactions, authorization, or live revocation.',
   ],
   prerequisites: [
     'In a deployed environment, sign in to the correct tenant with a registered resolver identity and current authority. The tenant URL, an old screenshot, and an earlier claim receipt are not ongoing authorization. This recording begins with a simulated verified session and does not perform a real login or claim.',
@@ -51,16 +51,44 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'review-evidence',
       title: 'Read the bounded evidence snapshot',
-      body: 'The console shows the case goal, pinned contract revision, escalated run, failed connector, exhausted attempt budget, and source observation. Its three panes put observations on the left, recorded attempts and handoff in the center, and the unassessed outcome target on the right at desktop width. Read the observation as data; its content is rendered as plain text, not markup or executable instructions. The evidence boundary and timestamps describe the run’s context, not proof that the customer problem has been resolved.',
+      body: 'The console shows the case goal, pinned contract revision, escalated run, failed connector, exhausted attempt budget, and source observations. Its three panes put observations on the left, recorded attempts and handoff in the center, and the unassessed outcome target on the right at desktop width. The observation inspector initially selects the first source record. Read it as data; its content is rendered as plain text, not markup or executable instructions. The evidence boundary and timestamps describe the run’s context, not proof that the customer problem has been resolved.',
       expected:
-        'The case goal and source observation appear with the automation handoff.',
+        'The case goal, selected source observation, and automation handoff appear.',
     },
     {
       id: 'inspect-source-observation',
-      title: 'Locate the source observation',
-      body: 'The left pane presents Recorded observations with source reference, occurrence time, recording time, and whether each observation was available at this run’s pinned evidence snapshot. The center pane holds Recorded attempts and Automation handoff; the right pane holds the outcome target and Case and contract. In this synthetic example the sign-in link reportedly returned an expired-token message. That sentence is source evidence to assess, not a verified claim or a directive to bypass approval. Its appearance depends on the owner-scoped case read that just succeeded.',
+      title: 'Inspect the run-snapshot source',
+      body: 'The left pane lists source observations and shows one selected record in a detail region. The default record includes its original plain-text content, source reference, occurrence time, recording time, and a label saying it was available at the pinned run snapshot. In this synthetic example the sign-in link reportedly returned an expired-token message. That sentence is source evidence to assess, not a verified claim or a directive to bypass approval. Its appearance depends on the owner-scoped case read that just succeeded.',
       expected:
-        'The synthetic observation is visible as text in the evidence section before the automation handoff.',
+        'The first observation is selected; its detail is visible as inert text before the automation handoff.',
+    },
+    {
+      id: 'select-later-observation',
+      title: 'Select the later source record',
+      body: 'Choose the second observation in the compact list. Selection only changes which already authorized source record is inspected locally; it makes no new BFF request and does not bind the source to a verified asset fact. The observation was recorded after the escalated run’s pinned evidence boundary, so it cannot be read back into that run’s decision.',
+      expected:
+        'The second record becomes selected and keyboard focus moves to its detail heading.',
+    },
+    {
+      id: 'inspect-later-observation',
+      title: 'Read its provenance and timing',
+      body: 'The selected detail identifies the later SSO diagnostic, its source reference, and its occurred and recorded times. The after-snapshot label is a temporal boundary, not a judgment that the content is false or verified. Compare the source and time before using it in any subsequent human assessment.',
+      expected:
+        'The later diagnostic content and after-snapshot label replace the first observation’s detail.',
+    },
+    {
+      id: 'return-to-observations',
+      title: 'Return focus to the observation list',
+      body: 'Use Back to observations to move keyboard focus to the currently selected list item. The detail stays visible, so you can resume reading or choose another source without losing context. This action neither closes the Console nor changes ownership.',
+      expected:
+        'Focus returns to the selected observation button while the detail remains visible.',
+    },
+    {
+      id: 'select-run-snapshot-observation',
+      title: 'Restore the run-snapshot source',
+      body: 'Select the original email observation again. Its content and in-snapshot label return, demonstrating that this is a local inspector over the same owner-scoped response, not a new evidence acquisition or a graph of inferred claims.',
+      expected:
+        'The email observation is selected and its original text is visible again.',
     },
     {
       id: 'inspect-attempt-history',
@@ -86,7 +114,7 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'context-hidden',
       title: 'Confirm the evidence is hidden',
-      body: 'The owned card remains, but its case goal, observation, and handoff details are no longer on screen. Open resolver console is available again. This distinction matters: closing the console changes browser disclosure, while ownership remains a server fact that must be checked again before the evidence can be shown.',
+      body: 'The owned card remains, but its case goal, observation list, selected source detail, and handoff details are no longer on screen. Open resolver console is available again. This distinction matters: closing the console changes browser disclosure, while ownership remains a server fact that must be checked again before the evidence can be shown.',
       expected:
         'The card remains claimed while its previously displayed case context is absent.',
     },
@@ -149,6 +177,6 @@ export const ownedContextGuide: GuideChapter = {
   ],
   limitations: [
     'The fixture controls the second read and later owned list. It does not verify real revocation, competing claims, transaction isolation, cache memory erasure, or backend authorization; those require backend and disposable full-stack tests.',
-    'The case context in the Resolver Console is a read-only projection of an escalated run, not a live tool trace, verified-claim graph, lease, approval surface, or proof assessment. Its separate release action returns ownership to the shared queue; it does not provide completion, named handover, reassignment, or a detailed audit of why an item is no longer visible. Release recovery is documented separately.',
+    'The source inspector only selects among observations in the current owner-scoped response; it does not derive verified facts, detect contradictions, fetch source systems, or edit evidence. The case context is a read-only projection of an escalated run, not a live tool trace, verified-claim graph, lease, approval surface, or proof assessment. Its separate release action returns ownership to the shared queue; it does not provide completion, named handover, reassignment, or a detailed audit of why an item is no longer visible. Release recovery is documented separately.',
   ],
 };
