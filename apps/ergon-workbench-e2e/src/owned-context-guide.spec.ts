@@ -226,4 +226,28 @@ test('places console panes in order without overflow at desktop and narrow width
   ).toBe(true);
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
+
+  await consoleView
+    .getByRole('button', { name: 'Release to shared queue' })
+    .click();
+  const confirmation = consoleView.getByRole('group', {
+    name: 'Confirm release to shared queue',
+  });
+  await expect(confirmation).toBeVisible();
+  await expect(
+    confirmation.getByText('It does not complete the case', {
+      exact: false,
+    }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  const confirmationAccessibility = await new AxeBuilder({ page }).analyze();
+  expect(confirmationAccessibility.violations).toEqual([]);
+  await confirmation.getByRole('button', { name: 'Cancel' }).click();
+  await expect(
+    consoleView.getByRole('button', { name: 'Release to shared queue' }),
+  ).toBeFocused();
 });

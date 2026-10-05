@@ -146,12 +146,16 @@ const caseSummary = {
  * This fixture proves UI behavior only; it does not replace backend security
  * or persistence tests and must remain labelled in generated media.
  */
-export async function installSimulatedFollowUpBff(
-  page: Page,
-): Promise<{ submittedCsrfToken: () => string | undefined }> {
+export async function installSimulatedFollowUpBff(page: Page): Promise<{
+  submittedCsrfToken: () => string | undefined;
+  releaseRequests: () => number;
+  privateEvidenceAtRelease: () => boolean | undefined;
+}> {
   let claimed = false;
   let ownershipRevision = 0;
   let submittedCsrfToken: string | undefined;
+  let releaseRequests = 0;
+  let privateEvidenceAtRelease: boolean | undefined;
 
   await page.route('**/bff/v1/tenants/*/session', (route) =>
     fulfillSimulatedBff(route, {
@@ -207,6 +211,11 @@ export async function installSimulatedFollowUpBff(
   await page.route(
     '**/bff/v1/tenants/*/human-follow-ups/*/claims/*/release',
     async (route) => {
+      releaseRequests += 1;
+      privateEvidenceAtRelease =
+        (await page
+          .getByText('The sign-in link returns an expired-token message.')
+          .count()) > 0;
       expect(route.request().headers()['x-csrf-token']).toBe(
         'browser-session-token',
       );
@@ -228,5 +237,9 @@ export async function installSimulatedFollowUpBff(
       );
     },
   );
-  return { submittedCsrfToken: () => submittedCsrfToken };
+  return {
+    submittedCsrfToken: () => submittedCsrfToken,
+    releaseRequests: () => releaseRequests,
+    privateEvidenceAtRelease: () => privateEvidenceAtRelease,
+  };
 }

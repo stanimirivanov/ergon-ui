@@ -255,47 +255,49 @@ test(
           }),
         );
 
-        await expect(
-          consoleView.getByRole('button', {
-            name: 'Release Retry attempt limit reached follow-up',
-          }),
-        ).toHaveCount(0);
-        const backToWork = consoleView.getByRole('button', {
-          name: 'Back to active work',
-        });
-        await guide.action('return-to-active-work', backToWork, () =>
-          backToWork.click(),
-        );
-        await expect(consoleView).toHaveCount(0);
-        await expect(
-          page.getByText('The sign-in link returns an expired-token message.'),
-        ).toHaveCount(0);
-        await expect(
-          page
-            .getByRole('region', { name: 'Claimed follow-ups' })
-            .getByRole('heading', {
-              level: 3,
-              name: 'Retry attempt limit reached',
-            }),
-        ).toBeVisible();
-
-        const releaseButton = page.getByRole('button', {
-          name: 'Release Retry attempt limit reached follow-up',
+        const releaseButton = consoleView.getByRole('button', {
+          name: 'Release to shared queue',
         });
         await guide.action('request-release', releaseButton, () =>
           releaseButton.click(),
         );
-        await expect(
-          page.getByText(
-            'Releasing returns this work to its original shared queue. It does not complete the case.',
-          ),
-        ).toBeVisible();
-        const confirmButton = page.getByRole('button', {
+        const confirmButton = consoleView.getByRole('button', {
           name: 'Confirm release',
         });
+        const cancelButton = consoleView.getByRole('button', {
+          name: 'Cancel',
+        });
+        await expect(confirmButton).toBeVisible();
+        await expect(cancelButton).toBeVisible();
+        await expect(
+          consoleView.getByText(/original shared queue/u),
+        ).toBeVisible();
+        await expect(
+          consoleView.getByText(/does not complete the case/u),
+        ).toBeVisible();
+        expect(bff.releaseRequests()).toBe(0);
+
+        await guide.action('cancel-release', cancelButton, () =>
+          cancelButton.click(),
+        );
+        await expect(confirmButton).toHaveCount(0);
+        await expect(
+          consoleView.getByText(
+            'The sign-in link returns an expired-token message.',
+          ),
+        ).toBeVisible();
+        expect(bff.releaseRequests()).toBe(0);
+
+        await guide.action('reopen-release-confirmation', releaseButton, () =>
+          releaseButton.click(),
+        );
+        await expect(confirmButton).toBeVisible();
         await guide.action('confirm-release', confirmButton, () =>
           confirmButton.click(),
         );
+        await expect(consoleView).toHaveCount(0);
+        expect(bff.releaseRequests()).toBe(1);
+        expect(bff.privateEvidenceAtRelease()).toBe(false);
         await expect(
           page.getByRole('status', { name: 'Follow-up released' }),
         ).toBeVisible();

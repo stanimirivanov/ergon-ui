@@ -5,10 +5,11 @@
 The repository contains a verified resolver-workbench shell, a fail-closed
 confidential-BFF session boundary, a shared resolver inbox, and a web-only UI
 package. Resolvers can claim visible work with an ephemeral session-bound CSRF
-token, recover their active claims, release exact owned claims, and inspect
-server-authorized case context in a locally selected, read-only Resolver
-Console. It has no resolution action, live run, lease, approval control,
-logout flow, form workflow, Motion animation, requester app, or native app.
+token, recover their active claims, release exact owned claims from a card or
+the selected Console, and inspect server-authorized case context there. The
+Console's case and run content remains read-only. It has no resolution action,
+live run, lease, approval control, logout flow, form workflow, Motion animation,
+requester app, or native app.
 
 ## Implemented
 
@@ -30,9 +31,10 @@ logout flow, form workflow, Motion animation, requester app, or native app.
 - session-bound CSRF acquisition kept outside Redux and persistent storage;
 - revision-checked follow-up claiming, including released work, with explicit
   conflict, expiry, authority, ambiguous-result, and same-command retry states;
-- confirmed exact-claim release with typed disabled/stale/absence outcomes,
-  same-tuple explicit retry, and server-cache revalidation; release still
-  requires the backend's operator-controlled rollout flag;
+- confirmed exact-claim release from active-work cards or the Console with
+  typed disabled/stale/absence outcomes, same-tuple explicit retry, and
+  server-cache revalidation. Console context closes before the release POST;
+  release still requires the backend's operator-controlled rollout flag;
 - tenant-wide inbox invalidation after successful or stale-item claim results;
 - browser-owned work decoding, neutral empty-state handling, reversible exact
   claim-cursor pagination, and post-claim cache refresh;
@@ -40,8 +42,9 @@ logout flow, form workflow, Motion animation, requester app, or native app.
   with no case URL or persistent selection. It presents recorded observations,
   provenance, and occurrence/recording times; the failed handoff and ordered
   durable attempts; and the pinned, unassessed outcome condition in three
-  responsive panes. It does not portray observations as verified claims or
-  attempts as a live tool trace;
+  responsive panes. Its presence bar shows the current claim without
+  inventing a lease or countdown. It does not portray observations as verified
+  claims or attempts as a live tool trace;
 - lazy owned-follow-up case context with contract/run consistency checks,
   evidence-boundary validation, full request-tuple cache identity, neutral
   absence handling, cache eviction when the Console closes, fail-closed
@@ -89,8 +92,9 @@ logout flow, form workflow, Motion animation, requester app, or native app.
 
 - OIDC client credentials and provider tokens remain entirely server-side.
 - No logout, refresh, or revocation UI exists.
-- Claimed work includes the read-only Resolver Console and confirmed release,
-  but no live run, lease countdown, steering, handover, approval, verification
+- Claimed work includes read-only case/run inspection and confirmed release
+  back to the shared queue, not direct handover or case completion. There is
+  no live run, lease countdown, steering, approval, verification
   checklist, completion, resolution, reassignment, or dedicated case route.
 - The BFF session contains no provider subject, and none is cached or shown.
 - No production deployment configuration or ingress exists.
@@ -98,6 +102,10 @@ logout flow, form workflow, Motion animation, requester app, or native app.
   browser guide environment exists. Pages publication requires repository
   settings and a successful `main` workflow run; neither a live deployment nor
   its public URL has been verified locally.
+- The Console's extended run history and outcome-proof response is covered by
+  synthetic browser fixtures here. Backend `main` does not yet return those
+  required fields, so live Console compatibility awaits the separate backend
+  read-model change.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.
