@@ -10,7 +10,7 @@ export const followUpGuide: GuideChapter = {
   slug: 'handle-escalated-follow-up',
   title: 'Handle an escalated follow-up',
   summary:
-    'Find work in the shared queue, claim it, inspect the escalation evidence, and return the claim to the queue when you cannot continue.',
+    'Find work in the shared queue, claim it, inspect the escalation evidence, and confirm release from the Resolver Console when you cannot continue.',
   verification: 'simulated-bff',
   presentation: 'workflow',
   audience: 'Resolvers working in the Ergon Workbench.',
@@ -54,7 +54,7 @@ export const followUpGuide: GuideChapter = {
     {
       id: 'review-context',
       title: 'Open the owner-scoped Resolver Console',
-      body: 'Select Open resolver console. Ergon requests the case summary only when you open it and checks current ownership again. The console is a read-only view of source observations, recorded run attempts, and an unassessed outcome target; it is not a live execution trace. If the claim or your authority has changed, the workbench shows a neutral unavailable state instead of retaining previously displayed evidence.',
+      body: 'Select Open resolver console. Ergon requests the case summary only when you open it and checks current ownership again. Its case context is a read-only view of source observations, recorded run attempts, and an unassessed outcome target; it is not a live execution trace. If the claim or your authority has changed, the workbench shows a neutral unavailable state instead of retaining previously displayed evidence.',
       expected:
         'The case goal, source observation, pinned contract, and escalated run become visible.',
     },
@@ -66,23 +66,31 @@ export const followUpGuide: GuideChapter = {
         'The handoff identifies the failed execution and shows that attempt 2 reached the limit of 2.',
     },
     {
-      id: 'return-to-active-work',
-      title: 'Return to active work before releasing',
-      body: 'Select Back to active work. This closes the Resolver Console and removes its owner-scoped case evidence from the screen; it does not release the claim. The release control belongs to the active-work card, not to the read-only console.',
+      id: 'request-release',
+      title: 'Review release from the Console',
+      body: 'If you cannot responsibly continue the work, choose Release to shared queue in the Console. This only opens a confirmation; it does not submit a command. Read the warning carefully: release returns the exact claimed item to its original shared queue, but neither completes the case nor transfers it to a named resolver.',
       expected:
-        'The claimed-work card is visible again and the case observation is no longer displayed.',
+        'Confirm release and Cancel appear, and no release request has been sent.',
     },
     {
-      id: 'request-release',
-      title: 'Choose release when you cannot continue',
-      body: 'If you cannot responsibly continue the work, choose Release work. This first opens a confirmation; it does not immediately change ownership. Releasing returns the item to its original shared queue and does not close or resolve the case.',
-      expected: 'The confirmation states that the case remains open.',
+      id: 'cancel-release',
+      title: 'Cancel an unintended release',
+      body: 'Choose Cancel if this is not the intended ownership change. The Console remains open with its case context, and the server receives no release command. Do not use the Back to active work control as a substitute for understanding what confirmation would do.',
+      expected:
+        'The confirmation closes, the case observation remains visible, and ownership is unchanged.',
+    },
+    {
+      id: 'reopen-release-confirmation',
+      title: 'Confirm the intended claim',
+      body: 'Choose Release to shared queue again and verify the queue-return warning. A freshly displayed card and the Console are still only browser views; the BFF will check the exact claim and ownership revision when the command arrives. If ownership or resolver authority has changed, it will not release a successor claim.',
+      expected: 'The explicit confirmation is visible again.',
     },
     {
       id: 'confirm-release',
       title: 'Confirm the exact claim release',
-      body: 'Confirm release only after checking that you are returning the intended claim. The browser submits the current claim ID and ownership revision. The Resolver Console was closed before this action, so its case evidence is not left on screen while ownership is being rechecked.',
-      expected: 'A release notice appears and no case evidence is displayed.',
+      body: 'Choose Confirm release only after checking that you are returning the intended claim. The Console unmounts its private case context before the browser submits the current claim ID and ownership revision with session-bound CSRF. The resulting notice appears back in active work. If the response is uncertain, use the offered exact retry rather than issuing a new release intent.',
+      expected:
+        'The private observation is absent by submission time; a release notice appears in active work.',
     },
     {
       id: 'returned-work',
@@ -111,6 +119,6 @@ export const followUpGuide: GuideChapter = {
   ],
   limitations: [
     'This guide does not demonstrate a real OIDC provider, live database state, or backend authorization. A later full-stack guide environment will replace the simulated responses before publication as a live operational guide.',
-    'The current workbench does not offer follow-up completion, reassignment, priority, or resolution actions. Release is operator-controlled on the backend and can be disabled in a real deployment.',
+    'The current workbench does not offer follow-up completion, named handover, reassignment, priority, or resolution actions. Release is operator-controlled on the backend and can be disabled in a real deployment.',
   ],
 };

@@ -10,6 +10,7 @@ import {
 import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-model';
 import { Button } from '@ergon/ui-web';
 import { useEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 
 import {
   normalizeFollowUpReadFailure,
@@ -48,6 +49,9 @@ export function ResolverOwnedHumanFollowUpsPage({
 }) {
   const [position, setPosition] = useState<PagePosition>({ history: [] });
   const [releaseNotice, setReleaseNotice] = useState<ReleaseNotice>();
+  const [consoleReleaseFocusId, setConsoleReleaseFocusId] = useState<
+    string | null
+  >(null);
   const readFailureHeading = useRef<HTMLHeadingElement>(null);
   const [releaseHumanFollowUp, releaseRequest] =
     useReleaseHumanFollowUpMutation();
@@ -121,12 +125,19 @@ export function ResolverOwnedHumanFollowUpsPage({
   }, [releaseNotice, ownedWork.data]);
 
   async function release(item: ResolverOwnedHumanFollowUpWork): Promise<void> {
-    return submitRelease({
-      tenantId,
-      workItemId: item.workItem.workItemId,
-      claimId: item.claim.claimId,
-      expectedOwnershipRevision: item.workItem.ownershipRevision,
+    setConsoleReleaseFocusId(null);
+    return submitRelease(releaseCommand(tenantId, item));
+  }
+
+  function releaseFromConsole(item: ResolverOwnedHumanFollowUpWork): void {
+    // The private summary must leave the DOM before the release POST begins.
+    // React normally batches event updates, so force this disclosure boundary.
+    const command = releaseCommand(tenantId, item);
+    flushSync(() => {
+      setConsoleReleaseFocusId(item.workItem.workItemId);
+      onSelectWork(null);
     });
+    void submitRelease(command);
   }
 
   async function submitRelease(
@@ -241,7 +252,9 @@ export function ResolverOwnedHumanFollowUpsPage({
         tenantId={tenantId}
         signInHref={signInHref}
         item={currentSelection}
+        isReleasePending={releaseRequest.isLoading}
         onBack={() => onSelectWork(null)}
+        onConfirmRelease={() => releaseFromConsole(currentSelection)}
       />
     );
   }
@@ -256,6 +269,7 @@ export function ResolverOwnedHumanFollowUpsPage({
           ? releaseRequest.originalArgs?.claimId
           : undefined
       }
+      consoleReleaseFocusId={consoleReleaseFocusId}
       isFetching={ownedWork.isFetching}
       canGoBack={position.history.length > 0}
       canGoNext={nextCursor !== null}
@@ -283,6 +297,18 @@ export function ResolverOwnedHumanFollowUpsPage({
       }}
     />
   );
+}
+
+function releaseCommand(
+  tenantId: string,
+  item: ResolverOwnedHumanFollowUpWork,
+): HumanFollowUpReleaseCommand {
+  return {
+    tenantId,
+    workItemId: item.workItem.workItemId,
+    claimId: item.claim.claimId,
+    expectedOwnershipRevision: item.workItem.ownershipRevision,
+  };
 }
 
 function isExactSelectedClaim(

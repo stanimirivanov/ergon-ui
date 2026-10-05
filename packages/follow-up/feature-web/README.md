@@ -18,9 +18,11 @@ out of the deployable app and domain-agnostic UI primitives.
   and the pinned but unassessed outcome condition. Evidence precedes execution
   and proof in the reading order when panes stack. The view introduces no
   client-side authority, live trace, lease, approval, or resolution claim.
-- Confirmed owned-claim release, explicit same-tuple retry after uncertainty,
-  closing selected case context before release submission, and retiring success
-  feedback when a later server-observed ownership revision supersedes it.
+- One confirmed exact-claim release flow shared by active-work cards and the
+  selected Console. It closes private Console context before the POST, supports
+  explicit same-tuple retry after uncertainty, and retires success feedback
+  when a later server-observed ownership revision supersedes it. Release means
+  return to the original shared queue, not direct handover or case completion.
 - Follow-up workspace introduction and composition of the two work views.
 - Translation of typed follow-up failures into resolver-facing copy.
 - Accessible follow-up-specific interaction and rendering.

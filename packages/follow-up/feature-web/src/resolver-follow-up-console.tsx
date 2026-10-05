@@ -2,19 +2,30 @@ import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-model';
 import { Button } from '@ergon/ui-web';
 import { useEffect, useRef, type ReactElement } from 'react';
 
+import { ConfirmedFollowUpRelease } from './confirmed-follow-up-release';
 import { ResolverFollowUpCaseSummary } from './resolver-follow-up-case-summary';
+
+const claimedAtFormatter = new Intl.DateTimeFormat('en-GB', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+  timeZone: 'UTC',
+});
 
 /** Frames one locally selected, server-owned follow-up without creating a case route. */
 export function ResolverFollowUpConsole({
   tenantId,
   signInHref,
   item,
+  isReleasePending,
   onBack,
+  onConfirmRelease,
 }: {
   readonly tenantId: string;
   readonly signInHref: string;
   readonly item: ResolverOwnedHumanFollowUpWork;
+  readonly isReleasePending: boolean;
   readonly onBack: () => void;
+  readonly onConfirmRelease: () => void;
 }): ReactElement {
   const regionId = `case-context-${item.workItem.workItemId}`;
   const heading = useRef<HTMLHeadingElement>(null);
@@ -55,6 +66,50 @@ export function ResolverFollowUpConsole({
           Back to active work
         </Button>
       </header>
+
+      <section
+        aria-label="Current claim"
+        className="mx-3 mt-3 flex flex-wrap items-center justify-between gap-4 rounded-md border border-border bg-surface/90 px-4 py-3 sm:mx-4 lg:mx-5"
+      >
+        <div className="min-w-0">
+          <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
+            Current claim
+          </p>
+          <p className="mt-1 text-sm font-semibold text-ink">
+            In your active resolver work
+          </p>
+          <p className="mt-1 text-xs text-ink-muted">
+            Ownership and authority are checked by the control plane for each
+            action; this display is not a lease.
+          </p>
+        </div>
+        <dl className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
+          <div>
+            <dt className="font-bold tracking-wide text-ink-muted uppercase">
+              Claimed
+            </dt>
+            <dd className="mt-1 text-ink">
+              <time dateTime={item.claim.claimedAt}>
+                {claimedAtFormatter.format(new Date(item.claim.claimedAt))} UTC
+              </time>
+            </dd>
+          </div>
+          <div>
+            <dt className="font-bold tracking-wide text-ink-muted uppercase">
+              Ownership revision
+            </dt>
+            <dd className="mt-1 text-ink">{item.workItem.ownershipRevision}</dd>
+          </div>
+        </dl>
+        <ConfirmedFollowUpRelease
+          context="resolver-console"
+          reason={item.workItem.reason}
+          caseId={item.workItem.caseId}
+          queueKey={item.workItem.queueKey}
+          isDisabled={isReleasePending}
+          onConfirmRelease={onConfirmRelease}
+        />
+      </section>
 
       <div className="px-3 pb-6 sm:px-4 lg:px-5">
         <ResolverFollowUpCaseSummary

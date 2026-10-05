@@ -309,13 +309,14 @@ describe('resolver-owned human follow-ups', () => {
   });
 
   it('reports disabled release without offering an unsafe retry', async () => {
+    const release = vi.fn<ReleaseHumanFollowUp['release']>(async () => ({
+      ok: false,
+      error: { kind: 'release-unavailable' },
+    }));
     renderOwned({
       listOwned: async () =>
         successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
-      release: async () => ({
-        ok: false,
-        error: { kind: 'release-unavailable' },
-      }),
+      release,
     });
 
     fireEvent.click(
@@ -333,9 +334,13 @@ describe('resolver-owned human follow-ups', () => {
     expect(
       screen.queryByRole('button', { name: 'Try release again' }),
     ).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: 'Confirm release' }),
+    ).toBeNull();
+    expect(release).toHaveBeenCalledTimes(1);
   });
 
-  it('hides private case context before a resolver can release work', async () => {
+  it('confirms Console release and hides private context before the exact POST', async () => {
     let finishRelease: (
       value: Awaited<ReturnType<ReleaseHumanFollowUp['release']>>,
     ) => void = () => undefined;
@@ -343,6 +348,13 @@ describe('resolver-owned human follow-ups', () => {
       Awaited<ReturnType<ReleaseHumanFollowUp['release']>>
     >((resolve) => {
       finishRelease = resolve;
+    });
+    const release = vi.fn<ReleaseHumanFollowUp['release']>(async () => {
+      expect(screen.queryByText('Private evidence')).toBeNull();
+      expect(
+        screen.queryByRole('heading', { name: 'Resolver Console' }),
+      ).toBeNull();
+      return pendingRelease;
     });
     renderOwned({
       listOwned: async () =>
@@ -354,36 +366,124 @@ describe('resolver-owned human follow-ups', () => {
           'Private evidence',
         ),
       }),
-      release: async () => pendingRelease,
+      release,
     });
 
     fireEvent.click(
       await screen.findByRole('button', { name: 'Open resolver console' }),
     );
     expect(await screen.findByText('Private evidence')).toBeTruthy();
-    expect(
-      screen.queryByRole('button', {
-        name: /Release Retry attempt limit reached follow-up/,
-      }),
-    ).toBeNull();
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Back to active work' }),
+    expect(screen.getByRole('region', { name: 'Current claim' })).toBeTruthy();
+    expect(screen.getByText('In your active resolver work')).toBeTruthy();
+    expect(screen.getByText(/this display is not a lease/i)).toBeTruthy();
+    const releaseButton = screen.getByRole('button', {
+      name: 'Release to shared queue',
+    });
+    fireEvent.click(releaseButton);
+    expect(release).not.toHaveBeenCalled();
+    const confirmation = screen.getByRole('group', {
+      name: 'Confirm release to shared queue',
+    });
+    expect(within(confirmation).getByText(FIRST_WORK_ITEM_ID)).toBeTruthy();
+    expect(within(confirmation).getByText('access-restoration')).toBeTruthy();
+    const consequence = within(confirmation).getByText(
+      /Releasing returns this work to its original shared queue/u,
     );
-    expect(screen.queryByText('Private evidence')).toBeNull();
+    expect(
+      screen
+        .getByRole('button', { name: 'Confirm release' })
+        .getAttribute('aria-describedby'),
+    ).toBe(consequence.id);
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Confirm release' }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(release).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Release to shared queue' }),
+    );
+
     fireEvent.click(
-      screen.getByRole('button', {
-        name: /Release Retry attempt limit reached follow-up/,
-      }),
+      screen.getByRole('button', { name: 'Release to shared queue' }),
+    );
+    fireEvent.keyDown(
+      screen.getByRole('group', { name: 'Confirm release to shared queue' }),
+      { key: 'Escape' },
+    );
+    expect(release).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Release to shared queue' }),
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Release to shared queue' }),
     );
     fireEvent.click(screen.getByRole('button', { name: 'Confirm release' }));
 
     expect(screen.queryByText('Private evidence')).toBeNull();
+    expect(release).toHaveBeenCalledWith(
+      {
+        tenantId: TENANT_ID,
+        workItemId: FIRST_WORK_ITEM_ID,
+        claimId: followUpClaim(FIRST_WORK_ITEM_ID).claimId,
+        expectedOwnershipRevision: 1,
+      },
+      expect.any(AbortSignal),
+    );
+    const pendingStatus = await screen.findByRole('status', {
+      name: 'Releasing follow-up',
+    });
+    await waitFor(() => expect(document.activeElement).toBe(pendingStatus));
     finishRelease({ ok: false, error: { kind: 'release-unavailable' } });
+    const failureNotice = await screen.findByRole('alert', {
+      name: 'Releasing work is not enabled.',
+    });
+    expect(document.activeElement).toBe(failureNotice);
     expect(
-      await screen.findByRole('alert', {
-        name: 'Releasing work is not enabled.',
+      screen.queryByRole('button', { name: 'Try release again' }),
+    ).toBeNull();
+  });
+
+  it('retries uncertain Console release with the same captured claim and revision', async () => {
+    const release = vi
+      .fn<ReleaseHumanFollowUp['release']>()
+      .mockResolvedValueOnce({ ok: false, error: { kind: 'transport' } })
+      .mockResolvedValueOnce({
+        ok: true,
+        release: followUpRelease(FIRST_WORK_ITEM_ID),
+      });
+    renderOwned({
+      listOwned: async () =>
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      getOwnedCaseSummary: async () => ({
+        ok: true,
+        summary: resolverFollowUpCaseSummary(
+          FIRST_WORK_ITEM_ID,
+          'Private evidence',
+        ),
       }),
-    ).toBeTruthy();
+      release,
+    });
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Open resolver console' }),
+    );
+    expect(await screen.findByText('Private evidence')).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Release to shared queue' }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm release' }));
+    expect(screen.queryByText('Private evidence')).toBeNull();
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Try release again' }),
+    );
+
+    const successNotice = await screen.findByRole('status', {
+      name: 'Follow-up released',
+    });
+    expect(document.activeElement).toBe(successNotice);
+    expect(release).toHaveBeenCalledTimes(2);
+    expect(release.mock.calls[1]?.[0]).toEqual(release.mock.calls[0]?.[0]);
   });
 
   it('lazily reveals validated case context and renders evidence as text', async () => {

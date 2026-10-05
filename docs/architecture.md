@@ -118,10 +118,13 @@ The BFF supplies ownership revisions on inbox and owned rows. Data access
 validates their availability parity and decodes revision-checked claim command
 receipts; the feature retains a command ID across an explicit ambiguous-result
 retry. A stale revision refreshes the inbox instead of guessing current state.
-Release uses the same session-bound CSRF client with an exact active claim and
-revision. Its receipt is checked before success; the owned feature closes case
-context before submission. Success revalidates both work views and that item's
-case-context cache. Release availability remains a backend rollout decision.
+Release from either an active-work card or the selected Console uses the same
+feature-owned confirmation and session-bound CSRF client with an exact active
+claim and revision. The owned feature closes Console case context before the
+POST, and the receipt is checked before success. Success revalidates both work
+views and that item's case-context cache. Release returns still-open work to
+its original shared queue; it is neither direct handover nor case completion.
+Availability remains a backend rollout decision.
 Owned-work pages use a separate tenant-and-cursor cache. Successful claims also
 invalidate that cache so active ownership is recovered from server truth; stale
 shared-inbox conflicts do not imply a change to the current resolver's claims.
@@ -144,9 +147,10 @@ a second cache for the same resource.
 The selected Resolver Console is a local work surface within the existing
 tenant route, not a durable case route. Its three panes render recorded
 observations, durable failed-attempt history, and the pinned but unassessed
-outcome condition. The presentation does not infer verified claims, a live
-trace, lease authority, approval decisions, or completed verification from
-this read model.
+outcome condition. Its presence bar reflects the currently owned claim and
+offers only the existing confirmed release action. It does not infer a timed
+lease, countdown, verified claims, a live trace, approval decisions, direct
+handover, or completed verification from this read model.
 
 The static artifact reads only public runtime configuration. Secrets never
 enter JavaScript bundles. The workbench consumes the confidential BFF through

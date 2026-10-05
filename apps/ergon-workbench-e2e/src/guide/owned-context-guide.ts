@@ -44,7 +44,7 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'open-case-context',
       title: 'Open the Resolver Console on demand',
-      body: 'Choose Open resolver console. The workbench replaces the active-work list with a read-only console and starts a separate owner-scoped read for the exact follow-up. The BFF must establish that the item is open, claimed by your verified actor, and visible under current resolver authority before assembling the case and run evidence. The card alone does not bypass that check.',
+      body: 'Choose Open resolver console. The workbench replaces the active-work list with a console whose case evidence is read-only, and starts a separate owner-scoped read for the exact follow-up. The BFF must establish that the item is open, claimed by your verified actor, and visible under current resolver authority before assembling the case and run evidence. The card alone does not bypass that check.',
       expected:
         'The workbench requests the case summary only after this action.',
     },
@@ -149,6 +149,6 @@ export const ownedContextGuide: GuideChapter = {
   ],
   limitations: [
     'The fixture controls the second read and later owned list. It does not verify real revocation, competing claims, transaction isolation, cache memory erasure, or backend authorization; those require backend and disposable full-stack tests.',
-    'The Resolver Console is a read-only projection of an escalated run, not a live tool trace, verified-claim graph, lease, approval surface, or proof assessment. It does not provide completion, reassignment, or a detailed audit of why an item is no longer visible. Release recovery is documented separately.',
+    'The case context in the Resolver Console is a read-only projection of an escalated run, not a live tool trace, verified-claim graph, lease, approval surface, or proof assessment. Its separate release action returns ownership to the shared queue; it does not provide completion, named handover, reassignment, or a detailed audit of why an item is no longer visible. Release recovery is documented separately.',
   ],
 };

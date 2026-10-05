@@ -4,8 +4,9 @@
 
 This application is Ergon's internal browser experience. It delivers the
 accessible shell, a typed fail-closed current-actor session boundary, and the
-shared and resolver-owned follow-up views, including a locally selected,
-read-only Resolver Console. It consumes the control plane's
+shared and resolver-owned follow-up views, including a locally selected
+Resolver Console with read-only case/run context and confirmed claim release.
+It consumes the control plane's
 confidential BFF without exposing provider tokens or internal API
 representations to browser code. Resolvers can claim visible work through the
 session-bound CSRF contract and recover active ownership after navigation.
@@ -82,10 +83,13 @@ revision; the control plane returns the recorded receipt instead of creating
 duplicate ownership. New claims use the current inbox revision, including
 work returned to the queue after release.
 
-Active-work cards also offer a confirmed release. The browser submits the
-exact claim and current ownership revision with the shared ephemeral CSRF
-token. A successful release rechecks both work views and case context; a
-disabled-release response identifies the operator-controlled rollout state.
+Active-work cards and the selected Console offer the same confirmed release.
+Before a Console release POST, the feature closes private case context. The
+browser submits the exact claim and current ownership revision with the shared
+ephemeral CSRF token. A successful release rechecks both work views and case
+context; a disabled-release response identifies the operator-controlled
+rollout state. Release returns still-open work to the shared queue, not to a
+named recipient, and it does not complete the case.
 
 The active-work section consumes the browser-owned resource independently from
 the shared queue. RTK Query caches pages by tenant and exact claim cursor;
@@ -107,8 +111,10 @@ hides prior evidence during revalidation and unmounts the Console when its
 exact claim is no longer in the owned-work view. A missing resource remains
 deliberately neutral because closure, ownership change, and authority change
 share the same non-disclosing response. Observation content is rendered as text
-and is never interpreted as HTML. The Console is read-only: it does not imply
-a live run, lease, approval, or verified resolution.
+and is never interpreted as HTML. The Console presence bar reflects current
+ownership without claiming a timed lease or countdown. The case and run
+content is read-only; the separate release action changes claim ownership but
+does not steer a live run, approve an action, or verify resolution.
 
 Local Vite development proxies `/bff`, `/oauth2`, and `/login/oauth2` to
 `http://localhost:8090`. Override the target with the server-side
