@@ -629,6 +629,9 @@ describe('resolver-owned human follow-ups', () => {
               ...first,
               observationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
               streamVersion: 5,
+              summary: 'Later source report',
+              provider: 'audit-log',
+              reference: null,
               content: 'Later evidence',
             },
           ],
@@ -645,9 +648,43 @@ describe('resolver-owned human follow-ups', () => {
     expect(
       within(evidence).getByText(/1 available at the run snapshot/),
     ).toBeTruthy();
-    expect(within(evidence).getByText('Later evidence')).toBeTruthy();
+    const firstButton = within(evidence).getByRole('button', {
+      name: 'Inspect observation: Customer cannot sign in',
+    });
+    const laterButton = within(evidence).getByRole('button', {
+      name: 'Inspect observation: Later source report',
+    });
+    const detail = within(evidence).getByRole('region', {
+      name: 'Source observation details',
+    });
+    expect(firstButton.getAttribute('aria-pressed')).toBe('true');
+    expect(laterButton.getAttribute('aria-pressed')).toBe('false');
+    expect(firstButton.getAttribute('aria-controls')).toBe(detail.id);
+    expect(within(detail).getByText('Earlier')).toBeTruthy();
+    expect(within(evidence).queryByText('Later evidence')).toBeNull();
+
+    fireEvent.click(laterButton);
+    expect(laterButton.getAttribute('aria-pressed')).toBe('true');
+    expect(firstButton.getAttribute('aria-pressed')).toBe('false');
+    expect(within(detail).getByText('Later evidence')).toBeTruthy();
+    expect(within(detail).getByText('EMAIL via audit-log')).toBeTruthy();
+    expect(within(detail).queryByText('Source reference')).toBeNull();
     expect(
-      within(evidence).getByText('Recorded after this run’s evidence snapshot'),
+      within(detail).getByText('Recorded after this run’s evidence snapshot'),
+    ).toBeTruthy();
+    expect(document.activeElement).toBe(
+      within(detail).getByRole('heading', {
+        name: 'Source observation details',
+      }),
+    );
+    fireEvent.click(
+      within(detail).getByRole('button', { name: 'Back to observations' }),
+    );
+    expect(document.activeElement).toBe(laterButton);
+    fireEvent.click(firstButton);
+    expect(within(evidence).queryByText('Later evidence')).toBeNull();
+    expect(
+      within(detail).getByText('In this run’s evidence snapshot'),
     ).toBeTruthy();
   });
 

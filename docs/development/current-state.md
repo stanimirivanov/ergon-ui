@@ -40,11 +40,13 @@ requester app, or native app.
   claim-cursor pagination, and post-claim cache refresh;
 - locally selected, full-width Resolver Console on the existing tenant route,
   with no case URL or persistent selection. It presents recorded observations,
-  provenance, and occurrence/recording times; the failed handoff and ordered
-  durable attempts; and the pinned, unassessed outcome condition in three
-  responsive panes. Its presence bar shows the current claim without
-  inventing a lease or countdown. It does not portray observations as verified
-  claims or attempts as a live tool trace;
+  provenance, and occurrence/recording times through a local source-observation
+  inspector; the failed handoff and ordered durable attempts; and the pinned,
+  unassessed outcome condition in three responsive panes. The inspector
+  distinguishes observations in the run's evidence snapshot from those
+  recorded later, without treating either as verified claims. Its presence
+  bar shows the current claim without inventing a lease or countdown. It does
+  not portray attempts as a live tool trace;
 - lazy owned-follow-up case context with contract/run consistency checks,
   evidence-boundary validation, full request-tuple cache identity, neutral
   absence handling, cache eviction when the Console closes, fail-closed
@@ -106,6 +108,9 @@ requester app, or native app.
   synthetic browser fixtures here. Backend `main` does not yet return those
   required fields, so live Console compatibility awaits the separate backend
   read-model change.
+- Source-observation inspection is local to the current authorized Console
+  response. It does not create claim nodes, contradiction edges, a graph,
+  evidence editing, or a source-fetch command.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.

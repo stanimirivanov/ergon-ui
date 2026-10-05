@@ -8,6 +8,8 @@ import { runGuideScenario } from './guide/user-guide-session';
 const tenantPath = '/tenants/9ad66e9b-e81a-4b61-8d8f-5708312772d8';
 const caseGoal = 'Restore access to the customer workspace';
 const observation = 'The sign-in link returns an expired-token message.';
+const laterObservation =
+  'A later SSO check reported a disabled browser session.';
 
 test(
   'recovers owned work and hides case evidence during failed revalidation',
@@ -58,9 +60,26 @@ test(
         );
         await expect(consoleView).toBeVisible();
         await expect(caseHeading).toBeVisible();
-        await expect(consoleView.getByText(observation)).toBeVisible();
+        const evidence = consoleView.getByRole('region', {
+          name: 'Recorded observations',
+        });
+        const observationList = evidence.getByRole('list', {
+          name: 'Case observations',
+        });
+        const firstObservation = observationList.getByRole('button', {
+          name: 'Inspect observation: Customer cannot sign in',
+        });
+        const laterObservationButton = observationList.getByRole('button', {
+          name: 'Inspect observation: Later SSO diagnostic received',
+        });
+        const detail = evidence.getByRole('region', {
+          name: 'Source observation details',
+        });
+        await expect(observationList.getByRole('listitem')).toHaveCount(2);
+        await expect(firstObservation).toHaveAttribute('aria-pressed', 'true');
+        await expect(detail.getByText(observation)).toBeVisible();
         await expect(
-          consoleView.getByText('In this run’s evidence snapshot'),
+          detail.getByText('In this run’s evidence snapshot'),
         ).toBeVisible();
         await expect(
           consoleView.getByRole('heading', {
@@ -70,10 +89,51 @@ test(
         ).toBeVisible();
         expect(bff.summaryReads()).toBe(1);
         await guide.result('review-evidence', caseHeading);
-        await guide.result(
-          'inspect-source-observation',
-          consoleView.getByText(observation),
+        await guide.result('inspect-source-observation', detail);
+
+        await guide.action(
+          'select-later-observation',
+          laterObservationButton,
+          () => laterObservationButton.click(),
         );
+        await expect(laterObservationButton).toHaveAttribute(
+          'aria-pressed',
+          'true',
+        );
+        await expect(firstObservation).toHaveAttribute('aria-pressed', 'false');
+        await expect(detail.getByText(laterObservation)).toBeVisible();
+        await expect(detail.getByText(observation)).toHaveCount(0);
+        await expect(
+          detail.getByText('Recorded after this run’s evidence snapshot'),
+        ).toBeVisible();
+        await expect(
+          detail.getByRole('heading', {
+            name: 'Source observation details',
+          }),
+        ).toBeFocused();
+        expect(bff.summaryReads()).toBe(1);
+        // Annotate the pane header so the callout does not cover provenance.
+        await guide.result(
+          'inspect-later-observation',
+          evidence.getByRole('heading', { name: 'Recorded observations' }),
+        );
+
+        const backToObservations = detail.getByRole('button', {
+          name: 'Back to observations',
+        });
+        await guide.action('return-to-observations', backToObservations, () =>
+          backToObservations.click(),
+        );
+        await expect(laterObservationButton).toBeFocused();
+        await expect(detail.getByText(laterObservation)).toBeVisible();
+        await guide.action(
+          'select-run-snapshot-observation',
+          firstObservation,
+          () => firstObservation.click(),
+        );
+        await expect(firstObservation).toHaveAttribute('aria-pressed', 'true');
+        await expect(detail.getByText(observation)).toBeVisible();
+        expect(bff.summaryReads()).toBe(1);
 
         const context = consoleView.getByRole('region', { name: caseGoal });
         const attempts = context.getByRole('list', {
@@ -105,6 +165,7 @@ test(
         await expect(consoleView).toHaveCount(0);
         await expect(caseHeading).toHaveCount(0);
         await expect(page.getByText(observation)).toHaveCount(0);
+        await expect(detail).toHaveCount(0);
         await guide.result('context-hidden', openConsole);
 
         await guide.action('reopen-case-context', openConsole, () =>
@@ -118,6 +179,7 @@ test(
         await expect(loading).toBeVisible();
         await expect(caseHeading).toHaveCount(0);
         await expect(page.getByText(observation)).toHaveCount(0);
+        await expect(detail).toHaveCount(0);
         await guide.result('evidence-hidden-while-loading', loading);
 
         bff.denyPendingSummary();
@@ -128,6 +190,7 @@ test(
         await expect(unavailable).toBeVisible();
         await expect(caseHeading).toHaveCount(0);
         await expect(page.getByText(observation)).toHaveCount(0);
+        await expect(detail).toHaveCount(0);
         await expect(
           consoleView.getByRole('button', { name: 'Try case context again' }),
         ).toHaveCount(0);
@@ -158,7 +221,7 @@ test('places console panes in order without overflow at desktop and narrow width
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await installSimulatedOwnedContextBff(page);
+  const bff = await installSimulatedOwnedContextBff(page);
   await page.goto(tenantPath);
   await page.getByRole('button', { name: 'Open resolver console' }).click();
 
@@ -167,11 +230,18 @@ test('places console panes in order without overflow at desktop and narrow width
   const evidence = context.getByRole('region', {
     name: 'Recorded observations',
   });
+  const observationList = evidence.getByRole('list', {
+    name: 'Case observations',
+  });
+  const detail = evidence.getByRole('region', {
+    name: 'Source observation details',
+  });
   const attempts = context.getByRole('region', { name: 'Recorded attempts' });
   const handoff = attempts.getByRole('region', { name: 'Automation handoff' });
   const contract = context.getByRole('region', { name: 'Case and contract' });
   const proof = context.getByRole('region', { name: 'Not assessed' });
   await expect(evidence).toBeVisible();
+  await expect(detail).toBeVisible();
   await expect(handoff).toBeVisible();
   await expect(attempts).toBeVisible();
   await expect(proof).toBeVisible();
@@ -224,6 +294,24 @@ test('places console panes in order without overflow at desktop and narrow width
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+  const laterObservationButton = observationList.getByRole('button', {
+    name: 'Inspect observation: Later SSO diagnostic received',
+  });
+  await laterObservationButton.focus();
+  await page.keyboard.press('Enter');
+  await expect(detail.getByText(laterObservation)).toBeVisible();
+  await expect(
+    detail.getByRole('heading', { name: 'Source observation details' }),
+  ).toBeFocused();
+  expect(bff.summaryReads()).toBe(1);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  await detail.getByRole('button', { name: 'Back to observations' }).focus();
+  await page.keyboard.press('Space');
+  await expect(laterObservationButton).toBeFocused();
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
 

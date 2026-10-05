@@ -39,7 +39,7 @@ const summary = {
     caseId,
     goal: 'Restore access to the customer workspace',
     status: 'OPEN',
-    streamVersion: 4,
+    streamVersion: 5,
     resolutionContract: { key: 'access-restoration', revision: 2 },
   },
   observations: [
@@ -54,6 +54,18 @@ const summary = {
       content: 'The sign-in link returns an expired-token message.',
       occurredAt: '2026-09-21T09:20:00Z',
       recordedAt: '2026-09-21T09:20:01Z',
+    },
+    {
+      streamVersion: 5,
+      eventType: 'SourceObservationRecorded',
+      summary: 'Later SSO diagnostic received',
+      observationId: '99999999-9999-4999-8999-999999999999',
+      originType: 'SYSTEM',
+      provider: 'sso-diagnostics',
+      reference: 'session-audit-7',
+      content: 'A later SSO check reported a disabled browser session.',
+      occurredAt: '2026-09-21T09:32:00Z',
+      recordedAt: '2026-09-21T09:32:01Z',
     },
   ],
   resolutionRun: {
