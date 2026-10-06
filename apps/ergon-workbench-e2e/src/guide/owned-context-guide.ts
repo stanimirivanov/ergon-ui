@@ -63,9 +63,23 @@ export const ownedContextGuide: GuideChapter = {
         'The first observation is selected; its detail is visible as inert text before the automation handoff.',
     },
     {
+      id: 'filter-later-observations',
+      title: 'Isolate records unavailable to the run',
+      body: 'Choose Recorded later in the observation timing filter. This local view keeps only source records whose stream version exceeds the run’s pinned evidence boundary. It does not make a new BFF request, reclassify a source as a verified fact, or retroactively add the later record to the failed run.',
+      expected:
+        'Only the later source remains in the list and the earlier source detail is hidden.',
+    },
+    {
+      id: 'inspect-later-filter',
+      title: 'Check the filtered count and source',
+      body: 'The filter announces one of two recorded observations and selects the visible later source for inspection. Its after-snapshot label explains why it was not part of the escalated run’s evidence. A zero-count filter similarly shows a neutral empty result rather than retaining hidden source details.',
+      expected:
+        'One later observation and its provenance are visible; the run-snapshot source is absent from the detail.',
+    },
+    {
       id: 'select-later-observation',
       title: 'Select the later source record',
-      body: 'Choose the second observation in the compact list. Selection only changes which already authorized source record is inspected locally; it makes no new BFF request and does not bind the source to a verified asset fact. The observation was recorded after the escalated run’s pinned evidence boundary, so it cannot be read back into that run’s decision.',
+      body: 'Choose the visible later observation in the compact list to move keyboard focus to its detail. Selection only changes which already authorized source record is inspected locally; it makes no new BFF request and does not bind the source to a verified asset fact. The observation was recorded after the escalated run’s pinned evidence boundary, so it cannot be read back into that run’s decision.',
       expected:
         'The second record becomes selected and keyboard focus moves to its detail heading.',
     },
@@ -82,6 +96,13 @@ export const ownedContextGuide: GuideChapter = {
       body: 'Use Back to observations to move keyboard focus to the currently selected list item. The detail stays visible, so you can resume reading or choose another source without losing context. This action neither closes the Console nor changes ownership.',
       expected:
         'Focus returns to the selected observation button while the detail remains visible.',
+    },
+    {
+      id: 'restore-all-observations',
+      title: 'Restore the full source list',
+      body: 'Choose All to remove the temporal filter. Both authorized observations return in stream order, and the first visible source becomes the selected detail. The filter and selection remain local to the open Console and disappear when its owner-scoped context closes.',
+      expected:
+        'Both source records are listed again without another case-summary request.',
     },
     {
       id: 'select-run-snapshot-observation',

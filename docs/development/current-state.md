@@ -45,7 +45,8 @@ requester app, or native app.
   recorded transition, connector-result, and retry-link events; and the pinned,
   unassessed outcome condition in three responsive panes. The inspector
   distinguishes observations in the run's evidence snapshot from those
-  recorded later, without treating either as verified claims. Its presence
+  recorded later and can filter the list by that boundary, without treating
+  either as verified claims. Its presence
   bar shows the current claim without inventing a lease or countdown. It does
   not portray attempts as a live tool trace;
 - lazy owned-follow-up case context with contract/run consistency checks,

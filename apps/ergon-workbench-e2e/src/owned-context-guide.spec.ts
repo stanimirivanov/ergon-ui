@@ -91,6 +91,31 @@ test(
         await guide.result('review-evidence', caseHeading);
         await guide.result('inspect-source-observation', detail);
 
+        const timingFilters = evidence.getByRole('group', {
+          name: 'Filter observations by run snapshot',
+        });
+        const laterFilter = timingFilters.getByRole('button', {
+          name: 'Recorded later (1)',
+        });
+        await guide.action(
+          'filter-later-observations',
+          laterFilter,
+          async () => {
+            await laterFilter.focus();
+            await page.keyboard.press('Enter');
+          },
+        );
+        await expect(laterFilter).toHaveAttribute('aria-pressed', 'true');
+        await expect(observationList.getByRole('listitem')).toHaveCount(1);
+        await expect(firstObservation).toHaveCount(0);
+        await expect(detail.getByText(observation)).toHaveCount(0);
+        await expect(detail.getByText(laterObservation)).toBeVisible();
+        await expect(evidence.getByRole('status')).toContainText(
+          'Showing 1 of 2 recorded observations',
+        );
+        expect(bff.summaryReads()).toBe(1);
+        await guide.result('inspect-later-filter', timingFilters);
+
         await guide.action(
           'select-later-observation',
           laterObservationButton,
@@ -100,7 +125,7 @@ test(
           'aria-pressed',
           'true',
         );
-        await expect(firstObservation).toHaveAttribute('aria-pressed', 'false');
+        await expect(firstObservation).toHaveCount(0);
         await expect(detail.getByText(laterObservation)).toBeVisible();
         await expect(detail.getByText(observation)).toHaveCount(0);
         await expect(
@@ -126,6 +151,16 @@ test(
         );
         await expect(laterObservationButton).toBeFocused();
         await expect(detail.getByText(laterObservation)).toBeVisible();
+        const allFilter = timingFilters.getByRole('button', {
+          name: 'All (2)',
+        });
+        await guide.action('restore-all-observations', allFilter, () =>
+          allFilter.click(),
+        );
+        await expect(observationList.getByRole('listitem')).toHaveCount(2);
+        await expect(firstObservation).toHaveAttribute('aria-pressed', 'true');
+        await expect(detail.getByText(observation)).toBeVisible();
+        expect(bff.summaryReads()).toBe(1);
         await guide.action(
           'select-run-snapshot-observation',
           firstObservation,
@@ -325,6 +360,19 @@ test('places console panes in order without overflow at desktop and narrow width
   expect(narrowHandoff.y + narrowHandoff.height).toBeLessThan(narrowProof.y);
   expect(narrowAttempts.y + narrowAttempts.height).toBeLessThan(narrowProof.y);
   expect(narrowContract.y).toBeGreaterThan(narrowProof.y);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  const laterFilter = evidence.getByRole('button', {
+    name: 'Recorded later (1)',
+  });
+  await laterFilter.focus();
+  await page.keyboard.press('Space');
+  await expect(laterFilter).toHaveAttribute('aria-pressed', 'true');
+  await expect(observationList.getByRole('listitem')).toHaveCount(1);
+  await expect(detail.getByText(laterObservation)).toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
