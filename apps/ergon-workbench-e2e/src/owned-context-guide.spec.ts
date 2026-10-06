@@ -140,13 +140,12 @@ test(
           name: 'Resolution attempts',
         });
         const proof = context.getByRole('region', { name: 'Not assessed' });
-        await expect(attempts.getByRole('listitem')).toHaveCount(2);
-        await expect(attempts.getByRole('listitem').nth(0)).toContainText(
+        const attemptRows = attempts.locator(':scope > li');
+        await expect(attemptRows).toHaveCount(2);
+        await expect(attemptRows.nth(0)).toContainText(
           'Attempt 1 · SUPERSEDED',
         );
-        await expect(attempts.getByRole('listitem').nth(1)).toContainText(
-          'Attempt 2 · ESCALATED',
-        );
+        await expect(attemptRows.nth(1)).toContainText('Attempt 2 · ESCALATED');
         await expect(
           proof.getByText(/account\.access\.state\s*=\s*ACTIVE/u),
         ).toBeVisible();
@@ -154,6 +153,43 @@ test(
           'there is no accepted proof of resolution',
         );
         await guide.result('inspect-attempt-history', attempts);
+
+        const firstRecord = attemptRows.nth(0).locator('summary');
+        await guide.action('open-attempt-record', firstRecord, async () => {
+          await firstRecord.focus();
+          await page.keyboard.press('Enter');
+        });
+        await expect(attemptRows.nth(0).locator('details')).toHaveAttribute(
+          'open',
+          '',
+        );
+        const firstEvents = attemptRows.nth(0).getByRole('list', {
+          name: 'Recorded events for attempt 1',
+        });
+        await expect(firstEvents.getByRole('listitem')).toHaveCount(2);
+        await expect(firstEvents).toContainText(
+          'READY_FOR_AUTHORIZATION → ACTION_FAILED',
+        );
+        await expect(firstEvents).toContainText(
+          '33333333-3333-4333-8333-333333333333',
+        );
+        const secondRecord = attemptRows.nth(1).locator('summary');
+        await secondRecord.focus();
+        await page.keyboard.press('Space');
+        await expect(attemptRows.nth(1).locator('details')).toHaveAttribute(
+          'open',
+          '',
+        );
+        const secondEvents = attemptRows.nth(1).getByRole('list', {
+          name: 'Recorded events for attempt 2',
+        });
+        await expect(secondEvents.getByRole('listitem')).toHaveCount(1);
+        await expect(secondEvents).not.toContainText('retry started successor');
+        await expect(attemptRows.nth(1)).toContainText(
+          '55555555-5555-4555-8555-555555555555',
+        );
+        expect(bff.summaryReads()).toBe(1);
+        await guide.result('inspect-recorded-events', firstEvents);
         await guide.result('inspect-proof', proof);
 
         const backToWork = consoleView.getByRole('button', {
@@ -289,6 +325,20 @@ test('places console panes in order without overflow at desktop and narrow width
   expect(narrowHandoff.y + narrowHandoff.height).toBeLessThan(narrowProof.y);
   expect(narrowAttempts.y + narrowAttempts.height).toBeLessThan(narrowProof.y);
   expect(narrowContract.y).toBeGreaterThan(narrowProof.y);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  const attemptRows = attempts
+    .getByRole('list', { name: 'Resolution attempts' })
+    .locator(':scope > li');
+  await attemptRows.nth(0).locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(attemptRows.nth(0).locator('details')).toHaveAttribute(
+    'open',
+    '',
+  );
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,

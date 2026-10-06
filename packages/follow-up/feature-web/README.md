@@ -15,8 +15,9 @@ out of the deployable app and domain-agnostic UI primitives.
   ownership is rechecked and unmounts it when the claim changes or disappears.
 - Responsive, read-only, three-pane case inspection: recorded observations
   and provenance through a locally selected source-observation inspector, the
-  failed automation handoff and ordered durable attempts, and the pinned but
-  unassessed outcome condition. The inspector keeps untrusted source content
+  failed automation handoff and ordered durable attempts with native disclosure
+  of recorded transitions, connector results, and retry linkage, and the pinned
+  but unassessed outcome condition. The inspector keeps untrusted source content
   inert and labels whether it was available at the run's pinned snapshot.
   Evidence precedes execution and proof in the reading order when panes stack.
   The view introduces no verified-claim graph, client-side authority, live

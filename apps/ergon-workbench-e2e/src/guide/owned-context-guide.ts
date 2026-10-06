@@ -93,9 +93,23 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'inspect-attempt-history',
       title: 'Follow the recorded retry chain',
-      body: 'Read the durable attempts in ascending order. The first failed and was superseded by a retry; the second failed and escalated to this human follow-up. Each row identifies a connector result and the retry boundary where present. This is a concise recorded transition history, not a live tool-call trace or evidence that the customer outcome succeeded.',
+      body: 'Read the durable attempts in ascending order. The first failed and was superseded by a retry; the second failed and escalated to this human follow-up. Each row identifies a connector result and the retry boundary where present. Open a record to inspect its persisted transition and retry events. This is not a live tool-call trace or evidence that the customer outcome succeeded.',
       expected:
         'Attempt 1 is superseded and attempt 2 is escalated, with the retry shown between them.',
+    },
+    {
+      id: 'open-attempt-record',
+      title: 'Open the superseded attempt record',
+      body: 'Use the first attempt’s native disclosure to reveal the exact durable fields. The action expands data already present in the authorized case response; it does not send another BFF read or resume execution. Keyboard users can focus the summary and press Enter or Space.',
+      expected:
+        'The first attempt shows its run identifier, recorded start, final state, and event list.',
+    },
+    {
+      id: 'inspect-recorded-events',
+      title: 'Inspect the transition and retry link',
+      body: 'Event 1 records the connector failure, state transition, completion time, and recording time. Event 2 records the retry and successor run identifier. Open the escalated attempt to compare its predecessor identifier and single connector-failure event; it has no retry event. These are persisted facts, not nested model spans, measured latency, cost, or an authorization decision.',
+      expected:
+        'The first attempt links to its successor, and the second links back without inventing a third attempt.',
     },
     {
       id: 'inspect-proof',
