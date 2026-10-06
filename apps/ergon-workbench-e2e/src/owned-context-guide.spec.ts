@@ -206,6 +206,40 @@ test(
         await expect(detail.getByText(observation)).toBeVisible();
         expect(bff.summaryReads()).toBe(1);
 
+        const compareSources = detail.getByRole('button', {
+          name: 'Compare sources',
+        });
+        await guide.action('open-source-comparison', compareSources, () =>
+          compareSources.click(),
+        );
+        const comparison = page.getByRole('dialog', {
+          name: 'Source comparison',
+        });
+        const comparedRecords = comparison.locator('article');
+        await expect(comparison).toBeVisible();
+        await expect(comparedRecords).toHaveCount(2);
+        await expect(comparedRecords.nth(0)).toContainText(observation);
+        await expect(comparedRecords.nth(0)).toContainText('In run snapshot');
+        await expect(comparedRecords.nth(1)).toContainText(laterObservation);
+        await expect(comparedRecords.nth(1)).toContainText('Recorded later');
+        await expect(comparedRecords.nth(0)).toContainText('Source');
+        await expect(comparedRecords.nth(1)).toContainText('Recorded');
+        expect(bff.summaryReads()).toBe(1);
+        const comparisonAccessibility = await new AxeBuilder({
+          page,
+        }).analyze();
+        expect(comparisonAccessibility.violations).toEqual([]);
+        await guide.result('inspect-source-comparison', comparison);
+        const closeComparison = comparison.getByRole('button', {
+          name: 'Close comparison',
+        });
+        await guide.action('close-source-comparison', closeComparison, () =>
+          page.keyboard.press('Escape'),
+        );
+        await expect(comparison).toHaveCount(0);
+        await expect(compareSources).toBeFocused();
+        expect(bff.summaryReads()).toBe(1);
+
         const context = consoleView.getByRole('region', { name: caseGoal });
         const attempts = context.getByRole('list', {
           name: 'Resolution attempts',
@@ -483,6 +517,33 @@ test('places console panes in order without overflow at desktop and narrow width
   await detail.getByRole('button', { name: 'Back to observations' }).focus();
   await page.keyboard.press('Space');
   await expect(laterObservationButton).toBeFocused();
+  await evidence.getByRole('button', { name: 'All (2)' }).click();
+  const compareSources = detail.getByRole('button', {
+    name: 'Compare sources',
+  });
+  await compareSources.click();
+  const comparison = page.getByRole('dialog', {
+    name: 'Source comparison',
+  });
+  const comparedRecords = comparison.locator('article');
+  const firstRecordBounds = await comparedRecords.nth(0).boundingBox();
+  const secondRecordBounds = await comparedRecords.nth(1).boundingBox();
+  if (firstRecordBounds === null || secondRecordBounds === null) {
+    throw new Error('Source comparison cards have no narrow viewport bounds');
+  }
+  expect(firstRecordBounds.y + firstRecordBounds.height).toBeLessThan(
+    secondRecordBounds.y,
+  );
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  const comparisonAccessibility = await new AxeBuilder({ page }).analyze();
+  expect(comparisonAccessibility.violations).toEqual([]);
+  await comparison.getByRole('button', { name: 'Close comparison' }).click();
+  await expect(comparison).toHaveCount(0);
+  await expect(compareSources).toBeFocused();
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
 

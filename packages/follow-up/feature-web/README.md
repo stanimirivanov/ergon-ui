@@ -20,6 +20,8 @@ out of the deployable app and domain-agnostic UI primitives.
   but unassessed outcome condition. The inspector keeps untrusted source content
   inert, labels whether it was available at the run's pinned snapshot, and
   locally filters observations by that temporal boundary without another read.
+  A modal inspector compares two currently visible source records and their
+  provenance without claiming that either is verified or contradictory.
   Local section jumps focus evidence, attempts, or outcome without a URL
   fragment; evidence precedes execution and proof when panes stack.
   The view introduces no verified-claim graph, client-side authority, live

@@ -79,7 +79,7 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'inspect-source-observation',
       title: 'Inspect the run-snapshot source',
-      body: 'The left pane lists source observations and shows one selected record in a detail region. The default record includes its original plain-text content, source reference, occurrence time, recording time, and a label saying it was available at the pinned run snapshot. In this synthetic example the sign-in link reportedly returned an expired-token message. That sentence is source evidence to assess, not a verified claim or a directive to bypass approval. Its appearance depends on the owner-scoped case read that just succeeded.',
+      body: 'The left pane lists source observations and shows one selected record in a detail region. The default record includes its original plain-text content, source reference, occurrence time, recording time, and a label saying it was available at the pinned run snapshot. In this synthetic example the sign-in link reportedly returned an expired-token message. That sentence is source evidence to assess, not a verified claim or a directive to bypass approval. Its appearance depends on the owner-scoped case read that just succeeded. Compare sources is available when at least two observations remain visible under the current timing filter.',
       expected:
         'The first observation is selected; its detail is visible as inert text before the automation handoff.',
     },
@@ -131,6 +131,27 @@ export const ownedContextGuide: GuideChapter = {
       body: 'Select the original email observation again. Its content and in-snapshot label return, demonstrating that this is a local inspector over the same owner-scoped response, not a new evidence acquisition or a graph of inferred claims.',
       expected:
         'The email observation is selected and its original text is visible again.',
+    },
+    {
+      id: 'open-source-comparison',
+      title: 'Compare two source records',
+      body: 'Choose Compare sources to open a modal inspector over the same owner-authorized response. Its selected source is the email report; the second source is the later SSO diagnostic. The records appear side by side at desktop width and stack at narrow width. Both show original text, origin and provider, reference, occurrence and recording times, and their distinct run-snapshot labels. No new BFF request is made, and this view does not infer a contradiction or bind either statement to a verified asset fact.',
+      expected:
+        'A modal source comparison shows the selected and later records with provenance and timing.',
+    },
+    {
+      id: 'inspect-source-comparison',
+      title: 'Read the timing boundary in context',
+      body: 'The left record was available to the failed run; the later diagnostic was recorded after its evidence boundary. The inspector deliberately says that similar or conflicting wording is not an assessed contradiction. Compare the exact source and timing before deciding whether further investigation is needed. The overlay is an inspection aid, not an approval or resolution action.',
+      expected:
+        'Both source cards remain plain text, and the modal makes no verified-claim or contradiction assertion.',
+    },
+    {
+      id: 'close-source-comparison',
+      title: 'Return to the evidence pane',
+      body: 'Choose Close comparison or press Escape. The modal closes and keyboard focus returns to the Compare sources control in the still-authorized Console. Changing the timing filter to a single visible record removes the comparison action. Closing the Console later removes the source details and comparison state altogether.',
+      expected:
+        'The modal closes, focus returns to the evidence pane, and the case-summary read count is unchanged.',
     },
     {
       id: 'inspect-attempt-history',
@@ -233,6 +254,6 @@ export const ownedContextGuide: GuideChapter = {
   ],
   limitations: [
     'The fixture controls the second read and later owned list. It does not verify real revocation, competing claims, transaction isolation, cache memory erasure, or backend authorization; those require backend and disposable full-stack tests.',
-    'The source inspector only selects among observations in the current owner-scoped response; it does not derive verified facts, detect contradictions, fetch source systems, or edit evidence. The case context is a read-only projection of an escalated run, not a live tool trace, verified-claim graph, lease, approval surface, or proof assessment. Its separate release action returns ownership to the shared queue; it does not provide completion, named handover, reassignment, or a detailed audit of why an item is no longer visible. Release recovery is documented separately.',
+    'The source inspector selects and compares observations only from the current owner-scoped response; it does not derive verified facts, detect contradictions, fetch source systems, or edit evidence. The case context is a read-only projection of an escalated run, not a live tool trace, verified-claim graph, lease, approval surface, or proof assessment. Its separate release action returns ownership to the shared queue; it does not provide completion, named handover, reassignment, or a detailed audit of why an item is no longer visible. Release recovery is documented separately.',
   ],
 };
