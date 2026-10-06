@@ -41,7 +41,8 @@ requester app, or native app.
 - locally selected, full-width Resolver Console on the existing tenant route,
   with no case URL or persistent selection. It presents recorded observations,
   provenance, and occurrence/recording times through a local source-observation
-  inspector; the failed handoff and ordered durable attempts; and the pinned,
+  inspector; the failed handoff and ordered durable attempts with expandable
+  recorded transition, connector-result, and retry-link events; and the pinned,
   unassessed outcome condition in three responsive panes. The inspector
   distinguishes observations in the run's evidence snapshot from those
   recorded later, without treating either as verified claims. Its presence

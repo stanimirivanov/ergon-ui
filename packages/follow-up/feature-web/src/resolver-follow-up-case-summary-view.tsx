@@ -2,12 +2,7 @@ import type { ResolverFollowUpCaseSummary } from '@ergon/follow-up-model';
 import type { ReactNode } from 'react';
 
 import { ResolverObservationInspector } from './resolver-observation-inspector';
-
-const observedAtFormatter = new Intl.DateTimeFormat('en-GB', {
-  dateStyle: 'medium',
-  timeStyle: 'medium',
-  timeZone: 'UTC',
-});
+import { ResolverRunAttemptHistory } from './resolver-run-attempt-history';
 
 /**
  * Presents owner-authorized observations, durable attempts, and the pinned
@@ -115,46 +110,7 @@ export function ResolverFollowUpCaseSummaryView({
             retry limit was reached after {summary.escalation.maximumAttempts}{' '}
             attempts.
           </p>
-          <ol
-            className="mt-5 grid gap-3 border-l-2 border-accent/45 pl-4"
-            aria-label="Resolution attempts"
-          >
-            {summary.runHistory.attempts.map((attempt) => (
-              <li
-                key={attempt.runId}
-                className="relative min-w-0 rounded-md border border-border bg-canvas/75 p-4 before:absolute before:top-5 before:-left-[1.36rem] before:size-2.5 before:rounded-full before:bg-accent"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h4 className="font-bold text-ink">
-                    Attempt {attempt.attemptNumber} · {attempt.state}
-                  </h4>
-                  <time
-                    className="text-xs text-ink-muted"
-                    dateTime={attempt.stateUpdatedAt}
-                  >
-                    {formatUtcInstant(attempt.stateUpdatedAt)}
-                  </time>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-ink-muted">
-                  {attempt.capabilityResult.connector} reported{' '}
-                  {attempt.capabilityResult.outcome} at{' '}
-                  <time dateTime={attempt.capabilityResult.completedAt}>
-                    {formatUtcInstant(attempt.capabilityResult.completedAt)}
-                  </time>
-                  .
-                </p>
-                {attempt.retry === null ? null : (
-                  <p className="mt-3 border-t border-border pt-3 text-sm leading-6 text-accent-strong">
-                    Retry recorded at{' '}
-                    <time dateTime={attempt.retry.occurredAt}>
-                      {formatUtcInstant(attempt.retry.occurredAt)}
-                    </time>
-                    ; a successor attempt was started.
-                  </p>
-                )}
-              </li>
-            ))}
-          </ol>
+          <ResolverRunAttemptHistory attempts={summary.runHistory.attempts} />
           <section
             aria-labelledby={`${regionId}-handoff-heading`}
             className="mt-5 rounded-md border border-highlight/45 bg-highlight/5 p-4"
@@ -262,8 +218,4 @@ function CaseFact({
       <dd className="mt-1 break-words text-ink">{children}</dd>
     </div>
   );
-}
-
-function formatUtcInstant(value: string): string {
-  return `${observedAtFormatter.format(new Date(value))} UTC`;
 }
