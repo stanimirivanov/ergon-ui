@@ -51,9 +51,30 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'review-evidence',
       title: 'Read the bounded evidence snapshot',
-      body: 'The console shows the case goal, pinned contract revision, escalated run, failed connector, exhausted attempt budget, and source observations. Its three panes put observations on the left, recorded attempts and handoff in the center, and the unassessed outcome target on the right at desktop width. The observation inspector initially selects the first source record. Read it as data; its content is rendered as plain text, not markup or executable instructions. The evidence boundary and timestamps describe the run’s context, not proof that the customer problem has been resolved.',
+      body: 'The console shows the case goal, pinned contract revision, escalated run, failed connector, exhausted attempt budget, and source observations. Its three panes put observations on the left, recorded attempts and handoff in the center, and the unassessed outcome target on the right at desktop width. Local section jumps help reach a pane when they stack at narrow width; they do not create a case URL. The observation inspector initially selects the first source record. Read it as data; its content is rendered as plain text, not markup or executable instructions. The evidence boundary and timestamps describe the run’s context, not proof that the customer problem has been resolved.',
       expected:
         'The case goal, selected source observation, and automation handoff appear.',
+    },
+    {
+      id: 'jump-to-outcome',
+      title: 'Jump to the outcome pane',
+      body: 'Choose Outcome in the local section-jump group. Keyboard focus moves to the outcome heading and the browser scrolls it into view on a stacked layout. The case context remains on the current tenant page: no fragment, case identifier, or evidence content is written to the URL or browser storage, and no BFF read is started.',
+      expected:
+        'The Not assessed heading receives focus while the tenant URL and case-summary read count stay unchanged.',
+    },
+    {
+      id: 'inspect-jump-outcome',
+      title: 'Read the focused outcome target',
+      body: 'The destination says Not assessed because the escalated run never entered verification. The pinned success condition describes what would need proof; the jump itself neither checks that condition nor changes ownership, assessment, or resolution state.',
+      expected:
+        'The focused outcome pane still presents a target, not accepted proof.',
+    },
+    {
+      id: 'jump-back-to-evidence',
+      title: 'Return to the evidence pane',
+      body: 'Choose Evidence to move focus back to Recorded observations. The same owner-authorized response remains mounted, and the first source stays selected. Section jumps are focus and scroll aids, not navigation links or a shareable case route.',
+      expected:
+        'The evidence heading receives focus without another case-summary request.',
     },
     {
       id: 'inspect-source-observation',

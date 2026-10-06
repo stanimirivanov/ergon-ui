@@ -1,13 +1,17 @@
 import type { ResolverFollowUpCaseSummary } from '@ergon/follow-up-model';
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 
 import { ResolverObservationInspector } from './resolver-observation-inspector';
 import { ResolverRunAttemptHistory } from './resolver-run-attempt-history';
 
+const sectionJumpClass =
+  'min-h-11 rounded-md border border-border bg-surface px-3 py-2 text-xs font-semibold text-ink hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas';
+
 /**
  * Presents owner-authorized observations, durable attempts, and the pinned
- * outcome target. This is neither a live trace nor verified resolution;
- * untrusted observation content remains inert React text.
+ * outcome target. Local section jumps move focus without placing case identity
+ * in the URL. This is neither a live trace nor verified resolution; untrusted
+ * observation content remains inert React text.
  */
 export function ResolverFollowUpCaseSummaryView({
   summary,
@@ -18,6 +22,9 @@ export function ResolverFollowUpCaseSummaryView({
   readonly regionId: string;
   readonly isFetching: boolean;
 }): ReactNode {
+  const evidenceHeading = useRef<HTMLHeadingElement>(null);
+  const runHeading = useRef<HTMLHeadingElement>(null);
+  const proofHeading = useRef<HTMLHeadingElement>(null);
   const pinnedVersion = summary.resolutionRun.caseEvidenceStreamVersion;
   const visibleCount = summary.observations.filter(
     (observation) => observation.streamVersion <= pinnedVersion,
@@ -59,6 +66,40 @@ export function ResolverFollowUpCaseSummaryView({
         </div>
       </div>
 
+      <div
+        role="group"
+        aria-label="Console section jumps"
+        className="mb-4 flex flex-wrap items-center gap-2 px-1"
+      >
+        <span className="mr-1 text-xs font-bold tracking-wide text-ink-muted uppercase">
+          Jump to
+        </span>
+        <button
+          type="button"
+          aria-label="Jump to evidence"
+          onClick={() => evidenceHeading.current?.focus()}
+          className={sectionJumpClass}
+        >
+          Evidence
+        </button>
+        <button
+          type="button"
+          aria-label="Jump to attempts"
+          onClick={() => runHeading.current?.focus()}
+          className={sectionJumpClass}
+        >
+          Attempts
+        </button>
+        <button
+          type="button"
+          aria-label="Jump to outcome"
+          onClick={() => proofHeading.current?.focus()}
+          className={sectionJumpClass}
+        >
+          Outcome
+        </button>
+      </div>
+
       <div className="grid min-w-0 gap-3 lg:grid-cols-2 xl:grid-cols-[minmax(17rem,0.85fr)_minmax(0,1.8fr)_minmax(19rem,1.05fr)]">
         <section
           aria-labelledby={`${regionId}-evidence-heading`}
@@ -68,8 +109,10 @@ export function ResolverFollowUpCaseSummaryView({
             Evidence & sources
           </p>
           <h3
+            ref={evidenceHeading}
             id={`${regionId}-evidence-heading`}
-            className="mt-2 text-xl font-bold text-ink"
+            tabIndex={-1}
+            className="mt-2 scroll-mt-6 text-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-accent-strong focus:ring-offset-2 focus:ring-offset-canvas"
           >
             Recorded observations
           </h3>
@@ -95,8 +138,10 @@ export function ResolverFollowUpCaseSummaryView({
                 Resolution run
               </p>
               <h3
+                ref={runHeading}
                 id={`${regionId}-run-heading`}
-                className="mt-2 text-xl font-bold text-ink"
+                tabIndex={-1}
+                className="mt-2 scroll-mt-6 text-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-accent-strong focus:ring-offset-2 focus:ring-offset-canvas"
               >
                 Recorded attempts
               </h3>
@@ -153,8 +198,10 @@ export function ResolverFollowUpCaseSummaryView({
             Outcome target
           </p>
           <h3
+            ref={proofHeading}
             id={`${regionId}-proof-heading`}
-            className="mt-2 text-xl font-bold text-ink"
+            tabIndex={-1}
+            className="mt-2 scroll-mt-6 text-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-accent-strong focus:ring-offset-2 focus:ring-offset-canvas"
           >
             Not assessed
           </h3>
