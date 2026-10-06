@@ -46,9 +46,10 @@ requester app, or native app.
   unassessed outcome condition in three responsive panes. The inspector
   distinguishes observations in the run's evidence snapshot from those
   recorded later and can filter the list by that boundary, without treating
-  either as verified claims. Its presence
-  bar shows the current claim without inventing a lease or countdown. It does
-  not portray attempts as a live tool trace;
+  either as verified claims. Section jumps focus each pane without creating a
+  case URL or fragment. Its presence bar shows the current claim without
+  inventing a lease or countdown. It does not portray attempts as a live tool
+  trace;
 - lazy owned-follow-up case context with contract/run consistency checks,
   evidence-boundary validation, full request-tuple cache identity, neutral
   absence handling, cache eviction when the Console closes, fail-closed

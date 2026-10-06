@@ -89,6 +89,42 @@ test(
         ).toBeVisible();
         expect(bff.summaryReads()).toBe(1);
         await guide.result('review-evidence', caseHeading);
+
+        const sectionJumps = consoleView.getByRole('group', {
+          name: 'Console section jumps',
+        });
+        const originalUrl = page.url();
+        const outcomeJump = sectionJumps.getByRole('button', {
+          name: 'Jump to outcome',
+        });
+        const proofHeading = consoleView.getByRole('heading', {
+          level: 3,
+          name: 'Not assessed',
+        });
+        await guide.action('jump-to-outcome', outcomeJump, async () => {
+          await outcomeJump.focus();
+          await page.keyboard.press('Enter');
+        });
+        await expect(proofHeading).toBeFocused();
+        expect(page.url()).toBe(originalUrl);
+        expect(bff.summaryReads()).toBe(1);
+        await guide.result('inspect-jump-outcome', proofHeading);
+
+        const evidenceJump = sectionJumps.getByRole('button', {
+          name: 'Jump to evidence',
+        });
+        await guide.action('jump-back-to-evidence', evidenceJump, async () => {
+          await evidenceJump.focus();
+          await page.keyboard.press('Space');
+        });
+        await expect(
+          evidence.getByRole('heading', {
+            level: 3,
+            name: 'Recorded observations',
+          }),
+        ).toBeFocused();
+        expect(page.url()).toBe(originalUrl);
+        expect(bff.summaryReads()).toBe(1);
         await guide.result('inspect-source-observation', detail);
 
         const timingFilters = evidence.getByRole('group', {
@@ -365,6 +401,43 @@ test('places console panes in order without overflow at desktop and narrow width
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+  const sectionJumps = context.getByRole('group', {
+    name: 'Console section jumps',
+  });
+  const originalUrl = page.url();
+  const outcomeJump = sectionJumps.getByRole('button', {
+    name: 'Jump to outcome',
+  });
+  await outcomeJump.focus();
+  await page.keyboard.press('Enter');
+  const proofHeading = proof.getByRole('heading', { name: 'Not assessed' });
+  await expect(proofHeading).toBeFocused();
+  await expect
+    .poll(() =>
+      proofHeading.evaluate((heading) => {
+        const bounds = heading.getBoundingClientRect();
+        return bounds.top >= 0 && bounds.top < window.innerHeight;
+      }),
+    )
+    .toBe(true);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const evidenceJump = sectionJumps.getByRole('button', {
+    name: 'Jump to evidence',
+  });
+  await evidenceJump.focus();
+  await page.keyboard.press('Space');
+  const evidenceHeading = evidence.getByRole('heading', {
+    name: 'Recorded observations',
+  });
+  await expect(evidenceHeading).toBeFocused();
+  expect(
+    await evidenceHeading.evaluate((heading) => {
+      const bounds = heading.getBoundingClientRect();
+      return bounds.top >= 0 && bounds.top < window.innerHeight;
+    }),
+  ).toBe(true);
+  expect(page.url()).toBe(originalUrl);
+  expect(bff.summaryReads()).toBe(1);
   const laterFilter = evidence.getByRole('button', {
     name: 'Recorded later (1)',
   });

@@ -20,7 +20,8 @@ out of the deployable app and domain-agnostic UI primitives.
   but unassessed outcome condition. The inspector keeps untrusted source content
   inert, labels whether it was available at the run's pinned snapshot, and
   locally filters observations by that temporal boundary without another read.
-  Evidence precedes execution and proof in the reading order when panes stack.
+  Local section jumps focus evidence, attempts, or outcome without a URL
+  fragment; evidence precedes execution and proof when panes stack.
   The view introduces no verified-claim graph, client-side authority, live
   trace, lease, approval, or resolution claim.
 - One confirmed exact-claim release flow shared by active-work cards and the
