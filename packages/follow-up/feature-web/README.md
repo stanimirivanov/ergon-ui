@@ -18,7 +18,8 @@ out of the deployable app and domain-agnostic UI primitives.
   failed automation handoff and ordered durable attempts with native disclosure
   of recorded transitions, connector results, and retry linkage, and the pinned
   but unassessed outcome condition. The inspector keeps untrusted source content
-  inert and labels whether it was available at the run's pinned snapshot.
+  inert, labels whether it was available at the run's pinned snapshot, and
+  locally filters observations by that temporal boundary without another read.
   Evidence precedes execution and proof in the reading order when panes stack.
   The view introduces no verified-claim graph, client-side authority, live
   trace, lease, approval, or resolution claim.

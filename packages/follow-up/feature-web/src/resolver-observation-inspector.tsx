@@ -8,6 +8,7 @@ import {
 } from 'react';
 
 type Observation = ResolverFollowUpCaseSummary['observations'][number];
+type TimingFilter = 'all' | 'in-snapshot' | 'recorded-later';
 
 const observedAtFormatter = new Intl.DateTimeFormat('en-GB', {
   dateStyle: 'medium',
@@ -29,15 +30,27 @@ export function ResolverObservationInspector({
   readonly regionId: string;
 }): ReactElement {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [timingFilter, setTimingFilter] = useState<TimingFilter>('all');
   const detailHeading = useRef<HTMLHeadingElement>(null);
   const selectedButton = useRef<HTMLButtonElement>(null);
   const focusDetailAfterSelection = useRef(false);
   const detailId = `${regionId}-observation-detail`;
+  const listId = `${regionId}-observation-list`;
+  const snapshotCount = observations.filter(
+    (observation) => observation.streamVersion <= pinnedVersion,
+  ).length;
+  const visibleObservations = observations.filter((observation) => {
+    if (timingFilter === 'all') {
+      return true;
+    }
+    const isInSnapshot = observation.streamVersion <= pinnedVersion;
+    return timingFilter === 'in-snapshot' ? isInSnapshot : !isInSnapshot;
+  });
   // Resolve from the current authorized response, never from retained case data.
   const selected =
-    observations.find(
+    visibleObservations.find(
       (observation) => observation.observationId === selectedId,
-    ) ?? observations[0];
+    ) ?? visibleObservations[0];
 
   useEffect(() => {
     if (focusDetailAfterSelection.current) {
@@ -58,7 +71,14 @@ export function ResolverObservationInspector({
     setSelectedId(observation.observationId);
   }
 
-  if (selected === undefined) {
+  function filterByTiming(nextFilter: TimingFilter): void {
+    setTimingFilter(nextFilter);
+    // A hidden observation must not remain selected in the detail pane.
+    setSelectedId(null);
+    focusDetailAfterSelection.current = false;
+  }
+
+  if (observations.length === 0) {
     return (
       <p className="mt-5 rounded-md border border-border bg-canvas p-4 text-sm text-ink-muted">
         No observations are recorded for this case.
@@ -68,10 +88,50 @@ export function ResolverObservationInspector({
 
   return (
     <>
-      <ol className="mt-5 grid gap-2" aria-label="Case observations">
-        {observations.map((observation) => {
+      <div
+        role="group"
+        aria-label="Filter observations by run snapshot"
+        className="mt-5 flex flex-wrap gap-2"
+      >
+        {(
+          [
+            ['all', 'All', observations.length],
+            ['in-snapshot', 'In run snapshot', snapshotCount],
+            [
+              'recorded-later',
+              'Recorded later',
+              observations.length - snapshotCount,
+            ],
+          ] as const
+        ).map(([value, label, count]) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={timingFilter === value}
+            aria-controls={listId}
+            onClick={() => filterByTiming(value)}
+            className={`min-h-11 rounded-md border px-3 py-2 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas ${
+              timingFilter === value
+                ? 'border-accent bg-accent/15 text-ink'
+                : 'border-border bg-canvas/75 text-ink-muted hover:border-accent/70'
+            }`}
+          >
+            {label} ({count})
+          </button>
+        ))}
+      </div>
+      <p role="status" className="mt-3 text-xs text-ink-muted">
+        Showing {visibleObservations.length} of {observations.length} recorded
+        observations.
+      </p>
+      <ol
+        id={listId}
+        className="mt-3 grid gap-2"
+        aria-label="Case observations"
+      >
+        {visibleObservations.map((observation) => {
           const isSelected =
-            observation.observationId === selected.observationId;
+            observation.observationId === selected?.observationId;
           return (
             <li key={observation.observationId}>
               <button
@@ -104,66 +164,74 @@ export function ResolverObservationInspector({
           );
         })}
       </ol>
-      <section
-        id={detailId}
-        aria-labelledby={`${detailId}-heading`}
-        className="mt-5 min-w-0 rounded-md border border-border bg-canvas/75 p-4"
-      >
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h4
-              ref={detailHeading}
-              id={`${detailId}-heading`}
-              tabIndex={-1}
-              aria-describedby={`${detailId}-summary`}
-              className="break-words font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong"
-            >
-              Source observation details
-            </h4>
-          </div>
-          <button
-            type="button"
-            onClick={() => selectedButton.current?.focus()}
-            className="min-h-11 rounded-md border border-border px-3 py-2 text-xs font-semibold text-ink hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong"
-          >
-            Back to observations
-          </button>
-        </div>
-        <p
-          id={`${detailId}-summary`}
-          className="mt-4 break-words font-semibold text-ink"
+      {selected === undefined ? (
+        <p className="mt-5 rounded-md border border-border bg-canvas p-4 text-sm text-ink-muted">
+          {timingFilter === 'in-snapshot'
+            ? 'No observations were available at this run’s evidence snapshot.'
+            : 'No observations were recorded after this run’s evidence snapshot.'}
+        </p>
+      ) : (
+        <section
+          id={detailId}
+          aria-labelledby={`${detailId}-heading`}
+          className="mt-5 min-w-0 rounded-md border border-border bg-canvas/75 p-4"
         >
-          {selected.summary}
-        </p>
-        <p className="mt-2 text-xs font-semibold text-accent-strong">
-          {selected.streamVersion <= pinnedVersion
-            ? 'In this run’s evidence snapshot'
-            : 'Recorded after this run’s evidence snapshot'}
-        </p>
-        <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-ink">
-          {selected.content}
-        </p>
-        <dl className="mt-4 grid gap-3 border-t border-border pt-3 text-xs">
-          <ObservationFact label="Source">
-            {selected.originType} via {selected.provider}
-          </ObservationFact>
-          {selected.reference === null ? null : (
-            <ObservationFact label="Source reference">
-              {selected.reference}
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h4
+                ref={detailHeading}
+                id={`${detailId}-heading`}
+                tabIndex={-1}
+                aria-describedby={`${detailId}-summary`}
+                className="break-words font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong"
+              >
+                Source observation details
+              </h4>
+            </div>
+            <button
+              type="button"
+              onClick={() => selectedButton.current?.focus()}
+              className="min-h-11 rounded-md border border-border px-3 py-2 text-xs font-semibold text-ink hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong"
+            >
+              Back to observations
+            </button>
+          </div>
+          <p
+            id={`${detailId}-summary`}
+            className="mt-4 break-words font-semibold text-ink"
+          >
+            {selected.summary}
+          </p>
+          <p className="mt-2 text-xs font-semibold text-accent-strong">
+            {selected.streamVersion <= pinnedVersion
+              ? 'In this run’s evidence snapshot'
+              : 'Recorded after this run’s evidence snapshot'}
+          </p>
+          <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-ink">
+            {selected.content}
+          </p>
+          <dl className="mt-4 grid gap-3 border-t border-border pt-3 text-xs">
+            <ObservationFact label="Source">
+              {selected.originType} via {selected.provider}
             </ObservationFact>
-          )}
-          <ObservationFact label="Occurred">
-            <time dateTime={selected.occurredAt}>
-              {formatUtcInstant(selected.occurredAt)}
-            </time>
-          </ObservationFact>
-          <ObservationFact label="Recorded">
-            <time dateTime={selected.recordedAt}>
-              {formatUtcInstant(selected.recordedAt)}
-            </time>
-          </ObservationFact>
-        </dl>
-      </section>
+            {selected.reference === null ? null : (
+              <ObservationFact label="Source reference">
+                {selected.reference}
+              </ObservationFact>
+            )}
+            <ObservationFact label="Occurred">
+              <time dateTime={selected.occurredAt}>
+                {formatUtcInstant(selected.occurredAt)}
+              </time>
+            </ObservationFact>
+            <ObservationFact label="Recorded">
+              <time dateTime={selected.recordedAt}>
+                {formatUtcInstant(selected.recordedAt)}
+              </time>
+            </ObservationFact>
+          </dl>
+        </section>
+      )}
     </>
   );
 }
