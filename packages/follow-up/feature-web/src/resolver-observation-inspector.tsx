@@ -7,14 +7,11 @@ import {
   type ReactNode,
 } from 'react';
 
+import { ResolverObservationComparison } from './resolver-observation-comparison';
+import { formatUtcInstant } from './resolver-observation-time';
+
 type Observation = ResolverFollowUpCaseSummary['observations'][number];
 type TimingFilter = 'all' | 'in-snapshot' | 'recorded-later';
-
-const observedAtFormatter = new Intl.DateTimeFormat('en-GB', {
-  dateStyle: 'medium',
-  timeStyle: 'medium',
-  timeZone: 'UTC',
-});
 
 /**
  * Inspects one authorized source observation at a time without treating its
@@ -30,9 +27,11 @@ export function ResolverObservationInspector({
   readonly regionId: string;
 }): ReactElement {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [comparisonId, setComparisonId] = useState<string | null>(null);
   const [timingFilter, setTimingFilter] = useState<TimingFilter>('all');
   const detailHeading = useRef<HTMLHeadingElement>(null);
   const selectedButton = useRef<HTMLButtonElement>(null);
+  const compareButton = useRef<HTMLButtonElement>(null);
   const focusDetailAfterSelection = useRef(false);
   const detailId = `${regionId}-observation-detail`;
   const listId = `${regionId}-observation-list`;
@@ -51,6 +50,14 @@ export function ResolverObservationInspector({
     visibleObservations.find(
       (observation) => observation.observationId === selectedId,
     ) ?? visibleObservations[0];
+  const compared = visibleObservations.find(
+    (observation) =>
+      observation.observationId === comparisonId &&
+      observation.observationId !== selected?.observationId,
+  );
+  const comparisonOptions = visibleObservations.filter(
+    (observation) => observation.observationId !== selected?.observationId,
+  );
 
   useEffect(() => {
     if (focusDetailAfterSelection.current) {
@@ -58,6 +65,12 @@ export function ResolverObservationInspector({
       focusDetailAfterSelection.current = false;
     }
   }, [selectedId]);
+
+  function closeComparison(): void {
+    setComparisonId(null);
+    // Native dialog restoration runs after close; override it on the next task.
+    window.setTimeout(() => compareButton.current?.focus(), 0);
+  }
 
   function inspect(observation: Observation): void {
     if (
@@ -68,6 +81,7 @@ export function ResolverObservationInspector({
       return;
     }
     focusDetailAfterSelection.current = true;
+    setComparisonId(null);
     setSelectedId(observation.observationId);
   }
 
@@ -75,6 +89,7 @@ export function ResolverObservationInspector({
     setTimingFilter(nextFilter);
     // A hidden observation must not remain selected in the detail pane.
     setSelectedId(null);
+    setComparisonId(null);
     focusDetailAfterSelection.current = false;
   }
 
@@ -230,8 +245,41 @@ export function ResolverObservationInspector({
               </time>
             </ObservationFact>
           </dl>
+          {comparisonOptions.length > 0 ? (
+            <button
+              ref={compareButton}
+              type="button"
+              aria-expanded={compared !== undefined}
+              aria-controls={
+                compared === undefined
+                  ? undefined
+                  : `${regionId}-source-comparison`
+              }
+              onClick={() =>
+                setComparisonId(
+                  compared === undefined
+                    ? (comparisonOptions[0]?.observationId ?? null)
+                    : null,
+                )
+              }
+              className="mt-4 min-h-11 rounded-md border border-accent/60 px-3 py-2 text-xs font-semibold text-accent-strong hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong"
+            >
+              {compared === undefined ? 'Compare sources' : 'Close comparison'}
+            </button>
+          ) : null}
         </section>
       )}
+      {selected !== undefined && compared !== undefined ? (
+        <ResolverObservationComparison
+          first={selected}
+          second={compared}
+          alternatives={comparisonOptions}
+          pinnedVersion={pinnedVersion}
+          regionId={regionId}
+          onSecondSelected={setComparisonId}
+          onClose={closeComparison}
+        />
+      ) : null}
     </>
   );
 }
@@ -251,8 +299,4 @@ function ObservationFact({
       <dd className="mt-1 break-words text-ink">{children}</dd>
     </div>
   );
-}
-
-function formatUtcInstant(value: string): string {
-  return `${observedAtFormatter.format(new Date(value))} UTC`;
 }

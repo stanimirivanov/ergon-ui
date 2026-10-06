@@ -45,8 +45,9 @@ requester app, or native app.
   recorded transition, connector-result, and retry-link events; and the pinned,
   unassessed outcome condition in three responsive panes. The inspector
   distinguishes observations in the run's evidence snapshot from those
-  recorded later and can filter the list by that boundary, without treating
-  either as verified claims. Section jumps focus each pane without creating a
+  recorded later, filters the list by that boundary, and compares two visible
+  sources in a modal inspector without treating either as a verified claim or
+  assessing a contradiction. Section jumps focus each pane without creating a
   case URL or fragment. Its presence bar shows the current claim without
   inventing a lease or countdown. It does not portray attempts as a live tool
   trace;
@@ -111,9 +112,9 @@ requester app, or native app.
   synthetic browser fixtures here. Backend `main` does not yet return those
   required fields, so live Console compatibility awaits the separate backend
   read-model change.
-- Source-observation inspection is local to the current authorized Console
-  response. It does not create claim nodes, contradiction edges, a graph,
-  evidence editing, or a source-fetch command.
+- Source-observation inspection and comparison are local to the current
+  authorized Console response. They do not create claim nodes, contradiction
+  edges, a graph, evidence editing, or a source-fetch command.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.
