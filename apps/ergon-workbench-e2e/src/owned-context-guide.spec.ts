@@ -304,11 +304,11 @@ test(
         await guide.action('recheck-current-claim', recheckClaim, () =>
           recheckClaim.click(),
         );
-        await expect(caseHeading).toBeVisible();
         await expect
           .poll(() => bff.ownedReads())
           .toBe(ownedReadsBeforeRecheck + 1);
-        expect(bff.summaryReads()).toBe(2);
+        await expect.poll(() => bff.summaryReads()).toBe(2);
+        await expect(caseHeading).toBeVisible();
         expect(bff.claimCommands()).toBe(0);
         await guide.result('claim-recheck-complete', caseHeading);
 
