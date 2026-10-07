@@ -132,6 +132,7 @@ describe('resolver-owned human follow-ups', () => {
           <ResolverOwnedHumanFollowUps
             tenantId={TENANT_ID}
             signInHref={SIGN_IN_HREF}
+            consoleActorDetails={<span>Verified resolver test identity</span>}
           />
           <HumanFollowUpInbox tenantId={TENANT_ID} signInHref={SIGN_IN_HREF} />
         </MemoryRouter>
@@ -189,6 +190,7 @@ describe('resolver-owned human follow-ups', () => {
           <ResolverOwnedHumanFollowUps
             tenantId={TENANT_ID}
             signInHref={SIGN_IN_HREF}
+            consoleActorDetails={<span>Verified resolver test identity</span>}
           />
           <HumanFollowUpInbox tenantId={TENANT_ID} signInHref={SIGN_IN_HREF} />
         </MemoryRouter>
@@ -506,6 +508,7 @@ describe('resolver-owned human follow-ups', () => {
       name: 'Open resolver console',
     });
     expect(getOwnedCaseSummary).not.toHaveBeenCalled();
+    expect(screen.queryByText('Verified resolver test identity')).toBeNull();
     fireEvent.click(openConsole);
 
     expect(
@@ -563,6 +566,7 @@ describe('resolver-owned human follow-ups', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'Resolver Console' }),
     ).toBeTruthy();
+    expect(screen.getByText('Verified resolver test identity')).toBeTruthy();
     expect(
       screen.queryByRole('button', { name: 'Open resolver console' }),
     ).toBeNull();
@@ -889,6 +893,7 @@ describe('resolver-owned human follow-ups', () => {
         <ResolverOwnedHumanFollowUps
           tenantId={TENANT_ID}
           signInHref={SIGN_IN_HREF}
+          consoleActorDetails={<span>Verified resolver test identity</span>}
         />
       </Provider>,
     );
@@ -952,6 +957,7 @@ describe('resolver-owned human follow-ups', () => {
         <ResolverOwnedHumanFollowUps
           tenantId={TENANT_ID}
           signInHref={SIGN_IN_HREF}
+          consoleActorDetails={<span>Verified resolver test identity</span>}
         />
       </Provider>,
     );
@@ -1034,6 +1040,7 @@ function renderOwned(capabilities: FollowUpTestCapabilities) {
       <ResolverOwnedHumanFollowUps
         tenantId={TENANT_ID}
         signInHref={SIGN_IN_HREF}
+        consoleActorDetails={<span>Verified resolver test identity</span>}
       />
     </Provider>,
   );

@@ -51,9 +51,9 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'review-evidence',
       title: 'Read the bounded evidence snapshot',
-      body: 'The console shows the case goal, pinned contract revision, escalated run, failed connector, exhausted attempt budget, and source observations. Its three panes put observations on the left, recorded attempts and handoff in the center, and the unassessed outcome target on the right at desktop width. Local section jumps help reach a pane when they stack at narrow width; they do not create a case URL. The observation inspector initially selects the first source record. Read it as data; its content is rendered as plain text, not markup or executable instructions. The evidence boundary and timestamps describe the run’s context, not proof that the customer problem has been resolved.',
+      body: 'The Current claim strip identifies the actor verified by the current server session and its identity provider. This is not a lease, claim owner proof, or authorization grant; the BFF checks current ownership separately. The console shows the case goal, pinned contract revision, escalated run, failed connector, exhausted attempt budget, and source observations. Its three panes put observations on the left, recorded attempts and handoff in the center, and the unassessed outcome target on the right at desktop width. Local section jumps help reach a pane when they stack at narrow width; they do not create a case URL. The observation inspector initially selects the first source record. Read it as data; its content is rendered as plain text, not markup or executable instructions. The evidence boundary and timestamps describe the run’s context, not proof that the customer problem has been resolved.',
       expected:
-        'The case goal, selected source observation, and automation handoff appear.',
+        'The verified session identity, case goal, selected source observation, and automation handoff appear.',
     },
     {
       id: 'jump-to-outcome',

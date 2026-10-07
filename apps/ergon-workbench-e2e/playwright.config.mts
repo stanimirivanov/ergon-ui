@@ -36,6 +36,8 @@ export default defineConfig({
   webServer: {
     command: 'pnpm exec nx run @ergon/workbench:preview',
     url: 'http://localhost:4300',
+    // A cold Nx project graph and Vite build can exceed Playwright's 60s default.
+    timeout: 180_000,
     reuseExistingServer: !recordsUserGuides,
     cwd: workspaceRoot,
   },

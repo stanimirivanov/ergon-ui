@@ -180,6 +180,40 @@ export function VerifiedActorDetails({
   );
 }
 
+/** Compact identity display for a verified resolver session, not an ownership lease. */
+export function VerifiedActorBadge({
+  actor,
+}: {
+  readonly actor: CurrentActor;
+}): ReactElement {
+  return (
+    <dl className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-border bg-canvas/75 px-3 py-2 text-xs">
+      <div className="min-w-0">
+        <dt className="font-bold tracking-wide text-ink-muted uppercase">
+          Verified actor
+        </dt>
+        <dd
+          className="max-w-48 truncate font-mono text-ink"
+          title={actor.actorId}
+        >
+          {actor.actorId}
+        </dd>
+      </div>
+      <div className="min-w-0">
+        <dt className="font-bold tracking-wide text-ink-muted uppercase">
+          Identity provider
+        </dt>
+        <dd
+          className="max-w-32 truncate text-ink"
+          title={actor.identityProvider}
+        >
+          {actor.identityProvider}
+        </dd>
+      </div>
+    </dl>
+  );
+}
+
 function decodeTenantId(value: string | undefined): string | undefined {
   if (value === undefined) {
     return undefined;

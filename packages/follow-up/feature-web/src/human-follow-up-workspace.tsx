@@ -10,6 +10,8 @@ export interface HumanFollowUpWorkspaceProps {
   readonly signInHref: string;
   /** Session-owned identity display; this feature does not inspect its value. */
   readonly actorDetails: ReactNode;
+  /** Compact session identity for the Console; never used to decide authority. */
+  readonly consoleActorDetails: ReactNode;
 }
 
 /** Composes the resolver's follow-up introduction and both work views. */
@@ -17,6 +19,7 @@ export function HumanFollowUpWorkspace({
   tenantId,
   signInHref,
   actorDetails,
+  consoleActorDetails,
 }: HumanFollowUpWorkspaceProps): ReactElement {
   const [isConsoleOpen, setConsoleOpen] = useState(false);
 
@@ -46,6 +49,7 @@ export function HumanFollowUpWorkspace({
       <ResolverOwnedHumanFollowUps
         tenantId={tenantId}
         signInHref={signInHref}
+        consoleActorDetails={consoleActorDetails}
         onConsoleVisibilityChange={setConsoleOpen}
       />
       {isConsoleOpen ? null : (
