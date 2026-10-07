@@ -254,6 +254,7 @@ export function ResolverOwnedHumanFollowUpsPage({
         item={currentSelection}
         isReleasePending={releaseRequest.isLoading}
         onBack={() => onSelectWork(null)}
+        onRecheckOwnership={() => ownedWork.refetch()}
         onConfirmRelease={() => releaseFromConsole(currentSelection)}
       />
     );

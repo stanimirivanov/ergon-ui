@@ -154,8 +154,9 @@ const summary = {
 } as const;
 
 /**
- * Serves one synthetic owned item, then withholds the second context read
- * until the scenario has proved old evidence is hidden during revalidation.
+ * Serves one synthetic owned item and a successful deliberate recheck, then
+ * withholds the third context read until the scenario has proved old evidence
+ * is hidden during revalidation.
  * A neutral 404 and a later empty owned page illustrate one possible change,
  * not the reason a real resolver lost access.
  */
@@ -205,11 +206,11 @@ export async function installSimulatedOwnedContextBff(page: Page): Promise<{
         `/bff/v1/tenants/9ad66e9b-e81a-4b61-8d8f-5708312772d8/human-follow-ups/${workItemId}/case-summary`,
       );
       summaryReads += 1;
-      if (summaryReads === 1) {
+      if (summaryReads <= 2) {
         await fulfillSimulatedBff(route, summary);
         return;
       }
-      if (summaryReads !== 2) {
+      if (summaryReads !== 3) {
         throw new Error('Unexpected synthetic case-summary read.');
       }
       await pendingRead;
@@ -230,7 +231,7 @@ export async function installSimulatedOwnedContextBff(page: Page): Promise<{
     ownedReads: () => ownedReads,
     claimCommands: () => claimCommands,
     denyPendingSummary: () => {
-      if (summaryReads !== 2) {
+      if (summaryReads !== 3) {
         throw new Error('The revalidation request has not started.');
       }
       ownedVisible = false;

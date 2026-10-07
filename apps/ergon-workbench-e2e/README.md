@@ -74,8 +74,9 @@ chapter uses a synthetic resolver, case, and follow-up to verify browser
 claim/release, evidence disclosure, and accessibility. The claim-recovery
 chapter distinguishes a definite competing claim from an uncertain response
 and asserts an explicit replay of the original command. The owned-context
-chapter demonstrates lazy disclosure, hidden evidence during revalidation,
-and a neutral unavailable result. The release-recovery chapter compares a
+chapter demonstrates lazy disclosure, an explicit current-claim recheck with
+fresh context, hidden evidence during revalidation, and a neutral unavailable
+result. The release-recovery chapter compares a
 disabled rollout with a separately enabled synthetic state, then verifies
 exact claim-and-revision replay after a lost response. None verifies a real
 provider, control plane, database, or authorization decision. Keep that

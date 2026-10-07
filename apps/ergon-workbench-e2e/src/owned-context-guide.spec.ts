@@ -297,6 +297,21 @@ test(
         await guide.result('inspect-recorded-events', firstEvents);
         await guide.result('inspect-proof', proof);
 
+        const ownedReadsBeforeRecheck = bff.ownedReads();
+        const recheckClaim = consoleView.getByRole('button', {
+          name: 'Recheck current claim',
+        });
+        await guide.action('recheck-current-claim', recheckClaim, () =>
+          recheckClaim.click(),
+        );
+        await expect(caseHeading).toBeVisible();
+        await expect
+          .poll(() => bff.ownedReads())
+          .toBe(ownedReadsBeforeRecheck + 1);
+        expect(bff.summaryReads()).toBe(2);
+        expect(bff.claimCommands()).toBe(0);
+        await guide.result('claim-recheck-complete', caseHeading);
+
         const backToWork = consoleView.getByRole('button', {
           name: 'Back to active work',
         });
@@ -312,7 +327,7 @@ test(
         await guide.action('reopen-case-context', openConsole, () =>
           openConsole.click(),
         );
-        await expect.poll(() => bff.summaryReads()).toBe(2);
+        await expect.poll(() => bff.summaryReads()).toBe(3);
         const loading = consoleView.getByRole('heading', {
           level: 2,
           name: 'Loading case context…',
@@ -350,7 +365,7 @@ test(
         await expect(empty).toBeVisible();
         await expect(ownedItem).toHaveCount(0);
         await expect(page.getByText(observation)).toHaveCount(0);
-        expect(bff.summaryReads()).toBe(2);
+        expect(bff.summaryReads()).toBe(3);
         expect(bff.ownedReads()).toBeGreaterThanOrEqual(3);
         expect(bff.claimCommands()).toBe(0);
         await guide.result('owned-work-empty', empty);

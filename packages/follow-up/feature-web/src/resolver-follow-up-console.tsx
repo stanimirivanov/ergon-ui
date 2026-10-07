@@ -18,6 +18,7 @@ export function ResolverFollowUpConsole({
   item,
   isReleasePending,
   onBack,
+  onRecheckOwnership,
   onConfirmRelease,
 }: {
   readonly tenantId: string;
@@ -25,6 +26,8 @@ export function ResolverFollowUpConsole({
   readonly item: ResolverOwnedHumanFollowUpWork;
   readonly isReleasePending: boolean;
   readonly onBack: () => void;
+  /** Must hide case context while current ownership is reread. */
+  readonly onRecheckOwnership: () => void;
   readonly onConfirmRelease: () => void;
 }): ReactElement {
   const regionId = `case-context-${item.workItem.workItemId}`;
@@ -80,7 +83,8 @@ export function ResolverFollowUpConsole({
           </p>
           <p className="mt-1 text-xs text-ink-muted">
             Ownership and authority are checked by the control plane for each
-            action; this display is not a lease.
+            action; this display is not a lease. Recheck before relying on
+            details after a pause.
           </p>
         </div>
         <dl className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
@@ -101,14 +105,25 @@ export function ResolverFollowUpConsole({
             <dd className="mt-1 text-ink">{item.workItem.ownershipRevision}</dd>
           </div>
         </dl>
-        <ConfirmedFollowUpRelease
-          context="resolver-console"
-          reason={item.workItem.reason}
-          caseId={item.workItem.caseId}
-          queueKey={item.workItem.queueKey}
-          isDisabled={isReleasePending}
-          onConfirmRelease={onConfirmRelease}
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="quiet"
+            size="compact"
+            disabled={isReleasePending}
+            onClick={onRecheckOwnership}
+          >
+            Recheck current claim
+          </Button>
+          <ConfirmedFollowUpRelease
+            context="resolver-console"
+            reason={item.workItem.reason}
+            caseId={item.workItem.caseId}
+            queueKey={item.workItem.queueKey}
+            isDisabled={isReleasePending}
+            onConfirmRelease={onConfirmRelease}
+          />
+        </div>
       </section>
 
       <div className="px-3 pb-6 sm:px-4 lg:px-5">
