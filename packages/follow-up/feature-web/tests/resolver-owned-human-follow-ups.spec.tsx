@@ -790,6 +790,35 @@ describe('resolver-owned human follow-ups', () => {
     await waitFor(() => expect(getOwnedCaseSummary).toHaveBeenCalledTimes(2));
   });
 
+  it('rereads case context even when the claim recheck completes immediately', async () => {
+    const listOwned = vi.fn<ListOwnedHumanFollowUps['listOwned']>(async () =>
+      successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+    );
+    const getOwnedCaseSummary = vi
+      .fn<GetOwnedFollowUpCaseSummary['getOwnedCaseSummary']>()
+      .mockResolvedValue({
+        ok: true,
+        summary: resolverFollowUpCaseSummary(
+          FIRST_WORK_ITEM_ID,
+          'Private evidence',
+        ),
+      });
+    renderOwned({ listOwned, getOwnedCaseSummary });
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Open resolver console' }),
+    );
+    expect(await screen.findByText('Private evidence')).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Recheck current claim' }),
+    );
+
+    expect(screen.queryByText('Private evidence')).toBeNull();
+    await waitFor(() => expect(listOwned).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(getOwnedCaseSummary).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText('Private evidence')).toBeTruthy();
+  });
+
   it('closes the Console when an explicit claim recheck finds no owned work', async () => {
     const listOwned = vi
       .fn<ListOwnedHumanFollowUps['listOwned']>()

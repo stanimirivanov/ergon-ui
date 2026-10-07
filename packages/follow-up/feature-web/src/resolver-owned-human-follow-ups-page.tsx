@@ -52,6 +52,7 @@ export function ResolverOwnedHumanFollowUpsPage({
   const [consoleReleaseFocusId, setConsoleReleaseFocusId] = useState<
     string | null
   >(null);
+  const [isClaimRechecking, setIsClaimRechecking] = useState(false);
   const readFailureHeading = useRef<HTMLHeadingElement>(null);
   const [releaseHumanFollowUp, releaseRequest] =
     useReleaseHumanFollowUpMutation();
@@ -140,6 +141,17 @@ export function ResolverOwnedHumanFollowUpsPage({
     void submitRelease(command);
   }
 
+  function recheckCurrentClaim(): void {
+    // A fast owned-work response may skip React's fetching render entirely.
+    // Unmount private context before requesting, then remount its query only
+    // after the ownership result has settled.
+    flushSync(() => setIsClaimRechecking(true));
+    void ownedWork.refetch().then(
+      () => setIsClaimRechecking(false),
+      () => setIsClaimRechecking(false),
+    );
+  }
+
   async function submitRelease(
     command: HumanFollowUpReleaseCommand,
   ): Promise<void> {
@@ -163,6 +175,7 @@ export function ResolverOwnedHumanFollowUpsPage({
   }
 
   if (
+    isClaimRechecking ||
     ownedWork.isLoading ||
     (ownedWork.isFetching &&
       (ownedWork.data === undefined || selectedWork !== null))
@@ -254,7 +267,7 @@ export function ResolverOwnedHumanFollowUpsPage({
         item={currentSelection}
         isReleasePending={releaseRequest.isLoading}
         onBack={() => onSelectWork(null)}
-        onRecheckOwnership={() => ownedWork.refetch()}
+        onRecheckOwnership={recheckCurrentClaim}
         onConfirmRelease={() => releaseFromConsole(currentSelection)}
       />
     );
