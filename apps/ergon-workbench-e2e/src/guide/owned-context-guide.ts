@@ -13,8 +13,8 @@ export const ownedContextGuide: GuideChapter = {
   audience:
     'Resolvers returning to active work and reviewing an escalated case.',
   overview: [
-    'Claimed follow-ups are recovered from the server-backed active-work view, not from a browser-stored claim. A card in that view identifies work currently visible under your resolver session, but its case evidence is a separate, owner-scoped read. The workbench requests the case summary only when you choose Open resolver console. Returning to active work closes the console; reopening it triggers another read because ownership and resolver authority can change while a page remains open. The selection is local to this page, not a shareable case route.',
-    'This walkthrough uses one synthetic owned follow-up with two source observations and a deliberately controlled BFF response. One observation was available at the run’s pinned evidence snapshot; the other was recorded later. The first context request returns that synthetic evidence; the second pauses and then returns the same neutral absence response used for several protected states. A later owned-work read returns an empty page. Those fixture choices illustrate the browser response, not why a real claim became unavailable. Every screenshot and the recording are labelled SIMULATED DATA; they do not verify OIDC, database transactions, authorization, or live revocation.',
+    'Claimed follow-ups are recovered from the server-backed active-work view, not from a browser-stored claim. A card in that view identifies work currently visible under your resolver session, but its case evidence is a separate, owner-scoped read. The workbench requests the case summary only when you choose Open resolver console. Recheck current claim deliberately rereads ownership and case context while hiding prior evidence. Returning to active work closes the console; reopening it triggers another read because ownership and resolver authority can change while a page remains open. The selection is local to this page, not a shareable case route.',
+    'This walkthrough uses one synthetic owned follow-up with two source observations and a deliberately controlled BFF response. One observation was available at the run’s pinned evidence snapshot; the other was recorded later. The first context request returns that synthetic evidence, and a deliberate recheck returns it again. The third context request pauses and then returns the same neutral absence response used for several protected states. A later owned-work read returns an empty page. Those fixture choices illustrate the browser response, not why a real claim became unavailable. Every screenshot and the recording are labelled SIMULATED DATA; they do not verify OIDC, database transactions, authorization, or live revocation.',
   ],
   prerequisites: [
     'In a deployed environment, sign in to the correct tenant with a registered resolver identity and current authority. The tenant URL, an old screenshot, and an earlier claim receipt are not ongoing authorization. This recording begins with a simulated verified session and does not perform a real login or claim.',
@@ -182,6 +182,20 @@ export const ownedContextGuide: GuideChapter = {
         'The pinned condition and Not assessed state are visible without a verified-resolution claim.',
     },
     {
+      id: 'recheck-current-claim',
+      title: 'Recheck your current claim',
+      body: 'Choose Recheck current claim in the Console authority strip after a pause or before relying on these details. Ergon requests the owned-work page again and hides the old case context while the server checks the exact claim and resolver authority. If it remains current, a fresh owner-scoped case-summary read restores the Console. The strip is not a lease, lock, or countdown, and this action does not renew ownership.',
+      expected:
+        'A fresh owned-work read and case-summary read complete without a claim command.',
+    },
+    {
+      id: 'claim-recheck-complete',
+      title: 'Continue only after the recheck succeeds',
+      body: 'The synthetic server still reports the same claim and case context, so the Console returns with its evidence and unassessed outcome target. A different or absent claim would close the Console; a failed read would keep old evidence hidden. This is a new authorization check, not a guarantee that ownership remains valid indefinitely.',
+      expected:
+        'The same owner-scoped case goal returns after both new reads succeed.',
+    },
+    {
       id: 'hide-case-context',
       title: 'Return to active work',
       body: 'Choose Back to active work when you no longer need the details. The console unmounts and visible case evidence disappears immediately. The case-summary cache is configured for eviction when the last console closes. Returning is not a release of the claim; the owned card remains available for a later deliberate check.',
@@ -199,7 +213,7 @@ export const ownedContextGuide: GuideChapter = {
       id: 'reopen-case-context',
       title: 'Reopen with a fresh ownership check',
       body: 'Choose Open resolver console again. The workbench does not simply reveal the old snapshot: it starts a new BFF read for the same tenant, work item, case, and run. The synthetic fixture pauses this request so the loading state is visible. In a real session, ownership or authority could have changed since the first opening.',
-      expected: 'A second case-summary request begins.',
+      expected: 'A third case-summary request begins.',
     },
     {
       id: 'evidence-hidden-while-loading',
@@ -253,7 +267,7 @@ export const ownedContextGuide: GuideChapter = {
     },
   ],
   limitations: [
-    'The fixture controls the second read and later owned list. It does not verify real revocation, competing claims, transaction isolation, cache memory erasure, or backend authorization; those require backend and disposable full-stack tests.',
+    'The fixture controls the successful recheck, third context read, and later owned list. It does not verify real revocation, competing claims, transaction isolation, cache memory erasure, or backend authorization; those require backend and disposable full-stack tests.',
     'The source inspector selects and compares observations only from the current owner-scoped response; it does not derive verified facts, detect contradictions, fetch source systems, or edit evidence. The case context is a read-only projection of an escalated run, not a live tool trace, verified-claim graph, lease, approval surface, or proof assessment. Its separate release action returns ownership to the shared queue; it does not provide completion, named handover, reassignment, or a detailed audit of why an item is no longer visible. Release recovery is documented separately.',
   ],
 };

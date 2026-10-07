@@ -48,9 +48,10 @@ requester app, or native app.
   recorded later, filters the list by that boundary, and compares two visible
   sources in a modal inspector without treating either as a verified claim or
   assessing a contradiction. Section jumps focus each pane without creating a
-  case URL or fragment. Its presence bar shows the current claim without
-  inventing a lease or countdown. It does not portray attempts as a live tool
-  trace;
+  case URL or fragment. Its presence bar shows the current claim and offers an
+  explicit recheck that hides evidence while ownership and case context are
+  reread; it does not invent a lease or countdown. It does not portray attempts
+  as a live tool trace;
 - lazy owned-follow-up case context with contract/run consistency checks,
   evidence-boundary validation, full request-tuple cache identity, neutral
   absence handling, cache eviction when the Console closes, fail-closed
@@ -109,9 +110,8 @@ requester app, or native app.
   settings and a successful `main` workflow run; neither a live deployment nor
   its public URL has been verified locally.
 - The Console's extended run history and outcome-proof response is covered by
-  synthetic browser fixtures here. Backend `main` does not yet return those
-  required fields, so live Console compatibility awaits the separate backend
-  read-model change.
+  synthetic browser fixtures here. Backend `main` now returns those fields;
+  cross-repository live-browser compatibility has not yet been verified.
 - Source-observation inspection and comparison are local to the current
   authorized Console response. They do not create claim nodes, contradiction
   edges, a graph, evidence editing, or a source-fetch command.

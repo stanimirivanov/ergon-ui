@@ -13,6 +13,9 @@ out of the deployable app and domain-agnostic UI primitives.
   selected case opens a full-width Resolver Console on the same tenant route;
   it is not a shareable case address. The feature hides private context while
   ownership is rechecked and unmounts it when the claim changes or disappears.
+  The Console offers a deliberate claim recheck: it hides case evidence during
+  the owned-work read and requests fresh owner-scoped context only if the exact
+  claim remains visible. This is not a lease renewal.
 - Responsive, read-only, three-pane case inspection: recorded observations
   and provenance through a locally selected source-observation inspector, the
   failed automation handoff and ordered durable attempts with native disclosure
