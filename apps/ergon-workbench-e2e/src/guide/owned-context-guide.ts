@@ -56,6 +56,13 @@ export const ownedContextGuide: GuideChapter = {
         'The verified session identity, case goal, selected source observation, and automation handoff appear.',
     },
     {
+      id: 'review-policy-snapshot',
+      title: 'Interpret the recorded execution policy',
+      body: 'The run pane groups the capability, effective risk, approval requirement, and policy revision recorded for the escalated attempt. HIGH and RESOLVER describe historical run inputs; they do not show that approval was granted or that the same policy still applies. There is no approval or authorization command in this read-only Console. Use the handoff below to understand why execution stopped, then recheck current ownership before relying on case details after a pause.',
+      expected:
+        'The policy facts are visible together without an approval button or another case-summary request.',
+    },
+    {
       id: 'jump-to-outcome',
       title: 'Jump to the outcome pane',
       body: 'Choose Outcome in the local section-jump group. Keyboard focus moves to the outcome heading and the browser scrolls it into view on a stacked layout. The case context remains on the current tenant page: no fragment, case identifier, or evidence content is written to the URL or browser storage, and no BFF read is started.',

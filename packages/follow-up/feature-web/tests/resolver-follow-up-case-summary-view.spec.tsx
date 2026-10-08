@@ -8,6 +8,33 @@ import {
 } from './follow-up-fixtures';
 
 describe('resolver case section jumps', () => {
+  it('shows recorded risk and approval requirements without offering authorization', () => {
+    render(
+      <ResolverFollowUpCaseSummaryView
+        summary={resolverFollowUpCaseSummary(FIRST_WORK_ITEM_ID, 'Source text')}
+        regionId="authorized-case"
+        isFetching={false}
+      />,
+    );
+
+    const policy = screen.getByRole('region', {
+      name: 'Recorded execution policy',
+    });
+    expect(within(policy).getByText('identity.lookup')).toBeTruthy();
+    expect(within(policy).getByText('HIGH')).toBeTruthy();
+    expect(within(policy).getByText('RESOLVER')).toBeTruthy();
+    expect(within(policy).getByText('policy-7')).toBeTruthy();
+    expect(
+      within(policy).getByText(/not a current approval decision/i),
+    ).toBeTruthy();
+    expect(within(policy).queryByRole('button')).toBeNull();
+    expect(
+      within(
+        screen.getByRole('region', { name: 'Automation handoff' }),
+      ).queryByText('identity.lookup'),
+    ).toBeNull();
+  });
+
   it('moves focus between authorized panes without changing the URL', () => {
     render(
       <ResolverFollowUpCaseSummaryView
