@@ -9,7 +9,7 @@ import {
 } from '@ergon/follow-up-data-access-web';
 import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-model';
 import { Button } from '@ergon/ui-web';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 
 import {
@@ -35,6 +35,7 @@ interface PagePosition {
 export function ResolverOwnedHumanFollowUpsPage({
   tenantId,
   signInHref,
+  consoleActorDetails,
   selectedWork,
   returnFocusToWorkItemId,
   onMissingReturnFocus,
@@ -42,6 +43,7 @@ export function ResolverOwnedHumanFollowUpsPage({
 }: {
   readonly tenantId: string;
   readonly signInHref: string;
+  readonly consoleActorDetails: ReactNode;
   readonly selectedWork: ResolverOwnedHumanFollowUpWork | null;
   readonly returnFocusToWorkItemId: string | null;
   readonly onMissingReturnFocus: () => void;
@@ -264,6 +266,7 @@ export function ResolverOwnedHumanFollowUpsPage({
       <ResolverFollowUpConsole
         tenantId={tenantId}
         signInHref={signInHref}
+        actorDetails={consoleActorDetails}
         item={currentSelection}
         isReleasePending={releaseRequest.isLoading}
         onBack={() => onSelectWork(null)}

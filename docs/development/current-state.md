@@ -48,7 +48,9 @@ requester app, or native app.
   recorded later, filters the list by that boundary, and compares two visible
   sources in a modal inspector without treating either as a verified claim or
   assessing a contradiction. Section jumps focus each pane without creating a
-  case URL or fragment. Its presence bar shows the current claim and offers an
+  case URL or fragment. Its header shows the server-verified actor ID and
+  identity provider, without implying a lease or claim authorization. Its
+  presence bar shows the current claim and offers an
   explicit recheck that hides evidence while ownership and case context are
   reread; it does not invent a lease or countdown. It does not portray attempts
   as a live tool trace;

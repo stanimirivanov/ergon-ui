@@ -1,5 +1,11 @@
 import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-model';
-import { useCallback, useRef, useState, type ReactElement } from 'react';
+import {
+  useCallback,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 
 import { ResolverOwnedHumanFollowUpsPage } from './resolver-owned-human-follow-ups-page';
 
@@ -9,6 +15,8 @@ export interface ResolverOwnedHumanFollowUpsProps {
   readonly tenantId: string;
   /** Trusted same-origin navigation target supplied by the composition root. */
   readonly signInHref: string;
+  /** Opaque session-owned display, not claim authority. */
+  readonly consoleActorDetails: ReactNode;
   /** Lets the containing workspace replace its inbox chrome while a case is selected. */
   readonly onConsoleVisibilityChange?: (isOpen: boolean) => void;
 }
@@ -17,6 +25,7 @@ export interface ResolverOwnedHumanFollowUpsProps {
 export function ResolverOwnedHumanFollowUps({
   tenantId,
   signInHref,
+  consoleActorDetails,
   onConsoleVisibilityChange,
 }: ResolverOwnedHumanFollowUpsProps): ReactElement {
   const [selectedWork, setSelectedWork] =
@@ -66,6 +75,7 @@ export function ResolverOwnedHumanFollowUps({
       <ResolverOwnedHumanFollowUpsPage
         tenantId={tenantId}
         signInHref={signInHref}
+        consoleActorDetails={consoleActorDetails}
         selectedWork={selectedWork}
         returnFocusToWorkItemId={returnFocusToWorkItemId}
         onMissingReturnFocus={focusActiveWorkHeading}

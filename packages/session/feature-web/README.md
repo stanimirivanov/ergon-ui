@@ -22,13 +22,16 @@ presentation without importing the deployable workbench or follow-up feature.
 
 ## Public API and dependencies
 
-Consumers import `CurrentActorBoundary` and `VerifiedActorDetails` from
+Consumers import `CurrentActorBoundary`, `VerifiedActorDetails`, and
+`VerifiedActorBadge` from
 `@ergon/session-feature-web`. The app supplies its shell, trusted same-origin
 sign-in URL builder, and authenticated content renderer. This `type:feature`
 project consumes the current-actor cache hook from
 `@ergon/session-data-access-web`, the actor model from
 `@ergon/session-model`, and the web button primitive from `@ergon/ui-web`.
 The tenant route value is navigation context, never authorization evidence.
+The compact badge displays only the verified actor ID and provider; it does not
+represent current claim ownership or a lease.
 
 ## Verification
 

@@ -8,7 +8,7 @@ import {
 import { Provider } from 'react-redux';
 import { describe, expect, it, vi } from 'vitest';
 
-import { CurrentActorBoundary } from '../src';
+import { CurrentActorBoundary, VerifiedActorBadge } from '../src';
 
 const TENANT_ID = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
 const ACTOR: Extract<CurrentActorResult, { ok: true }>['actor'] = {
@@ -19,6 +19,16 @@ const ACTOR: Extract<CurrentActorResult, { ok: true }>['actor'] = {
 };
 
 describe('current actor boundary', () => {
+  it('renders the verified identity in a compact Console badge without a provider subject', () => {
+    render(<VerifiedActorBadge actor={ACTOR} />);
+
+    expect(screen.getByText('Verified actor')).toBeTruthy();
+    expect(screen.getByText(ACTOR.actorId)).toBeTruthy();
+    expect(screen.getByText(ACTOR.identityProvider)).toBeTruthy();
+    expect(screen.queryByText('employee-42')).toBeNull();
+    expect(screen.queryByText(/lease owner/i)).toBeNull();
+  });
+
   it('rejects an invalid tenant without a session request or sign-in URL', () => {
     const resolve = vi.fn<CurrentActorClient['resolve']>();
     const { renderVerified, signInHrefForTenant } = renderBoundary(

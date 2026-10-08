@@ -1,6 +1,6 @@
 import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-model';
 import { Button } from '@ergon/ui-web';
-import { useEffect, useRef, type ReactElement } from 'react';
+import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 
 import { ConfirmedFollowUpRelease } from './confirmed-follow-up-release';
 import { ResolverFollowUpCaseSummary } from './resolver-follow-up-case-summary';
@@ -15,6 +15,7 @@ const claimedAtFormatter = new Intl.DateTimeFormat('en-GB', {
 export function ResolverFollowUpConsole({
   tenantId,
   signInHref,
+  actorDetails,
   item,
   isReleasePending,
   onBack,
@@ -23,6 +24,8 @@ export function ResolverFollowUpConsole({
 }: {
   readonly tenantId: string;
   readonly signInHref: string;
+  /** Verified session display only; this component cannot infer claim ownership from it. */
+  readonly actorDetails: ReactNode;
   readonly item: ResolverOwnedHumanFollowUpWork;
   readonly isReleasePending: boolean;
   readonly onBack: () => void;
@@ -87,6 +90,7 @@ export function ResolverFollowUpConsole({
             details after a pause.
           </p>
         </div>
+        {actorDetails}
         <dl className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
           <div>
             <dt className="font-bold tracking-wide text-ink-muted uppercase">

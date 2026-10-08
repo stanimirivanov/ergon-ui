@@ -60,6 +60,10 @@ test(
         );
         await expect(consoleView).toBeVisible();
         await expect(caseHeading).toBeVisible();
+        await expect(
+          consoleView.getByText('741bcdba-9521-4e96-bfcc-7a5a2830eec8'),
+        ).toBeVisible();
+        await expect(consoleView.getByText('workforce-sso')).toBeVisible();
         const evidence = consoleView.getByRole('region', {
           name: 'Recorded observations',
         });

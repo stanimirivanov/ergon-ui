@@ -56,6 +56,9 @@ been composed. This `type:feature` project consumes generated cache hooks from
 `@ergon/follow-up-data-access-web` and presentation primitives from
 `@ergon/ui-web`. The workbench supplies the session-owned verified-actor
 display as an opaque slot; this feature never inspects session identity.
+The compact Console slot appears only after a case is selected and the current
+owned-work read permits the Console to mount. It is display-only: claim
+ownership and case disclosure continue to depend on BFF reads.
 
 ## Verification
 

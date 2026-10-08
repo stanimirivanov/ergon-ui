@@ -2,6 +2,7 @@ import { HumanFollowUpWorkspace } from '@ergon/follow-up-feature-web';
 import {
   CurrentActorBoundary,
   VerifiedActorDetails,
+  VerifiedActorBadge,
 } from '@ergon/session-feature-web';
 import type { ReactElement } from 'react';
 import { useParams } from 'react-router';
@@ -26,6 +27,7 @@ export function CurrentActorPage(): ReactElement {
           tenantId={verifiedTenantId}
           signInHref={signInHref}
           actorDetails={<VerifiedActorDetails actor={actor} />}
+          consoleActorDetails={<VerifiedActorBadge actor={actor} />}
         />
       )}
     />

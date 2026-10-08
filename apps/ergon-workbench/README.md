@@ -60,7 +60,10 @@ failure classification, timeout, retry, cancellation semantics, and the
 current-actor RTK Query API. The workbench supplies the executable client and
 registers the API during store composition. `@ergon/session-feature-web`
 consumes its generated hook and keeps follow-up content unmounted until the
-server verifies the actor.
+server verifies the actor. After verification, the app supplies both the full
+actor details in the workspace and a compact actor badge in the selected
+Console as session-owned display slots. The follow-up feature cannot use either
+slot to infer ownership.
 
 `/tenants/{tenantId}` resolves the control-plane BFF session contract. RTK Query
 owns request state and caching; Effect owns HTTP, timeout, bounded transient
