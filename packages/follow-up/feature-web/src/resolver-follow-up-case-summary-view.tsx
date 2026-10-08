@@ -155,6 +155,36 @@ export function ResolverFollowUpCaseSummaryView({
             retry limit was reached after {summary.escalation.maximumAttempts}{' '}
             attempts.
           </p>
+          <section
+            aria-labelledby={`${regionId}-policy-heading`}
+            className="mt-4 rounded-md border border-highlight/55 bg-highlight/5 p-4"
+          >
+            <h4
+              id={`${regionId}-policy-heading`}
+              className="font-bold text-ink"
+            >
+              Recorded execution policy
+            </h4>
+            <p className="mt-2 text-sm leading-6 text-ink-muted">
+              These are the escalated run’s recorded policy inputs, not a
+              current approval decision. This read-only view cannot authorize or
+              resume execution.
+            </p>
+            <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+              <CaseFact label="Capability">
+                {summary.resolutionRun.capability}
+              </CaseFact>
+              <CaseFact label="Effective risk">
+                {summary.resolutionRun.effectiveRisk}
+              </CaseFact>
+              <CaseFact label="Approval requirement">
+                {summary.resolutionRun.requiredApproval}
+              </CaseFact>
+              <CaseFact label="Policy revision">
+                {summary.resolutionRun.policyRevision}
+              </CaseFact>
+            </dl>
+          </section>
           <ResolverRunAttemptHistory attempts={summary.runHistory.attempts} />
           <section
             aria-labelledby={`${regionId}-handoff-heading`}
@@ -173,12 +203,6 @@ export function ResolverFollowUpCaseSummaryView({
               the case was escalated to human follow-up.
             </p>
             <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-              <CaseFact label="Capability">
-                {summary.resolutionRun.capability}
-              </CaseFact>
-              <CaseFact label="Required approval">
-                {summary.resolutionRun.requiredApproval}
-              </CaseFact>
               <CaseFact label="Retry policy">
                 {summary.escalation.retryPolicyRevision}
               </CaseFact>

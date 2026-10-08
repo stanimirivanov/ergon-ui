@@ -114,10 +114,12 @@ hides prior evidence during revalidation and unmounts the Console when its
 exact claim is no longer in the owned-work view. A missing resource remains
 deliberately neutral because closure, ownership change, and authority change
 share the same non-disclosing response. Observation content is rendered as text
-and is never interpreted as HTML. The Console presence bar reflects current
-ownership without claiming a timed lease or countdown. The case and run
-content is read-only; the separate release action changes claim ownership but
-does not steer a live run, approve an action, or verify resolution.
+and is never interpreted as HTML. The Console presence bar shows the last
+server-observed claim without claiming a timed lease or countdown. The case
+and run content includes a recorded execution-policy snapshot, not an approval
+status or current authorization. It remains read-only; the separate release
+action changes claim ownership but does not steer a live run, approve an
+action, or verify resolution.
 
 Local Vite development proxies `/bff`, `/oauth2`, and `/login/oauth2` to
 `http://localhost:8090`. Override the target with the server-side

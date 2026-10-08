@@ -47,13 +47,15 @@ requester app, or native app.
   distinguishes observations in the run's evidence snapshot from those
   recorded later, filters the list by that boundary, and compares two visible
   sources in a modal inspector without treating either as a verified claim or
-  assessing a contradiction. Section jumps focus each pane without creating a
-  case URL or fragment. Its header shows the server-verified actor ID and
-  identity provider, without implying a lease or claim authorization. Its
-  presence bar shows the current claim and offers an
-  explicit recheck that hides evidence while ownership and case context are
-  reread; it does not invent a lease or countdown. It does not portray attempts
-  as a live tool trace;
+  assessing a contradiction. A read-only execution-policy card groups the
+  escalated run's recorded capability, effective risk, approval requirement,
+  and policy revision without asserting a current approval decision. Section
+  jumps focus each pane without creating a case URL or fragment. Its Current
+  claim strip shows the server-verified actor ID and identity provider without
+  implying a lease or claim authorization. It shows the last server-observed
+  claim and offers an explicit recheck that hides evidence while ownership and
+  case context are reread; it does not invent a lease or countdown. It does not
+  portray attempts as a live tool trace;
 - lazy owned-follow-up case context with contract/run consistency checks,
   evidence-boundary validation, full request-tuple cache identity, neutral
   absence handling, cache eviction when the Console closes, fail-closed

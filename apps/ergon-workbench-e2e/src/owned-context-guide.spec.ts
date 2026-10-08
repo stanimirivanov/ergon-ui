@@ -94,6 +94,17 @@ test(
         expect(bff.summaryReads()).toBe(1);
         await guide.result('review-evidence', caseHeading);
 
+        const policy = consoleView.getByRole('region', {
+          name: 'Recorded execution policy',
+        });
+        await expect(policy.getByText('identity.lookup')).toBeVisible();
+        await expect(policy.getByText('HIGH')).toBeVisible();
+        await expect(policy.getByText('RESOLVER')).toBeVisible();
+        await expect(policy.getByText('policy-7')).toBeVisible();
+        await expect(policy.getByRole('button')).toHaveCount(0);
+        expect(bff.summaryReads()).toBe(1);
+        await guide.result('review-policy-snapshot', policy);
+
         const sectionJumps = consoleView.getByRole('group', {
           name: 'Console section jumps',
         });
