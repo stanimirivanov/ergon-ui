@@ -77,7 +77,12 @@ function CurrentActorSession({
   const session = useCurrentActorQuery({ tenantId });
   const signInHref = signInHrefForTenant(tenantId);
 
-  if (session.isLoading || (session.isFetching && session.data === undefined)) {
+  // RTK Query's data can belong to the previous tenant during an argument
+  // change. Only currentData can verify the requested navigation context.
+  if (
+    session.isLoading ||
+    (session.isFetching && session.currentData === undefined)
+  ) {
     return renderFrame(
       'Verifying session',
       <SessionPanel
@@ -89,10 +94,10 @@ function CurrentActorSession({
     );
   }
 
-  if (session.data !== undefined) {
+  if (session.currentData !== undefined) {
     return renderFrame(
       'Resolver inbox',
-      renderVerified({ actor: session.data, tenantId, signInHref }),
+      renderVerified({ actor: session.currentData, tenantId, signInHref }),
     );
   }
 

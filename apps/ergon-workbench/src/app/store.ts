@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { humanFollowUpApi } from '@ergon/follow-up-data-access-web';
 import { currentActorApi } from '@ergon/session-data-access-web';
+import { runSupervisionApi } from '@ergon/run-supervision-data-access-web';
 
 import type { WorkbenchDependencies } from './workbench-dependencies';
 
@@ -15,10 +16,15 @@ export function createWorkbenchStore(dependencies: WorkbenchDependencies) {
     reducer: {
       [currentActorApi.reducerPath]: currentActorApi.reducer,
       [humanFollowUpApi.reducerPath]: humanFollowUpApi.reducer,
+      [runSupervisionApi.reducerPath]: runSupervisionApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         thunk: { extraArgument: dependencies },
-      }).concat(currentActorApi.middleware, humanFollowUpApi.middleware),
+      }).concat(
+        currentActorApi.middleware,
+        humanFollowUpApi.middleware,
+        runSupervisionApi.middleware,
+      ),
   });
 }

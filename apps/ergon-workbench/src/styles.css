@@ -4,6 +4,7 @@
 @source '../../../packages/ui-web/src';
 @source '../../../packages/session/feature-web/src';
 @source '../../../packages/follow-up/feature-web/src';
+@source '../../../packages/run-supervision/feature-web/src';
 
 @theme inline {
   --color-canvas: var(--canvas);
@@ -64,6 +65,11 @@ a {
 /* A selected case is a focused work surface, not another disclosure card. */
 .workbench-frame:has(.resolver-console-workspace) > .workbench-frame-header,
 .workbench-frame:has(.resolver-console-workspace) > .workbench-frame-footer {
+  display: none;
+}
+
+/* A focused Console has its own navigation and presence header. */
+.verified-workbench:has(.resolver-console-workspace) > .workbench-view-nav {
   display: none;
 }
 

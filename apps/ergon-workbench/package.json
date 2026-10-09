@@ -8,6 +8,8 @@
     "#lib/*": "./src/lib/*.ts"
   },
   "dependencies": {
+    "@ergon/run-supervision-feature-web": "workspace:*",
+    "@ergon/run-supervision-data-access-web": "workspace:*",
     "@ergon/follow-up-feature-web": "workspace:*",
     "@ergon/follow-up-data-access-web": "workspace:*",
     "@ergon/session-data-access-web": "workspace:*",

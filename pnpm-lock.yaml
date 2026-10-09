@@ -364,6 +364,12 @@ importers:
       '@ergon/follow-up-feature-web':
         specifier: workspace:*
         version: link:../../packages/follow-up/feature-web
+      '@ergon/run-supervision-data-access-web':
+        specifier: workspace:*
+        version: link:../../packages/run-supervision/data-access-web
+      '@ergon/run-supervision-feature-web':
+        specifier: workspace:*
+        version: link:../../packages/run-supervision/feature-web
       '@ergon/session-data-access-web':
         specifier: workspace:*
         version: link:../../packages/session/data-access-web
@@ -428,6 +434,42 @@ importers:
         version: 8.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
 
   packages/follow-up/model: {}
+
+  packages/run-supervision/data-access-web:
+    dependencies:
+      '@reduxjs/toolkit':
+        specifier: 2.12.0
+        version: 2.12.0(react-redux@9.3.0(@types/react@19.3.0)(react@19.3.0)(redux@5.0.1))(react@19.3.0)
+      effect:
+        specifier: 3.22.2
+        version: 3.22.2
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+      react-redux:
+        specifier: 9.3.0
+        version: 9.3.0(@types/react@19.3.0)(react@19.3.0)(redux@5.0.1)
+
+  packages/run-supervision/feature-web:
+    dependencies:
+      '@ergon/run-supervision-data-access-web':
+        specifier: workspace:*
+        version: link:../data-access-web
+      '@ergon/ui-web':
+        specifier: workspace:*
+        version: link:../../ui-web
+      '@reduxjs/toolkit':
+        specifier: 2.12.0
+        version: 2.12.0(react-redux@9.3.0(@types/react@19.3.0)(react@19.3.0)(redux@5.0.1))(react@19.3.0)
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: 19.3.0
+        version: 19.3.0(react@19.3.0)
+      react-redux:
+        specifier: 9.3.0
+        version: 9.3.0(@types/react@19.3.0)(react@19.3.0)(redux@5.0.1)
 
   packages/session/data-access-web:
     dependencies:
