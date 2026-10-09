@@ -7,8 +7,10 @@ confidential-BFF session boundary, a shared resolver inbox, and a web-only UI
 package. Resolvers can claim visible work with an ephemeral session-bound CSRF
 token, recover their active claims, release exact owned claims from a card or
 the selected Console, and inspect server-authorized case context there. The
-Console's case and run content remains read-only. It has no resolution action,
-live run, lease, approval control, logout flow, form workflow, Motion animation,
+Console's case and run content remains read-only. Assigned supervisors can also
+discover active runs and inspect their recorded start, pinned policy, and
+current state in a separate three-pane Console. It has no resolution action,
+live trace, lease, approval control, logout flow, form workflow, Motion animation,
 requester app, or native app.
 
 ## Implemented
@@ -64,10 +66,11 @@ requester app, or native app.
   or changes;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
-- six local executable guides for simulated workbench access states,
+- seven local executable guides for simulated workbench access states,
   shared-inbox pagination and filtering, the claim and release workflow,
   owned-case-context revalidation, competing or uncertain claim recovery, and
-  disabled or uncertain release recovery, with annotated screenshots, video,
+  disabled or uncertain release recovery, and assigned-run snapshot supervision
+  and revalidation, with annotated screenshots, video,
   recovery guidance, and validated Markdown/static HTML output; CI uploads
   them as an expiring review artifact and has a `main`-only GitHub Pages
   publication job; recording fails on unexpected HTTP(S) traffic or unmarked
@@ -91,6 +94,13 @@ requester app, or native app.
 - a capability-located session web feature that validates tenant navigation
   context, renders fail-closed verification states, and mounts app-supplied
   authenticated content only after a verified actor is returned;
+- an independent run-supervision web data-access and feature capability for
+  assigned active-run discovery, paired keyset paging, local selection, exact
+  tenant/run cache identity, zero unused-detail retention, read-only pinned
+  capability policy, neutral absence, explicit fail-closed recheck, and terminal
+  detail retained only after a successful BFF read. The app composes both work
+  areas under session verification; `view=runs` names the area without storing
+  a run ID in navigation or browser persistence;
 - capability-first `type:*`, `scope:*`, and `platform:*` boundaries with a
   finite ledger for packages still under the old global-layer paths and a
   DOM-free TypeScript configuration for model and application cores;
@@ -105,7 +115,7 @@ requester app, or native app.
 - No logout, refresh, or revocation UI exists.
 - Claimed work includes read-only case/run inspection and confirmed release
   back to the shared queue, not direct handover or case completion. There is
-  no live run, lease countdown, steering, approval, verification
+  no live trace, lease countdown, steering, approval, verification
   checklist, completion, resolution, reassignment, or dedicated case route.
 - The BFF session contains no provider subject, and none is cached or shown.
 - No production deployment configuration or ingress exists.
@@ -120,6 +130,14 @@ requester app, or native app.
   authorized Console response. They do not create claim nodes, contradiction
   edges, a graph, evidence editing, or a source-fetch command.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
+- Assigned-run reads require Ergon core's assigned-only BFF and an immutable
+  assignment created by a separately authorized machine integration. This UI
+  cannot create or change that assignment. It has no automatic polling or
+  continuous revocation guarantee. The active-run Console does not receive case
+  evidence, ordered execution events, measured spans/costs, approval decisions,
+  or proof checks. Its terminal state label reports backend state, not
+  independent verification. Real session-to-PostgreSQL browser compatibility
+  remains unverified by the synthetic guide.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form and Motion are deferred until their first behavior needs them.
 

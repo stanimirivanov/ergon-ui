@@ -8,6 +8,64 @@ const ACCEPTED_APPLICATION_DECISION =
   'docs/decisions/0042-own-follow-up-workflow.md';
 
 describe('project boundary policy', () => {
+  it('allows app composition but keeps run supervision independent of follow-up and session', () => {
+    const dataAccess = project(
+      'packages/run-supervision/data-access-web',
+      '@ergon/run-supervision-data-access-web',
+      ['type:data-access', 'scope:run-supervision', 'platform:web'],
+    );
+    const feature = project(
+      'packages/run-supervision/feature-web',
+      '@ergon/run-supervision-feature-web',
+      ['type:feature', 'scope:run-supervision', 'platform:web'],
+      { '@ergon/run-supervision-data-access-web': 'workspace:*' },
+    );
+    const app = project(
+      'apps/ergon-workbench',
+      '@ergon/workbench',
+      ['type:app', 'scope:workbench', 'platform:web'],
+      { '@ergon/run-supervision-feature-web': 'workspace:*' },
+    );
+    assert.deepEqual(validateProjectBoundaries([dataAccess, feature, app]), []);
+    const otherCapabilities = [
+      project(
+        'packages/follow-up/data-access-web',
+        '@ergon/follow-up-data-access-web',
+        ['type:data-access', 'scope:follow-up', 'platform:web'],
+      ),
+      project(
+        'packages/session/data-access-web',
+        '@ergon/session-data-access-web',
+        ['type:data-access', 'scope:session', 'platform:web'],
+      ),
+    ];
+    const coupledFeature = project(
+      feature.path,
+      feature.manifest.name,
+      feature.manifest.nx.tags,
+      {
+        '@ergon/follow-up-data-access-web': 'workspace:*',
+        '@ergon/session-data-access-web': 'workspace:*',
+      },
+    );
+    const errors = validateProjectBoundaries([
+      coupledFeature,
+      ...otherCapabilities,
+    ]);
+    assert(
+      errors.some((error) =>
+        error.includes(
+          'scope:run-supervision cannot depend on scope:follow-up',
+        ),
+      ),
+    );
+    assert(
+      errors.some((error) =>
+        error.includes('scope:run-supervision cannot depend on scope:session'),
+      ),
+    );
+  });
+
   it('accepts a capability-first frontend graph', () => {
     const projects = [
       project('packages/follow-up/model', '@ergon/follow-up-model', [

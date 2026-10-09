@@ -9,12 +9,12 @@ native UI, application state, and authentication adapters platform-specific.
 
 ## Application topology
 
-| Deployable        | Audience and responsibility                                        | Status                                                     |
-| :---------------- | :----------------------------------------------------------------- | :--------------------------------------------------------- |
-| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Shared and owned follow-up views; locally selected Console |
-| `ergon-requester` | External adaptive resolution canvas                                | Deferred to first requester slice                          |
-| widget SDK        | Embeddable headless client and web components                      | Deferred                                                   |
-| native clients    | Selected requester or resolver workflows                           | Deferred until required                                    |
+| Deployable        | Audience and responsibility                                        | Status                                                   |
+| :---------------- | :----------------------------------------------------------------- | :------------------------------------------------------- |
+| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Follow-up handling and assigned-run snapshot supervision |
+| `ergon-requester` | External adaptive resolution canvas                                | Deferred to first requester slice                        |
+| widget SDK        | Embeddable headless client and web components                      | Deferred                                                 |
+| native clients    | Selected requester or resolver workflows                           | Deferred until required                                  |
 
 The workbench and requester experience use distinct deployment artifacts,
 identity clients, CSPs, URLs, performance budgets, and release decisions. Studio
@@ -57,6 +57,9 @@ intended capability-first shape is:
       -> session/data-access-web
       -> session/model
       -> ui-web
+  -> run-supervision/feature-web
+      -> run-supervision/data-access-web
+      -> ui-web
 ```
 
 An optional application project sits between feature and data access only for
@@ -91,6 +94,13 @@ Follow-up and session request, cancellation, result, and failure contracts
 belong to their web data-access projects. Neither capability currently has a
 client-owned application use case. Model and genuine application library builds
 extend the checked, DOM-free `tsconfig.core.json`.
+
+Run supervision is independent of follow-up claims. Its web data-access project
+owns the assigned discovery and exact run-detail BFF contracts; its web feature
+owns the three-pane snapshot Console. Neither imports session or follow-up
+capabilities. The app supplies a display-only actor slot and a trusted sign-in
+link after session verification. No model or application project is introduced
+because this slice has no separate platform-neutral client policy.
 
 ## State ownership
 
@@ -137,6 +147,14 @@ during revalidation, after a failed owned-work refresh, and when the selected
 claim is absent or replaced. The URL and persistent storage do not retain this
 short-lived resolver context.
 
+Assigned runs have a distinct tenant/cursor discovery cache and tenant/run
+detail cache. The private run selection is local, while `view=runs` is a
+shareable tenant-workbench view name. Closing or switching views evicts unused
+detail; reopening rechecks assignment at the BFF. Pending or failed discovery
+and detail rechecks hide retained private snapshots. The active list excludes
+terminal runs, but an already selected terminal detail may remain visible after
+the exact BFF gate succeeds. Discovery membership does not replace that gate.
+
 ## Routing and rendering
 
 The browser applications are Vite-built React SPAs using React Router Data
@@ -151,6 +169,14 @@ outcome condition. Its presence bar reflects the currently owned claim and
 offers only the existing confirmed release action. It does not infer a timed
 lease, countdown, verified claims, a live trace, approval decisions, direct
 handover, or completed verification from this read model.
+
+The assigned-run Console is a separate read-only work surface in the same
+tenant route. It presents the immutable run start, pinned capability policy,
+and latest server-recorded state. Rechecking the selected run refreshes exact
+detail; rechecking assignments refreshes discovery, then rereads selected detail
+after successful discovery. There is no automatic polling or live-monitoring promise. Case evidence,
+execution events, approval decisions, and proof detail are explicitly absent
+from this first projection. See [ADR 0023](decisions/0023-consume-assigned-run-console-snapshots.md).
 
 The static artifact reads only public runtime configuration. Secrets never
 enter JavaScript bundles. The workbench consumes the confidential BFF through

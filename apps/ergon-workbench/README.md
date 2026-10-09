@@ -6,6 +6,8 @@ This application is Ergon's internal browser experience. It delivers the
 accessible shell, a typed fail-closed current-actor session boundary, and the
 shared and resolver-owned follow-up views, including a locally selected
 Resolver Console with read-only case/run context and confirmed claim release.
+Assigned supervisors have a separate dark three-pane Console for active-run
+discovery, pinned execution policy, and server-recorded current state.
 It consumes the control plane's
 confidential BFF without exposing provider tokens or internal API
 representations to browser code. Resolvers can claim visible work through the
@@ -28,6 +30,10 @@ pnpm nx e2e @ergon/workbench-e2e
 - Render follow-up behavior through
   the `@ergon/follow-up-feature-web` feature package; do
   not recreate capability-specific orchestration or presentation in the app.
+- Compose assigned supervision through `@ergon/run-supervision-feature-web`
+  and `@ergon/run-supervision-data-access-web`. Their authority relationship is
+  independent of follow-up claims; the app does not infer assignment from the
+  session identity display.
 - Compose session HTTP and remote caching through
   `@ergon/session-data-access-web`; do not recreate its wire decoding,
   typed client contract, execution policy, or RTK Query API in the composition
@@ -120,6 +126,22 @@ and run content includes a recorded execution-policy snapshot, not an approval
 status or current authorization. It remains read-only; the separate release
 action changes claim ownership but does not steer a live run, approve an
 action, or verify resolution.
+
+The `Assigned runs` navigation opens `?view=runs` under the same verified
+tenant route. Selection stays local and the feature lazily requests the exact
+assigned-run Console. Rechecking the selected run rereads exact detail;
+rechecking assigned runs rereads discovery and then the selected detail, hiding
+retained private context while checks are pending or fail. A terminal run can
+leave the active list while its selected, still-authorized detail remains
+available. Closing the view evicts unused detail and reopening rechecks it.
+An empty list and absent detail are non-disclosing, not explanations of current
+authority. The backend must already expose the assigned-only BFF and a trusted
+machine integration must have created the immutable assignment.
+
+The active-run projection contains no case evidence, execution-event trace,
+approval decision, lease, measured cost/latency, or proof checks. The Console
+labels these limitations rather than recreating the concept image with
+fictional operational facts. Recheck is manual; there is no live polling.
 
 Local Vite development proxies `/bff`, `/oauth2`, and `/login/oauth2` to
 `http://localhost:8090`. Override the target with the server-side

@@ -4,6 +4,12 @@
   "files": [],
   "references": [
     {
+      "path": "./packages/run-supervision/data-access-web"
+    },
+    {
+      "path": "./packages/run-supervision/feature-web"
+    },
+    {
       "path": "./apps/ergon-workbench-e2e"
     },
     {

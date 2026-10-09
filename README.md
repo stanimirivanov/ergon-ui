@@ -5,7 +5,7 @@
 Ergon UI is the browser workspace for Ergon's evidence-led resolution
 experiences. The repository contains the resolver workbench, a typed
 confidential-BFF boundary, a human follow-up inbox with CSRF-protected claiming,
-an active claimed-work view, and a web-only UI package. The requester
+an active claimed-work view, an assigned-run snapshot Console, and a web-only UI package. The requester
 application, React Native clients, forms, and animation enter only with a slice
 that uses them.
 
@@ -29,10 +29,12 @@ The first foundation provides:
 - lazy, server-authorized case context for owned follow-ups, including the
   pinned resolution contract, escalated run, bounded observation evidence,
   failed connector execution, and exhausted retry decision;
+- assigned-only active-run discovery and a read-only three-pane Console for
+  pinned execution policy and current state, with fail-closed explicit recheck;
 - Vitest component tests and a Chromium Playwright smoke path;
 - [local executable guides](apps/ergon-workbench-e2e/README.md) for workbench
   access states, shared-inbox navigation, follow-up handling, owned-context
-  revalidation, claim recovery, and release recovery, generated from asserted
+  revalidation, claim recovery, release recovery, and assigned-run supervision, generated from asserted
   browser paths with explicitly simulated BFF data and a `main`-only Pages
   publication workflow;
 - enforced capability-first project roles and an accepted application-topology
@@ -75,17 +77,17 @@ apps/
 packages/
   follow-up/             Target group for follow-up model, data, and feature projects
   session/               Target group for session model, data, and feature projects
+  run-supervision/       Assigned-run browser data access and feature
   ui-web/                DOM and Tailwind-specific UI source
 docs/
   decisions/             Durable UI architecture decisions
   development/           Engineering rules and current state
 ```
 
-Existing `packages/domain`, `packages/application`, and
-`packages/infrastructure` paths are finite migration locations. Project
-`type:*` tags describe their current responsibility until capability-scoped
-moves are completed; new projects must use the capability-first layout. The
-current-to-target map is maintained in [the architecture guide](docs/architecture.md#project-roles-and-dependency-direction).
+The global-layer migration is complete. New projects must use capability-first
+paths and concrete `type:*` responsibilities; application cores are optional
+and require executable client-owned policy. See
+[the architecture guide](docs/architecture.md#project-roles-and-dependency-direction).
 
 The eventual external adaptive canvas will be a separate
 `apps/ergon-requester` deployable. It will be created with its first usable

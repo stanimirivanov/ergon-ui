@@ -14,7 +14,7 @@ section order in the template. Supported statuses are `Proposed`, `Accepted`,
 
 A replacement adds `- Supersedes:` with exact links to every decision it
 replaces; each older record points back through its status. The published ADR
-high-water mark is `0022`. It may advance with the next decision but must never
+high-water mark is `0023`. It may advance with the next decision but must never
 decrease, even when the newest record is later superseded or deprecated.
 
 ## Index
@@ -43,6 +43,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0020](0020-use-revision-checked-browser-claim-commands.md)        | Accepted   | Use revision-checked browser claim commands                   |
 | [0021](0021-release-owned-follow-up-through-the-browser-bff.md)    | Accepted   | Release owned follow-up through the browser BFF               |
 | [0022](0022-publish-simulated-user-guide-from-main.md)             | Accepted   | Publish the simulated user guide from main                    |
+| [0023](0023-consume-assigned-run-console-snapshots.md)             | Accepted   | Consume assigned-only active-run Console snapshots            |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

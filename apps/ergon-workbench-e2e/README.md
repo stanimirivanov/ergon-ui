@@ -3,9 +3,9 @@
 ## TL;DR
 
 The tagged access-state, inbox-navigation, follow-up, owned-context,
-claim-recovery, and release-recovery scenarios are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all six with
-annotations, screenshots, and video, then assembles a local six-chapter Markdown
+claim-recovery, release-recovery, and run-supervision scenarios are ordinary assertion-first
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all seven with
+annotations, screenshots, and video, then assembles a local seven-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -85,6 +85,14 @@ exact claim-and-revision replay after a lost response. None verifies a real
 provider, control plane, database, or authorization decision. Keep that
 distinction visible in each chapter and the index. A later disposable
 full-stack environment is required before calling these operational guides.
+
+The run-supervision chapter opens the assigned-only active-run Console,
+distinguishes pinned capability-policy requirements from approval decisions,
+and explains absent evidence/proof detail. It records private snapshot hiding
+during pending and failed revalidation, safe retry, terminal detail after active
+discovery empties, and neutral protected absence. It also checks keyboard
+navigation and narrow reflow. Assignment, current authority, and terminal state
+are synthetic backend facts, not browser authorization or outcome proof.
 
 Recording mode blocks service workers and permits only local preview documents
 and static assets to reach the preview server. The synthetic BFF routes must

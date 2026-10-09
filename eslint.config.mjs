@@ -106,11 +106,19 @@ export default [
               onlyDependOnLibsWithTags: ['scope:session', 'scope:shared'],
             },
             {
+              sourceTag: 'scope:run-supervision',
+              onlyDependOnLibsWithTags: [
+                'scope:run-supervision',
+                'scope:shared',
+              ],
+            },
+            {
               sourceTag: 'scope:workbench',
               onlyDependOnLibsWithTags: [
                 'scope:workbench',
                 'scope:follow-up',
                 'scope:session',
+                'scope:run-supervision',
                 'scope:shared',
               ],
             },

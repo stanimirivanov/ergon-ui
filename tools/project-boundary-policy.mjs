@@ -19,6 +19,7 @@ const ALLOWED_PLATFORMS = new Set([
 const ALLOWED_SCOPES = new Set([
   'scope:follow-up',
   'scope:session',
+  'scope:run-supervision',
   'scope:shared',
   'scope:workbench',
 ]);
@@ -52,12 +53,14 @@ const SCOPE_DEPENDENCIES = new Map([
   ['scope:shared', new Set(['scope:shared'])],
   ['scope:follow-up', new Set(['scope:follow-up', 'scope:shared'])],
   ['scope:session', new Set(['scope:session', 'scope:shared'])],
+  ['scope:run-supervision', new Set(['scope:run-supervision', 'scope:shared'])],
   [
     'scope:workbench',
     new Set([
       'scope:workbench',
       'scope:follow-up',
       'scope:session',
+      'scope:run-supervision',
       'scope:shared',
     ]),
   ],
