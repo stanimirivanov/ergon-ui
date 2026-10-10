@@ -1,4 +1,7 @@
-import type { AssignedRunPage } from '@ergon/run-supervision-data-access-web';
+import type {
+  AssignedRunPage,
+  RunSupervisionFailure,
+} from '@ergon/run-supervision-data-access-web';
 import { Button } from '@ergon/ui-web';
 import type { ReactElement } from 'react';
 
@@ -14,17 +17,19 @@ export function AssignedRunList({
   hasPrevious,
   onSelect,
   onRetry,
+  onResetPage,
   onPrevious,
   onNext,
 }: {
   readonly page: AssignedRunPage | undefined;
   readonly selectedRunId: string | null;
   readonly isFetching: boolean;
-  readonly error: unknown;
+  readonly error: RunSupervisionFailure | undefined;
   readonly signInHref: string;
   readonly hasPrevious: boolean;
   readonly onSelect: (runId: string) => void;
   readonly onRetry: () => void;
+  readonly onResetPage: () => void;
   readonly onPrevious: () => void;
   readonly onNext: () => void;
 }): ReactElement {
@@ -64,6 +69,7 @@ export function AssignedRunList({
             signInHref={signInHref}
             retryLabel="Retry assigned runs"
             onRetry={onRetry}
+            onResetPage={onResetPage}
           />
         ) : page === undefined || page.entries.length === 0 ? (
           <AssignedRunMessage

@@ -60,6 +60,12 @@ const FAILURE_COPY = {
   'invalid-page': UNUSABLE_RESPONSE,
   'unexpected-response': UNUSABLE_RESPONSE,
   'invalid-response': UNUSABLE_RESPONSE,
+  'unexpected-defect': {
+    title: 'The workbench could not read case context.',
+    description:
+      'An unexpected workbench problem interrupted this read. No retained case evidence is displayed. Try again explicitly or contact an operator if it continues.',
+    canRetry: true,
+  },
   'request-cancelled': UNUSABLE_RESPONSE,
 } satisfies Readonly<
   Record<ResolverFollowUpCaseSummaryFailure['kind'], CaseSummaryFailureCopy>

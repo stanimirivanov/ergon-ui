@@ -93,6 +93,11 @@ during pending and failed revalidation, safe retry, terminal detail after active
 discovery empties, and neutral protected absence. It also checks keyboard
 navigation and narrow reflow. Assignment, current authority, and terminal state
 are synthetic backend facts, not browser authorization or outcome proof.
+It also records a rejected paired assignment cursor and a fresh first-page reset,
+proving that recovery does not repeatedly send the rejected traversal or restore
+private selection. The access, owned-context, claim, and release chapters explain
+workbench-defect recovery separately: programming defects are covered by cache
+and component regressions, not fabricated as HTTP problem responses in the guide.
 
 Recording mode blocks service workers and permits only local preview documents
 and static assets to reach the preview server. The synthetic BFF routes must

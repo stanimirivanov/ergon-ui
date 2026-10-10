@@ -15,86 +15,88 @@ export const runStateLabels: Readonly<
   ESCALATED: 'Escalated',
 };
 
-const failureDescriptions: Readonly<
-  Record<RunSupervisionFailure['kind'], string>
-> = {
-  'authentication-required':
-    'Your browser session needs sign-in before assigned work can be read.',
-  'authentication-unavailable':
-    'Browser authentication is not enabled or configured for this control plane. Ask an operator to check the BFF configuration.',
-  'actor-not-registered':
-    'The signed-in identity is not registered as an Ergon actor.',
-  'identity-rejected':
-    'The control plane could not accept this browser identity.',
-  forbidden:
-    'The control plane did not permit this read. Ask an administrator to check your current authority. No private run context is shown.',
-  'not-found':
-    'No run context is available for this request. This does not disclose whether the run exists or who supervises it.',
-  'invalid-page':
-    'The assigned-work page could not be read. Return to the first page and retry.',
-  'invalid-response':
-    'The service response could not be safely read. No retained run context is shown.',
-  transport:
-    'The service could not be reached. Check your connection and retry.',
-  timeout:
-    'The read did not finish within its timeout. Retry to request a fresh snapshot.',
-  'request-cancelled':
-    'The read was cancelled. Retry to request a fresh snapshot.',
-  'service-unavailable':
-    'The service is temporarily unavailable. Retry to request a fresh snapshot.',
-  'unexpected-http-status':
-    'The service could not complete this read. Retry to request a fresh snapshot.',
-};
-const failureDescriptionLookup = new Map(Object.entries(failureDescriptions));
-const noManualRetry = new Set([
-  'authentication-required',
-  'authentication-unavailable',
-  'actor-not-registered',
-  'identity-rejected',
-  'forbidden',
-  'invalid-page',
-]);
-
-export function canOfferReadRetry(error: unknown): boolean {
-  return !(
-    typeof error === 'object' &&
-    error !== null &&
-    'kind' in error &&
-    typeof error.kind === 'string' &&
-    noManualRetry.has(error.kind)
-  );
+interface RunSupervisionFailureCopy {
+  readonly description: string;
+  readonly recovery: 'sign-in' | 'reset-page' | 'retry-read' | 'none';
 }
 
-export function failureDescription(error: unknown): string {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'kind' in error &&
-    typeof error.kind === 'string'
-  ) {
-    // RTK Query can also expose a serialized defect; only known typed failures get capability copy.
-    const description = failureDescriptionLookup.get(error.kind);
-    if (description !== undefined) return description;
-  }
-  return 'The read could not be completed. No retained private context is shown. Retry to request a fresh snapshot.';
-}
+const failureCopy = {
+  'authentication-required': {
+    description:
+      'Your browser session needs sign-in before assigned work can be read.',
+    recovery: 'sign-in',
+  },
+  'authentication-unavailable': {
+    description:
+      'Browser authentication is not enabled or configured for this control plane. Ask an operator to check the BFF configuration.',
+    recovery: 'none',
+  },
+  'actor-not-registered': {
+    description: 'The signed-in identity is not registered as an Ergon actor.',
+    recovery: 'none',
+  },
+  'identity-rejected': {
+    description: 'The control plane could not accept this browser identity.',
+    recovery: 'none',
+  },
+  forbidden: {
+    description:
+      'The control plane did not permit this read. Ask an administrator to check your current authority. No private run context is shown.',
+    recovery: 'none',
+  },
+  'not-found': {
+    description:
+      'No run context is available for this request. This does not disclose whether the run exists or who supervises it.',
+    recovery: 'retry-read',
+  },
+  'invalid-page': {
+    description:
+      'The assigned-work page could not be read. Return to the first page to start a fresh traversal.',
+    recovery: 'reset-page',
+  },
+  'invalid-response': {
+    description:
+      'The service response could not be safely read. No retained run context is shown.',
+    recovery: 'retry-read',
+  },
+  'unexpected-defect': {
+    description:
+      'The workbench encountered an unexpected problem while reading this snapshot. No retained private context is shown. Contact an operator if it continues.',
+    recovery: 'retry-read',
+  },
+  transport: {
+    description:
+      'The service could not be reached. Check your connection and retry.',
+    recovery: 'retry-read',
+  },
+  timeout: {
+    description:
+      'The read did not finish within its timeout. Retry to request a fresh snapshot.',
+    recovery: 'retry-read',
+  },
+  'request-cancelled': {
+    description: 'The read was cancelled. Retry to request a fresh snapshot.',
+    recovery: 'retry-read',
+  },
+  'service-unavailable': {
+    description:
+      'The service is temporarily unavailable. Retry to request a fresh snapshot.',
+    recovery: 'retry-read',
+  },
+  'unexpected-http-status': {
+    description:
+      'The service could not complete this read. Retry to request a fresh snapshot.',
+    recovery: 'retry-read',
+  },
+} satisfies Readonly<
+  Record<RunSupervisionFailure['kind'], RunSupervisionFailureCopy>
+>;
 
-export function needsSignIn(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'kind' in error &&
-    error.kind === 'authentication-required'
-  );
-}
-
-export function isUnavailable(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'kind' in error &&
-    error.kind === 'not-found'
-  );
+/** Selects copy and recovery together after the cache error has been normalized. */
+export function runSupervisionFailureCopy(
+  failure: RunSupervisionFailure,
+): RunSupervisionFailureCopy {
+  return failureCopy[failure.kind];
 }
 
 export function isTerminalState(state: AssignedRunConsole['state']): boolean {

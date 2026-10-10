@@ -86,6 +86,11 @@ export const claimRecoveryGuide: GuideChapter = {
   ],
   troubleshooting: [
     {
+      symptom: 'An unexpected workbench failure interrupts claiming.',
+      guidance:
+        'The server might already have recorded the claim. Use only the alert’s explicit Try claim again action, which preserves the original command ID, target, and expected revision. Do not start a new command from a stale card or assume that a rejected callback meant no write. Cache/component regressions verify this defect path; the recording illustrates HTTP uncertainty rather than an injected client defect.',
+    },
+    {
       symptom: 'A claim says another resolver already claimed the item.',
       guidance:
         'Treat this as a definite conflict. Wait for the inbox refresh, then select another currently visible item if appropriate. Do not retry the stale card or infer the identity of the other resolver.',

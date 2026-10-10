@@ -61,6 +61,12 @@ const FAILURE_COPY = {
   'service-unavailable': TEMPORARY_FAILURE,
   'unexpected-response': UNUSABLE_RESPONSE,
   'invalid-response': UNUSABLE_RESPONSE,
+  'unexpected-defect': {
+    title: 'The workbench could not read your active work.',
+    description:
+      'An unexpected workbench problem interrupted this read. No retained case context is displayed. Try again explicitly or contact an operator if it continues.',
+    canRetry: true,
+  },
   'request-cancelled': UNUSABLE_RESPONSE,
 } satisfies Readonly<
   Record<HumanFollowUpFailure['kind'], OwnedWorkFailureCopy>

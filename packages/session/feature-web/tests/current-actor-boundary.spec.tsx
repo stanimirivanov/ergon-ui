@@ -91,6 +91,67 @@ describe('current actor boundary', () => {
     ).toBe(`/bff/login?returnTo=%2Ftenants%2F${TENANT_ID}`);
     expect(renderVerified).not.toHaveBeenCalled();
   });
+
+  it('distinguishes a workbench defect from an invalid identity response', async () => {
+    const { renderVerified } = renderBoundary(TENANT_ID, {
+      async resolve() {
+        throw new Error('PRIVATE-SESSION-CAUSE');
+      },
+    });
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Session verification encountered a workbench error.',
+      }),
+    ).toBeTruthy();
+    expect(screen.queryByText(/PRIVATE-SESSION-CAUSE/)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
+    expect(renderVerified).not.toHaveBeenCalled();
+  });
+
+  it('keeps retained verification from mounting content during a failed recheck', async () => {
+    let rejectRead: (cause: unknown) => void = () => undefined;
+    const nextRead = new Promise<CurrentActorResult>((_resolve, reject) => {
+      rejectRead = reject;
+    });
+    const resolve = vi
+      .fn<CurrentActorClient['resolve']>()
+      .mockResolvedValueOnce({ ok: true, actor: ACTOR })
+      .mockImplementationOnce(() => nextRead);
+    const { store } = renderBoundary(TENANT_ID, { resolve });
+    expect(
+      await screen.findByRole('heading', { name: 'Protected content' }),
+    ).toBeTruthy();
+    let request: Promise<unknown> | undefined;
+    act(() => {
+      request = store.dispatch(
+        currentActorApi.endpoints.currentActor.initiate(
+          { tenantId: TENANT_ID },
+          { forceRefetch: true, subscribe: false },
+        ),
+      );
+    });
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Verifying your Ergon session…',
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole('heading', { name: 'Protected content' }),
+    ).toBeNull();
+    await act(async () => {
+      rejectRead(new Error('PRIVATE-RECHECK-CAUSE'));
+      await request;
+    });
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Session verification encountered a workbench error.',
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole('heading', { name: 'Protected content' }),
+    ).toBeNull();
+    store.dispatch(currentActorApi.util.resetApiState());
+  });
 });
 
 function renderBoundary(tenantId: string, client: CurrentActorClient) {
@@ -119,5 +180,5 @@ function renderBoundary(tenantId: string, client: CurrentActorClient) {
     </Provider>,
   );
 
-  return { renderVerified, signInHrefForTenant };
+  return { store, renderVerified, signInHrefForTenant };
 }

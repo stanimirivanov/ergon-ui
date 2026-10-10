@@ -6,6 +6,7 @@ import type {
   CurrentActorClient,
   CurrentActorFailure,
 } from '../current-actor-client';
+import { normalizeCurrentActorFailure } from './current-actor-failure';
 
 /** Tenant route context used as the current-actor cache key, not as authority. */
 export interface CurrentActorQuery {
@@ -29,16 +30,29 @@ export interface CurrentActorCacheDependencies {
  * Cache entries are isolated by the complete tenant query. RTK Query owns
  * deduplication and passes cancellation to the injected current-actor client;
  * the tenant key remains navigation context and never confers authority.
+ * Binding and client defects become diagnostic-free outcomes before RTK can
+ * log or serialize them. Direct clients still reject unexpected defects.
  */
 export const currentActorApi = createApi({
   reducerPath: 'currentActorApi',
   baseQuery: fakeBaseQuery<CurrentActorFailure>(),
   endpoints: (build) => ({
     currentActor: build.query<CurrentActor, CurrentActorQuery>({
-      async queryFn({ tenantId }, queryApi) {
-        const client = currentActorClientFrom(queryApi.extra);
-        const result = await client.resolve(tenantId, queryApi.signal);
-        return result.ok ? { data: result.actor } : { error: result.error };
+      async queryFn(
+        { tenantId },
+        queryApi,
+      ): Promise<{ data: CurrentActor } | { error: CurrentActorFailure }> {
+        try {
+          const client = currentActorClientFrom(queryApi.extra);
+          const result = await client.resolve(tenantId, queryApi.signal);
+          return result.ok
+            ? { data: result.actor }
+            : { error: normalizeCurrentActorFailure(result.error) };
+        } catch {
+          // An abort can race a real defect; the client's typed result alone
+          // classifies expected cancellation. Never retain the thrown cause.
+          return { error: { kind: 'unexpected-defect' } };
+        }
       },
     }),
   }),

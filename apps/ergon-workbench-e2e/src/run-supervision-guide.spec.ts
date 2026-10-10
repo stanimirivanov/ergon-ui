@@ -209,6 +209,55 @@ test(
         expect(bff.commands()).toBe(0);
         await guide.result('inspect-neutral-unavailable', unavailable);
 
+        bff.showPagedAssignments();
+        await guide.action(
+          'prepare-assignment-traversal',
+          recheckAssigned,
+          () => recheckAssigned.click(),
+        );
+        const nextPage = page.getByRole('button', {
+          name: 'Next assigned page',
+        });
+        await expect(nextPage).toBeEnabled();
+        bff.rejectNextAssignedPage();
+        const readsBeforeRejectedPage = bff.assignedReads();
+        await guide.action('open-rejected-assignment-page', nextPage, () =>
+          nextPage.click(),
+        );
+        const resetPage = page.getByRole('button', {
+          name: 'Return to first assigned page',
+        });
+        await expect(resetPage).toBeVisible();
+        await expect(
+          page.getByRole('button', { name: 'Retry assigned runs' }),
+        ).toHaveCount(0);
+        expect(bff.assignedReads()).toBe(readsBeforeRejectedPage + 1);
+        expect(bff.assignedCursors().at(-1)).toEqual({
+          assignedAt: '2026-09-21T09:02:00Z',
+          assignmentId: '55555555-5555-4555-8555-555555555555',
+        });
+        await expect(
+          page.getByText('access-restoration', { exact: true }),
+        ).toHaveCount(0);
+        const readsBeforeReset = bff.assignedReads();
+        await guide.action('reset-assignment-traversal', resetPage, () =>
+          resetPage.click(),
+        );
+        await expect(runButton).toBeVisible();
+        await expect.poll(() => bff.assignedReads()).toBe(readsBeforeReset + 1);
+        expect(bff.assignedCursors().at(-1)).toEqual({
+          assignedAt: null,
+          assignmentId: null,
+        });
+        await expect(
+          page.getByRole('button', { name: 'Previous assigned page' }),
+        ).toBeDisabled();
+        await expect(
+          page.getByRole('heading', { name: 'Select an assigned run' }),
+        ).toBeVisible();
+        expect(bff.commands()).toBe(0);
+
+        await guide.result('inspect-reset-assignment-page', assigned);
         const accessibility = await new AxeBuilder({ page }).analyze();
         expect(accessibility.violations).toEqual([]);
       },

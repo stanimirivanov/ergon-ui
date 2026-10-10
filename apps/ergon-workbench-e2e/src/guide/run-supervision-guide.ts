@@ -14,7 +14,7 @@ export const runSupervisionGuide: GuideChapter = {
     'Assigned supervisors reviewing an active resolution run without issuing execution commands.',
   overview: [
     'Assigned runs is a separate workbench view from shared and claimed human follow-ups. A supervisor assignment makes one run discoverable to its assigned resolver under current server-side authority; it does not claim an escalated follow-up or create an exclusive control lease. The Console deliberately reads only the reviewed browser projection: immutable run-start inputs and the latest recorded state. Its three panes organize assigned work, resolution execution context, and case/outcome boundaries. Select a run to read its private context on demand. The selection stays local to the current page, while the view name can remain in the tenant URL.',
-    'This walkthrough uses a synthetic verified session, one assigned run, and controlled BFF responses. The fixture first exposes a run waiting for approval, holds a recheck so you can see stale context disappear, returns a temporary failure, then permits an explicit retry. It later reports a recorded resolved state while removing the run from the active list, and finally returns a neutral unavailable response. These are illustrations of browser behavior, not a real approval, resolution, assignment change, or revocation. Every recording and screenshot is labelled SIMULATED DATA. The actual BFF must establish exact assignment and current resolver authority on every read.',
+    'This walkthrough uses a synthetic verified session, one assigned run, and controlled BFF responses. The fixture first exposes a run waiting for approval, holds a recheck so you can see stale context disappear, returns a temporary failure, then permits an explicit retry. It later reports a recorded resolved state while removing the run from the active list, returns a neutral unavailable response, and demonstrates rejected pagination followed by a fresh first-page reset. These are illustrations of browser behavior, not a real approval, resolution, assignment change, or revocation. Every recording and screenshot is labelled SIMULATED DATA. The actual BFF must establish exact assignment and current resolver authority on every read.',
   ],
   prerequisites: [
     'In a deployed environment, sign in to the correct tenant using a registered resolver identity with current authority. An authorized machine workflow must already have assigned the run to that identity. This read-only browser view cannot assign a supervisor, and the walkthrough does not perform a real login or assignment.',
@@ -146,8 +146,46 @@ export const runSupervisionGuide: GuideChapter = {
       expected:
         'The neutral message reveals no owner or protected reason, and old private data stays hidden.',
     },
+    {
+      id: 'prepare-assignment-traversal',
+      title: 'Refresh an assignment page with more results',
+      body: 'The fixture now supplies an intact next-page cursor to illustrate rejected traversal recovery. Choose Recheck assigned runs to obtain that fresh first page. In a deployed environment, the server supplies both cursor values together; the browser keeps them local to this work view, not in a shareable run address. This fixture change does not create a real assignment or establish a stable historical snapshot.',
+      expected:
+        'The assigned run is visible and Next assigned page becomes available.',
+    },
+    {
+      id: 'open-rejected-assignment-page',
+      title: 'Recognize a rejected page boundary',
+      body: 'Choose Next assigned page. This controlled request returns invalid-page for the paired cursor. The discovery view hides retained cards and private run context rather than guessing the next assignment. A rejected traversal is not an unavailable service, deletion, or evidence that someone else took the work. Repeating the same cursor does not repair it.',
+      expected:
+        'The page failure offers Return to first assigned page instead of Retry assigned runs.',
+    },
+    {
+      id: 'reset-assignment-traversal',
+      title: 'Restart from a fresh first page',
+      body: 'Choose Return to first assigned page. Ergon discards the local traversal history and private selection, then asks the BFF for the first page without either rejected cursor value. It does not simply uncover a retained first-page response: this recovery requires a fresh read. Inspect a returned run deliberately only after that read succeeds.',
+      expected:
+        'A new cursor-free first-page request restores the assigned list, with no selected private run.',
+    },
+    {
+      id: 'inspect-reset-assignment-page',
+      title: 'Continue from the restored discovery page',
+      body: 'Check that Previous assigned page is disabled and the detail pane again asks you to select an assigned run. The rejected traversal and earlier private selection have been retired; a returned card is a fresh discovery result, not renewed permission to display a prior snapshot. If you inspect that card next, its exact run detail still needs a separate current assignment and authority check. Resetting pagination issues no execution or ownership command.',
+      expected:
+        'The first page is visible beside an unselected detail pane, with no retained private snapshot.',
+    },
   ],
   troubleshooting: [
+    {
+      symptom: 'The assignment page is invalid.',
+      guidance:
+        'Use Return to first assigned page. The action clears the rejected paired cursor and requests a fresh first page; do not retry the same traversal or put private cursor values into a bookmark.',
+    },
+    {
+      symptom: 'A workbench error replaces the run snapshot.',
+      guidance:
+        'Stop relying on the previous snapshot. Retry run read explicitly requests a fresh gated snapshot; contact an operator if the defect persists. This state means an unexpected client or dependency failure, not an unusable server response or lost assignment. No private diagnostics or automatic defect retries are exposed. The recording demonstrates HTTP recovery states; defect containment is verified by cache and component regression tests, not simulated as an HTTP problem.',
+    },
     {
       symptom: 'Assigned runs is empty even though you expected work.',
       guidance:

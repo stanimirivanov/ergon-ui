@@ -79,6 +79,8 @@ export interface AssignedRunConsoleQuery {
  * Safe serializable failures without raw response details or browser causes.
  * `not-found` does not distinguish missing runs from denied assignment/authority.
  * Authentication-required is recognized only with the fixed local sign-in path.
+ * `unexpected-defect` contains a client/composition defect at the cache boundary;
+ * it carries no diagnostic cause and is not an automatically retryable read.
  */
 export type RunSupervisionFailure =
   | {
@@ -93,7 +95,8 @@ export type RunSupervisionFailure =
         | 'invalid-response'
         | 'transport'
         | 'timeout'
-        | 'request-cancelled';
+        | 'request-cancelled'
+        | 'unexpected-defect';
     }
   | {
       readonly kind: 'service-unavailable' | 'unexpected-http-status';

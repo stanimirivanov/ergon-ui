@@ -2,6 +2,7 @@ import { Button } from '@ergon/ui-web';
 import type { CurrentActor } from '@ergon/session-model';
 import {
   type CurrentActorFailure,
+  normalizeCurrentActorFailure,
   useCurrentActorQuery,
 } from '@ergon/session-data-access-web';
 import { Schema } from 'effect';
@@ -79,10 +80,7 @@ function CurrentActorSession({
 
   // RTK Query's data can belong to the previous tenant during an argument
   // change. Only currentData can verify the requested navigation context.
-  if (
-    session.isLoading ||
-    (session.isFetching && session.currentData === undefined)
-  ) {
+  if (session.isLoading || session.isFetching) {
     return renderFrame(
       'Verifying session',
       <SessionPanel
@@ -94,14 +92,14 @@ function CurrentActorSession({
     );
   }
 
-  if (session.currentData !== undefined) {
+  if (!session.isError && session.currentData !== undefined) {
     return renderFrame(
       'Resolver inbox',
       renderVerified({ actor: session.currentData, tenantId, signInHref }),
     );
   }
 
-  const failure = normalizeFailure(session.error);
+  const failure = normalizeCurrentActorFailure(session.error);
   const copy = failureCopy(failure);
   const action =
     failure.kind === 'authentication-required' ? (
@@ -227,38 +225,6 @@ function decodeTenantId(value: string | undefined): string | undefined {
   return result._tag === 'Right' ? result.right : undefined;
 }
 
-function normalizeFailure(error: unknown): CurrentActorFailure {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'kind' in error &&
-    typeof error.kind === 'string'
-  ) {
-    switch (error.kind) {
-      case 'authentication-required':
-      case 'authentication-unavailable':
-      case 'actor-not-registered':
-      case 'identity-rejected':
-      case 'forbidden':
-      case 'timeout':
-      case 'transport':
-      case 'invalid-response':
-      case 'request-cancelled':
-        return { kind: error.kind };
-      case 'service-unavailable':
-      case 'unexpected-response':
-        return {
-          kind: error.kind,
-          status:
-            'status' in error && typeof error.status === 'number'
-              ? error.status
-              : 0,
-        };
-    }
-  }
-  return { kind: 'invalid-response' };
-}
-
 interface SessionFailureCopy {
   readonly statusLabel: string;
   readonly title: string;
@@ -268,6 +234,14 @@ interface SessionFailureCopy {
 
 function failureCopy(failure: CurrentActorFailure): SessionFailureCopy {
   switch (failure.kind) {
+    case 'unexpected-defect':
+      return {
+        statusLabel: 'Workbench error',
+        title: 'Session verification encountered a workbench error.',
+        description:
+          'An unexpected workbench failure prevented verification. Resolver data remains hidden. Contact an operator; no diagnostic details are shown.',
+        canRetry: false,
+      };
     case 'authentication-required':
       return {
         statusLabel: 'Sign-in required',

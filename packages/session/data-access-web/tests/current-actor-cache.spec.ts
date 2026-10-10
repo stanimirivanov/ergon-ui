@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, type Middleware } from '@reduxjs/toolkit';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -108,9 +108,114 @@ describe('current actor cache adapter', () => {
     expect(observedSignal?.aborted).toBe(true);
     request.unsubscribe();
   });
+
+  it.each(['throw', 'reject', 'missing-binding'] as const)(
+    'contains %s before serialization or automatic diagnostic logging',
+    async (mode) => {
+      const sentinel = 'PRIVATE-SESSION-DEFECT';
+      const actions: unknown[] = [];
+      const errorLog = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => undefined);
+      const warningLog = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
+      const failure = new Error(sentinel, { cause: new Error(sentinel) });
+      const store = createSessionCacheStore(
+        mode === 'missing-binding'
+          ? {}
+          : {
+              resolveCurrentActor: {
+                resolve() {
+                  if (mode === 'throw') throw failure;
+                  return Promise.reject(failure);
+                },
+              },
+            },
+        actions,
+      );
+      try {
+        const request = store.dispatch(
+          currentActorApi.endpoints.currentActor.initiate({
+            tenantId: TENANT_ID,
+          }),
+        );
+        await expect(request.unwrap()).rejects.toEqual({
+          kind: 'unexpected-defect',
+        });
+        const cached = currentActorApi.endpoints.currentActor.select({
+          tenantId: TENANT_ID,
+        })(store.getState());
+        expect(cached.error).toEqual({ kind: 'unexpected-defect' });
+        expect(JSON.stringify(store.getState())).not.toContain(sentinel);
+        expect(JSON.stringify(actions)).not.toContain(sentinel);
+        expect(errorLog).not.toHaveBeenCalled();
+        expect(warningLog).not.toHaveBeenCalled();
+        request.unsubscribe();
+      } finally {
+        store.dispatch(currentActorApi.util.resetApiState());
+        errorLog.mockRestore();
+        warningLog.mockRestore();
+      }
+    },
+  );
+
+  it('drops diagnostic extras from expected client failures', async () => {
+    const store = createSessionCacheStore({
+      resolveCurrentActor: {
+        async resolve() {
+          return {
+            ok: false,
+            error: { kind: 'forbidden', message: 'PRIVATE-SESSION-DETAIL' },
+          };
+        },
+      },
+    });
+    const request = store.dispatch(
+      currentActorApi.endpoints.currentActor.initiate({ tenantId: TENANT_ID }),
+    );
+    try {
+      await expect(request.unwrap()).rejects.toEqual({ kind: 'forbidden' });
+      expect(JSON.stringify(store.getState())).not.toContain(
+        'PRIVATE-SESSION-DETAIL',
+      );
+    } finally {
+      request.unsubscribe();
+      store.dispatch(currentActorApi.util.resetApiState());
+    }
+  });
+
+  it('does not turn a client defect into cancellation based only on an aborted flag', async () => {
+    const store = createSessionCacheStore({
+      resolveCurrentActor: {
+        resolve(_tenantId, signal) {
+          Object.defineProperty(signal, 'aborted', { value: true });
+          throw new DOMException('Aborted', 'AbortError');
+        },
+      },
+    });
+    const request = store.dispatch(
+      currentActorApi.endpoints.currentActor.initiate({ tenantId: TENANT_ID }),
+    );
+    try {
+      await expect(request.unwrap()).rejects.toEqual({
+        kind: 'unexpected-defect',
+      });
+    } finally {
+      request.unsubscribe();
+      store.dispatch(currentActorApi.util.resetApiState());
+    }
+  });
 });
 
-function createSessionCacheStore(dependencies: CurrentActorCacheDependencies) {
+function createSessionCacheStore(
+  dependencies: CurrentActorCacheDependencies | Record<string, never>,
+  actions: unknown[] = [],
+) {
+  const captureActions: Middleware = () => (next) => (action) => {
+    actions.push(action);
+    return next(action);
+  };
   return configureStore({
     reducer: {
       [currentActorApi.reducerPath]: currentActorApi.reducer,
@@ -118,6 +223,6 @@ function createSessionCacheStore(dependencies: CurrentActorCacheDependencies) {
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         thunk: { extraArgument: dependencies },
-      }).concat(currentActorApi.middleware),
+      }).concat(currentActorApi.middleware, captureActions),
   });
 }

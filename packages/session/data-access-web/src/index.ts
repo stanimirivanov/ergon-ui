@@ -13,3 +13,4 @@ export {
   type CurrentActorQuery,
   useCurrentActorQuery,
 } from './cache/current-actor-api';
+export { normalizeCurrentActorFailure } from './cache/current-actor-failure';

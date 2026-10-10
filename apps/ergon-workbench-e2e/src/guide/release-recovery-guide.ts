@@ -103,6 +103,11 @@ export const releaseRecoveryGuide: GuideChapter = {
   ],
   troubleshooting: [
     {
+      symptom: 'An unexpected workbench failure interrupts release.',
+      guidance:
+        'The command might already have been recorded. Use only the explicit Try release again action while it is available; it preserves the original work item, claim, and expected revision. Do not start another release from a stale card or assume no write occurred. Diagnostic-free defect containment and exact replay are verified by cache/component tests; this recording illustrates HTTP uncertainty, not an injected programming fault.',
+    },
+    {
       symptom: 'The notice says releasing work is not enabled.',
       guidance:
         'Treat this as a definite rollout boundary, not a lost response. Keep the claim in active work and ask an operator about enabling the upgraded ownership deployment. The workbench deliberately offers no immediate retry.',

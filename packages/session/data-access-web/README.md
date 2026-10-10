@@ -14,6 +14,8 @@ Own confidential-browser session execution and remote-cache integration.
 - Per-attempt timeouts and caller-cancellation normalization.
 - Tenant-keyed RTK Query caching, request deduplication, and the generated
   current-actor React hook.
+- Diagnostic-free containment of missing bindings and client defects before
+  RTK logging/serialization; closed failure normalization with validated status.
 
 ## Does not own
 
@@ -31,6 +33,9 @@ Consumers import only from `@ergon/session-data-access-web`. This
 contract required during store composition. It maps validated responses to the
 session model's `CurrentActor` and exposes neither Effect programs nor wire
 payload types.
+Direct clients may still reject unexpected defects; cache callers receive
+`unexpected-defect` instead. `normalizeCurrentActorFailure` exposes only safe
+failure fields and does not mislabel unknown errors as invalid responses.
 
 ## Verification
 
