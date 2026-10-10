@@ -39,6 +39,12 @@ export async function installSimulatedRunSupervisionBff(page: Page): Promise<{
   assignedReads: () => number;
   consoleReads: () => number;
   commands: () => number;
+  showPagedAssignments: () => void;
+  rejectNextAssignedPage: () => void;
+  assignedCursors: () => readonly {
+    assignedAt: string | null;
+    assignmentId: string | null;
+  }[];
   setRunReadMode: (mode: RunReadMode) => void;
   setActiveRunsVisible: (visible: boolean) => void;
   holdNextRunRead: () => void;
@@ -48,6 +54,10 @@ export async function installSimulatedRunSupervisionBff(page: Page): Promise<{
   let consoleReads = 0;
   let commands = 0;
   let activeRunsVisible = true;
+  let hasNextAssignedPage = false;
+  let rejectAssignedCursor = false;
+  const cursors: { assignedAt: string | null; assignmentId: string | null }[] =
+    [];
   let mode: RunReadMode = 'success';
   let heldRead: Promise<void> | undefined;
   let releaseRead: (() => void) | undefined;
@@ -82,6 +92,23 @@ export async function installSimulatedRunSupervisionBff(page: Page): Promise<{
         `/bff/v1${supervisorTenantPath}/resolution-runs/assigned`,
       );
       assignedReads += 1;
+      const search = new URL(route.request().url()).searchParams;
+      const cursor = {
+        assignedAt: search.get('afterAssignedAt'),
+        assignmentId: search.get('afterAssignmentId'),
+      };
+      cursors.push(cursor);
+      if (rejectAssignedCursor && cursor.assignmentId !== null) {
+        return fulfillSimulatedBff(
+          route,
+          {
+            type: 'urn:ergon:problem:invalid-assigned-resolution-run-page',
+            title: 'Invalid assigned resolution run page',
+            status: 400,
+          },
+          400,
+        );
+      }
       return fulfillSimulatedBff(route, {
         entries: activeRunsVisible
           ? [
@@ -95,7 +122,13 @@ export async function installSimulatedRunSupervisionBff(page: Page): Promise<{
               },
             ]
           : [],
-        nextCursor: null,
+        nextCursor:
+          hasNextAssignedPage && cursor.assignmentId === null
+            ? {
+                assignedAt: snapshot.assignedAt,
+                assignmentId: '55555555-5555-4555-8555-555555555555',
+              }
+            : null,
       });
     },
   );
@@ -152,6 +185,14 @@ export async function installSimulatedRunSupervisionBff(page: Page): Promise<{
     assignedReads: () => assignedReads,
     consoleReads: () => consoleReads,
     commands: () => commands,
+    showPagedAssignments: () => {
+      hasNextAssignedPage = true;
+      activeRunsVisible = true;
+    },
+    rejectNextAssignedPage: () => {
+      rejectAssignedCursor = true;
+    },
+    assignedCursors: () => cursors.slice(),
     setRunReadMode: (nextMode) => {
       mode = nextMode;
     },

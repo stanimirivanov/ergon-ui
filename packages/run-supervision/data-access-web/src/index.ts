@@ -16,6 +16,7 @@ export {
   createRunSupervisionClient,
   type RunSupervisionClientOptions,
 } from './create-run-supervision-client';
+export { normalizeRunSupervisionFailure } from './normalize-run-supervision-failure';
 export {
   runSupervisionApi,
   type RunSupervisionDependencies,

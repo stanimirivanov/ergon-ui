@@ -38,7 +38,11 @@ out of the deployable app and domain-agnostic UI primitives.
   when a later server-observed ownership revision supersedes it. Release means
   return to the original shared queue, not direct handover or case completion.
 - Follow-up workspace introduction and composition of the two work views.
-- Translation of typed follow-up failures into resolver-facing copy.
+- Translation of data-access-normalized follow-up failures into resolver-facing
+  copy. Unexpected read defects hide retained case context and offer only an
+  explicit retry; they are not reported as malformed server responses. Claim
+  and release defects preserve uncertainty and the original immutable replay
+  tuple rather than assuming no write occurred or minting a replacement intent.
 - Accessible follow-up-specific interaction and rendering.
 
 ## Does not own

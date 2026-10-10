@@ -8,6 +8,7 @@ import type {
   RunSupervisionClient,
   RunSupervisionFailure,
 } from '../contracts';
+import { normalizeRunSupervisionFailure } from '../normalize-run-supervision-failure';
 
 /** Executable thunk-extra binding supplied by the app; never put the client in Redux state. */
 export interface RunSupervisionDependencies {
@@ -20,6 +21,10 @@ export interface RunSupervisionDependencies {
  * Both projections are evicted after their final subscriber leaves; reopening
  * must revalidate current server assignment/authority rather than revive a
  * retained private snapshot. RTK cancellation reaches the injected client.
+ * Client rejections and missing bindings become a cause-free unexpected-defect
+ * before RTK can log or serialize them; these endpoints never relabel a rejected
+ * client as cancellation just because its signal reports aborted. RTK's own
+ * cancellation race can settle before the endpoint returns its safe result.
  * Register this reducer and middleware in the store and supply its dependencies.
  */
 export const runSupervisionApi = createApi({
@@ -32,11 +37,17 @@ export const runSupervisionApi = createApi({
         query,
         api,
       ): Promise<{ data: AssignedRunPage } | { error: RunSupervisionFailure }> {
-        const result = await clientFrom(api.extra).listAssigned(
-          query,
-          api.signal,
-        );
-        return result.ok ? { data: result.page } : { error: result.error };
+        try {
+          const result = await clientFrom(api.extra).listAssigned(
+            query,
+            api.signal,
+          );
+          return result.ok
+            ? { data: result.page }
+            : { error: normalizeRunSupervisionFailure(result.error) };
+        } catch {
+          return { error: { kind: 'unexpected-defect' } };
+        }
       },
     }),
     getAssignedRunConsole: build.query<
@@ -50,11 +61,17 @@ export const runSupervisionApi = createApi({
       ): Promise<
         { data: AssignedRunConsole } | { error: RunSupervisionFailure }
       > {
-        const result = await clientFrom(api.extra).getConsole(
-          query,
-          api.signal,
-        );
-        return result.ok ? { data: result.console } : { error: result.error };
+        try {
+          const result = await clientFrom(api.extra).getConsole(
+            query,
+            api.signal,
+          );
+          return result.ok
+            ? { data: result.console }
+            : { error: normalizeRunSupervisionFailure(result.error) };
+        } catch {
+          return { error: { kind: 'unexpected-defect' } };
+        }
       },
     }),
   }),

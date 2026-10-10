@@ -1,4 +1,10 @@
 export {
+  normalizeHumanFollowUpFailure,
+  normalizeHumanFollowUpClaimFailure,
+  normalizeHumanFollowUpReleaseFailure,
+  normalizeResolverFollowUpCaseSummaryFailure,
+} from './client/normalize-human-follow-up-failures';
+export {
   createHumanFollowUpBffAdapter,
   type HumanFollowUpBffAdapterOptions,
 } from './create-human-follow-up-bff-adapter';

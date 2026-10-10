@@ -15,6 +15,8 @@ lease; this package grants no authority.
 - Effect-based schema decoding, safe integer and identity validation, typed
   failures, per-attempt deadline, one transient retry, and caller cancellation.
 - RTK Query cache identity, lifecycle, dependency binding, and generated hooks.
+- Cause-free unexpected-defect containment before RTK can serialize or log a
+  rejected client, invalid dependency binding, or malformed failure value.
 
 The BFF independently checks current resolver authority and exact assignment.
 Non-disclosing absence does not identify whether a run exists for another actor.
@@ -34,8 +36,18 @@ Import `createRunSupervisionClient`, `runSupervisionApi`,
 `RunSupervisionDependencies`, validated projections, queries, results, failures,
 and generated hooks from `@ergon/run-supervision-data-access-web`. Composition
 supplies `{ runSupervision: client }` as Redux thunk extra arguments and registers
-the reducer/middleware. Expected failures are serializable values; unexpected
-defects reject rather than masquerading as transport errors.
+the reducer/middleware. Direct client calls return expected failures and reject
+unexpected defects rather than masquerading as transport errors. Every RTK
+endpoint contains those rejections as `{ kind: 'unexpected-defect' }`, without
+name, message, stack, response body, or cause; they never trigger automatic retry.
+
+`normalizeRunSupervisionFailure` narrows framework errors to the closed safe
+failure union, validates integer HTTP statuses in 100–599, and discards extra
+fields. Unknown values become unexpected defects, not invalid server responses.
+Only RTK's exact plain-object abort fingerprint becomes cancellation; a rejected
+client is always a defect, including when its signal concurrently aborts. RTK
+itself may win an abort race before the endpoint settles; late client failures
+still cannot leak to cache, actions, or raw framework logs.
 
 Only the pinned Effect, Redux Toolkit, React, and React Redux dependencies are
 needed. There is no client-owned application policy or separate model package.

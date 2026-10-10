@@ -6,6 +6,8 @@ import type { CurrentActor } from '@ergon/session-model';
  * Status-bearing variants retain only the response status. Protocol recovery
  * locations and raw browser, provider, and network details are deliberately
  * omitted so failures may safely enter the RTK Query error channel.
+ * `unexpected-defect` identifies an implementation or binding failure, not an
+ * invalid server response. It never retains diagnostics or implies retry safety.
  */
 export type CurrentActorFailure =
   | { readonly kind: 'authentication-required' }
@@ -18,6 +20,7 @@ export type CurrentActorFailure =
   | { readonly kind: 'service-unavailable'; readonly status: number }
   | { readonly kind: 'unexpected-response'; readonly status: number }
   | { readonly kind: 'invalid-response' }
+  | { readonly kind: 'unexpected-defect' }
   | { readonly kind: 'request-cancelled' };
 
 /** Verified session actor or an explicit presentation-safe data-access failure. */

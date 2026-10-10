@@ -371,6 +371,88 @@ describe('assigned-run Resolver Console', () => {
     ).toBeTruthy();
   });
 
+  it('resets a rejected assigned traversal to a fresh first-page read', async () => {
+    const cursor = {
+      assignedAt: ASSIGNED_AT,
+      assignmentId: '55555555-5555-4555-8555-555555555555',
+    };
+    const listAssigned = vi
+      .fn<RunSupervisionClient['listAssigned']>()
+      .mockResolvedValueOnce({
+        ok: true,
+        page: { ...assignedPage(), nextCursor: cursor },
+      })
+      .mockResolvedValueOnce({ ok: false, error: { kind: 'invalid-page' } })
+      .mockResolvedValueOnce({ ok: true, page: assignedPage() });
+    renderWorkspace({ ...successfulClient(), listAssigned });
+    await openRun();
+    fireEvent.click(screen.getByRole('button', { name: 'Next assigned page' }));
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Return to first assigned page',
+      }),
+    );
+    expect(
+      await screen.findByRole('button', { name: `Inspect run ${RUN_ID}` }),
+    ).toBeTruthy();
+    expect(listAssigned).toHaveBeenCalledTimes(3);
+    expect(
+      screen.getByRole('heading', { name: 'Select an assigned run' }),
+    ).toBeTruthy();
+    expect(screen.queryByText('access-restoration')).toBeNull();
+    expect(listAssigned.mock.calls[1]?.[0]).toEqual({
+      tenantId: TENANT_ID,
+      cursor,
+    });
+    expect(listAssigned.mock.calls[2]?.[0]).toEqual({ tenantId: TENANT_ID });
+    expect(
+      screen.getByRole('button', { name: 'Previous assigned page' }),
+    ).toHaveProperty('disabled', true);
+  });
+
+  it('requests again when the first assigned page itself is rejected', async () => {
+    const listAssigned = vi
+      .fn<RunSupervisionClient['listAssigned']>()
+      .mockResolvedValueOnce({ ok: false, error: { kind: 'invalid-page' } })
+      .mockResolvedValueOnce({ ok: true, page: assignedPage() });
+    renderWorkspace({ ...successfulClient(), listAssigned });
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Return to first assigned page',
+      }),
+    );
+    expect(
+      await screen.findByRole('button', { name: `Inspect run ${RUN_ID}` }),
+    ).toBeTruthy();
+    expect(listAssigned.mock.calls.map(([query]) => query)).toEqual([
+      { tenantId: TENANT_ID },
+      { tenantId: TENANT_ID },
+    ]);
+  });
+
+  it('hides retained detail after a defect and retries only on explicit intent', async () => {
+    const getConsole = vi
+      .fn<RunSupervisionClient['getConsole']>()
+      .mockResolvedValueOnce({ ok: true, console: assignedRunConsole })
+      .mockRejectedValueOnce(new Error('private sentinel'))
+      .mockResolvedValueOnce({ ok: true, console: assignedRunConsole });
+    renderWorkspace({ ...successfulClient(), getConsole });
+    await openRun();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Recheck selected run' }),
+    );
+    expect(
+      await screen.findByText(/unexpected problem while reading this snapshot/),
+    ).toBeTruthy();
+    expect(screen.queryByText('access-restoration')).toBeNull();
+    expect(screen.queryByText('access-policy-7')).toBeNull();
+    expect(screen.queryByText(/private sentinel/)).toBeNull();
+    expect(getConsole).toHaveBeenCalledTimes(2);
+    fireEvent.click(screen.getByRole('button', { name: 'Retry run read' }));
+    await loadedRunPane();
+    expect(getConsole).toHaveBeenCalledTimes(3);
+  });
+
   it('uses only the app-composed sign-in URL and starts a tenant switch with no retained selection', async () => {
     const client = successfulClient();
     const store = renderWorkspace(client);
@@ -454,7 +536,7 @@ function deferred<T>(): {
   readonly promise: Promise<T>;
   readonly resolve: (value: T) => void;
 } {
-  let resolve = (_value: T): void => {
+  let resolve: (value: T) => void = () => {
     throw new Error('Deferred promise was not initialized');
   };
   const promise = new Promise<T>((complete) => {

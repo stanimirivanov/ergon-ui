@@ -1,6 +1,6 @@
 # Resolver Console architecture remediation
 
-- Status: Proposed implementation sequence; harness changes accompany this plan
+- Status: Task 1 implemented and verified locally; awaiting review/merge. Tasks 2–4 remain planned.
 - Milestone: M05 - Human follow-up and resolver console
 
 ## TL;DR
@@ -15,7 +15,8 @@ design. Preserve current BFF facts, authority boundaries, and executable guides.
 
 The review is substantially correct about mixed responsibilities, implicit
 contracts, and lifecycle/error handling. These are verified ownership problems,
-not failures inferred from source length.
+not failures inferred from source length. The table records the planning
+baseline; implementation progress is tracked below.
 
 | Finding                                       | Evidence and disposition                                                                                                                                                                                                                                                                                          |
 | :-------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -59,6 +60,17 @@ Each implementation includes components, state binding, responsive behavior,
 tests, documentation, and the affected executable guide in one complete slice.
 
 ### 1. Contain unexpected failures at Resolver Console cache boundaries
+
+Implemented under [ADR 0024](../../decisions/0024-contain-client-defects-at-cache-boundaries.md):
+cause-free catches protect all session, follow-up, and supervision cache
+operations; capability-local normalizers strip surplus fields and distinguish
+defects from malformed responses. Session rechecks hide retained actor content.
+Console read recovery remains explicit, mutation recovery preserves exact
+replay intent, and invalid assignment pages offer a fresh first-page reset.
+Regression tests and affected executable guides accompany the change.
+`pnpm verify` passed, including all 13 Chromium scenarios; `pnpm guide:generate`
+recorded all seven chapters uncached and assembled the Markdown/HTML book.
+These checks use synthetic BFF responses, not live backend authority.
 
 Own safe failure outcomes in supervision and Console-serving follow-up data
 access plus the shared current-actor gate. Catch defects before RTK serialization
@@ -148,5 +160,5 @@ them to fit the extraction. Guides remain labelled synthetic.
 Merge/review each slice before the next. Roll back a slice as a unit if disclosure
 or keyboard behavior regresses; no migration is needed. After these four fixes,
 resume the approved backend task **Record and project ordered resolution-step
-execution with attributable measurements** (M04). GitHub issues own live status;
-this document is a proposed sequence, not a claim of delivered runtime fixes.
+execution with attributable measurements** (M04). GitHub issues own review and
+merge status; local implementation notes do not claim deployed runtime fixes.

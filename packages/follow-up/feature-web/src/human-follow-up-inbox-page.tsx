@@ -5,16 +5,14 @@ import type {
 } from '@ergon/follow-up-data-access-web';
 import type { HumanFollowUpWorkItem } from '@ergon/follow-up-model';
 import {
+  normalizeHumanFollowUpClaimFailure,
+  normalizeHumanFollowUpFailure,
   useClaimHumanFollowUpMutation,
   useHumanFollowUpsQuery,
 } from '@ergon/follow-up-data-access-web';
 import { Button } from '@ergon/ui-web';
 import { useEffect, useState } from 'react';
 
-import {
-  normalizeFollowUpClaimFailure,
-  normalizeFollowUpReadFailure,
-} from './follow-up-failure-normalization';
 import { FollowUpMessage } from './follow-up-message';
 import { inboxFailureCopy } from './human-follow-up-inbox-copy';
 import {
@@ -91,7 +89,7 @@ export function HumanFollowUpInboxPage({
             kind: 'failure',
             item,
             command,
-            failure: normalizeFollowUpClaimFailure(result.error),
+            failure: normalizeHumanFollowUpClaimFailure(result.error),
           },
     );
   }
@@ -110,7 +108,7 @@ export function HumanFollowUpInboxPage({
   }
 
   if (followUps.data === undefined) {
-    const failure = normalizeFollowUpReadFailure(followUps.error);
+    const failure = normalizeHumanFollowUpFailure(followUps.error);
     const copy = inboxFailureCopy(failure);
     const action =
       failure.kind === 'authentication-required' ? (

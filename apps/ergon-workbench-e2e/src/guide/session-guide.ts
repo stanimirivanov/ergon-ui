@@ -86,6 +86,11 @@ export const sessionGuide: GuideChapter = {
   ],
   troubleshooting: [
     {
+      symptom: 'Session verification reports a workbench error.',
+      guidance:
+        'Contact an operator rather than repeatedly retrying. An unexpected client or binding failure is distinct from an invalid identity response. Resolver content stays unmounted even if an earlier actor was cached, and raw diagnostic details are neither displayed nor retained as cache errors. This defect screen is verified by cache/component tests; the synthetic HTTP recording does not inject a programming defect.',
+    },
+    {
       symptom: 'The sign-in link is absent or points somewhere unexpected.',
       guidance:
         'Stop and report the displayed address to an operator. The workbench accepts only its validated local BFF sign-in path and canonical tenant return destination; do not follow a copied external redirect.',

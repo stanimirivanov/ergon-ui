@@ -1,4 +1,5 @@
 import {
+  normalizeRunSupervisionFailure,
   useLazyGetAssignedRunConsoleQuery,
   useLazyListAssignedRunsQuery,
   type AssignedRunCursor,
@@ -17,7 +18,6 @@ import {
 import { AssignedRunConsoleView } from './assigned-run-console';
 import { AssignedRunList } from './assigned-run-list';
 import { AssignedRunMessage } from './assigned-run-message';
-import { isUnavailable } from './run-supervision-copy';
 
 interface AssignedRunWorkspaceProps {
   readonly tenantId: string;
@@ -67,6 +67,10 @@ function TenantAssignedRunWorkspace({
     !isReadingAssigned &&
     assigned.error === undefined &&
     assigned.currentData !== undefined;
+  const assignedFailure =
+    assigned.error === undefined
+      ? undefined
+      : normalizeRunSupervisionFailure(assigned.error);
 
   const recheckAssigned = useCallback((): void => {
     latestAssignmentRead.current = readAssigned(
@@ -160,11 +164,19 @@ function TenantAssignedRunWorkspace({
           page={assigned.currentData}
           selectedRunId={selectedRunId}
           isFetching={isReadingAssigned}
-          error={assigned.error}
+          error={assignedFailure}
           signInHref={signInHref}
           hasPrevious={cursors.length > 0}
           onSelect={setSelectedRunId}
           onRetry={recheckAssigned}
+          onResetPage={() => {
+            setSelectedRunId(null);
+            // Reset even on a rejected first page, where changing the cursor
+            // would not cause a new request. Existing request retirement stays
+            // owned by the cursor effect for later pages.
+            if (cursors.length === 0) recheckAssigned();
+            else setCursors([]);
+          }}
           onPrevious={() => setCursors((previous) => previous.slice(0, -1))}
           onNext={() => {
             const next = assigned.currentData?.nextCursor;
@@ -246,14 +258,15 @@ function AssignedRunDetail({
     );
   }
   if (detail.error !== undefined) {
+    const failure = normalizeRunSupervisionFailure(detail.error);
     return (
       <ConsoleUnavailable
         title={
-          isUnavailable(detail.error)
+          failure.kind === 'not-found'
             ? 'Run context is unavailable'
             : 'Run context could not be read'
         }
-        error={detail.error}
+        error={failure}
         signInHref={signInHref}
         retryLabel="Retry run read"
         onRetry={readFresh}

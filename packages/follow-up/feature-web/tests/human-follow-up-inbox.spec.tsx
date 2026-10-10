@@ -259,6 +259,48 @@ describe('human follow-up inbox', () => {
     expect(claim).toHaveBeenCalledTimes(2);
     expect(claim.mock.calls[1]?.[0]).toEqual(claim.mock.calls[0]?.[0]);
   });
+
+  it('preserves the original command identity after an unexpected claim defect', async () => {
+    const claim = vi
+      .fn<ClaimHumanFollowUp['claim']>()
+      .mockRejectedValueOnce(new Error('private claim sentinel'))
+      .mockResolvedValueOnce({
+        ok: true,
+        claim: followUpClaim(FIRST_WORK_ITEM_ID),
+      });
+    renderInbox(`/tenants/${TENANT_ID}`, {
+      ...listOpenReturning(
+        successfulOpenFollowUpResult(FIRST_WORK_ITEM_ID, null, 2),
+      ),
+      claim,
+    });
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Claim Retry attempt limit reached follow-up',
+      }),
+    );
+    expect(
+      await screen.findByRole('alert', {
+        name: 'The workbench could not confirm the claim result.',
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(/Ownership may already have been recorded/),
+    ).toBeTruthy();
+    expect(screen.queryByText(/private claim sentinel/)).toBeNull();
+    expect(claim).toHaveBeenCalledTimes(1);
+    const originalIntent = claim.mock.calls[0]?.[0];
+    expect(originalIntent).toEqual({
+      tenantId: TENANT_ID,
+      workItemId: FIRST_WORK_ITEM_ID,
+      commandId: expect.any(String),
+      expectedOwnershipRevision: 2,
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Try claim again' }));
+    expect(await screen.findByText('Follow-up claimed.')).toBeTruthy();
+    expect(claim).toHaveBeenCalledTimes(2);
+    expect(claim.mock.calls[1]?.[0]).toEqual(originalIntent);
+  });
 });
 
 function renderInbox(path: string, capabilities: FollowUpTestCapabilities) {

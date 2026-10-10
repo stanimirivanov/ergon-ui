@@ -79,6 +79,12 @@ const FAILURE_COPY = {
   'service-unavailable': UNCERTAIN_RESULT,
   'unexpected-response': UNCERTAIN_RESULT,
   'invalid-response': UNCERTAIN_RESULT,
+  'unexpected-defect': {
+    title: 'The workbench could not confirm the release result.',
+    description:
+      'An unexpected workbench problem interrupted this command. The release may already have been recorded. Retry only this same release to recover its recorded result, or contact an operator if it continues.',
+    canRetry: true,
+  },
   'request-cancelled': {
     title: 'The release request was cancelled.',
     description:

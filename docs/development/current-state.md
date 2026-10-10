@@ -24,6 +24,11 @@ requester app, or native app.
 - tenant route validation and confidential BFF session consumption;
 - RTK Query cache ownership with Effect-based HTTP, timeout, bounded retry,
   cancellation, schema decoding, and typed failure mapping;
+- cause-free defect containment at session, follow-up, and assigned-run cache
+  boundaries, including missing bindings and rejection during cancellation;
+  capability-owned normalization drops diagnostic extras, validates HTTP status,
+  and distinguishes workbench defects from malformed server responses. Mutation
+  defects preserve uncertainty and the exact intent for explicit replay;
 - explicit local sign-in navigation from the validated BFF problem contract;
 - explicit authentication-required, unregistered-actor, rejected-identity,
   transient-failure, invalid-response, and verified-session UI states;
@@ -101,6 +106,9 @@ requester app, or native app.
   detail retained only after a successful BFF read. The app composes both work
   areas under session verification; `view=runs` names the area without storing
   a run ID in navigation or browser persistence;
+- executable first-page reset for rejected assignment traversal, without putting
+  private cursors in URLs or retrying a rejected cursor; failed session rechecks
+  keep authenticated work unmounted even while RTK retains the previous actor;
 - capability-first `type:*`, `scope:*`, and `platform:*` boundaries with a
   finite ledger for packages still under the old global-layer paths and a
   DOM-free TypeScript configuration for model and application cores;

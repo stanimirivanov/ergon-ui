@@ -23,6 +23,15 @@ import type {
   HumanFollowUpRelease,
   ResolverFollowUpCaseSummary,
 } from '@ergon/follow-up-model';
+import {
+  normalizeHumanFollowUpFailure,
+  normalizeHumanFollowUpClaimFailure,
+  normalizeHumanFollowUpReleaseFailure,
+  normalizeResolverFollowUpCaseSummaryFailure,
+  UNEXPECTED_FOLLOW_UP_DEFECT,
+} from '../client/normalize-human-follow-up-failures';
+
+type FollowUpCacheResult<Value, Failure> = { data: Value } | { error: Failure };
 
 /**
  * Thunk-extra contract required by the follow-up cache adapter.
@@ -47,6 +56,9 @@ export interface HumanFollowUpCacheDependencies {
  * cache identity includes the full requested tenant, work-item, case, and run
  * tuple. On fetch, the data-access boundary validates that same tuple before
  * a summary enters the cache.
+ * Thrown/rejected client and dependency-binding defects are contained before
+ * RTK Query can log or serialize them. Expected failures are projected to their
+ * safe contracts. Defects are not retried; mutation outcomes remain uncertain.
  */
 export const humanFollowUpApi = createApi({
   reducerPath: 'humanFollowUpApi',
@@ -63,10 +75,21 @@ export const humanFollowUpApi = createApi({
   ],
   endpoints: (build) => ({
     humanFollowUps: build.query<HumanFollowUpPage, HumanFollowUpQuery>({
-      async queryFn(query, queryApi) {
-        const capability = listOpenHumanFollowUpsFrom(queryApi.extra);
-        const result = await capability.listOpen(query, queryApi.signal);
-        return result.ok ? { data: result.page } : { error: result.error };
+      queryFn(
+        query,
+        queryApi,
+      ): Promise<FollowUpCacheResult<HumanFollowUpPage, HumanFollowUpFailure>> {
+        return executeFollowUpQuery(
+          () =>
+            listOpenHumanFollowUpsFrom(queryApi.extra).listOpen(
+              query,
+              queryApi.signal,
+            ),
+          (result) =>
+            result.ok
+              ? { data: result.page }
+              : { error: normalizeHumanFollowUpFailure(result.error) },
+        );
       },
       providesTags: (_result, _error, query) => [
         { type: 'HumanFollowUpInbox', id: query.tenantId },
@@ -76,10 +99,26 @@ export const humanFollowUpApi = createApi({
       ResolverOwnedHumanFollowUpPage,
       ResolverOwnedHumanFollowUpQuery
     >({
-      async queryFn(query, queryApi) {
-        const capability = listOwnedHumanFollowUpsFrom(queryApi.extra);
-        const result = await capability.listOwned(query, queryApi.signal);
-        return result.ok ? { data: result.page } : { error: result.error };
+      queryFn(
+        query,
+        queryApi,
+      ): Promise<
+        FollowUpCacheResult<
+          ResolverOwnedHumanFollowUpPage,
+          HumanFollowUpFailure
+        >
+      > {
+        return executeFollowUpQuery(
+          () =>
+            listOwnedHumanFollowUpsFrom(queryApi.extra).listOwned(
+              query,
+              queryApi.signal,
+            ),
+          (result) =>
+            result.ok
+              ? { data: result.page }
+              : { error: normalizeHumanFollowUpFailure(result.error) },
+        );
       },
       providesTags: (_result, _error, query) => [
         { type: 'ResolverOwnedHumanFollowUps', id: query.tenantId },
@@ -91,13 +130,30 @@ export const humanFollowUpApi = createApi({
     >({
       // Case evidence must not remain available after the last disclosure closes.
       keepUnusedDataFor: 0,
-      async queryFn(query, queryApi) {
-        const capability = getOwnedFollowUpCaseSummaryFrom(queryApi.extra);
-        const result = await capability.getOwnedCaseSummary(
-          query,
-          queryApi.signal,
+      queryFn(
+        query,
+        queryApi,
+      ): Promise<
+        FollowUpCacheResult<
+          ResolverFollowUpCaseSummary,
+          ResolverFollowUpCaseSummaryFailure
+        >
+      > {
+        return executeFollowUpQuery(
+          () =>
+            getOwnedFollowUpCaseSummaryFrom(queryApi.extra).getOwnedCaseSummary(
+              query,
+              queryApi.signal,
+            ),
+          (result) =>
+            result.ok
+              ? { data: result.summary }
+              : {
+                  error: normalizeResolverFollowUpCaseSummaryFailure(
+                    result.error,
+                  ),
+                },
         );
-        return result.ok ? { data: result.summary } : { error: result.error };
       },
       providesTags: (_result, _error, query) => [
         {
@@ -110,10 +166,23 @@ export const humanFollowUpApi = createApi({
       HumanFollowUpClaim,
       HumanFollowUpClaimCommand
     >({
-      async queryFn(command, queryApi) {
-        const capability = claimHumanFollowUpFrom(queryApi.extra);
-        const result = await capability.claim(command, queryApi.signal);
-        return result.ok ? { data: result.claim } : { error: result.error };
+      queryFn(
+        command,
+        queryApi,
+      ): Promise<
+        FollowUpCacheResult<HumanFollowUpClaim, HumanFollowUpClaimFailure>
+      > {
+        return executeFollowUpQuery(
+          () =>
+            claimHumanFollowUpFrom(queryApi.extra).claim(
+              command,
+              queryApi.signal,
+            ),
+          (result) =>
+            result.ok
+              ? { data: result.claim }
+              : { error: normalizeHumanFollowUpClaimFailure(result.error) },
+        );
       },
       invalidatesTags: (result, error, command) => {
         if (result !== undefined) {
@@ -134,10 +203,23 @@ export const humanFollowUpApi = createApi({
       HumanFollowUpRelease,
       HumanFollowUpReleaseCommand
     >({
-      async queryFn(command, queryApi) {
-        const capability = releaseHumanFollowUpFrom(queryApi.extra);
-        const result = await capability.release(command, queryApi.signal);
-        return result.ok ? { data: result.release } : { error: result.error };
+      queryFn(
+        command,
+        queryApi,
+      ): Promise<
+        FollowUpCacheResult<HumanFollowUpRelease, HumanFollowUpReleaseFailure>
+      > {
+        return executeFollowUpQuery(
+          () =>
+            releaseHumanFollowUpFrom(queryApi.extra).release(
+              command,
+              queryApi.signal,
+            ),
+          (result) =>
+            result.ok
+              ? { data: result.release }
+              : { error: normalizeHumanFollowUpReleaseFailure(result.error) },
+        );
       },
       invalidatesTags: (result, error, command) => {
         if (result !== undefined) {
@@ -177,6 +259,26 @@ export const {
   useResolverFollowUpCaseSummaryQuery,
   useResolverOwnedHumanFollowUpsQuery,
 } = humanFollowUpApi;
+
+/**
+ * Contains both dependency lookup and asynchronous execution at the RTK seam.
+ *
+ * Cancellation is an operation outcome, not inferred from a concurrently
+ * aborted signal: a thrown client defect must never be disguised as cancellation.
+ * This seam adds no retry or telemetry and cannot infer whether a write occurred.
+ */
+async function executeFollowUpQuery<Result, Value, Failure>(
+  operation: () => Promise<Result>,
+  project: (result: Result) => { data: Value } | { error: Failure },
+): Promise<
+  FollowUpCacheResult<Value, Failure | typeof UNEXPECTED_FOLLOW_UP_DEFECT>
+> {
+  try {
+    return project(await operation());
+  } catch {
+    return { error: UNEXPECTED_FOLLOW_UP_DEFECT };
+  }
+}
 
 function listOpenHumanFollowUpsFrom(extra: unknown): ListOpenHumanFollowUps {
   if (

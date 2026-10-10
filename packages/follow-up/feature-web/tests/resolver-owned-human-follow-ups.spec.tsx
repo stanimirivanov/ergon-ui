@@ -446,46 +446,117 @@ describe('resolver-owned human follow-ups', () => {
     ).toBeNull();
   });
 
-  it('retries uncertain Console release with the same captured claim and revision', async () => {
-    const release = vi
-      .fn<ReleaseHumanFollowUp['release']>()
-      .mockResolvedValueOnce({ ok: false, error: { kind: 'transport' } })
-      .mockResolvedValueOnce({
-        ok: true,
-        release: followUpRelease(FIRST_WORK_ITEM_ID),
+  it.each(['transport', 'unexpected-defect'] as const)(
+    'retries uncertain Console release after %s with the same captured claim and revision',
+    async (kind) => {
+      const release = vi
+        .fn<ReleaseHumanFollowUp['release']>()
+        .mockImplementationOnce(async () => {
+          expect(screen.queryByText('Private evidence')).toBeNull();
+          if (kind === 'unexpected-defect')
+            throw new Error('private release sentinel');
+          return { ok: false, error: { kind } };
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          release: followUpRelease(FIRST_WORK_ITEM_ID),
+        });
+      renderOwned({
+        listOwned: async () =>
+          successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+        getOwnedCaseSummary: async () => ({
+          ok: true,
+          summary: resolverFollowUpCaseSummary(
+            FIRST_WORK_ITEM_ID,
+            'Private evidence',
+          ),
+        }),
+        release,
       });
-    renderOwned({
-      listOwned: async () =>
-        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
-      getOwnedCaseSummary: async () => ({
+
+      fireEvent.click(
+        await screen.findByRole('button', { name: 'Open resolver console' }),
+      );
+      expect(await screen.findByText('Private evidence')).toBeTruthy();
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Release to shared queue' }),
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm release' }));
+      expect(screen.queryByText('Private evidence')).toBeNull();
+      if (kind === 'unexpected-defect') {
+        expect(
+          await screen.findByRole('alert', {
+            name: 'The workbench could not confirm the release result.',
+          }),
+        ).toBeTruthy();
+        expect(
+          screen.getByText(/release may already have been recorded/),
+        ).toBeTruthy();
+        expect(screen.queryByText(/private release sentinel/)).toBeNull();
+        expect(release).toHaveBeenCalledTimes(1);
+      }
+      fireEvent.click(
+        await screen.findByRole('button', { name: 'Try release again' }),
+      );
+
+      const successNotice = await screen.findByRole('status', {
+        name: 'Follow-up released',
+      });
+      await waitFor(() => expect(document.activeElement).toBe(successNotice));
+      expect(release).toHaveBeenCalledTimes(2);
+      expect(release.mock.calls[1]?.[0]).toEqual(release.mock.calls[0]?.[0]);
+      expect(release.mock.calls[0]?.[0]).toEqual({
+        tenantId: TENANT_ID,
+        workItemId: FIRST_WORK_ITEM_ID,
+        claimId: followUpClaim(FIRST_WORK_ITEM_ID).claimId,
+        expectedOwnershipRevision: 1,
+      });
+    },
+  );
+
+  it('hides retained case evidence after a defect and offers an explicit read retry', async () => {
+    const getOwnedCaseSummary = vi
+      .fn<GetOwnedFollowUpCaseSummary['getOwnedCaseSummary']>()
+      .mockResolvedValueOnce({
         ok: true,
         summary: resolverFollowUpCaseSummary(
           FIRST_WORK_ITEM_ID,
           'Private evidence',
         ),
-      }),
-      release,
+      })
+      .mockRejectedValueOnce(new Error('private context sentinel'))
+      .mockResolvedValueOnce({
+        ok: true,
+        summary: resolverFollowUpCaseSummary(
+          FIRST_WORK_ITEM_ID,
+          'Fresh evidence',
+        ),
+      });
+    renderOwned({
+      listOwned: async () =>
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      getOwnedCaseSummary,
     });
-
     fireEvent.click(
       await screen.findByRole('button', { name: 'Open resolver console' }),
     );
     expect(await screen.findByText('Private evidence')).toBeTruthy();
     fireEvent.click(
-      screen.getByRole('button', { name: 'Release to shared queue' }),
+      screen.getByRole('button', { name: 'Recheck current claim' }),
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Confirm release' }));
+    expect(
+      await screen.findByRole('heading', {
+        name: 'The workbench could not read case context.',
+      }),
+    ).toBeTruthy();
     expect(screen.queryByText('Private evidence')).toBeNull();
+    expect(screen.queryByText(/private context sentinel/)).toBeNull();
+    expect(getOwnedCaseSummary).toHaveBeenCalledTimes(2);
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Try release again' }),
+      screen.getByRole('button', { name: 'Try case context again' }),
     );
-
-    const successNotice = await screen.findByRole('status', {
-      name: 'Follow-up released',
-    });
-    await waitFor(() => expect(document.activeElement).toBe(successNotice));
-    expect(release).toHaveBeenCalledTimes(2);
-    expect(release.mock.calls[1]?.[0]).toEqual(release.mock.calls[0]?.[0]);
+    expect(await screen.findByText('Fresh evidence')).toBeTruthy();
+    expect(getOwnedCaseSummary).toHaveBeenCalledTimes(3);
   });
 
   it('lazily reveals validated case context and renders evidence as text', async () => {

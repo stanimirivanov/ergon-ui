@@ -21,6 +21,10 @@ Own confidential-browser BFF execution and follow-up remote-cache integration.
   including single-flight acquisition and compare-and-clear invalidation.
 - Follow-up RTK Query cache identity, request lifecycle, tag invalidation, and
   generated React hooks.
+- A safe cache-boundary `unexpected-defect` outcome for thrown/rejected clients
+  and missing dependency bindings, without serializing or logging their causes.
+- Closed failure normalization that keeps only known kinds and valid integer
+  HTTP statuses; malformed errors do not become invalid server responses.
 
 Case-summary cache entries use the full tenant, work-item, case, and run request
 tuple. A different tuple must fetch and pass BFF response validation before it
@@ -45,6 +49,18 @@ Consumers import the BFF client factory, typed client contracts,
 follow-up model values without exposing Effect programs or wire DTOs.
 Composition roots provide executable operation dependencies through Redux
 thunk extra arguments and register the API reducer and middleware.
+
+The public failure normalizers accept unknown cache/framework errors and return
+the operation's closed failure contract. Extra name, message, stack, body, and
+cause fields are discarded. Direct client calls can still reject unexpected
+defects; all five RTK Query operations contain those defects as `unexpected-defect`.
+The cache adds no retry and never infers cancellation from an aborted signal.
+Normalizers recognize only RTK's plain, two-field `AbortError`/`Aborted`
+cancellation fingerprint; exceptions and surplus fields are defects. Catches
+never inspect thrown errors for that fingerprint.
+Claim/release defects leave write outcomes uncertain: any explicit replay keeps
+the caller's original command/claim identity and expected revision. Invalidation,
+timeouts, read retry policy, and typed client cancellation remain unchanged.
 
 ## Verification
 

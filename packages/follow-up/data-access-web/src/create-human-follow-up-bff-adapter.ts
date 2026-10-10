@@ -35,6 +35,9 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
  * returned adapter and is discarded when the server rejects it. Caller
  * cancellation interrupts Effect, propagates to the signal supplied to fetch,
  * and returns the operations' typed cancellation failure.
+ * Returned operations can reject unexpected implementation defects. The RTK
+ * Query integration contains those rejections without disclosing their details;
+ * direct callers must not treat rejection as proof that a mutation did not occur.
  *
  * The adapter instance owns its in-memory CSRF state. Create it for one
  * browser-session composition lifetime and discard it when that session is

@@ -1,8 +1,10 @@
-import { useResolverFollowUpCaseSummaryQuery } from '@ergon/follow-up-data-access-web';
+import {
+  normalizeResolverFollowUpCaseSummaryFailure,
+  useResolverFollowUpCaseSummaryQuery,
+} from '@ergon/follow-up-data-access-web';
 import { Button } from '@ergon/ui-web';
 import type { ReactNode } from 'react';
 
-import { normalizeFollowUpCaseSummaryFailure } from './follow-up-failure-normalization';
 import { caseSummaryFailureCopy } from './resolver-follow-up-case-summary-copy';
 import { ResolverFollowUpCaseSummaryView } from './resolver-follow-up-case-summary-view';
 
@@ -47,7 +49,7 @@ export function ResolverFollowUpCaseSummary({
 
   // RTK Query retains previous data after a failed refetch; failure wins here.
   if (result.isError || result.data === undefined) {
-    const failure = normalizeFollowUpCaseSummaryFailure(result.error);
+    const failure = normalizeResolverFollowUpCaseSummaryFailure(result.error);
     const copy = caseSummaryFailureCopy(failure);
     const action =
       failure.kind === 'authentication-required' ? (

@@ -193,6 +193,15 @@ entering application state. Tagged UI errors distinguish authentication,
 authorization, absence, conflict, invalid input, timeout, network failure,
 invalid response, and unexpected defects.
 
+Cache integration catches client and binding defects before framework logging or
+serialization, returning only `unexpected-defect`. Capability-owned normalizers
+copy recognized fields and validate status-bearing failures; they do not treat
+unknown errors as invalid responses. Expected cancellation is distinct, and a
+concurrent abort does not make a caught defect safe to classify as cancellation.
+Mutations remain uncertain after a defect and retain their exact explicit replay
+intent. Pending/failed session rechecks outrank a retained actor response. See
+[ADR 0024](decisions/0024-contain-client-defects-at-cache-boundaries.md).
+
 Owned-work pages are structurally decoded before the follow-up model checks
 that each claim belongs to its paired work item. Owned case context is a
 read-only confidential-BFF projection. Data access checks response identity

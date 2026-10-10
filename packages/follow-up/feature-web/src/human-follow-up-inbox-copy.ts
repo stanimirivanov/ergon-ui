@@ -72,6 +72,12 @@ const INBOX_FAILURE_COPY = {
   'service-unavailable': TEMPORARY_INBOX_FAILURE,
   'unexpected-response': UNUSABLE_INBOX_RESPONSE,
   'invalid-response': UNUSABLE_INBOX_RESPONSE,
+  'unexpected-defect': {
+    title: 'The workbench could not read the inbox.',
+    description:
+      'An unexpected workbench problem interrupted this read. No follow-up data is displayed. Try again explicitly or contact an operator if it continues.',
+    canRetry: true,
+  },
   'request-cancelled': UNUSABLE_INBOX_RESPONSE,
 } satisfies Readonly<Record<HumanFollowUpFailure['kind'], FollowUpFailureCopy>>;
 
@@ -153,6 +159,12 @@ const CLAIM_FAILURE_COPY = {
   'service-unavailable': AMBIGUOUS_CLAIM_RESULT,
   'unexpected-response': UNUSABLE_CLAIM_RESPONSE,
   'invalid-response': UNUSABLE_CLAIM_RESPONSE,
+  'unexpected-defect': {
+    title: 'The workbench could not confirm the claim result.',
+    description:
+      'An unexpected workbench problem interrupted this command. Ownership may already have been recorded. Retry only this same command to recover its recorded result, or contact an operator if it continues.',
+    canRetry: true,
+  },
   'request-cancelled': UNUSABLE_CLAIM_RESPONSE,
 } satisfies Readonly<
   Record<HumanFollowUpClaimFailure['kind'], FollowUpFailureCopy>

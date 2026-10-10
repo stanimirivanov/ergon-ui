@@ -252,6 +252,11 @@ export const ownedContextGuide: GuideChapter = {
   ],
   troubleshooting: [
     {
+      symptom: 'The case-context read reports an unexpected workbench error.',
+      guidance:
+        'Do not use retained evidence as current access. Try case context again performs an explicit fresh owner-scoped read; contact an operator if the defect persists. This is a client or dependency defect, not a malformed BFF response or proof that ownership changed. Private context remains hidden. The defect path is tested at cache/component boundaries, not represented as a synthetic HTTP status in this walkthrough.',
+    },
+    {
       symptom:
         'Active work becomes temporarily unavailable while the console is open.',
       guidance:

@@ -4,6 +4,8 @@ import type {
   ResolverOwnedHumanFollowUpQuery,
 } from '@ergon/follow-up-data-access-web';
 import {
+  normalizeHumanFollowUpFailure,
+  normalizeHumanFollowUpReleaseFailure,
   useReleaseHumanFollowUpMutation,
   useResolverOwnedHumanFollowUpsQuery,
 } from '@ergon/follow-up-data-access-web';
@@ -12,10 +14,6 @@ import { Button } from '@ergon/ui-web';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 
-import {
-  normalizeFollowUpReadFailure,
-  normalizeFollowUpReleaseFailure,
-} from './follow-up-failure-normalization';
 import { FollowUpMessage } from './follow-up-message';
 import { ResolverFollowUpConsole } from './resolver-follow-up-console';
 import { ownedWorkFailureCopy } from './resolver-owned-human-follow-ups-copy';
@@ -171,7 +169,7 @@ export function ResolverOwnedHumanFollowUpsPage({
       setReleaseNotice({
         kind: 'failure',
         command,
-        failure: normalizeFollowUpReleaseFailure(result.error),
+        failure: normalizeHumanFollowUpReleaseFailure(result.error),
       });
     }
   }
@@ -205,7 +203,7 @@ export function ResolverOwnedHumanFollowUpsPage({
   // RTK Query can retain successful data after a failed refetch. A stale
   // owned page cannot authorize the selected private case read.
   if (ownedWork.isError || ownedWork.data === undefined) {
-    const failure = normalizeFollowUpReadFailure(ownedWork.error);
+    const failure = normalizeHumanFollowUpFailure(ownedWork.error);
     const copy = ownedWorkFailureCopy(failure);
     const action =
       failure.kind === 'authentication-required' ? (

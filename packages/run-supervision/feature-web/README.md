@@ -22,6 +22,12 @@ not a client application core or an execution-control surface.
   A selected terminal run may remain readable after leaving active discovery
   only while an exact assigned-run read still succeeds.
 - Capability-specific failure copy and use of the app-composed sign-in URL.
+  Cache errors are normalized by data access before the closed failure/recovery
+  mapping selects sign-in, an explicit read retry, traversal reset, or no action.
+  Reset starts a fresh first-page read and discards selection and cursor history,
+  including when the rejected request was already for the first page.
+  Unexpected defects are distinct from malformed responses and never trigger an
+  automatic retry.
 
 ## Does not own
 
