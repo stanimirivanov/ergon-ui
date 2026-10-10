@@ -54,16 +54,16 @@ Dependency resolution is a separate networked, mutating bootstrap step:
 
 ## Feedback sensors
 
-| Command                   | What it proves                                                                                                                     | Tier  |
-| :------------------------ | :--------------------------------------------------------------------------------------------------------------------------------- | :---- |
-| `pnpm repository:check`   | Local Markdown navigation, TL;DR policy, ADR lifecycle/index integrity, and issue/PR template contracts                            | T1    |
-| `pnpm architecture:check` | Nx project metadata, capability paths and package names, platform boundaries, application-core approvals, and dependency direction | T1    |
-| `pnpm verify:workspace`   | Formatting, linting, type checking, unit/component behavior, and production builds                                                 | T2    |
-| `pnpm e2e`                | Critical resolver behavior in Chromium                                                                                             | T3    |
-| `pnpm guide:check`        | User-guide manifest, content, and media-path validation tests                                                                      | T1    |
-| `pnpm guide:generate`     | Tagged browser recording, fixture-network isolation, and static-book generation                                                    | T3    |
-| `User guide artifact` CI  | Regenerated, validated simulated book uploaded for review; `main` alone packages and deploys it to Pages after repository setup    | T3    |
-| `pnpm verify`             | The complete current local acceptance sequence                                                                                     | T1–T3 |
+| Command                   | What it proves                                                                                                                  | Tier  |
+| :------------------------ | :------------------------------------------------------------------------------------------------------------------------------ | :---- |
+| `pnpm repository:check`   | Local Markdown navigation, TL;DR policy, ADR lifecycle/index integrity, and issue/PR template contracts                         | T1    |
+| `pnpm architecture:check` | Nx metadata/dependencies and adversarial tests of the frontend lint configuration                                               | T1    |
+| `pnpm verify:workspace`   | Formatting, linting, type checking, unit/component behavior, and production builds                                              | T2    |
+| `pnpm e2e`                | Critical resolver behavior in Chromium                                                                                          | T3    |
+| `pnpm guide:check`        | User-guide manifest, content, and media-path validation tests                                                                   | T1    |
+| `pnpm guide:generate`     | Tagged browser recording, fixture-network isolation, and static-book generation                                                 | T3    |
+| `User guide artifact` CI  | Regenerated, validated simulated book uploaded for review; `main` alone packages and deploys it to Pages after repository setup | T3    |
+| `pnpm verify`             | The complete current local acceptance sequence                                                                                  | T1–T3 |
 
 Focused project checks remain useful during editing but do not replace an
 applicable aggregate before handoff.
@@ -94,6 +94,57 @@ core-repository and review responsibility.
 Raw HTML, comments, code fences, and image-only text cannot satisfy required
 visible fields. External URL availability, factual accuracy, and prose
 freshness remain outside this deterministic offline sensor.
+
+## Frontend architecture feedback
+
+[Engineering standards](engineering-standards.md#react-and-routing) define
+cohesive route/workspace boundaries, one owner per kind of state, explicit
+shell/pane contracts, and private-disclosure lifecycle evidence. The pull-request
+template requires UI scope/deferred findings, state/replay intent, and
+shell/focus/request boundaries; repository policy rejects removed or hidden
+prompts and checklist items.
+
+The [shared ESLint configuration](../../tools/frontend-boundary-rules.mjs)
+uses the pinned built-in import restriction and React Hooks plugin:
+
+- app, feature, and UI source cannot import Effect execution namespaces or
+  runtime subpaths, including literal dynamic/CommonJS access; named Schema and
+  erased type imports remain allowed;
+- hook order and dependency correctness are errors in presentation and
+  data-access hook source, including package-local lint configurations.
+
+[Adversarial tests](../../tools/frontend-boundary-rules.test.mjs), included in
+`pnpm architecture:check`, exercise the actual root/project configurations,
+aliases, namespace/subpath access, allowed decoding/type imports, permitted
+data-access runners, hook order, and missing dependencies. Workspace lint checks
+the actual source. Configuration tests alone do not establish source compliance.
+The shared configuration is explicitly included in `namedInputs.sharedGlobals`
+in `nx.json`: Nx does not recursively hash imported ESLint helpers. Changing it
+invalidates default-based target caches, including source lint, without replacing
+inferred inputs or creating an otherwise unused Nx custom-rule plugin.
+Computed specifiers and indirect runtime acquisition require semantic review;
+these rules are not an execution sandbox.
+
+These sensors deliberately do not infer state meaning from variable names,
+enforce file/class counts, prohibit native semantic controls, or require every
+cursor to be shareable. Accepted ADRs govern cursor privacy and immutable replay
+intent. They also do not prove safe error serialization or request/focus lifetime.
+Those require owning behavioral tests and the semantic review:
+
+| Boundary                   | Required evidence when affected                                                                                                                                                             |
+| :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Effect/client to RTK Query | Sentinel defects/missing bindings stay out of cache, actions and raw logs; typed protocol failures remain distinct; abort does not hide a concurrent defect.                                |
+| Private disclosure         | Pending/fulfilled immediate reopen, obsolete responses, failed revalidation, tenant/query changes, StrictMode and owned-request cleanup preserve fresh access and hide-before-I/O ordering. |
+| Failure presentation       | Closed failure/action mapping and executable sign-in, retry, reset or replay behavior; no advertised unavailable action.                                                                    |
+| Modal and focus            | Keyboard/Escape, return focus, filtering, unmount and authority-driven disappearance retire focus/timer work; long content and narrow reflow remain usable.                                 |
+| Shell and panes            | Explicit app-owned chrome and outer layout; complete loading/failure/populated surfaces at desktop, narrow width and zoom.                                                                  |
+
+Existing documented `flushSync` ordering and feature-class chrome selectors
+remain known migration debt, not proof of completed cleanup or permission for
+new copies. The [scoped remediation plan](plans/resolver-console-architecture-remediation.md)
+orders their replacement while retaining their current safety regressions.
+It defers unrelated landing/session/inbox decomposition until those pages are
+redesigned. Do not turn a deferred finding into a broad suppression.
 
 ## Steering loop
 

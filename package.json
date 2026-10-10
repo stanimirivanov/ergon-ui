@@ -11,7 +11,7 @@
     "dev": "nx dev @ergon/workbench",
     "build": "nx build @ergon/workbench",
     "repository:check": "node --test tools/repository-policy/repository-policy.test.mjs && node tools/verify-repository-policy.mjs",
-    "architecture:check": "node --test tools/project-boundary-policy.test.mjs && node tools/verify-project-boundaries.mjs",
+    "architecture:check": "node --test tools/project-boundary-policy.test.mjs tools/frontend-boundary-rules.test.mjs && node tools/verify-project-boundaries.mjs",
     "format": "nx format:write",
     "format:check": "nx format:check",
     "lint": "nx run-many -t lint",

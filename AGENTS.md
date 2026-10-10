@@ -80,6 +80,11 @@ useful feedback loop. Run `pnpm repository:check` and
   Do not add documentation merely to satisfy a count.
 - Use semantic HTML first, keyboard-visible focus, reduced-motion behavior, and
   accessible names. Color and animation cannot be the only state signal.
+- Review cohesive route/pane/controller boundaries, state ownership, safe
+  failure mapping, request retirement, and explicit shell/focus contracts.
+  Do not enforce line/class quotas or move private cursors into URLs against
+  accepted ADRs. Apply legacy findings when that page is redesigned; new code
+  must follow the current criteria.
 
 ## Security
 

@@ -379,6 +379,31 @@ test('PR prompts in code fences and image-only checklist text do not satisfy pol
   );
 });
 
+test('frontend architecture prompts and checklist cannot be removed or hidden', () => {
+  for (const marker of [
+    '- UI scope and deferred redesign findings:',
+    '- State owners and immutable command intent:',
+    '- Shell, pane, focus, and request-lifecycle boundaries:',
+    '- [ ] Effect execution and unexpected failures stay behind safe data-access/cache boundaries.',
+  ]) {
+    const repository = loadRepository(repositoryRoot);
+    const document = repository.documentsByPath.get(
+      '.github/PULL_REQUEST_TEMPLATE.md',
+    );
+    const altered = parseMarkdown(
+      document.path,
+      document.body.replace(marker, `<!-- ${marker} -->`),
+    );
+    repository.documentsByPath.set(altered.path, altered);
+    assert.ok(
+      checkTemplates(repository).some(
+        (value) => value.rule === 'template.pull-request',
+      ),
+      marker,
+    );
+  }
+});
+
 test('the checked-in repository satisfies repository policy', () => {
   const result = checkRepository(repositoryRoot);
   assert.deepEqual(
