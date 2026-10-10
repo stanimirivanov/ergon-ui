@@ -21,6 +21,9 @@
 
 - Dependency edges added or removed:
 - Why changed responsibilities belong to their proposed owners:
+- UI scope and deferred redesign findings:
+- State owners and immutable command intent:
+- Shell, pane, focus, and request-lifecycle boundaries:
 
 ## Verification
 
@@ -48,6 +51,9 @@ Checks not run, blocking conditions, and residual risk:
 - [ ] New package paths follow the capability-first convention; any legacy-path or application-core ledger entry is justified.
 - [ ] Application projects contain executable use-case behavior; any direct feature-to-data-access dependency is deliberate.
 - [ ] Cross-project imports use public APIs; project tags and READMEs are current.
+- [ ] Route/workspace composition, state ownership, and deferred UI scope were reviewed without numeric size quotas.
+- [ ] Effect execution and unexpected failures stay behind safe data-access/cache boundaries.
+- [ ] Shell/pane contracts and request/modal/focus cleanup have relevant behavioral evidence.
 - [ ] Loading, empty, negative, and failure states are covered where relevant.
 - [ ] Semantic HTML, keyboard access, focus, zoom, and reduced motion were reviewed.
 - [ ] Tenant, authentication, authorization, and sensitive-data risks were reviewed.

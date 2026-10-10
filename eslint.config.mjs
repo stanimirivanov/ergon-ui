@@ -1,5 +1,7 @@
 import nx from '@nx/eslint-plugin';
 
+import { frontendBoundaryConfigs } from './tools/frontend-boundary-rules.mjs';
+
 export default [
   ...nx.configs['flat/base'],
   ...nx.configs['flat/typescript'],
@@ -153,4 +155,5 @@ export default [
     // Override or add rules here
     rules: {},
   },
+  ...frontendBoundaryConfigs,
 ];

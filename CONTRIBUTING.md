@@ -206,6 +206,9 @@ comment for every export or reward boilerplate.
 
 - Components render behavior; route modules compose features; data access stays
   outside presentational primitives.
+- Route and workspace components delegate cohesive panes, inspectors, forms,
+  and recovery flows rather than combining them with routing and request
+  plumbing. Review responsibility and lifetime, not line or utility-class quotas.
 - Effects triggered by user intent belong in event handlers. `useEffect` is for
   synchronization with an external system, not derived state.
 - Preserve semantic landmarks, heading order, label associations, keyboard
@@ -214,6 +217,30 @@ comment for every export or reward boilerplate.
   `@ergon/ui-web`; feature compositions stay with the feature.
 - Use semantic design tokens rather than scattering literal product colors.
   Motion supplements meaningful state transitions; CSS handles simple effects.
+
+## Frontend architecture review
+
+UI pull requests MUST identify the redesigned surfaces, necessary integration
+seams, and legacy findings deliberately deferred until those pages are
+redesigned. Deferral does not authorize new debt. Record state owners and
+lifetimes, shell/pane/primitive ownership, and request/focus cleanup in the
+architecture delta; use the detailed [engineering criteria](docs/development/engineering-standards.md#react-and-routing).
+
+- Remote resources remain RTK Query-owned. Private selection uses an exact
+  identity and derives the current row; immutable command/retry intent and
+  historical receipt feedback are not a second resource cache.
+- Shareable navigation belongs in the URL. Private identities and short-lived
+  keyset cursors follow their accepted ADRs; changing that choice requires a
+  reviewed superseding decision, not a blanket URL-state rule.
+- Effect runtime execution stays behind data access. Unexpected defects MUST
+  be contained before RTK Query serializes or logs them and MUST NOT be
+  misreported as invalid server responses.
+- App chrome and outer layout use explicit composition contracts, never
+  selectors that infer shell mode from a feature class. Modal/focus behavior
+  belongs to reviewed UI primitives; native semantic elements are valid.
+- Tests prove cancellation, fresh disclosure, hide-before-I/O ordering, error
+  recovery, keyboard/focus cleanup, and responsive reflow where affected.
+  A green dependency graph or extracted file alone does not prove these.
 
 ## Security and privacy
 

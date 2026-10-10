@@ -48,6 +48,10 @@ dependency edge changes.
   and deliberate limits.
 - [Coding harness](development/harness.md) inventories guidance, feedback
   tiers, repository policy, and the steering loop.
+- [Resolver Console remediation plan](development/plans/resolver-console-architecture-remediation.md)
+  scopes the verified architectural findings to redesigned Consoles and records
+  the remaining findings for their future page redesigns. Consult it before
+  changing either Console or assuming its planned fixes are delivered.
 - [ADRs](decisions/README.md) preserve durable UI decisions and their lifecycle.
 - [Security policy](../SECURITY.md) defines private reporting and expectations
   for security-sensitive changes.

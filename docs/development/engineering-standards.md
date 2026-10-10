@@ -104,6 +104,48 @@ Use React Router Data Mode for hierarchy, URL state, navigation, and route
 errors. Use real links for navigation and buttons for actions. Route loaders
 may establish navigation prerequisites but do not duplicate RTK Query data.
 
+Routes bridge parameters, URL state, and layout composition; feature workspaces
+compose cohesive capability sections. Extract a pane, inspector, workflow, or
+controller when it owns a distinct responsibility or interaction lifetime, not
+when a file crosses a numeric threshold. Moving a monolith into a custom hook
+without separating responsibilities is not deconstruction. Presentational
+sections receive explicit view state and callbacks rather than executing HTTP
+or decoding protocols.
+
+Keep low-level row expansion, popovers, local tabs, and observation selection
+with the section that owns them. Store only the exact identity needed to select
+a remote row and derive that row from the current authorized query. Include
+claim/revision coordinates when claim ID alone cannot preserve the disclosure
+contract. Derive visibility from the same selection/workflow owner; do not mirror
+it in another boolean synchronized through callbacks or effects.
+
+Shareable filters, search, and sorting belong in URL parameters. Not every
+pagination cursor is shareable: ADRs 0004, 0006, and 0023 deliberately keep exact
+keyset traversal local. Preserve paired cursor values and private selections
+until a superseding ADR changes their lifetime and disclosure meaning. Stateful
+editable forms use React Hook Form; a native navigation form with no owned
+field/error/touched state does not justify installing a form framework.
+
+Prefer declarative RTK subscriptions. When fresh private disclosure requires
+pending-request retirement or sequencing beyond ordinary refetching, encapsulate
+that mechanism in a tested cache integration hook; capability selection and
+workflow phases stay in the feature. Promise/request refs are lifecycle handles,
+not cached resource copies. Neither `refetchOnMountOrArgChange` nor `skip` alone
+proves an immediate close/reopen obtains a distinct authorization check.
+Releasing one subscription must not cancel a shared request still needed by
+another reader. Explicit abort requires request ownership; fresh-disclosure
+sequencing must account for shared same-key pending requests.
+
+Pending or failed revalidation must outrank retained data when rendering private
+content. Use the current request identity and `currentData`, not previous-argument
+`data`; successful retained data alone is not continuing authority. Release or
+recheck workflows must prove private DOM is hidden before I/O starts, including
+synchronous responses. Prefer explicit committed workflow phases over
+`flushSync`; any necessary escape hatch needs a reason and ordering regression.
+Retire callbacks, timers, subscriptions, and focus work on unmount or replacement,
+including StrictMode. Do not remove an existing safety mechanism merely to make
+the source look declarative.
+
 ## Data and Effect
 
 RTK Query owns server cache, request status, deduplication, polling, tags, and
@@ -116,6 +158,35 @@ bounded retry, cancellation, and tagged error translation. Connect RTK Query's
 abort signal to Effect interruption. Do not retry permanent errors or mutations
 without a server-backed idempotency guarantee. Never add an Effect cache beside
 RTK Query.
+
+Mutation command IDs, expected revisions, and exact replay tuples are immutable
+user intent and may remain in local workflow state. Receipt-based notices may
+describe a historical result; they must not become current ownership/resource
+truth. Derive whether feedback is superseded from the current query rather than
+synchronizing a second resource snapshot through effects.
+
+Effect runtimes and runners are confined to data access, never event handlers,
+render paths, or effects in app, feature, or UI projects. Pure schema validation
+is not runtime execution, but URL/protocol decoding still belongs at its owning
+boundary rather than becoming presentation responsibility.
+
+Expected failures are typed outcomes. Clients may reject unexpected defects, but
+every RTK `queryFn`/base-query integration must contain them before framework
+serialization and logging. Return a capability-safe unexpected-defect outcome
+without raw name, message, stack, response body, or cause. Do not convert defects
+into transport/invalid-response errors, retry them automatically, or add an
+unreviewed diagnostics channel. For mutations, preserve uncertainty and exact
+replay intent rather than implying that a rejected callback means no write.
+Keep the original command ID, claim coordinates, and expected revision for any
+permitted explicit replay; never mint a replacement command merely because its
+callback rejected.
+
+Normalize a framework error once at the capability boundary, then handle the
+closed failure union explicitly. Model recovery actions alongside failure copy:
+sign-in, reset traversal, retry read, exact command replay, or no action. A message
+must not advertise an action that the view cannot perform. Status-bearing errors
+must validate their required fields; ad-hoc `kind in error` probes are not typed
+normalization. Exhaustive records are valid even when a later lookup uses a Map.
 
 ## Accessibility and interaction
 
@@ -147,6 +218,21 @@ own product meaning such as canvas, surface, ink, accent, risk, and state.
 `@ergon/ui-web` owns reviewed shadcn primitives and DOM behavior. Feature
 packages own compositions and domain wording. Do not fork a primitive for a
 one-off color or spacing change when a variant expresses a stable meaning.
+
+The app owns shell mode, navigation, branding, and viewport allocation through
+explicit typed composition. A feature must not hide app chrome through a CSS
+class contract or assume a parent's header height in a viewport subtraction.
+Pane composition uses named slots or cohesive components, never an undocumented
+fragment whose number/order of siblings completes a parent's grid.
+
+Parents own outer spacing and placement; reusable content owns its internal
+padding and gaps. Primitive positioning belongs to the primitive when it is
+part of the interaction contract, such as a modal overlay. Reuse reviewed focus,
+toggle, link-button, and disclosure styling where current consumers have the
+same semantics. Native `dialog`/`details` are not prohibited and Radix is not
+mandatory: modal focus trapping, Escape, return focus, and lifecycle cleanup must
+be owned and tested by a reviewed UI primitive rather than repeated in features.
+Create no unused Dialog/Disclosure/Input catalog merely to reduce class counts.
 
 ## Testing and verification
 
