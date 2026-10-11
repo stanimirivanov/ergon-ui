@@ -1,208 +1,66 @@
-import type {
-  HumanFollowUpReleaseCommand,
-  ResolverOwnedHumanFollowUpCursor,
-  ResolverOwnedHumanFollowUpQuery,
-} from '@ergon/follow-up-data-access-web';
-import {
-  normalizeHumanFollowUpFailure,
-  normalizeHumanFollowUpReleaseFailure,
-  useReleaseHumanFollowUpMutation,
-  useResolverOwnedHumanFollowUpsQuery,
-} from '@ergon/follow-up-data-access-web';
-import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-model';
+import { normalizeHumanFollowUpFailure } from '@ergon/follow-up-data-access-web';
 import { Button } from '@ergon/ui-web';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { flushSync } from 'react-dom';
+import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 
 import { FollowUpMessage } from './follow-up-message';
 import { ResolverFollowUpConsole } from './resolver-follow-up-console';
 import { ownedWorkFailureCopy } from './resolver-owned-human-follow-ups-copy';
-import {
-  type ReleaseNotice,
-  ResolverOwnedHumanFollowUpsList,
-} from './resolver-owned-human-follow-ups-view';
+import { ResolverOwnedHumanFollowUpsList } from './resolver-owned-human-follow-ups-view';
+import type { OwnedFollowUpWorkflow } from './use-owned-follow-up-workflow';
 
-const PAGE_SIZE = 25;
-
-interface PagePosition {
-  readonly cursor?: ResolverOwnedHumanFollowUpCursor;
-  readonly history: readonly (ResolverOwnedHumanFollowUpCursor | null)[];
-}
-
-/** Owns active-work requests and reversible claim-cursor navigation. */
+/** Presents the owned workflow; requests and disclosure transitions have one controller owner. */
 export function ResolverOwnedHumanFollowUpsPage({
   tenantId,
   signInHref,
   consoleActorDetails,
-  selectedWork,
-  returnFocusToWorkItemId,
+  workflow,
   onMissingReturnFocus,
-  onSelectWork,
 }: {
   readonly tenantId: string;
   readonly signInHref: string;
   readonly consoleActorDetails: ReactNode;
-  readonly selectedWork: ResolverOwnedHumanFollowUpWork | null;
-  readonly returnFocusToWorkItemId: string | null;
+  readonly workflow: OwnedFollowUpWorkflow;
   readonly onMissingReturnFocus: () => void;
-  readonly onSelectWork: (item: ResolverOwnedHumanFollowUpWork | null) => void;
-}) {
-  const [position, setPosition] = useState<PagePosition>({ history: [] });
-  const [releaseNotice, setReleaseNotice] = useState<ReleaseNotice>();
-  const [consoleReleaseFocusId, setConsoleReleaseFocusId] = useState<
-    string | null
-  >(null);
-  const [isClaimRechecking, setIsClaimRechecking] = useState(false);
+}): ReactElement {
+  const { ownedWork, isConsoleOpen, currentSelection } = workflow;
   const readFailureHeading = useRef<HTMLHeadingElement>(null);
-  const [releaseHumanFollowUp, releaseRequest] =
-    useReleaseHumanFollowUpMutation();
-  const query: ResolverOwnedHumanFollowUpQuery = {
-    tenantId,
-    limit: PAGE_SIZE,
-    ...(position.cursor === undefined ? {} : { cursor: position.cursor }),
-  };
-  const ownedWork = useResolverOwnedHumanFollowUpsQuery(query);
-  const currentSelection =
-    selectedWork === null
-      ? undefined
-      : ownedWork.data?.items.find((item) =>
-          isExactSelectedClaim(item, selectedWork),
-        );
-
   useEffect(() => {
-    if (selectedWork !== null && ownedWork.isError) {
-      readFailureHeading.current?.focus();
-    }
-  }, [selectedWork, ownedWork.isError]);
-
-  useEffect(() => {
-    if (
-      selectedWork === null &&
-      returnFocusToWorkItemId !== null &&
-      ownedWork.isError
-    ) {
-      onMissingReturnFocus();
+    if (ownedWork.isError) {
+      if (isConsoleOpen) readFailureHeading.current?.focus();
+      else if (workflow.returnFocusToWorkItemId !== null)
+        onMissingReturnFocus();
     }
   }, [
-    selectedWork,
-    returnFocusToWorkItemId,
     ownedWork.isError,
+    isConsoleOpen,
+    workflow.returnFocusToWorkItemId,
     onMissingReturnFocus,
   ]);
 
-  useEffect(() => {
-    // A refreshed owned page may withdraw or replace a claim. Unmount its
-    // private summary before showing any newly observed work.
-    if (
-      selectedWork !== null &&
-      !ownedWork.isFetching &&
-      !ownedWork.isError &&
-      (ownedWork.data === undefined || currentSelection === undefined)
-    ) {
-      onSelectWork(null);
-    }
-  }, [
-    selectedWork,
-    ownedWork.isFetching,
-    ownedWork.isError,
-    ownedWork.data,
-    currentSelection,
-    onSelectWork,
-  ]);
-
-  useEffect(() => {
-    // A later claim can return this work to the owned list. Its server revision
-    // retires feedback about the earlier release, even across cached pages.
-    if (
-      releaseNotice?.kind === 'success' &&
-      ownedWork.data?.items.some(
-        (item) =>
-          item.workItem.workItemId === releaseNotice.workItemId &&
-          item.workItem.ownershipRevision > releaseNotice.ownershipRevision,
-      )
-    ) {
-      setReleaseNotice(undefined);
-    }
-  }, [releaseNotice, ownedWork.data]);
-
-  async function release(item: ResolverOwnedHumanFollowUpWork): Promise<void> {
-    setConsoleReleaseFocusId(null);
-    return submitRelease(releaseCommand(tenantId, item));
-  }
-
-  function releaseFromConsole(item: ResolverOwnedHumanFollowUpWork): void {
-    // The private summary must leave the DOM before the release POST begins.
-    // React normally batches event updates, so force this disclosure boundary.
-    const command = releaseCommand(tenantId, item);
-    flushSync(() => {
-      setConsoleReleaseFocusId(item.workItem.workItemId);
-      onSelectWork(null);
-    });
-    void submitRelease(command);
-  }
-
-  function recheckCurrentClaim(): void {
-    // A fast owned-work response may skip React's fetching render entirely.
-    // Unmount private context before requesting, then remount its query only
-    // after the ownership result has settled.
-    flushSync(() => setIsClaimRechecking(true));
-    void ownedWork.refetch().then(
-      () => setIsClaimRechecking(false),
-      () => setIsClaimRechecking(false),
-    );
-  }
-
-  async function submitRelease(
-    command: HumanFollowUpReleaseCommand,
-  ): Promise<void> {
-    setReleaseNotice(undefined);
-    const result = await releaseHumanFollowUp(command);
-    if (result.data !== undefined) {
-      setReleaseNotice({
-        kind: 'success',
-        claimId: command.claimId,
-        workItemId: command.workItemId,
-        ownershipRevision: result.data.ownershipRevision,
-      });
-      setPosition({ history: [] });
-    } else {
-      setReleaseNotice({
-        kind: 'failure',
-        command,
-        failure: normalizeHumanFollowUpReleaseFailure(result.error),
-      });
-    }
-  }
-
   if (
-    isClaimRechecking ||
+    workflow.isClaimRechecking ||
     ownedWork.isLoading ||
     (ownedWork.isFetching &&
-      (ownedWork.data === undefined || selectedWork !== null))
+      (ownedWork.currentData === undefined || isConsoleOpen))
   ) {
     return (
       <FollowUpMessage
         title="Loading your active work…"
         description="The control plane is checking current ownership and resolver authority."
         action={
-          selectedWork === null ? undefined : (
-            <Button
-              type="button"
-              variant="quiet"
-              onClick={() => onSelectWork(null)}
-            >
+          isConsoleOpen ? (
+            <Button type="button" variant="quiet" onClick={workflow.close}>
               Back to active work
             </Button>
-          )
+          ) : undefined
         }
         live
       />
     );
   }
 
-  // RTK Query can retain successful data after a failed refetch. A stale
-  // owned page cannot authorize the selected private case read.
-  if (ownedWork.isError || ownedWork.data === undefined) {
+  // A retained owned page cannot authorize private detail during a failed gate.
+  if (ownedWork.isError || ownedWork.currentData === undefined) {
     const failure = normalizeHumanFollowUpFailure(ownedWork.error);
     const copy = ownedWorkFailureCopy(failure);
     const action =
@@ -211,11 +69,7 @@ export function ResolverOwnedHumanFollowUpsPage({
           <a href={signInHref}>Sign in again</a>
         </Button>
       ) : failure.kind === 'invalid-page' ? (
-        <Button
-          type="button"
-          variant="quiet"
-          onClick={() => setPosition({ history: [] })}
-        >
+        <Button type="button" variant="quiet" onClick={workflow.resetPages}>
           Return to first claimed-work page
         </Button>
       ) : copy.canRetry ? (
@@ -232,28 +86,23 @@ export function ResolverOwnedHumanFollowUpsPage({
         title={copy.title}
         description={copy.description}
         action={
-          selectedWork === null ? (
-            action
-          ) : (
+          isConsoleOpen ? (
             <div className="flex flex-wrap gap-3">
               {action}
-              <Button
-                type="button"
-                variant="quiet"
-                onClick={() => onSelectWork(null)}
-              >
+              <Button type="button" variant="quiet" onClick={workflow.close}>
                 Back to active work
               </Button>
             </div>
+          ) : (
+            action
           )
         }
-        {...(selectedWork === null ? {} : { headingRef: readFailureHeading })}
+        {...(isConsoleOpen ? { headingRef: readFailureHeading } : {})}
       />
     );
   }
 
-  const { items, nextCursor } = ownedWork.data;
-  if (selectedWork !== null) {
+  if (isConsoleOpen) {
     return currentSelection === undefined ? (
       <FollowUpMessage
         title="Returning to active work…"
@@ -266,75 +115,31 @@ export function ResolverOwnedHumanFollowUpsPage({
         signInHref={signInHref}
         actorDetails={consoleActorDetails}
         item={currentSelection}
-        isReleasePending={releaseRequest.isLoading}
-        onBack={() => onSelectWork(null)}
-        onRecheckOwnership={recheckCurrentClaim}
-        onConfirmRelease={() => releaseFromConsole(currentSelection)}
+        isReleasePending={workflow.isReleasePending}
+        onBack={workflow.close}
+        onRecheckOwnership={workflow.recheck}
+        onConfirmRelease={() => workflow.releaseFromConsole(currentSelection)}
       />
     );
   }
-
+  const { items, nextCursor } = ownedWork.currentData;
   return (
     <ResolverOwnedHumanFollowUpsList
       signInHref={signInHref}
       items={items}
-      releaseNotice={releaseNotice}
-      pendingClaimId={
-        releaseRequest.isLoading
-          ? releaseRequest.originalArgs?.claimId
-          : undefined
-      }
-      consoleReleaseFocusId={consoleReleaseFocusId}
+      releaseNotice={workflow.releaseNotice}
+      pendingClaimId={workflow.pendingClaimId}
+      consoleReleaseFocusId={workflow.consoleReleaseFocusId}
       isFetching={ownedWork.isFetching}
-      canGoBack={position.history.length > 0}
+      canGoBack={workflow.position.history.length > 0}
       canGoNext={nextCursor !== null}
-      onRelease={release}
-      onOpenConsole={onSelectWork}
-      returnFocusToWorkItemId={returnFocusToWorkItemId}
+      onRelease={workflow.release}
+      onOpenConsole={workflow.open}
+      returnFocusToWorkItemId={workflow.returnFocusToWorkItemId}
       onMissingReturnFocus={onMissingReturnFocus}
-      onRetryRelease={submitRelease}
-      onPrevious={() =>
-        setPosition((current) => {
-          const previous = current.history[current.history.length - 1];
-          const history = current.history.slice(0, -1);
-          return previous === null || previous === undefined
-            ? { history }
-            : { cursor: previous, history };
-        })
-      }
-      onNext={() => {
-        if (nextCursor !== null) {
-          setPosition((current) => ({
-            cursor: nextCursor,
-            history: [...current.history, current.cursor ?? null],
-          }));
-        }
-      }}
+      onRetryRelease={workflow.retryRelease}
+      onPrevious={workflow.previousPage}
+      onNext={workflow.nextPage}
     />
-  );
-}
-
-function releaseCommand(
-  tenantId: string,
-  item: ResolverOwnedHumanFollowUpWork,
-): HumanFollowUpReleaseCommand {
-  return {
-    tenantId,
-    workItemId: item.workItem.workItemId,
-    claimId: item.claim.claimId,
-    expectedOwnershipRevision: item.workItem.ownershipRevision,
-  };
-}
-
-function isExactSelectedClaim(
-  current: ResolverOwnedHumanFollowUpWork,
-  selected: ResolverOwnedHumanFollowUpWork,
-): boolean {
-  return (
-    current.claim.claimId === selected.claim.claimId &&
-    current.workItem.workItemId === selected.workItem.workItemId &&
-    current.workItem.caseId === selected.workItem.caseId &&
-    current.workItem.runId === selected.workItem.runId &&
-    current.workItem.ownershipRevision === selected.workItem.ownershipRevision
   );
 }

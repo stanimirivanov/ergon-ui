@@ -14,7 +14,7 @@ export const ownedContextGuide: GuideChapter = {
     'Resolvers returning to active work and reviewing an escalated case.',
   overview: [
     'Claimed follow-ups are recovered from the server-backed active-work view, not from a browser-stored claim. A card in that view identifies work currently visible under your resolver session, but its case evidence is a separate, owner-scoped read. The workbench requests the case summary only when you choose Open resolver console. Recheck current claim deliberately rereads ownership and case context while hiding prior evidence. Returning to active work closes the console; reopening it triggers another read because ownership and resolver authority can change while a page remains open. The selection is local to this page, not a shareable case route.',
-    'This walkthrough uses one synthetic owned follow-up with two source observations and a deliberately controlled BFF response. One observation was available at the run’s pinned evidence snapshot; the other was recorded later. The first context request returns that synthetic evidence, and a deliberate recheck returns it again. The third context request pauses and then returns the same neutral absence response used for several protected states. A later owned-work read returns an empty page. Those fixture choices illustrate the browser response, not why a real claim became unavailable. Every screenshot and the recording are labelled SIMULATED DATA; they do not verify OIDC, database transactions, authorization, or live revocation.',
+    'This walkthrough uses one synthetic owned follow-up with two source observations and a deliberately controlled BFF response. One observation was available at the run’s pinned evidence snapshot; the other was recorded later. The first context request returns that synthetic evidence, and a deliberate recheck returns it again. A third request pauses and is closed before completion. Reopening starts a distinct fourth check, which returns the same neutral absence response used for several protected states. A later owned-work read returns an empty page. Those fixture choices illustrate the browser response, not why a real claim became unavailable. Every screenshot and the recording are labelled SIMULATED DATA; they do not verify OIDC, database transactions, authorization, or live revocation.',
   ],
   prerequisites: [
     'In a deployed environment, sign in to the correct tenant with a registered resolver identity and current authority. The tenant URL, an old screenshot, and an earlier claim receipt are not ongoing authorization. This recording begins with a simulated verified session and does not perform a real login or claim.',
@@ -230,6 +230,34 @@ export const ownedContextGuide: GuideChapter = {
         'The loading message is visible and the earlier case goal and observation remain hidden.',
     },
     {
+      id: 'close-pending-case-context',
+      title: 'Close a context read that has not completed',
+      body: 'Choose Back to active work while Loading case context is still visible. Closing retires this disclosure, so a response from that read cannot reopen the Console or publish evidence into a later selection. This is not claim release. Ergon detaches its reader; a request still used by another active reader is not cancelled on that reader’s behalf.',
+      expected:
+        'The Console closes immediately while the owned card remains available.',
+    },
+    {
+      id: 'pending-context-closed',
+      title: 'Keep discovery separate from private context',
+      body: 'The claimed card returns without the case goal, observations, or previous inspector state. Shared-inbox traversal and an uncertain claim’s original retry intent survive this local detour, but private Console detail does not. No claim or release command is replayed just because the Console closed.',
+      expected:
+        'Active work is visible with no private case context or automatic ownership command.',
+    },
+    {
+      id: 'reopen-retired-case-context',
+      title: 'Reopen through a distinct fresh access check',
+      body: 'Choose Open resolver console again. The new disclosure cannot use a pending request acquired before the close as its access check. If another reader still needs that older request, Ergon waits for it to settle without subscribing to its result, then starts a new owner-scoped read. In this single-reader fixture the retired request is cancelled and a fourth request begins.',
+      expected:
+        'A distinct fourth case-summary request starts; prior evidence remains hidden.',
+    },
+    {
+      id: 'fresh-context-pending',
+      title: 'Wait for the new disclosure, not the old response',
+      body: 'The loading state belongs to the new opening. An older completion is not continuing permission to display private evidence here. Keep the prior source text and inspector closed until this new check succeeds; neither the browser selection nor the owned card authorizes disclosure independently.',
+      expected:
+        'Loading case context remains visible with no old case goal or source detail.',
+    },
+    {
       id: 'context-unavailable',
       title: 'Read the neutral unavailable state',
       body: 'The fixture now returns the BFF’s non-disclosing case-summary absence response. The console says Case context is no longer available and does not restore the old evidence or offer a blind retry for this definite result. The message does not reveal whether the item closed, ownership changed, authority changed, or the item was absent. Refresh active work before deciding what to do next.',
@@ -279,7 +307,7 @@ export const ownedContextGuide: GuideChapter = {
     },
   ],
   limitations: [
-    'The fixture controls the successful recheck, third context read, and later owned list. It does not verify real revocation, competing claims, transaction isolation, cache memory erasure, or backend authorization; those require backend and disposable full-stack tests.',
+    'The fixture controls the successful recheck, pending close/reopen, fourth context read, and later owned list. It does not verify real revocation, competing claims, transaction isolation, cache memory erasure, or backend authorization; those require backend and disposable full-stack tests. Concurrent-reader cancellation safety and immediate same-turn reopen are covered by cache/component regressions rather than inferred from recording delays.',
     'The source inspector selects and compares observations only from the current owner-scoped response; it does not derive verified facts, detect contradictions, fetch source systems, or edit evidence. The case context is a read-only projection of an escalated run, not a live tool trace, verified-claim graph, lease, approval surface, or proof assessment. Its separate release action returns ownership to the shared queue; it does not provide completion, named handover, reassignment, or a detailed audit of why an item is no longer visible. Release recovery is documented separately.',
   ],
 };

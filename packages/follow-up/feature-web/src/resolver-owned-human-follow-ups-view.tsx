@@ -40,13 +40,11 @@ interface ResolverOwnedHumanFollowUpsListProps {
   readonly canGoNext: boolean;
   readonly onPrevious: () => void;
   readonly onNext: () => void;
-  readonly onRelease: (item: ResolverOwnedHumanFollowUpWork) => Promise<void>;
+  readonly onRelease: (item: ResolverOwnedHumanFollowUpWork) => void;
   readonly onOpenConsole: (item: ResolverOwnedHumanFollowUpWork) => void;
   readonly returnFocusToWorkItemId: string | null;
   readonly onMissingReturnFocus: () => void;
-  readonly onRetryRelease: (
-    command: HumanFollowUpReleaseCommand,
-  ) => Promise<void>;
+  readonly onRetryRelease: (command: HumanFollowUpReleaseCommand) => void;
 }
 
 /** Renders one claimed-work page without owning its remote or cursor state. */
@@ -194,7 +192,7 @@ function OwnedWorkItem({
   readonly anotherReleaseIsPending: boolean;
   readonly releaseIsPending: boolean;
   readonly releaseWasRecorded: boolean;
-  readonly onRelease: (item: ResolverOwnedHumanFollowUpWork) => Promise<void>;
+  readonly onRelease: (item: ResolverOwnedHumanFollowUpWork) => void;
   readonly onOpenConsole: (item: ResolverOwnedHumanFollowUpWork) => void;
   readonly shouldRestoreFocus: boolean;
 }) {
@@ -237,7 +235,7 @@ function OwnedWorkItem({
           ref={openConsoleButton}
           type="button"
           variant="quiet"
-          disabled={releaseIsPending || releaseWasRecorded}
+          disabled={anotherReleaseIsPending || releaseWasRecorded}
           onClick={() => onOpenConsole(item)}
         >
           Open resolver console
@@ -268,7 +266,7 @@ function ReleaseResultNotice({
 }: {
   readonly notice: ReleaseNotice;
   readonly signInHref: string;
-  readonly onRetry: (command: HumanFollowUpReleaseCommand) => Promise<void>;
+  readonly onRetry: (command: HumanFollowUpReleaseCommand) => void;
   readonly focusOnMount: boolean;
 }) {
   const noticeRef = useRef<HTMLDivElement>(null);

@@ -21,6 +21,8 @@ Own confidential-browser BFF execution and follow-up remote-cache integration.
   including single-flight acquisition and compare-and-clear invalidation.
 - Follow-up RTK Query cache identity, request lifecycle, tag invalidation, and
   generated React hooks.
+- Fresh case-summary disclosure acquisition and subscription retirement through
+  a capability-local cache hook, including same-key pending-read sequencing.
 - A safe cache-boundary `unexpected-defect` outcome for thrown/rejected clients
   and missing dependency bindings, without serializing or logging their causes.
 - Closed failure normalization that keeps only known kinds and valid integer
@@ -49,6 +51,14 @@ Consumers import the BFF client factory, typed client contracts,
 follow-up model values without exposing Effect programs or wire DTOs.
 Composition roots provide executable operation dependencies through Redux
 thunk extra arguments and register the API reducer and middleware.
+
+`useFreshResolverFollowUpCaseSummary` exposes a pending, typed-failure/retry, or
+ready projection from current RTK state. Mount and explicit retry establish a
+distinct BFF gate after any older exact-key pending read settles. Its local
+state contains only gate coordinates, never response copies. Cleanup detaches
+the subscription without aborting a request another active reader needs; the
+zero-grace cache policy cancels only after the last reader leaves. Abandoned
+StrictMode setups and obsolete query lifetimes cannot publish a new disclosure.
 
 The public failure normalizers accept unknown cache/framework errors and return
 the operation's closed failure contract. Extra name, message, stack, body, and

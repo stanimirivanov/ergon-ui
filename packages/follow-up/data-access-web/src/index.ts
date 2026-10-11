@@ -17,6 +17,10 @@ export {
   useResolverFollowUpCaseSummaryQuery,
   useResolverOwnedHumanFollowUpsQuery,
 } from './cache/human-follow-up-api';
+export {
+  useFreshResolverFollowUpCaseSummary,
+  type FreshCaseSummary,
+} from './cache/use-fresh-case-summary';
 export type {
   ClaimHumanFollowUp,
   GetOwnedFollowUpCaseSummary,

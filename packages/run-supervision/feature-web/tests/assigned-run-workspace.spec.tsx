@@ -122,6 +122,70 @@ describe('assigned-run Resolver Console', () => {
     expect(getConsole).toHaveBeenCalledTimes(3);
   });
 
+  it('commits private-detail hiding before synchronous exact and discovery recheck I/O', async () => {
+    const client = successfulClient();
+    const getConsole = vi.fn<RunSupervisionClient['getConsole']>(async () => {
+      expect(screen.queryByText('access-restoration')).toBeNull();
+      expect(screen.queryByText('access-policy-7')).toBeNull();
+      return { ok: true, console: assignedRunConsole };
+    });
+    const listAssigned = vi.fn<RunSupervisionClient['listAssigned']>(
+      async () => {
+        expect(screen.queryByText('access-restoration')).toBeNull();
+        expect(screen.queryByText('access-policy-7')).toBeNull();
+        return { ok: true, page: assignedPage() };
+      },
+    );
+    renderWorkspace({ ...client, getConsole, listAssigned });
+    await openRun();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Recheck selected run' }),
+    );
+    await loadedRunPane();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Recheck assigned runs' }),
+    );
+    await loadedRunPane();
+    expect(listAssigned).toHaveBeenCalledTimes(2);
+    expect(getConsole).toHaveBeenCalledTimes(3);
+  });
+
+  it('never reopens retired detail after switching tenant during a held read', async () => {
+    const old = deferred<AssignedRunConsoleResult>();
+    const getConsole = vi
+      .fn<RunSupervisionClient['getConsole']>()
+      .mockImplementationOnce(() => old.promise);
+    const client = { ...successfulClient(), getConsole };
+    const store = createStore(client);
+    stores.push(store);
+    const view = render(
+      <Provider store={store}>
+        <AssignedRunWorkspace tenantId={TENANT_ID} signInHref={signInHref} />
+      </Provider>,
+    );
+    fireEvent.click(
+      await screen.findByRole('button', { name: `Inspect run ${RUN_ID}` }),
+    );
+    await waitFor(() => expect(getConsole).toHaveBeenCalledTimes(1));
+    view.rerender(
+      <Provider store={store}>
+        <AssignedRunWorkspace
+          tenantId={SECOND_RUN_ID}
+          signInHref={signInHref}
+        />
+      </Provider>,
+    );
+    await waitFor(() =>
+      expect(getConsole.mock.calls[0]?.[1].aborted).toBe(true),
+    );
+    old.resolve({ ok: true, console: assignedRunConsole });
+    expect(
+      await screen.findByRole('heading', { name: 'Select an assigned run' }),
+    ).toBeTruthy();
+    expect(screen.queryByText('access-restoration')).toBeNull();
+    expect(getConsole).toHaveBeenCalledTimes(1);
+  });
+
   it('unmounts private detail during failed assignment revalidation and preserves selection only as retry intent', async () => {
     const held = deferred<AssignedRunListResult>();
     const listAssigned = vi

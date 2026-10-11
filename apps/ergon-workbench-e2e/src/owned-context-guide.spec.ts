@@ -353,6 +353,24 @@ test(
         await expect(detail).toHaveCount(0);
         await guide.result('evidence-hidden-while-loading', loading);
 
+        await guide.action('close-pending-case-context', backToWork, () =>
+          backToWork.click(),
+        );
+        await expect(consoleView).toHaveCount(0);
+        await expect(caseHeading).toHaveCount(0);
+        await expect(page.getByText(observation)).toHaveCount(0);
+        await guide.result('pending-context-closed', openConsole);
+        await guide.action('reopen-retired-case-context', openConsole, () =>
+          openConsole.click(),
+        );
+        await expect.poll(() => bff.summaryReads()).toBe(4);
+        await expect(loading).toBeVisible();
+        await expect(caseHeading).toHaveCount(0);
+        await expect(page.getByText(observation)).toHaveCount(0);
+        await expect(detail).toHaveCount(0);
+        expect(bff.claimCommands()).toBe(0);
+        await guide.result('fresh-context-pending', loading);
+
         bff.denyPendingSummary();
         const unavailable = consoleView.getByRole('heading', {
           level: 2,
@@ -380,7 +398,7 @@ test(
         await expect(empty).toBeVisible();
         await expect(ownedItem).toHaveCount(0);
         await expect(page.getByText(observation)).toHaveCount(0);
-        expect(bff.summaryReads()).toBe(3);
+        expect(bff.summaryReads()).toBe(4);
         expect(bff.ownedReads()).toBeGreaterThanOrEqual(3);
         expect(bff.claimCommands()).toBe(0);
         await guide.result('owned-work-empty', empty);

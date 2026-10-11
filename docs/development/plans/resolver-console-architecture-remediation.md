@@ -1,6 +1,6 @@
 # Resolver Console architecture remediation
 
-- Status: Task 1 implemented and verified locally; awaiting review/merge. Tasks 2–4 remain planned.
+- Status: Task 1 present on main. Task 2 implemented and verified locally; awaiting review/merge. Tasks 3–4 remain planned.
 - Milestone: M05 - Human follow-up and resolver console
 
 ## TL;DR
@@ -87,6 +87,21 @@ Shared failure-contract additions may require small legacy-consumer mapping
 updates; they do not authorize that page's full architectural or visual rewrite.
 
 ### 2. Make private Console disclosure a single-owned workflow
+
+Implemented locally under [ADR 0025](../../decisions/0025-own-private-console-disclosure-workflows.md):
+cache hooks own fresh acquisition and subscriber retirement; feature controllers
+own exact selection, committed phases and focus intent. A derived workspace slot
+keeps inbox traversal/replay intent mounted but suspends its rows and reads.
+`pnpm verify` passed, including all 13 Chromium scenarios. Focused uncached
+checks passed 243 follow-up data-access, 55 follow-up feature, 106 supervision
+data-access and 31 supervision feature tests. They cover shared-reader survival,
+pending reopen, obsolete completions, exact selection, committed hide-before-I/O,
+StrictMode release without replay and permanent superseded-receipt retirement.
+`pnpm guide:generate` recorded all seven chapters uncached and assembled the
+Markdown/HTML book; the owned-context chapter now closes a pending read and
+reopens through a distinct fourth read. Immediate same-turn reopen and shared
+readers are proved by cache/component tests, not recording delays. These checks
+use synthetic BFF responses, not live backend or OIDC authority.
 
 Replace the owned-row snapshot with the exact claim/work-item/case/run/revision
 selection tuple and derive the current row. Remove mirrored Console visibility.

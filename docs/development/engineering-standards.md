@@ -99,6 +99,10 @@ Components should be pure. Derive values during render; use memoization only
 for measured cost or stable identity contracts. Event-driven effects belong in
 handlers. `useEffect` synchronizes an external system and must define cleanup
 when it acquires a subscription, timer, listener, or request.
+For hide-before-I/O workflows, the handler commits an explicit phase before a
+controller synchronizes it with the request. Prove DOM commit ordering, callback
+retirement, and no mutation replay under StrictMode; do not execute the request
+inside a state updater or retain another resource snapshot.
 
 Use React Router Data Mode for hierarchy, URL state, navigation, and route
 errors. Use real links for navigation and buttons for actions. Route loaders
@@ -164,6 +168,10 @@ user intent and may remain in local workflow state. Receipt-based notices may
 describe a historical result; they must not become current ownership/resource
 truth. Derive whether feedback is superseded from the current query rather than
 synchronizing a second resource snapshot through effects.
+Once a newer revision supersedes a historical receipt, discard that receipt
+permanently so pagination cannot resurrect it. A guarded cleanup may retire
+that local feedback after the render has hidden it; it must not retain the newer
+row or revision as another source of resource truth.
 
 Effect runtimes and runners are confined to data access, never event handlers,
 render paths, or effects in app, feature, or UI projects. Pure schema validation

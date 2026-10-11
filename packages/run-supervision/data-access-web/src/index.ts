@@ -18,6 +18,11 @@ export {
 } from './create-run-supervision-client';
 export { normalizeRunSupervisionFailure } from './normalize-run-supervision-failure';
 export {
+  useAssignedRunDiscovery,
+  useAssignedRunDisclosure,
+  type AssignedRunRead,
+} from './cache/use-assigned-run-reads';
+export {
   runSupervisionApi,
   type RunSupervisionDependencies,
   useListAssignedRunsQuery,
