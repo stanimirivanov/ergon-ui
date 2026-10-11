@@ -155,8 +155,8 @@ const summary = {
 
 /**
  * Serves one synthetic owned item and a successful deliberate recheck, then
- * withholds the third context read until the scenario has proved old evidence
- * is hidden during revalidation.
+ * withholds the third context read, lets the scenario close it, then withholds
+ * a distinct fourth read until old evidence and retired completion are hidden.
  * A neutral 404 and a later empty owned page illustrate one possible change,
  * not the reason a real resolver lost access.
  */
@@ -210,7 +210,7 @@ export async function installSimulatedOwnedContextBff(page: Page): Promise<{
         await fulfillSimulatedBff(route, summary);
         return;
       }
-      if (summaryReads !== 3) {
+      if (summaryReads > 4) {
         throw new Error('Unexpected synthetic case-summary read.');
       }
       await pendingRead;
@@ -231,8 +231,8 @@ export async function installSimulatedOwnedContextBff(page: Page): Promise<{
     ownedReads: () => ownedReads,
     claimCommands: () => claimCommands,
     denyPendingSummary: () => {
-      if (summaryReads !== 3) {
-        throw new Error('The revalidation request has not started.');
+      if (summaryReads !== 4) {
+        throw new Error('The fresh post-retirement request has not started.');
       }
       ownedVisible = false;
       finishPendingRead();

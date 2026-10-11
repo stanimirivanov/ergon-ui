@@ -211,6 +211,10 @@ comment for every export or reward boilerplate.
   plumbing. Review responsibility and lifetime, not line or utility-class quotas.
 - Effects triggered by user intent belong in event handlers. `useEffect` is for
   synchronization with an external system, not derived state.
+  When private DOM must be hidden before I/O, a handler may commit an explicit
+  workflow phase and a controller may synchronize that phase with the request
+  afterward. Prove commit ordering and retire callbacks; StrictMode must not
+  replay a mutation. This is not permission to mirror remote resources.
 - Preserve semantic landmarks, heading order, label associations, keyboard
   operation, visible focus, and reduced-motion preferences.
 - shadcn source is owned code. Review generated output and keep primitives in

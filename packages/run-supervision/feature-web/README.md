@@ -8,16 +8,17 @@ not a client application core or an execution-control surface.
 
 ## Owns
 
-- Local run selection and paired assignment-cursor traversal, with no run or
-  case identity in URL or persistent storage.
+- A tenant-scoped workflow controller for local run selection, paired
+  assignment-cursor traversal and heading-focus intent, with no run or case
+  identity in URL or persistent storage.
 - Assigned discovery, exact-run inspection, explicit recheck and recovery,
   accessible headings, status messages, policy disclosure, and narrow reflow.
-- Hiding retained private detail during revalidation or failed discovery;
-  unmounting exact-run subscriptions on close, tenant switch, or discovery
-  failure. Detail cache eviction is supplied by data access.
-- Cancellation of this view's pending reads on retirement. An immediate
-  same-run reopening waits for cancellation to settle before a fresh access
-  check; it cannot reuse a pre-close pending read through RTK deduplication.
+- Closing the exact-run gate during revalidation or failed discovery and on
+  close/tenant switch. Request retirement and zero-grace eviction are owned by
+  data access, not workspace rendering.
+- Committed workflow/gate changes that hide private DOM before synchronous or
+  held I/O. Immediate same-run reopening obtains a distinct check after older
+  same-key requests settle; retiring one view never aborts another active reader.
 - Distinguishing recorded terminal states from inspected outcome proof.
   A selected terminal run may remain readable after leaving active discovery
   only while an exact assigned-run read still succeeds.
@@ -45,6 +46,13 @@ sign-in URL, an opaque verified-actor presence slot, and an optional return
 callback. Mount it beneath the application's verified-session boundary.
 Presence display is not authority. All server state stays in RTK Query;
 private selection and pagination intent stay in React state.
+
+`useAssignedRunWorkflow` is an implementation boundary, not another resource
+cache or platform-neutral application core. It composes the cache-owned fresh
+discovery/detail gates and keeps a selected terminal run as local intent when
+active discovery no longer contains it. The workspace renders explicit typed
+read phases and callbacks; it owns no promises, subscription aborts, transport
+decoding or mirrored visibility. Pane/shell extraction is a later planned slice.
 
 The feature consumes `@ergon/run-supervision-data-access-web` through its
 public API and `@ergon/ui-web` for reviewed primitives. Its Nx tags are

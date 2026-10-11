@@ -11,7 +11,7 @@ import {
   useHumanFollowUpsQuery,
 } from '@ergon/follow-up-data-access-web';
 import { Button } from '@ergon/ui-web';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactElement } from 'react';
 
 import { FollowUpMessage } from './follow-up-message';
 import { inboxFailureCopy } from './human-follow-up-inbox-copy';
@@ -27,16 +27,22 @@ interface PagePosition {
   readonly history: readonly (HumanFollowUpCursor | null)[];
 }
 
-/** Owns inbox request, claim, and reversible keyset-navigation state. */
+/**
+ * Owns inbox request, claim, and reversible keyset-navigation state.
+ * Suspension keeps navigation/replay intent mounted without retaining rendered
+ * rows or an inbox subscription. Resuming rechecks the same page through RTK.
+ */
 export function HumanFollowUpInboxPage({
   tenantId,
   signInHref,
   queueKey,
+  isActive = true,
 }: {
   readonly tenantId: string;
   readonly signInHref: string;
   readonly queueKey?: string;
-}) {
+  readonly isActive?: boolean;
+}): ReactElement | null {
   const [position, setPosition] = useState<PagePosition>({ history: [] });
   const [claimNotice, setClaimNotice] = useState<ClaimNotice>();
   const [claimHumanFollowUp, claimRequest] = useClaimHumanFollowUpMutation();
@@ -46,7 +52,10 @@ export function HumanFollowUpInboxPage({
     ...(queueKey === undefined ? {} : { queueKey }),
     ...(position.cursor === undefined ? {} : { cursor: position.cursor }),
   };
-  const followUps = useHumanFollowUpsQuery(query);
+  const followUps = useHumanFollowUpsQuery(query, {
+    skip: !isActive,
+    refetchOnMountOrArgChange: true,
+  });
 
   useEffect(() => {
     // Server-observed revisions supersede local success feedback; a page change
@@ -93,6 +102,8 @@ export function HumanFollowUpInboxPage({
           },
     );
   }
+
+  if (!isActive) return null;
 
   if (
     followUps.isLoading ||

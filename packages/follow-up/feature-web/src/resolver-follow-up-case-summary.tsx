@@ -1,7 +1,4 @@
-import {
-  normalizeResolverFollowUpCaseSummaryFailure,
-  useResolverFollowUpCaseSummaryQuery,
-} from '@ergon/follow-up-data-access-web';
+import { useFreshResolverFollowUpCaseSummary } from '@ergon/follow-up-data-access-web';
 import { Button } from '@ergon/ui-web';
 import type { ReactNode } from 'react';
 
@@ -31,12 +28,14 @@ export function ResolverFollowUpCaseSummary({
   readonly runId: string;
   readonly regionId: string;
 }) {
-  const result = useResolverFollowUpCaseSummaryQuery(
-    { tenantId, workItemId, caseId, runId },
-    { refetchOnMountOrArgChange: true },
-  );
+  const result = useFreshResolverFollowUpCaseSummary({
+    tenantId,
+    workItemId,
+    caseId,
+    runId,
+  });
 
-  if (result.isLoading || result.isFetching) {
+  if (result.kind === 'pending') {
     return (
       <CaseContextMessage
         id={regionId}
@@ -48,8 +47,8 @@ export function ResolverFollowUpCaseSummary({
   }
 
   // RTK Query retains previous data after a failed refetch; failure wins here.
-  if (result.isError || result.data === undefined) {
-    const failure = normalizeResolverFollowUpCaseSummaryFailure(result.error);
+  if (result.kind === 'failure') {
+    const failure = result.failure;
     const copy = caseSummaryFailureCopy(failure);
     const action =
       failure.kind === 'authentication-required' ? (
@@ -57,7 +56,7 @@ export function ResolverFollowUpCaseSummary({
           <a href={signInHref}>Sign in again</a>
         </Button>
       ) : copy.canRetry ? (
-        <Button type="button" variant="quiet" onClick={() => result.refetch()}>
+        <Button type="button" variant="quiet" onClick={result.retry}>
           Try case context again
         </Button>
       ) : undefined;
@@ -73,9 +72,9 @@ export function ResolverFollowUpCaseSummary({
 
   return (
     <ResolverFollowUpCaseSummaryView
-      summary={result.data}
+      summary={result.summary}
       regionId={regionId}
-      isFetching={result.isFetching}
+      isFetching={false}
     />
   );
 }

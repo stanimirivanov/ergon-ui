@@ -75,8 +75,12 @@ claim/release, evidence disclosure, and accessibility. The claim-recovery
 chapter distinguishes a definite competing claim from an uncertain response
 and asserts an explicit replay of the original command. The owned-context
 chapter demonstrates lazy disclosure, an explicit current-claim recheck with
-fresh context, hidden evidence during revalidation, and a neutral unavailable
-result. It also identifies the verified session actor in the Current claim strip
+fresh context, hidden evidence during revalidation, pending close/reopen with a
+distinct fresh read, and a neutral unavailable result. Closing removes private
+Console content immediately; another active reader's shared transport lifetime
+is verified separately by cache-hook regressions. Inbox traversal and exact
+uncertain claim-retry intent survive Console detours in workspace tests.
+The chapter also identifies the verified session actor in the Current claim strip
 without treating that display as claim authority, and distinguishes recorded
 capability risk and approval requirements from a current approval decision.
 The release-recovery chapter compares a disabled rollout with a separately

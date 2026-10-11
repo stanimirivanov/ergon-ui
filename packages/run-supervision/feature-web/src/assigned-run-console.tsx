@@ -1,6 +1,6 @@
 import type { AssignedRunConsole } from '@ergon/run-supervision-data-access-web';
 import { Button } from '@ergon/ui-web';
-import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
+import type { ReactElement, ReactNode, RefObject } from 'react';
 
 import {
   formatRecordedAt,
@@ -14,16 +14,13 @@ const paneClass =
 export function AssignedRunConsoleView({
   console: run,
   onRecheck,
+  heading,
 }: {
   readonly console: AssignedRunConsole;
   readonly onRecheck: () => void;
+  readonly heading: RefObject<HTMLHeadingElement | null>;
 }): ReactElement {
-  const heading = useRef<HTMLHeadingElement>(null);
   const terminal = isTerminalState(run.state);
-
-  useEffect(() => {
-    heading.current?.focus();
-  }, [run.runId]);
 
   return (
     <>

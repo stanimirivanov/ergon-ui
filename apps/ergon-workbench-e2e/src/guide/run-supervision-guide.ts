@@ -177,6 +177,11 @@ export const runSupervisionGuide: GuideChapter = {
   ],
   troubleshooting: [
     {
+      symptom: 'You closed a run while its private read was still pending.',
+      guidance:
+        'Closing removes private detail immediately; it does not change the assignment or issue an execution command. Reopening establishes a distinct fresh read instead of displaying the response from before the close. A read shared with another active viewer may finish first, so the loading gate can remain visible while that older request settles. Do not treat the wait as lost assignment or repeatedly reopen to force transport cancellation. Cache and component regressions cover immediate pending reopen and shared-reader retirement; this recording closes an already fulfilled snapshot.',
+    },
+    {
       symptom: 'The assignment page is invalid.',
       guidance:
         'Use Return to first assigned page. The action clears the rejected paired cursor and requests a fresh first page; do not retry the same traversal or put private cursor values into a bookmark.',

@@ -420,9 +420,12 @@ function createCacheStore(extra: unknown, actions: unknown[] = []) {
   return configureStore({
     reducer: { [humanFollowUpApi.reducerPath]: humanFollowUpApi.reducer },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({ thunk: { extraArgument: extra } }).concat(
-        recordActions,
-        humanFollowUpApi.middleware,
-      ),
+      getDefaultMiddleware({
+        thunk: { extraArgument: extra },
+        // Assert diagnostic silence, not machine-load-dependent timing advice.
+        // Both invariant checks still run; only their performance warning is off.
+        serializableCheck: { warnAfter: Infinity },
+        immutableCheck: { warnAfter: Infinity },
+      }).concat(recordActions, humanFollowUpApi.middleware),
   });
 }

@@ -69,6 +69,11 @@ requester app, or native app.
   revalidation on reopening, plain-text observation rendering, and private
   context hidden when an owned-work recheck fails or the exact claim disappears
   or changes;
+- single-owned private Console workflows: data-access hooks acquire distinct
+  fresh gates and retire subscriptions without aborting another active reader;
+  feature controllers derive current rows from exact selection coordinates and
+  commit hidden recheck/release phases before I/O. Inbox detours suspend rows
+  and reads while preserving traversal and exact uncertain claim-retry intent;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
 - seven local executable guides for simulated workbench access states,

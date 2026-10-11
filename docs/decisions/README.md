@@ -14,7 +14,7 @@ section order in the template. Supported statuses are `Proposed`, `Accepted`,
 
 A replacement adds `- Supersedes:` with exact links to every decision it
 replaces; each older record points back through its status. The published ADR
-high-water mark is `0024`. It may advance with the next decision but must never
+high-water mark is `0025`. It may advance with the next decision but must never
 decrease, even when the newest record is later superseded or deprecated.
 
 ## Index
@@ -45,6 +45,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0022](0022-publish-simulated-user-guide-from-main.md)             | Accepted   | Publish the simulated user guide from main                    |
 | [0023](0023-consume-assigned-run-console-snapshots.md)             | Accepted   | Consume assigned-only active-run Console snapshots            |
 | [0024](0024-contain-client-defects-at-cache-boundaries.md)         | Accepted   | Contain client defects before cache serialization and logging |
+| [0025](0025-own-private-console-disclosure-workflows.md)           | Accepted   | Own private Console gates and committed feature workflows     |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

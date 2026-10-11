@@ -18,6 +18,8 @@ export interface HumanFollowUpInboxProps {
   readonly tenantId: string;
   /** Trusted same-origin navigation target supplied by the composition root. */
   readonly signInHref: string;
+  /** Suspends its subscription and removes rows from the DOM during a Console detour. */
+  readonly isActive?: boolean;
 }
 
 /**
@@ -30,6 +32,7 @@ export interface HumanFollowUpInboxProps {
 export function HumanFollowUpInbox({
   tenantId,
   signInHref,
+  isActive = true,
 }: HumanFollowUpInboxProps): ReactElement {
   const [searchParameters, setSearchParameters] = useSearchParams();
   const queue = decodeQueueKey(searchParameters.get('queue'));
@@ -45,7 +48,11 @@ export function HumanFollowUpInbox({
   }
 
   return (
-    <section aria-labelledby="inbox-heading" className="mt-12">
+    <section
+      aria-labelledby="inbox-heading"
+      className="mt-12"
+      hidden={!isActive}
+    >
       <div className="flex flex-col gap-6 border-b border-border pb-7 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-sm font-bold tracking-[0.18em] text-accent-strong uppercase">
@@ -73,9 +80,10 @@ export function HumanFollowUpInbox({
 
       {queue.valid ? (
         <HumanFollowUpInboxPage
-          key={queue.queueKey ?? 'all'}
+          key={`${tenantId}:${queue.queueKey ?? 'all'}`}
           tenantId={tenantId}
           signInHref={signInHref}
+          isActive={isActive}
           {...(queue.queueKey === undefined
             ? {}
             : { queueKey: queue.queueKey })}

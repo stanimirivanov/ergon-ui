@@ -147,6 +147,17 @@ during revalidation, after a failed owned-work refresh, and when the selected
 claim is absent or replaced. The URL and persistent storage do not retain this
 short-lived resolver context.
 
+Private Console cache hooks own acquisition and subscription retirement, not
+presentation. They wait for older exact-key pending reads before a distinct
+forced check; cleanup unsubscribes so another active reader is not aborted.
+RTK's zero-grace eviction owns last-reader cancellation. Feature controllers
+own exact selection identities, committed recheck/release phases, and focus
+intent. Committed phases hide evidence before I/O without `flushSync`; rows and
+detail remain derived from current RTK state. A workspace slot receives derived
+Console mode rather than mirroring it through a callback. The suspended inbox
+renders no rows and retains only traversal and immutable claim-retry intent
+across that detour. See [ADR 0025](decisions/0025-own-private-console-disclosure-workflows.md).
+
 Assigned runs have a distinct tenant/cursor discovery cache and tenant/run
 detail cache. The private run selection is local, while `view=runs` is a
 shareable tenant-workbench view name. Closing or switching views evicts unused

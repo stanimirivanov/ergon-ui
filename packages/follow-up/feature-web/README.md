@@ -10,7 +10,12 @@ out of the deployable app and domain-agnostic UI primitives.
 - Shared-inbox queue filtering, pagination, revision-checked claim interaction,
   explicit same-command retry, and presentation.
 - Resolver-owned pagination and local selection of an exact owned claim. A
-  selected case opens a full-width Resolver Console on the same tenant route;
+  cohesive workflow controller retains only claim/work-item/case/run/revision
+  identity and derives its row from the current authorized cache response. Its
+  committed recheck/release phases withdraw the private DOM before starting I/O,
+  without synchronous render forcing. Late completions retire on close, phase
+  replacement, tenant change, or unmount. A selected case opens a full-width
+  Resolver Console on the same tenant route;
   it is not a shareable case address. The feature hides private context while
   ownership is rechecked and unmounts it when the claim changes or disappears.
   The Console offers a deliberate claim recheck: it hides case evidence during
@@ -38,6 +43,10 @@ out of the deployable app and domain-agnostic UI primitives.
   when a later server-observed ownership revision supersedes it. Release means
   return to the original shared queue, not direct handover or case completion.
 - Follow-up workspace introduction and composition of the two work views.
+  The owned surface supplies derived Console mode and content through an
+  optional `renderWorkspace` slot instead of mirroring visibility. The inbox
+  remains mounted but suspended during detours, retaining traversal and exact
+  uncertain command intent without rendering rows or holding a subscription.
 - Translation of data-access-normalized follow-up failures into resolver-facing
   copy. Unexpected read defects hide retained case context and offer only an
   explicit retry; they are not reported as malformed server responses. Claim

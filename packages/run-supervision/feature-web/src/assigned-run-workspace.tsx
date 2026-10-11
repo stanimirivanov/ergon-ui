@@ -1,23 +1,10 @@
-import {
-  normalizeRunSupervisionFailure,
-  useLazyGetAssignedRunConsoleQuery,
-  useLazyListAssignedRunsQuery,
-  type AssignedRunCursor,
-} from '@ergon/run-supervision-data-access-web';
 import { Button } from '@ergon/ui-web';
-import {
-  useEffect,
-  useCallback,
-  useRef,
-  useState,
-  type ReactElement,
-  type ReactNode,
-  type RefObject,
-} from 'react';
+import type { ReactElement, ReactNode, RefObject } from 'react';
 
 import { AssignedRunConsoleView } from './assigned-run-console';
 import { AssignedRunList } from './assigned-run-list';
 import { AssignedRunMessage } from './assigned-run-message';
+import { useAssignedRunWorkflow } from './use-assigned-run-workflow';
 
 interface AssignedRunWorkspaceProps {
   readonly tenantId: string;
@@ -49,50 +36,9 @@ function TenantAssignedRunWorkspace({
   presence,
   onReturnToFollowUps,
 }: AssignedRunWorkspaceProps): ReactElement {
-  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
-  const retiredDetailRead = useRef<Promise<void>>(Promise.resolve());
-  const [cursors, setCursors] = useState<readonly AssignedRunCursor[]>([]);
-  const cursor = cursors.at(-1);
-  const [readAssigned, assigned] = useLazyListAssignedRunsQuery();
-  const latestAssignmentRead = useRef<ReturnType<typeof readAssigned> | null>(
-    null,
-  );
-  const isCurrentPage =
-    assigned.originalArgs?.tenantId === tenantId &&
-    assigned.originalArgs.cursor?.assignedAt === cursor?.assignedAt &&
-    assigned.originalArgs.cursor?.assignmentId === cursor?.assignmentId;
-  const isReadingAssigned =
-    assigned.isUninitialized || !isCurrentPage || assigned.isFetching;
-  const canReadDetail =
-    !isReadingAssigned &&
-    assigned.error === undefined &&
-    assigned.currentData !== undefined;
-  const assignedFailure =
-    assigned.error === undefined
-      ? undefined
-      : normalizeRunSupervisionFailure(assigned.error);
-
-  const recheckAssigned = useCallback((): void => {
-    latestAssignmentRead.current = readAssigned(
-      { tenantId, ...(cursor === undefined ? {} : { cursor }) },
-      false,
-    );
-  }, [readAssigned, tenantId, cursor]);
-
-  useEffect(() => {
-    let isMounted = true;
-    // Defer request acquisition so StrictMode's abandoned effect never starts
-    // an otherwise shared pending read. A retired view cannot publish its page.
-    void Promise.resolve().then(() => {
-      if (isMounted) recheckAssigned();
-    });
-    return () => {
-      isMounted = false;
-      latestAssignmentRead.current?.abort();
-      latestAssignmentRead.current?.unsubscribe();
-      latestAssignmentRead.current = null;
-    };
-  }, [recheckAssigned]);
+  const workflow = useAssignedRunWorkflow(tenantId);
+  const { assigned, detail, selectedRunId } = workflow;
+  const isReadingAssigned = assigned.phase === 'pending';
 
   return (
     <div className="resolver-console-workspace min-h-screen min-w-0 bg-canvas text-ink">
@@ -143,7 +89,7 @@ function TenantAssignedRunWorkspace({
             variant="quiet"
             size="compact"
             disabled={isReadingAssigned}
-            onClick={recheckAssigned}
+            onClick={assigned.recheck}
           >
             Recheck assigned runs
           </Button>
@@ -152,7 +98,7 @@ function TenantAssignedRunWorkspace({
               type="button"
               variant="quiet"
               size="compact"
-              onClick={() => setSelectedRunId(null)}
+              onClick={workflow.closeRun}
             >
               Close run
             </Button>
@@ -161,46 +107,59 @@ function TenantAssignedRunWorkspace({
       </section>
       <div className="grid min-w-0 gap-3 px-3 py-4 sm:px-4 lg:px-5 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.8fr)_minmax(0,1.05fr)]">
         <AssignedRunList
-          page={assigned.currentData}
+          page={assigned.phase === 'ready' ? assigned.data : undefined}
           selectedRunId={selectedRunId}
           isFetching={isReadingAssigned}
-          error={assignedFailure}
+          isRecheck={assigned.phase === 'pending' && assigned.hasRetainedData}
+          error={assigned.phase === 'failed' ? assigned.error : undefined}
           signInHref={signInHref}
-          hasPrevious={cursors.length > 0}
-          onSelect={setSelectedRunId}
-          onRetry={recheckAssigned}
-          onResetPage={() => {
-            setSelectedRunId(null);
-            // Reset even on a rejected first page, where changing the cursor
-            // would not cause a new request. Existing request retirement stays
-            // owned by the cursor effect for later pages.
-            if (cursors.length === 0) recheckAssigned();
-            else setCursors([]);
-          }}
-          onPrevious={() => setCursors((previous) => previous.slice(0, -1))}
-          onNext={() => {
-            const next = assigned.currentData?.nextCursor;
-            if (next != null) setCursors((previous) => [...previous, next]);
-          }}
+          hasPrevious={workflow.hasPrevious}
+          onSelect={workflow.selectRun}
+          onRetry={assigned.recheck}
+          onResetPage={workflow.resetTraversal}
+          onPrevious={workflow.previousPage}
+          onNext={workflow.nextPage}
         />
         {selectedRunId === null ? (
           <ConsoleUnavailable
             title="Select an assigned run"
             description="Choose a run from your assignment snapshot to inspect its recorded start, pinned policy, and current state."
-            focusHeading
+            heading={workflow.heading}
           />
-        ) : canReadDetail ? (
-          <AssignedRunDetail
-            key={selectedRunId}
-            tenantId={tenantId}
-            runId={selectedRunId}
+        ) : detail.phase === 'ready' ? (
+          <AssignedRunConsoleView
+            console={detail.data}
+            onRecheck={detail.recheck}
+            heading={workflow.heading}
+          />
+        ) : detail.phase === 'pending' ? (
+          <ConsoleUnavailable
+            title={
+              detail.hasRetainedData
+                ? 'Rechecking run access…'
+                : 'Loading run context…'
+            }
+            description="Requesting a fresh exact-run snapshot. Retained private context is hidden until access and the response are checked."
+            heading={workflow.heading}
+          />
+        ) : detail.phase === 'failed' ? (
+          <ConsoleUnavailable
+            title={
+              detail.error.kind === 'not-found'
+                ? 'Run context is unavailable'
+                : 'Run context could not be read'
+            }
+            error={detail.error}
             signInHref={signInHref}
-            retiredRead={retiredDetailRead}
+            retryLabel="Retry run read"
+            onRetry={detail.recheck}
+            heading={workflow.heading}
           />
         ) : (
           <ConsoleUnavailable
             title="Run context hidden"
             description="Selected private detail is hidden while assigned work is being read or after that read fails. Retry assigned runs to recheck access."
+            heading={workflow.heading}
           />
         )}
       </div>
@@ -208,97 +167,12 @@ function TenantAssignedRunWorkspace({
   );
 }
 
-function AssignedRunDetail({
-  tenantId,
-  runId,
-  signInHref,
-  retiredRead,
-}: {
-  readonly tenantId: string;
-  readonly runId: string;
-  readonly signInHref: string;
-  readonly retiredRead: RefObject<Promise<void>>;
-}): ReactElement {
-  const [readConsole, detail] = useLazyGetAssignedRunConsoleQuery();
-  const latestRead = useRef<ReturnType<typeof readConsole> | null>(null);
-  const readFresh = useCallback((): void => {
-    latestRead.current = readConsole({ tenantId, runId }, false);
-  }, [readConsole, tenantId, runId]);
-
-  useEffect(() => {
-    let isMounted = true;
-    // RTK deduplicates even force-refetched same-key pending reads. Reopening
-    // waits until our retired request settles before starting a distinct check.
-    // Deferred start also skips StrictMode's abandoned first effect safely.
-    void retiredRead.current.then(() => {
-      if (isMounted) readFresh();
-    });
-    return () => {
-      isMounted = false;
-      const request = latestRead.current;
-      if (request !== null) {
-        request.abort();
-        request.unsubscribe();
-        retiredRead.current = request.then(() => undefined);
-        latestRead.current = null;
-      }
-    };
-  }, [readFresh, retiredRead]);
-
-  if (detail.isUninitialized || detail.isFetching) {
-    return (
-      <ConsoleUnavailable
-        title={
-          detail.currentData === undefined
-            ? 'Loading run context…'
-            : 'Rechecking run access…'
-        }
-        description="Requesting a fresh exact-run snapshot. Retained private context is hidden until access and the response are checked."
-      />
-    );
-  }
-  if (detail.error !== undefined) {
-    const failure = normalizeRunSupervisionFailure(detail.error);
-    return (
-      <ConsoleUnavailable
-        title={
-          failure.kind === 'not-found'
-            ? 'Run context is unavailable'
-            : 'Run context could not be read'
-        }
-        error={failure}
-        signInHref={signInHref}
-        retryLabel="Retry run read"
-        onRetry={readFresh}
-      />
-    );
-  }
-  if (detail.currentData === undefined) {
-    return (
-      <ConsoleUnavailable
-        title="Run context is unavailable"
-        description="No private run context can be displayed for this request."
-      />
-    );
-  }
-  return (
-    <AssignedRunConsoleView
-      console={detail.currentData}
-      onRecheck={readFresh}
-    />
-  );
-}
-
 function ConsoleUnavailable({
-  focusHeading = false,
+  heading,
   ...props
 }: Parameters<typeof AssignedRunMessage>[0] & {
-  readonly focusHeading?: boolean;
+  readonly heading: RefObject<HTMLHeadingElement | null>;
 }): ReactElement {
-  const heading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
-    if (focusHeading) heading.current?.focus();
-  }, [focusHeading]);
   return (
     <>
       <section

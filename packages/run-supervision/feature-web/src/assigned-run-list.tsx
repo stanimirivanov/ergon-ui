@@ -12,6 +12,7 @@ export function AssignedRunList({
   page,
   selectedRunId,
   isFetching,
+  isRecheck = false,
   error,
   signInHref,
   hasPrevious,
@@ -24,6 +25,7 @@ export function AssignedRunList({
   readonly page: AssignedRunPage | undefined;
   readonly selectedRunId: string | null;
   readonly isFetching: boolean;
+  readonly isRecheck?: boolean;
   readonly error: RunSupervisionFailure | undefined;
   readonly signInHref: string;
   readonly hasPrevious: boolean;
@@ -56,7 +58,7 @@ export function AssignedRunList({
         {isFetching ? (
           <AssignedRunMessage
             title={
-              page === undefined
+              !isRecheck
                 ? 'Loading assigned runs…'
                 : 'Rechecking assigned runs…'
             }

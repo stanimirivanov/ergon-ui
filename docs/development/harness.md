@@ -131,17 +131,19 @@ cursor to be shareable. Accepted ADRs govern cursor privacy and immutable replay
 intent. They also do not prove safe error serialization or request/focus lifetime.
 Those require owning behavioral tests and the semantic review:
 
-| Boundary                   | Required evidence when affected                                                                                                                                                             |
-| :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Effect/client to RTK Query | Sentinel defects/missing bindings stay out of cache, actions and raw logs; typed protocol failures remain distinct; abort does not hide a concurrent defect.                                |
-| Private disclosure         | Pending/fulfilled immediate reopen, obsolete responses, failed revalidation, tenant/query changes, StrictMode and owned-request cleanup preserve fresh access and hide-before-I/O ordering. |
-| Failure presentation       | Closed failure/action mapping and executable sign-in, retry, reset or replay behavior; no advertised unavailable action.                                                                    |
-| Modal and focus            | Keyboard/Escape, return focus, filtering, unmount and authority-driven disappearance retire focus/timer work; long content and narrow reflow remain usable.                                 |
-| Shell and panes            | Explicit app-owned chrome and outer layout; complete loading/failure/populated surfaces at desktop, narrow width and zoom.                                                                  |
+| Boundary                   | Required evidence when affected                                                                                                                                                                                                                                                    |
+| :------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Effect/client to RTK Query | Sentinel defects/missing bindings stay out of cache, actions and raw logs; typed protocol failures remain distinct; abort does not hide a concurrent defect.                                                                                                                       |
+| Private disclosure         | Pending/fulfilled immediate reopen, obsolete responses, failed revalidation, tenant/query changes and StrictMode preserve fresh access; committed phases hide before I/O, retiring one reader leaves other active readers intact, and detours retain only traversal/replay intent. |
+| Failure presentation       | Closed failure/action mapping and executable sign-in, retry, reset or replay behavior; no advertised unavailable action.                                                                                                                                                           |
+| Modal and focus            | Keyboard/Escape, return focus, filtering, unmount and authority-driven disappearance retire focus/timer work; long content and narrow reflow remain usable.                                                                                                                        |
+| Shell and panes            | Explicit app-owned chrome and outer layout; complete loading/failure/populated surfaces at desktop, narrow width and zoom.                                                                                                                                                         |
 
-Existing documented `flushSync` ordering and feature-class chrome selectors
-remain known migration debt, not proof of completed cleanup or permission for
-new copies. The [scoped remediation plan](plans/resolver-console-architecture-remediation.md)
+Console committed-phase tests now replace the previous `flushSync` dependency;
+cache hooks own fresh-read sequencing and subscriber retirement under
+[ADR 0025](../decisions/0025-own-private-console-disclosure-workflows.md).
+Feature-class chrome selectors remain migration debt, not permission for new
+copies. The [scoped remediation plan](plans/resolver-console-architecture-remediation.md)
 orders their replacement while retaining their current safety regressions.
 It defers unrelated landing/session/inbox decomposition until those pages are
 redesigned. Do not turn a deferred finding into a broad suppression.

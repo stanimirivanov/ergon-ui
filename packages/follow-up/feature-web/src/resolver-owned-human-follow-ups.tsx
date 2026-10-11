@@ -1,13 +1,7 @@
-import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-model';
-import {
-  useCallback,
-  useRef,
-  useState,
-  type ReactElement,
-  type ReactNode,
-} from 'react';
+import { useCallback, useRef, type ReactElement, type ReactNode } from 'react';
 
 import { ResolverOwnedHumanFollowUpsPage } from './resolver-owned-human-follow-ups-page';
+import { useOwnedFollowUpWorkflow } from './use-owned-follow-up-workflow';
 
 /** Inputs supplied by the route-level composition boundary. */
 export interface ResolverOwnedHumanFollowUpsProps {
@@ -17,43 +11,44 @@ export interface ResolverOwnedHumanFollowUpsProps {
   readonly signInHref: string;
   /** Opaque session-owned display, not claim authority. */
   readonly consoleActorDetails: ReactNode;
-  /** Lets the containing workspace replace its inbox chrome while a case is selected. */
-  readonly onConsoleVisibilityChange?: (isOpen: boolean) => void;
+  /** Composes surroundings from the workflow's current mode without mirrored state. */
+  readonly renderWorkspace?: (view: {
+    readonly isConsoleOpen: boolean;
+    readonly content: ReactElement;
+  }) => ReactElement;
 }
 
 /** Keeps selected claim identity local; no private case context enters the URL or persistent state. */
-export function ResolverOwnedHumanFollowUps({
+export function ResolverOwnedHumanFollowUps(
+  props: ResolverOwnedHumanFollowUpsProps,
+): ReactElement {
+  // A tenant replacement must not first render the previous tenant's selection,
+  // cursor, pending replay, or focus intent and then reset them in an effect.
+  return <OwnedFollowUpSurface key={props.tenantId} {...props} />;
+}
+
+function OwnedFollowUpSurface({
   tenantId,
   signInHref,
   consoleActorDetails,
-  onConsoleVisibilityChange,
+  renderWorkspace,
 }: ResolverOwnedHumanFollowUpsProps): ReactElement {
-  const [selectedWork, setSelectedWork] =
-    useState<ResolverOwnedHumanFollowUpWork | null>(null);
-  const [returnFocusToWorkItemId, setReturnFocusToWorkItemId] = useState<
-    string | null
-  >(null);
+  const workflow = useOwnedFollowUpWorkflow(tenantId);
   const activeWorkHeading = useRef<HTMLHeadingElement>(null);
   const focusActiveWorkHeading = useCallback(
     () => activeWorkHeading.current?.focus(),
     [],
   );
 
-  function selectWork(item: ResolverOwnedHumanFollowUpWork | null): void {
-    setReturnFocusToWorkItemId(
-      item === null ? (selectedWork?.workItem.workItemId ?? null) : null,
-    );
-    setSelectedWork(item);
-    onConsoleVisibilityChange?.(item !== null);
-  }
-
-  return (
+  const content = (
     <section
-      aria-labelledby={selectedWork === null ? 'owned-work-heading' : undefined}
-      aria-label={selectedWork === null ? undefined : 'Resolver Console'}
-      className={selectedWork === null ? 'mt-12' : 'min-w-0'}
+      aria-labelledby={
+        workflow.isConsoleOpen ? undefined : 'owned-work-heading'
+      }
+      aria-label={workflow.isConsoleOpen ? 'Resolver Console' : undefined}
+      className={workflow.isConsoleOpen ? 'min-w-0' : 'mt-12'}
     >
-      {selectedWork === null ? (
+      {!workflow.isConsoleOpen ? (
         <div className="border-b border-border pb-7">
           <p className="text-sm font-bold tracking-[0.18em] text-accent-strong uppercase">
             Your active work
@@ -76,11 +71,13 @@ export function ResolverOwnedHumanFollowUps({
         tenantId={tenantId}
         signInHref={signInHref}
         consoleActorDetails={consoleActorDetails}
-        selectedWork={selectedWork}
-        returnFocusToWorkItemId={returnFocusToWorkItemId}
+        workflow={workflow}
         onMissingReturnFocus={focusActiveWorkHeading}
-        onSelectWork={selectWork}
       />
     </section>
+  );
+  return (
+    renderWorkspace?.({ isConsoleOpen: workflow.isConsoleOpen, content }) ??
+    content
   );
 }
