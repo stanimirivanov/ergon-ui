@@ -1,0 +1,115 @@
+import type { AssignedRunConsole } from '@ergon/run-supervision-data-access-web';
+import type { ReactElement } from 'react';
+
+import { AssignedRunFact } from './assigned-run-fact';
+import {
+  formatRecordedAt,
+  isTerminalState,
+  runStateLabels,
+} from './run-supervision-copy';
+
+export function AssignedRunOutcomePane({
+  run,
+}: {
+  readonly run: AssignedRunConsole | undefined;
+}): ReactElement {
+  return (
+    <section
+      aria-labelledby="outcome-proof-heading"
+      className="min-w-0 flex-1 rounded-md border border-border bg-surface/90 p-4"
+    >
+      <p className="text-xs font-bold tracking-[0.14em] text-accent-strong uppercase">
+        Outcome visibility
+      </p>
+      <h2
+        id="outcome-proof-heading"
+        className="mt-2 text-xl font-extrabold tracking-tight"
+      >
+        Outcome proof
+      </h2>
+      {run === undefined ? (
+        <p className="mt-5 text-sm leading-6 text-ink-muted">
+          No private run state or proof is displayed without a successful
+          current read.
+        </p>
+      ) : (
+        <AssignedRunOutcomeRecords run={run} />
+      )}
+    </section>
+  );
+}
+
+function AssignedRunOutcomeRecords({
+  run,
+}: {
+  readonly run: AssignedRunConsole;
+}): ReactElement {
+  const terminal = isTerminalState(run.state);
+  return (
+    <>
+      <div className="mt-5 rounded-md border border-border bg-canvas/60 p-4">
+        <h3 className="font-bold text-ink">
+          {terminal
+            ? 'Recorded terminal state · proof not included'
+            : 'Outcome is not established by this view'}
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-ink-muted">
+          {terminal
+            ? 'The control plane records this terminal run state. It is distinct from the browser inspecting an accepted proof or independently verifying the outcome.'
+            : 'A current run state is not evidence that the desired outcome has been achieved.'}
+        </p>
+        <p className="mt-3 text-sm leading-6 text-ink-muted">
+          Verification checks and accepted proof are not included in this read
+          model.
+        </p>
+      </div>
+      <section
+        aria-labelledby="run-state-heading"
+        className="mt-4 rounded-md border border-border bg-canvas/60 p-4"
+      >
+        <h3 id="run-state-heading" className="font-bold">
+          Recorded run state
+        </h3>
+        <dl className="mt-4 grid gap-4 text-sm">
+          <AssignedRunFact label="State">
+            {runStateLabels[run.state]}
+          </AssignedRunFact>
+          <AssignedRunFact label="State version">
+            {run.stateVersion}
+          </AssignedRunFact>
+          <AssignedRunFact label="State recorded">
+            <time dateTime={run.stateUpdatedAt}>
+              {formatRecordedAt(run.stateUpdatedAt)}
+            </time>
+          </AssignedRunFact>
+        </dl>
+      </section>
+      <section
+        aria-labelledby="run-case-context-heading"
+        className="mt-4 rounded-md border border-border bg-canvas/60 p-4"
+      >
+        <h3 id="run-case-context-heading" className="font-bold">
+          Case context
+        </h3>
+        <dl className="mt-4 grid gap-4 text-sm">
+          <AssignedRunFact label="Case ID">{run.caseId}</AssignedRunFact>
+          <AssignedRunFact label="Pinned evidence stream version">
+            {run.caseEvidenceStreamVersion}
+          </AssignedRunFact>
+          <AssignedRunFact label="Assigned">
+            <time dateTime={run.assignedAt}>
+              {formatRecordedAt(run.assignedAt)}
+            </time>
+          </AssignedRunFact>
+          <AssignedRunFact label="Predecessor run">
+            {run.predecessorRunId ?? 'No predecessor recorded'}
+          </AssignedRunFact>
+        </dl>
+        <p className="mt-4 text-xs leading-5 text-ink-muted">
+          Evidence is not included in this read model. The pinned stream version
+          identifies the run snapshot; it is not a count of verified facts.
+        </p>
+      </section>
+    </>
+  );
+}

@@ -95,7 +95,10 @@ distinguishes pinned capability-policy requirements from approval decisions,
 and explains absent evidence/proof detail. It records private snapshot hiding
 during pending and failed revalidation, safe retry, terminal detail after active
 discovery empties, and neutral protected absence. It also checks keyboard
-navigation and narrow reflow. Assignment, current authority, and terminal state
+navigation and narrow reflow. The separate layout regression verifies that the
+named desktop outcome viewport receives keyboard focus and actually scrolls
+with PageDown when its existing fixture content overflows. Assignment, current
+authority, and terminal state
 are synthetic backend facts, not browser authorization or outcome proof.
 It also records a rejected paired assignment cursor and a fresh first-page reset,
 proving that recovery does not repeatedly send the rejected traversal or restore
@@ -116,6 +119,16 @@ The generator and static-book layout adapt the
 Ergon owns the richer content
 schema, simulation disclosure, and security checks. The guide runtime remains
 inside this `type:test` project and adds no browser-bundle dependency.
+
+## Shell regression coverage
+
+`console-shell.spec.ts` also verifies both redesigned surfaces through one
+app-owned focused shell, explicit pane slots during pending/failed reads,
+standard-shell restoration, naturally wrapping presence controls and actual
+toolbar-height allocation. Desktop, 320-pixel stacked and 720-pixel reflow
+are covered; 720 is the CSS-width equivalent of a 1440-pixel viewport at 200%
+zoom, not browser zoom automation. These fixtures prove browser presentation,
+not live control-plane authority.
 
 ## Failure handling
 

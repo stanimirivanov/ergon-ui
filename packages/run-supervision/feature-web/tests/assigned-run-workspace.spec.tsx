@@ -15,6 +15,7 @@ import {
 } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { StrictMode } from 'react';
+import type { WorkspaceRenderer } from '@ergon/ui-web';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { AssignedRunWorkspace } from '../src';
@@ -29,6 +30,21 @@ import {
 
 const stores: ReturnType<typeof createStore>[] = [];
 const signInHref = '/bff/login?returnTo=%2Ftenants%2Ftest';
+const renderTestShell: WorkspaceRenderer = ({
+  mode,
+  statusLabel,
+  toolbar,
+  content,
+}) => (
+  <div data-workbench-mode={mode}>
+    <header>
+      <h1>Resolver Console</h1>
+      <p>{statusLabel}</p>
+      {toolbar}
+    </header>
+    <main>{content}</main>
+  </div>
+);
 
 afterEach(() => {
   cleanup();
@@ -38,6 +54,75 @@ afterEach(() => {
 });
 
 describe('assigned-run Resolver Console', () => {
+  it('keeps named discovery, execution and outcome panes while the app owns chrome and toolbar placement', async () => {
+    const held = deferred<AssignedRunConsoleResult>();
+    const getConsole = vi
+      .fn<RunSupervisionClient['getConsole']>()
+      .mockImplementationOnce(() => held.promise)
+      .mockResolvedValueOnce({ ok: true, console: assignedRunConsole });
+    renderWorkspace({ ...successfulClient(), getConsole });
+
+    const assertComposition = () => {
+      const main = screen.getByRole('main');
+      const banner = screen.getByRole('banner');
+      expect(
+        within(banner).getByRole('heading', {
+          level: 1,
+          name: 'Resolver Console',
+        }),
+      ).toBeTruthy();
+      expect(within(banner).getByText('Assigned · read only')).toBeTruthy();
+      expect(
+        within(banner).getByRole('region', { name: 'Supervisor presence' }),
+      ).toBeTruthy();
+      expect(
+        within(main).queryByRole('region', { name: 'Supervisor presence' }),
+      ).toBeNull();
+      expect(screen.queryByText('Ergon')).toBeNull();
+      for (const [name, slot] of [
+        ['Assigned runs', 'leading'],
+        ['Resolution run', 'primary'],
+        ['Outcome proof', 'trailing'],
+      ] as const) {
+        expect(
+          within(main)
+            .getByRole('region', { name })
+            .closest('[data-pane-slot]')
+            ?.getAttribute('data-pane-slot'),
+        ).toBe(slot);
+      }
+    };
+
+    expect(
+      await screen.findByRole('button', { name: `Inspect run ${RUN_ID}` }),
+    ).toBeTruthy();
+    assertComposition();
+    fireEvent.click(
+      screen.getByRole('button', { name: `Inspect run ${RUN_ID}` }),
+    );
+    expect(
+      await screen.findByRole('heading', { name: 'Loading run context…' }),
+    ).toBeTruthy();
+    assertComposition();
+    held.resolve({ ok: false, error: { kind: 'not-found' } });
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Run context is unavailable',
+      }),
+    ).toBeTruthy();
+    assertComposition();
+    fireEvent.click(screen.getByRole('button', { name: 'Close run' }));
+    expect(
+      screen.getByRole('heading', { name: 'Select an assigned run' }),
+    ).toBeTruthy();
+    assertComposition();
+    fireEvent.click(
+      screen.getByRole('button', { name: `Inspect run ${RUN_ID}` }),
+    );
+    await loadedRunPane();
+    assertComposition();
+  });
+
   it('renders only recorded facts with read-only policy disclosure and no fabricated execution controls', async () => {
     const client = successfulClient();
     renderWorkspace(client);
@@ -150,6 +235,130 @@ describe('assigned-run Resolver Console', () => {
     expect(getConsole).toHaveBeenCalledTimes(3);
   });
 
+  it('moves explicit recheck focus to the persistent run heading through pending, failed and successful reads', async () => {
+    const failedRead = deferred<AssignedRunConsoleResult>();
+    const recoveryRead = deferred<AssignedRunConsoleResult>();
+    const successfulRead = deferred<AssignedRunConsoleResult>();
+    const getConsole = vi
+      .fn<RunSupervisionClient['getConsole']>()
+      .mockResolvedValueOnce({ ok: true, console: assignedRunConsole })
+      .mockImplementationOnce(() => failedRead.promise)
+      .mockImplementationOnce(() => recoveryRead.promise)
+      .mockImplementationOnce(() => successfulRead.promise);
+    renderWorkspace({ ...successfulClient(), getConsole });
+    await openRun();
+    const heading = screen.getByRole('heading', { name: 'Resolution run' });
+
+    const startRecheck = async () => {
+      const recheck = screen.getByRole('button', {
+        name: 'Recheck selected run',
+      });
+      recheck.focus();
+      expect(document.activeElement).toBe(recheck);
+      fireEvent.click(recheck);
+      expect(
+        await screen.findByRole('heading', { name: 'Rechecking run access…' }),
+      ).toBeTruthy();
+      expect(screen.getByRole('heading', { name: 'Resolution run' })).toBe(
+        heading,
+      );
+      expect(document.activeElement).toBe(heading);
+      expect(screen.queryByText('access-restoration')).toBeNull();
+      expect(screen.queryByText('access-policy-7')).toBeNull();
+    };
+
+    await startRecheck();
+    failedRead.resolve({
+      ok: false,
+      error: { kind: 'service-unavailable', status: 503 },
+    });
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Run context could not be read',
+      }),
+    ).toBeTruthy();
+    expect(document.activeElement).toBe(heading);
+    const retry = screen.getByRole('button', { name: 'Retry run read' });
+    retry.focus();
+    expect(document.activeElement).toBe(retry);
+    fireEvent.click(retry);
+    await waitFor(() => expect(getConsole).toHaveBeenCalledTimes(3));
+    expect(screen.getByRole('heading', { name: 'Resolution run' })).toBe(
+      heading,
+    );
+    expect(document.activeElement).toBe(heading);
+    expect(screen.queryByText('access-restoration')).toBeNull();
+    expect(screen.queryByText('access-policy-7')).toBeNull();
+    recoveryRead.resolve({ ok: true, console: assignedRunConsole });
+    await loadedRunPane();
+    await startRecheck();
+    successfulRead.resolve({ ok: true, console: assignedRunConsole });
+    await loadedRunPane();
+    expect(screen.getByRole('heading', { name: 'Resolution run' })).toBe(
+      heading,
+    );
+    expect(document.activeElement).toBe(heading);
+    expect(getConsole).toHaveBeenCalledTimes(4);
+  });
+
+  it('keeps discovery recheck and recovery focus on the run heading while selected records are withdrawn', async () => {
+    const heldAssignments = deferred<AssignedRunListResult>();
+    const heldDetail = deferred<AssignedRunConsoleResult>();
+    const listAssigned = vi
+      .fn<RunSupervisionClient['listAssigned']>()
+      .mockResolvedValueOnce({ ok: true, page: assignedPage() })
+      .mockImplementationOnce(() => heldAssignments.promise)
+      .mockResolvedValueOnce({ ok: true, page: assignedPage() });
+    const getConsole = vi
+      .fn<RunSupervisionClient['getConsole']>()
+      .mockResolvedValueOnce({ ok: true, console: assignedRunConsole })
+      .mockImplementationOnce(() => heldDetail.promise);
+    renderWorkspace({ listAssigned, getConsole });
+    await openRun();
+    const heading = screen.getByRole('heading', { name: 'Resolution run' });
+    const recheck = screen.getByRole('button', {
+      name: 'Recheck assigned runs',
+    });
+    recheck.focus();
+    expect(document.activeElement).toBe(recheck);
+    fireEvent.click(recheck);
+    expect(
+      await screen.findByRole('heading', { name: 'Run context hidden' }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByText(/Retry assigned runs to recheck access/u),
+    ).toBeNull();
+    expect(
+      screen.getByText(
+        /Check the assigned-work pane for access status and any available recovery/u,
+      ),
+    ).toBeTruthy();
+    expect(document.activeElement).toBe(heading);
+    expect(screen.queryByText('access-restoration')).toBeNull();
+    expect(screen.queryByText('access-policy-7')).toBeNull();
+
+    heldAssignments.resolve({ ok: false, error: { kind: 'transport' } });
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Assigned runs could not be read',
+      }),
+    ).toBeTruthy();
+    expect(document.activeElement).toBe(heading);
+    const retry = screen.getByRole('button', { name: 'Retry assigned runs' });
+    retry.focus();
+    fireEvent.click(retry);
+    await waitFor(() => expect(getConsole).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole('heading', { name: 'Resolution run' })).toBe(
+      heading,
+    );
+    expect(document.activeElement).toBe(heading);
+    expect(screen.queryByText('access-restoration')).toBeNull();
+    heldDetail.resolve({ ok: true, console: assignedRunConsole });
+    await loadedRunPane();
+    expect(document.activeElement).toBe(heading);
+    expect(listAssigned).toHaveBeenCalledTimes(3);
+  });
+
   it('never reopens retired detail after switching tenant during a held read', async () => {
     const old = deferred<AssignedRunConsoleResult>();
     const getConsole = vi
@@ -160,7 +369,11 @@ describe('assigned-run Resolver Console', () => {
     stores.push(store);
     const view = render(
       <Provider store={store}>
-        <AssignedRunWorkspace tenantId={TENANT_ID} signInHref={signInHref} />
+        <AssignedRunWorkspace
+          tenantId={TENANT_ID}
+          signInHref={signInHref}
+          renderWorkspace={renderTestShell}
+        />
       </Provider>,
     );
     fireEvent.click(
@@ -172,6 +385,7 @@ describe('assigned-run Resolver Console', () => {
         <AssignedRunWorkspace
           tenantId={SECOND_RUN_ID}
           signInHref={signInHref}
+          renderWorkspace={renderTestShell}
         />
       </Provider>,
     );
@@ -363,7 +577,11 @@ describe('assigned-run Resolver Console', () => {
     render(
       <StrictMode>
         <Provider store={store}>
-          <AssignedRunWorkspace tenantId={TENANT_ID} signInHref={signInHref} />
+          <AssignedRunWorkspace
+            tenantId={TENANT_ID}
+            signInHref={signInHref}
+            renderWorkspace={renderTestShell}
+          />
         </Provider>
       </StrictMode>,
     );
@@ -474,20 +692,47 @@ describe('assigned-run Resolver Console', () => {
     ).toHaveProperty('disabled', true);
   });
 
-  it('requests again when the first assigned page itself is rejected', async () => {
+  it('keeps focus on the execution heading while resetting a rejected first assigned page', async () => {
+    const held = deferred<AssignedRunListResult>();
     const listAssigned = vi
       .fn<RunSupervisionClient['listAssigned']>()
       .mockResolvedValueOnce({ ok: false, error: { kind: 'invalid-page' } })
-      .mockResolvedValueOnce({ ok: true, page: assignedPage() });
-    renderWorkspace({ ...successfulClient(), listAssigned });
-    fireEvent.click(
-      await screen.findByRole('button', {
-        name: 'Return to first assigned page',
-      }),
-    );
+      .mockImplementationOnce(() => held.promise);
+    const client = { ...successfulClient(), listAssigned };
+    renderWorkspace(client);
+    const reset = await screen.findByRole('button', {
+      name: 'Return to first assigned page',
+    });
+    const heading = screen.getByRole('heading', {
+      name: 'Resolution run',
+    });
+    reset.focus();
+    expect(document.activeElement).toBe(reset);
+    fireEvent.click(reset);
+    expect(document.activeElement).toBe(heading);
+    await waitFor(() => expect(listAssigned).toHaveBeenCalledTimes(2));
+    expect(
+      screen.getByRole('heading', { name: 'Loading assigned runs…' }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole('button', { name: 'Return to first assigned page' }),
+    ).toBeNull();
+    expect(document.activeElement).toBe(heading);
+    expect(client.getConsole).not.toHaveBeenCalled();
+
+    held.resolve({ ok: true, page: assignedPage() });
     expect(
       await screen.findByRole('button', { name: `Inspect run ${RUN_ID}` }),
     ).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Resolution run' })).toBe(
+      heading,
+    );
+    expect(document.activeElement).toBe(heading);
+    expect(
+      screen.getByRole('heading', { name: 'Select an assigned run' }),
+    ).toBeTruthy();
+    expect(screen.queryByText('access-restoration')).toBeNull();
+    expect(client.getConsole).not.toHaveBeenCalled();
     expect(listAssigned.mock.calls.map(([query]) => query)).toEqual([
       { tenantId: TENANT_ID },
       { tenantId: TENANT_ID },
@@ -527,6 +772,7 @@ describe('assigned-run Resolver Console', () => {
         <AssignedRunWorkspace
           tenantId={SECOND_RUN_ID}
           signInHref={signInHref}
+          renderWorkspace={renderTestShell}
         />
       </Provider>,
     );
@@ -578,6 +824,7 @@ function renderWorkspace(client: RunSupervisionClient) {
         tenantId={TENANT_ID}
         signInHref={signInHref}
         presence={<span>Verified test actor</span>}
+        renderWorkspace={renderTestShell}
       />
     </Provider>,
   );

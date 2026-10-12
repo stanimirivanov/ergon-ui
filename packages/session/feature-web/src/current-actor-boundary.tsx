@@ -21,7 +21,7 @@ export interface VerifiedSession {
 /**
  * Inputs provided by the workbench composition root.
  *
- * The shell and authenticated content are injected so this feature never
+ * The unverified shell and complete verified workspace are injected so this feature never
  * imports app layout or follow-up presentation. The sign-in target builder is
  * trusted app code and is called only with a validated tenant identifier.
  */
@@ -32,6 +32,7 @@ export interface CurrentActorBoundaryProps {
     statusLabel: string,
     content: ReactNode,
   ) => ReactElement;
+  /** Owns the complete verified shell; renderFrame is not wrapped around it. */
   readonly renderVerified: (session: VerifiedSession) => ReactNode;
 }
 
@@ -93,9 +94,10 @@ function CurrentActorSession({
   }
 
   if (!session.isError && session.currentData !== undefined) {
-    return renderFrame(
-      'Resolver inbox',
-      renderVerified({ actor: session.currentData, tenantId, signInHref }),
+    return (
+      <>
+        {renderVerified({ actor: session.currentData, tenantId, signInHref })}
+      </>
     );
   }
 

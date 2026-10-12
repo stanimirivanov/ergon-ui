@@ -13,7 +13,7 @@ export const runSupervisionGuide: GuideChapter = {
   audience:
     'Assigned supervisors reviewing an active resolution run without issuing execution commands.',
   overview: [
-    'Assigned runs is a separate workbench view from shared and claimed human follow-ups. A supervisor assignment makes one run discoverable to its assigned resolver under current server-side authority; it does not claim an escalated follow-up or create an exclusive control lease. The Console deliberately reads only the reviewed browser projection: immutable run-start inputs and the latest recorded state. Its three panes organize assigned work, resolution execution context, and case/outcome boundaries. Select a run to read its private context on demand. The selection stays local to the current page, while the view name can remain in the tenant URL.',
+    'Assigned runs is a separate workbench view from shared and claimed human follow-ups. A supervisor assignment makes one run discoverable to its assigned resolver under current server-side authority; it does not claim an escalated follow-up or create an exclusive control lease. The Console deliberately reads only the reviewed browser projection: immutable run-start inputs and the latest recorded state. One app-owned focused shell supplies branding and Back to follow-ups navigation, with the Supervisor presence toolbar above three explicit panes for assigned work, resolution execution context, and case/outcome boundaries. The toolbar can wrap without overlapping the panes, which stack in reading order at narrow width. Select a run to read its private context on demand. The selection stays local to the current page, while the view name can remain in the tenant URL.',
     'This walkthrough uses a synthetic verified session, one assigned run, and controlled BFF responses. The fixture first exposes a run waiting for approval, holds a recheck so you can see stale context disappear, returns a temporary failure, then permits an explicit retry. It later reports a recorded resolved state while removing the run from the active list, returns a neutral unavailable response, and demonstrates rejected pagination followed by a fresh first-page reset. These are illustrations of browser behavior, not a real approval, resolution, assignment change, or revocation. Every recording and screenshot is labelled SIMULATED DATA. The actual BFF must establish exact assignment and current resolver authority on every read.',
   ],
   prerequisites: [
@@ -66,28 +66,28 @@ export const runSupervisionGuide: GuideChapter = {
     {
       id: 'recheck-selected-run',
       title: 'Request a fresh assigned-only run read',
-      body: 'Choose Recheck selected run after a pause or before relying on the snapshot. Ergon temporarily hides the previous private context while a fresh BFF request rechecks assignment and authority. It does not refresh a lock, renew a lease, approve the recorded capability, or resume execution. The fixture pauses this request so you can inspect the disclosure boundary instead of merely seeing a fast response.',
+      body: 'Choose Recheck selected run after a pause or before relying on the snapshot. Keyboard focus moves to the stable Resolution run heading while the private records and their controls withdraw. Ergon temporarily hides the previous private context while a fresh BFF request rechecks assignment and authority. It does not refresh a lock, renew a lease, approve the recorded capability, or resume execution. The fixture pauses this request so you can inspect the disclosure boundary instead of merely seeing a fast response.',
       expected:
         'Rechecking run access is visible while the old contract and step details are absent.',
     },
     {
       id: 'inspect-hidden-context',
       title: 'Wait without using stale private detail',
-      body: 'During the pending read, the prior policy and pinned-step payload are removed from the page. An earlier successful response is not continuing permission to display the same private context indefinitely. Keep the selected identity in mind, but do not act on an old screenshot as if the recheck had succeeded. This behavior is browser disclosure control; it does not prove that cached memory has been securely erased.',
+      body: 'During the pending read, the prior policy and pinned-step payload are removed from the page. The same focused shell and all three panes remain: assignment discovery is still identifiable, while the execution and outcome panes display withholding messages instead of retained facts. A pane placeholder is not an empty successful projection. An earlier successful response is not continuing permission to display the same private context indefinitely. Keep the selected identity in mind, but do not act on an old screenshot as if the recheck had succeeded. This behavior is browser disclosure control; it does not prove that cached memory has been securely erased.',
       expected:
         'The rechecking message remains visible, and the earlier private contract data stays hidden.',
     },
     {
       id: 'inspect-temporary-failure',
       title: 'Distinguish a failed read from definite absence',
-      body: 'The controlled request now returns a temporary service failure. The Console keeps the old private payload hidden and offers an explicit read retry. A network or service error cannot establish whether the assignment remains valid, whether the run still exists, or whether execution has progressed. Read retries are bounded by the client’s transport policy; they never issue a mutation or recreate an assignment.',
+      body: 'The controlled request now returns a temporary service failure. The Console keeps the old private payload hidden and offers an explicit read retry inside the execution pane. The outcome pane remains a separate withheld boundary, and the app header and Supervisor presence toolbar do not disappear or turn into a second nested workbench. A network or service error cannot establish whether the assignment remains valid, whether the run still exists, or whether execution has progressed. Read retries are bounded by the client’s transport policy; they never issue a mutation or recreate an assignment.',
       expected:
         'A run-read failure and retry control replace the private run snapshot.',
     },
     {
       id: 'retry-run-read',
       title: 'Retry only the failed read',
-      body: 'Choose Retry run read once the synthetic service permits reads again. The retry asks the BFF for a new assigned-only snapshot of the same run. It does not trust the old response, replay an execution command, or assume authority from the tenant URL. If your session has expired, follow the trusted sign-in path instead of repeatedly interpreting transient failures as ownership changes.',
+      body: 'Choose Retry run read once the synthetic service permits reads again. Keyboard focus moves to the stable Resolution run heading before the retry control disappears, keeping the pending and restored read anchored to the same pane. The retry asks the BFF for a new assigned-only snapshot of the same run. It does not trust the old response, replay an execution command, or assume authority from the tenant URL. If your session has expired, follow the trusted sign-in path instead of repeatedly interpreting transient failures as ownership changes.',
       expected:
         'A fresh successful run read restores the recorded contract and step.',
     },
@@ -163,7 +163,7 @@ export const runSupervisionGuide: GuideChapter = {
     {
       id: 'reset-assignment-traversal',
       title: 'Restart from a fresh first page',
-      body: 'Choose Return to first assigned page. Ergon discards the local traversal history and private selection, then asks the BFF for the first page without either rejected cursor value. It does not simply uncover a retained first-page response: this recovery requires a fresh read. Inspect a returned run deliberately only after that read succeeds.',
+      body: 'Choose Return to first assigned page. Ergon moves keyboard focus to the persistent Resolution run heading before the recovery button disappears. That focus remains while the fresh discovery read is pending and after it succeeds. Ergon discards the local traversal history and private selection, then asks the BFF for the first page without either rejected cursor value. It does not simply uncover a retained first-page response: this recovery requires a fresh read. Inspect a returned run deliberately only after that read succeeds.',
       expected:
         'A new cursor-free first-page request restores the assigned list, with no selected private run.',
     },
@@ -177,6 +177,12 @@ export const runSupervisionGuide: GuideChapter = {
   ],
   troubleshooting: [
     {
+      symptom:
+        'The Console becomes taller when controls wrap or the view is zoomed.',
+      guidance:
+        'Use the stacked panes in their reading order: assigned work, resolution run, then outcome proof. The shell allocates space from the actual toolbar content rather than an assumed fixed header height. Back to follow-ups restores the standard workbench; it changes the work view and retires private selection, not the assignment or runtime state. Browser regressions cover narrow reflow and the effective CSS width of a 200%-zoomed desktop view; the recording itself uses its declared capture viewport.',
+    },
+    {
       symptom: 'You closed a run while its private read was still pending.',
       guidance:
         'Closing removes private detail immediately; it does not change the assignment or issue an execution command. Reopening establishes a distinct fresh read instead of displaying the response from before the close. A read shared with another active viewer may finish first, so the loading gate can remain visible while that older request settles. Do not treat the wait as lost assignment or repeatedly reopen to force transport cancellation. Cache and component regressions cover immediate pending reopen and shared-reader retirement; this recording closes an already fulfilled snapshot.',
@@ -184,7 +190,7 @@ export const runSupervisionGuide: GuideChapter = {
     {
       symptom: 'The assignment page is invalid.',
       guidance:
-        'Use Return to first assigned page. The action clears the rejected paired cursor and requests a fresh first page; do not retry the same traversal or put private cursor values into a bookmark.',
+        'Use Return to first assigned page. The action clears the rejected paired cursor and requests a fresh first page, keeping keyboard focus on the persistent Resolution run heading as the recovery control retires; do not retry the same traversal or put private cursor values into a bookmark.',
     },
     {
       symptom: 'A workbench error replaces the run snapshot.',

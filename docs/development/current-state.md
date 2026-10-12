@@ -20,6 +20,11 @@ requester app, or native app.
 - Vite-built workbench with React Router Data Mode;
 - Tailwind CSS theme tokens, a dark scope for the selected Resolver Console,
   and one shadcn-compatible button primitive;
+- explicit app-owned standard/focused shell composition with one set of
+  landmarks, branding/navigation and natural toolbar/viewport allocation;
+  capability-owned presence controls and evidence/execution/outcome sections
+  use consumed named pane slots in populated, pending and failure states.
+  No feature-class chrome selectors or guessed shell-height subtraction remain;
 - accessible home and unknown-route recovery screens;
 - tenant route validation and confidential BFF session consumption;
 - RTK Query cache ownership with Effect-based HTTP, timeout, bounded retry,

@@ -39,7 +39,7 @@ export function AssignedRunList({
     <section
       aria-labelledby="assigned-runs-heading"
       aria-busy={isFetching}
-      className="min-w-0 rounded-md border border-border bg-surface/90 p-4 xl:min-h-[calc(100vh-12rem)]"
+      className="min-w-0 flex-1 rounded-md border border-border bg-surface/90 p-4"
     >
       <p className="text-xs font-bold tracking-[0.14em] text-accent-strong uppercase">
         Your supervision work

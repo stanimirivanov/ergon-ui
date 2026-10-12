@@ -1,9 +1,10 @@
 import { useFreshResolverFollowUpCaseSummary } from '@ergon/follow-up-data-access-web';
 import { Button } from '@ergon/ui-web';
-import type { ReactNode } from 'react';
+import type { ReactElement } from 'react';
 
 import { caseSummaryFailureCopy } from './resolver-follow-up-case-summary-copy';
 import { ResolverFollowUpCaseSummaryView } from './resolver-follow-up-case-summary-view';
+import { ResolverContextWithheld } from './resolver-context-withheld';
 
 /**
  * Loads server-authorized case evidence for one resolver-owned follow-up.
@@ -20,6 +21,7 @@ export function ResolverFollowUpCaseSummary({
   caseId,
   runId,
   regionId,
+  onBeforeRetry,
 }: {
   readonly tenantId: string;
   readonly signInHref: string;
@@ -27,7 +29,9 @@ export function ResolverFollowUpCaseSummary({
   readonly caseId: string;
   readonly runId: string;
   readonly regionId: string;
-}) {
+  /** Focuses the persistent capability control before this recovery body retires. */
+  readonly onBeforeRetry: () => void;
+}): ReactElement {
   const result = useFreshResolverFollowUpCaseSummary({
     tenantId,
     workItemId,
@@ -37,7 +41,7 @@ export function ResolverFollowUpCaseSummary({
 
   if (result.kind === 'pending') {
     return (
-      <CaseContextMessage
+      <ResolverContextWithheld
         id={regionId}
         title="Loading case context…"
         description="The control plane is rechecking ownership and assembling the evidence used by the escalated run."
@@ -56,12 +60,19 @@ export function ResolverFollowUpCaseSummary({
           <a href={signInHref}>Sign in again</a>
         </Button>
       ) : copy.canRetry ? (
-        <Button type="button" variant="quiet" onClick={result.retry}>
+        <Button
+          type="button"
+          variant="quiet"
+          onClick={() => {
+            onBeforeRetry();
+            result.retry();
+          }}
+        >
           Try case context again
         </Button>
       ) : undefined;
     return (
-      <CaseContextMessage
+      <ResolverContextWithheld
         id={regionId}
         title={copy.title}
         description={copy.description}
@@ -76,36 +87,5 @@ export function ResolverFollowUpCaseSummary({
       regionId={regionId}
       isFetching={false}
     />
-  );
-}
-
-function CaseContextMessage({
-  id,
-  title,
-  description,
-  action,
-  live = false,
-}: {
-  readonly id: string;
-  readonly title: string;
-  readonly description: string;
-  readonly action?: ReactNode;
-  readonly live?: boolean;
-}) {
-  return (
-    <section
-      id={id}
-      aria-labelledby={`${id}-heading`}
-      className="mx-1 mt-5 rounded-md border border-border bg-surface p-5"
-      aria-live={live ? 'polite' : undefined}
-    >
-      <h2 id={`${id}-heading`} className="font-bold text-ink">
-        {title}
-      </h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">
-        {description}
-      </p>
-      {action === undefined ? null : <div className="mt-4">{action}</div>}
-    </section>
   );
 }

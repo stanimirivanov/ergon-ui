@@ -168,6 +168,16 @@ the exact BFF gate succeeds. Discovery membership does not replace that gate.
 
 ## Routing and rendering
 
+Both Consoles use one app-owned standard/focused shell composed directly from
+the capability workflow's `WorkspaceView`. The app owns branding, navigation,
+landmarks, dark token scope and viewport allocation; features supply cohesive
+toolbars and pane sections. `ThreePaneLayout` has named leading/primary/trailing
+slots, not sibling fragments that implicitly complete a parent grid. Actual
+header/toolbar heights determine remaining desktop space; narrow layouts stack.
+Loading/failure states retain all panes without retained private facts.
+The session gate's unverified renderer supplies the standard shell; its verified
+renderer supplies the complete workspace. See [ADR 0026](decisions/0026-compose-console-shell-and-named-panes.md).
+
 The browser applications are Vite-built React SPAs using React Router Data
 Mode. Route definitions own hierarchy, lazy boundaries, parameters, and error
 pages. RTK Query, once introduced, owns API data; route loaders must not create

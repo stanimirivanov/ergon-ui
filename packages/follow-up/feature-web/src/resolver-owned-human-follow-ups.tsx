@@ -1,6 +1,8 @@
 import { useCallback, useRef, type ReactElement, type ReactNode } from 'react';
 
 import { ResolverOwnedHumanFollowUpsPage } from './resolver-owned-human-follow-ups-page';
+import { ResolverFollowUpPresence } from './resolver-follow-up-presence';
+import { ResolverFollowUpToolbar } from './resolver-follow-up-toolbar';
 import { useOwnedFollowUpWorkflow } from './use-owned-follow-up-workflow';
 
 /** Inputs supplied by the route-level composition boundary. */
@@ -11,9 +13,11 @@ export interface ResolverOwnedHumanFollowUpsProps {
   readonly signInHref: string;
   /** Opaque session-owned display, not claim authority. */
   readonly consoleActorDetails: ReactNode;
-  /** Composes surroundings from the workflow's current mode without mirrored state. */
+  /** Composes current toolbar/content without mirrored mode; the app owns global entry focus. */
   readonly renderWorkspace?: (view: {
     readonly isConsoleOpen: boolean;
+    readonly statusLabel: string;
+    readonly toolbar?: ReactNode;
     readonly content: ReactElement;
   }) => ReactElement;
 }
@@ -35,10 +39,42 @@ function OwnedFollowUpSurface({
 }: ResolverOwnedHumanFollowUpsProps): ReactElement {
   const workflow = useOwnedFollowUpWorkflow(tenantId);
   const activeWorkHeading = useRef<HTMLHeadingElement>(null);
+  const consoleBack = useRef<HTMLButtonElement>(null);
+  const focusConsoleBack = useCallback(() => consoleBack.current?.focus(), []);
   const focusActiveWorkHeading = useCallback(
     () => activeWorkHeading.current?.focus(),
     [],
   );
+  const gatedSelection = workflow.currentSelection;
+  const toolbar = workflow.isConsoleOpen ? (
+    <ResolverFollowUpToolbar
+      backRef={consoleBack}
+      onBack={workflow.close}
+      onRecheckOwnership={workflow.recheck}
+      {...(gatedSelection === undefined
+        ? {}
+        : {
+            renderPresence: (onRecheckOwnership: () => void) => (
+              <ResolverFollowUpPresence
+                actorDetails={consoleActorDetails}
+                item={gatedSelection}
+                isReleasePending={workflow.isReleasePending}
+                onRecheckOwnership={onRecheckOwnership}
+                onConfirmRelease={() =>
+                  workflow.releaseFromConsole(gatedSelection)
+                }
+              />
+            ),
+          })}
+    />
+  ) : undefined;
+  const statusLabel = !workflow.isConsoleOpen
+    ? 'Human follow-ups'
+    : gatedSelection !== undefined
+      ? 'Escalated · claimed'
+      : workflow.ownedWork.isError
+        ? 'Claim check unavailable'
+        : 'Checking current claim';
 
   const content = (
     <section
@@ -46,7 +82,11 @@ function OwnedFollowUpSurface({
         workflow.isConsoleOpen ? undefined : 'owned-work-heading'
       }
       aria-label={workflow.isConsoleOpen ? 'Resolver Console' : undefined}
-      className={workflow.isConsoleOpen ? 'min-w-0' : 'mt-12'}
+      className={
+        workflow.isConsoleOpen
+          ? 'flex min-h-0 min-w-0 flex-1 flex-col'
+          : 'mt-12'
+      }
     >
       {!workflow.isConsoleOpen ? (
         <div className="border-b border-border pb-7">
@@ -70,14 +110,23 @@ function OwnedFollowUpSurface({
       <ResolverOwnedHumanFollowUpsPage
         tenantId={tenantId}
         signInHref={signInHref}
-        consoleActorDetails={consoleActorDetails}
         workflow={workflow}
         onMissingReturnFocus={focusActiveWorkHeading}
+        onBeforeConsoleRetry={focusConsoleBack}
       />
     </section>
   );
   return (
-    renderWorkspace?.({ isConsoleOpen: workflow.isConsoleOpen, content }) ??
-    content
+    renderWorkspace?.({
+      isConsoleOpen: workflow.isConsoleOpen,
+      statusLabel,
+      ...(toolbar === undefined ? {} : { toolbar }),
+      content,
+    }) ?? (
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
+        {toolbar}
+        {content}
+      </div>
+    )
   );
 }

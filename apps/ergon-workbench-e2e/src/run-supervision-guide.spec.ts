@@ -231,6 +231,9 @@ test(
         await expect(
           page.getByRole('button', { name: 'Retry assigned runs' }),
         ).toHaveCount(0);
+        await expect(
+          resolution.getByText(/Retry assigned runs to recheck access/u),
+        ).toHaveCount(0);
         expect(bff.assignedReads()).toBe(readsBeforeRejectedPage + 1);
         expect(bff.assignedCursors().at(-1)).toEqual({
           assignedAt: '2026-09-21T09:02:00Z',
@@ -240,11 +243,43 @@ test(
           page.getByText('access-restoration', { exact: true }),
         ).toHaveCount(0);
         const readsBeforeReset = bff.assignedReads();
-        await guide.action('reset-assignment-traversal', resetPage, () =>
-          resetPage.click(),
+        let resetRequested = false;
+        let releaseReset: () => void = () => undefined;
+        const heldResetRead = new Promise<void>((resolve) => {
+          releaseReset = resolve;
+        });
+        // Hold the fresh request without bypassing the fixture's cursor checks.
+        await page.route(
+          '**/bff/v1/tenants/*/resolution-runs/assigned?*',
+          async (route) => {
+            resetRequested = true;
+            await heldResetRead;
+            await route.fallback();
+          },
+          { times: 1 },
         );
+        await guide.action(
+          'reset-assignment-traversal',
+          resetPage,
+          async () => {
+            await resetPage.focus();
+            await page.keyboard.press('Enter');
+          },
+        );
+        await expect.poll(() => resetRequested).toBe(true);
+        const resolutionHeading = resolution.getByRole('heading', {
+          name: 'Resolution run',
+          exact: true,
+        });
+        await expect(resolutionHeading).toBeFocused();
+        await expect(runButton).toHaveCount(0);
+        await expect(
+          page.getByText('access-restoration', { exact: true }),
+        ).toHaveCount(0);
+        releaseReset();
         await expect(runButton).toBeVisible();
         await expect.poll(() => bff.assignedReads()).toBe(readsBeforeReset + 1);
+        await expect(resolutionHeading).toBeFocused();
         expect(bff.assignedCursors().at(-1)).toEqual({
           assignedAt: null,
           assignmentId: null,
@@ -304,6 +339,30 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
     path: testInfo.outputPath('assigned-run-console-desktop.png'),
     animations: 'disabled',
   });
+
+  const outcomeViewport = page.getByRole('group', {
+    name: 'Run outcome',
+    exact: true,
+  });
+  expect(
+    await outcomeViewport.evaluate(
+      (element) => element.scrollHeight > element.clientHeight,
+    ),
+  ).toBe(true);
+  await outcomeViewport.focus();
+  await expect(outcomeViewport).toBeFocused();
+  const outcomeScroll = await outcomeViewport.evaluate(
+    (element) => element.scrollTop,
+  );
+  await page.keyboard.press('PageDown');
+  await expect
+    .poll(() => outcomeViewport.evaluate((element) => element.scrollTop))
+    .toBeGreaterThan(outcomeScroll);
+  await expect(outcomeViewport).toBeFocused();
+  await page.keyboard.press('Home');
+  await expect
+    .poll(() => outcomeViewport.evaluate((element) => element.scrollTop))
+    .toBe(0);
 
   // Halving the desktop CSS width exercises the reflow required at 200% zoom.
   await page.setViewportSize({ width: 720, height: 900 });

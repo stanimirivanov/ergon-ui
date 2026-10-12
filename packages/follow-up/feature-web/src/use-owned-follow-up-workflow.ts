@@ -47,6 +47,7 @@ const INITIAL_WORKFLOW: Workflow = {
 
 export interface OwnedFollowUpWorkflow {
   readonly ownedWork: ReturnType<typeof useResolverOwnedHumanFollowUpsQuery>;
+  /** Exact current row only while the Console's owned gate is successful; never retained through recheck/failure. */
   readonly currentSelection: ResolverOwnedHumanFollowUpWork | undefined;
   readonly releaseNotice: ReleaseNotice | undefined;
   readonly position: PagePosition;
@@ -70,7 +71,8 @@ export interface OwnedFollowUpWorkflow {
 /**
  * Single owner of private selection, committed withdrawal, replay, and return
  * focus intent for a mounted tenant's owned-work surface. Remote rows are never
- * copied: the exact selected claim is derived from the current cache response.
+ * copied: the exact selected claim is derived from the current cache response,
+ * and both claim presence and body lose that row during pending/failed gates.
  */
 export function useOwnedFollowUpWorkflow(
   tenantId: string,
@@ -91,7 +93,10 @@ export function useOwnedFollowUpWorkflow(
       ? workflow.selection
       : null;
   const currentSelection =
-    selection === null
+    workflow.kind !== 'console' ||
+    selection === null ||
+    ownedWork.isFetching ||
+    ownedWork.isError
       ? undefined
       : ownedWork.currentData?.items.find((item) =>
           isExactSelectedClaim(item, selection),

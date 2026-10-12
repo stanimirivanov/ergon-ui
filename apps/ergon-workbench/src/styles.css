@@ -62,18 +62,8 @@ a {
   background: rgb(38 116 91 / 20%);
 }
 
-/* A selected case is a focused work surface, not another disclosure card. */
-.workbench-frame:has(.resolver-console-workspace) > .workbench-frame-header,
-.workbench-frame:has(.resolver-console-workspace) > .workbench-frame-footer {
-  display: none;
-}
-
-/* A focused Console has its own navigation and presence header. */
-.verified-workbench:has(.resolver-console-workspace) > .workbench-view-nav {
-  display: none;
-}
-
-.resolver-console-workspace {
+/* App-owned shell mode scopes tokens; feature DOM never decides chrome. */
+[data-workbench-mode='focused'] {
   color-scheme: dark;
   --canvas: #07111c;
   --surface: #0d1c2b;
@@ -90,7 +80,7 @@ a {
   color: var(--ink);
 }
 
-.resolver-console-workspace ::selection {
+[data-workbench-mode='focused'] ::selection {
   background: rgb(33 143 218 / 35%);
 }
 

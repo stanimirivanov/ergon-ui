@@ -19,6 +19,17 @@ const ACTOR: Extract<CurrentActorResult, { ok: true }>['actor'] = {
 };
 
 describe('current actor boundary', () => {
+  it('lets verified composition own its shell instead of nesting the session frame', async () => {
+    const { renderVerified } = renderBoundary(TENANT_ID, {
+      async resolve() {
+        return { ok: true, actor: ACTOR };
+      },
+    });
+    await screen.findByRole('heading', { name: 'Protected content' });
+    expect(renderVerified).toHaveBeenCalledOnce();
+    expect(screen.queryByRole('main', { name: 'Resolver inbox' })).toBeNull();
+  });
+
   it('renders the verified identity in a compact Console badge without a provider subject', () => {
     render(<VerifiedActorBadge actor={ACTOR} />);
 

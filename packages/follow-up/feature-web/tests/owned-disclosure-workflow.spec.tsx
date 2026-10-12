@@ -41,7 +41,7 @@ describe('owned disclosure workflow', () => {
       .mockImplementationOnce(async () => {
         expect(screen.queryByText('Private evidence')).toBeNull();
         expect(
-          screen.queryByRole('heading', { name: 'Resolver Console' }),
+          screen.queryByRole('region', { name: 'Current claim' }),
         ).toBeNull();
         return successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null);
       });
@@ -71,7 +71,7 @@ describe('owned disclosure workflow', () => {
     const release = vi.fn<ReleaseHumanFollowUp['release']>(async () => {
       expect(screen.queryByText('Private evidence')).toBeNull();
       expect(
-        screen.queryByRole('heading', { name: 'Resolver Console' }),
+        screen.queryByRole('region', { name: 'Current claim' }),
       ).toBeNull();
       return { ok: true, release: followUpRelease(FIRST_WORK_ITEM_ID) };
     });
@@ -181,9 +181,7 @@ describe('owned disclosure workflow', () => {
     expect(
       await screen.findByRole('button', { name: 'Open resolver console' }),
     ).toBeTruthy();
-    expect(
-      screen.queryByRole('heading', { name: 'Resolver Console' }),
-    ).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Current claim' })).toBeNull();
     expect(screen.queryByText('Private evidence')).toBeNull();
     expect(getOwnedCaseSummary).toHaveBeenCalledTimes(1);
   });
@@ -270,7 +268,7 @@ describe('owned disclosure workflow', () => {
     const release = vi.fn<ReleaseHumanFollowUp['release']>(async () => {
       expect(screen.queryByText('Private evidence')).toBeNull();
       expect(
-        screen.queryByRole('heading', { name: 'Resolver Console' }),
+        screen.queryByRole('region', { name: 'Current claim' }),
       ).toBeNull();
       return heldRelease.promise;
     });
@@ -440,9 +438,7 @@ describe('owned disclosure workflow', () => {
       screen.queryByRole('status', { name: 'Follow-up released' }),
     ).toBeNull();
     expect(screen.queryByRole('alert')).toBeNull();
-    expect(
-      screen.queryByRole('heading', { name: 'Resolver Console' }),
-    ).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Current claim' })).toBeNull();
   });
 });
 

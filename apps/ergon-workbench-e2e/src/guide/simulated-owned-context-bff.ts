@@ -159,8 +159,13 @@ const summary = {
  * a distinct fourth read until old evidence and retired completion are hidden.
  * A neutral 404 and a later empty owned page illustrate one possible change,
  * not the reason a real resolver lost access.
+ * A goal override exercises layout without changing the default chapter;
+ * callers must retain the domain's trimmed, non-blank, 500-character limit.
  */
-export async function installSimulatedOwnedContextBff(page: Page): Promise<{
+export async function installSimulatedOwnedContextBff(
+  page: Page,
+  options: { readonly caseGoal?: string } = {},
+): Promise<{
   summaryReads: () => number;
   ownedReads: () => number;
   claimCommands: () => number;
@@ -171,6 +176,10 @@ export async function installSimulatedOwnedContextBff(page: Page): Promise<{
   let ownedReads = 0;
   let claimCommands = 0;
   let finishPendingRead: () => void = () => undefined;
+  const caseSummary = {
+    ...summary,
+    case: { ...summary.case, goal: options.caseGoal ?? summary.case.goal },
+  };
   const pendingRead = new Promise<void>((resolve) => {
     finishPendingRead = resolve;
   });
@@ -207,7 +216,7 @@ export async function installSimulatedOwnedContextBff(page: Page): Promise<{
       );
       summaryReads += 1;
       if (summaryReads <= 2) {
-        await fulfillSimulatedBff(route, summary);
+        await fulfillSimulatedBff(route, caseSummary);
         return;
       }
       if (summaryReads > 4) {

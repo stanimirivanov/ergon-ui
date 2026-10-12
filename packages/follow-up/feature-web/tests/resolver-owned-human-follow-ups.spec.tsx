@@ -354,7 +354,7 @@ describe('resolver-owned human follow-ups', () => {
     const release = vi.fn<ReleaseHumanFollowUp['release']>(async () => {
       expect(screen.queryByText('Private evidence')).toBeNull();
       expect(
-        screen.queryByRole('heading', { name: 'Resolver Console' }),
+        screen.queryByRole('region', { name: 'Current claim' }),
       ).toBeNull();
       return pendingRelease;
     });
@@ -634,16 +634,17 @@ describe('resolver-owned human follow-ups', () => {
       screen.getByText(/Automated attempt 2 reached the configured limit of 2/),
     ).toBeTruthy();
     expect(screen.getByText('2 of 2')).toBeTruthy();
+    // Branding, global heading and initial entry focus belong to the app shell.
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Resolver Console' }),
-    ).toBeTruthy();
+      screen.queryByRole('heading', { level: 1, name: 'Resolver Console' }),
+    ).toBeNull();
     expect(screen.getByText('Verified resolver test identity')).toBeTruthy();
     expect(
       screen.queryByRole('button', { name: 'Open resolver console' }),
     ).toBeNull();
-    expect(document.activeElement).toBe(
-      screen.getByRole('heading', { level: 1, name: 'Resolver Console' }),
-    );
+    expect(
+      screen.getByRole('button', { name: 'Back to active work' }),
+    ).toBeTruthy();
     expect(
       screen.queryByRole('button', { name: /Authorize|Steer|Handover/ }),
     ).toBeNull();
@@ -929,9 +930,7 @@ describe('resolver-owned human follow-ups', () => {
       }),
     ).toBeTruthy();
     expect(screen.queryByText('Private evidence')).toBeNull();
-    expect(
-      screen.queryByRole('heading', { name: 'Resolver Console' }),
-    ).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Current claim' })).toBeNull();
   });
 
   it('unmounts private context while owned work is rechecked and after claim loss', async () => {
@@ -1059,9 +1058,7 @@ describe('resolver-owned human follow-ups', () => {
       }),
     );
     expect(screen.queryByText('Private evidence')).toBeNull();
-    expect(
-      screen.queryByRole('heading', { name: 'Resolver Console' }),
-    ).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Current claim' })).toBeNull();
 
     fireEvent.click(
       screen.getByRole('button', { name: 'Back to active work' }),
