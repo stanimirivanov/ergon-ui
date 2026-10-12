@@ -33,6 +33,9 @@ project consumes the current-actor cache hook from
 `@ergon/session-data-access-web`, the actor model from
 `@ergon/session-model`, and the web button primitive from `@ergon/ui-web`.
 The tenant route value is navigation context, never authorization evidence.
+`renderFrame` wraps only invalid, pending and failed session states.
+`renderVerified` supplies the complete verified workspace, including its app-owned
+shell. This prevents nested landmarks while leaving the fail-closed gate intact.
 The compact badge displays only the verified actor ID and provider; it does not
 represent current claim ownership or a lease.
 

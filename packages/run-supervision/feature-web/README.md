@@ -13,6 +13,15 @@ not a client application core or an execution-control surface.
   identity in URL or persistent storage.
 - Assigned discovery, exact-run inspection, explicit recheck and recovery,
   accessible headings, status messages, policy disclosure, and narrow reflow.
+- Cohesive supervisor presence/inspection toolbar, discovery, execution and
+  outcome sections. Explicit named pane slots preserve the complete layout
+  across selection, pending, failed and successful reads.
+- Explicit selected-run rechecks and recovery move focus to the persistent
+  execution heading before their button is withdrawn; pending and failed reads keep that target
+  while private records remain hidden.
+- Discovery rechecks and read recovery use that same stable heading before
+  disabling or withdrawing the initiating control. These explicit interaction
+  callbacks add no focus effects tied to background discovery phases.
 - Closing the exact-run gate during revalidation or failed discovery and on
   close/tenant switch. Request retirement and zero-grace eviction are owned by
   data access, not workspace rendering.
@@ -34,6 +43,9 @@ not a client application core or an execution-control surface.
 
 - Protocol decoding, Effect execution, cache policy, authentication, authority,
   tenant routing, store assembly, or supervisor assignment.
+- App branding, global navigation, standard/focused shell, theme scope or
+  viewport allocation. Presence can wrap without an assumed header height;
+  panels never subtract fixed chrome dimensions from the viewport.
 - Lease ownership, timers, handover, grants, approval decisions, steering,
   execution events, tool spans, measurements, evidence claims, or proof.
   Their absence is explicit rather than filled with synthetic data.
@@ -42,17 +54,26 @@ not a client application core or an execution-control surface.
 ## Public API and dependencies
 
 `AssignedRunWorkspace` accepts tenant request context, a trusted same-origin
-sign-in URL, an opaque verified-actor presence slot, and an optional return
-callback. Mount it beneath the application's verified-session boundary.
+sign-in URL, an opaque verified-actor presence slot, and the required app-owned
+`WorkspaceRenderer`. Mount it beneath the application's verified-session boundary.
 Presence display is not authority. All server state stays in RTK Query;
 private selection and pagination intent stay in React state.
+
+The renderer receives focused mode, `Assigned · read only` status, a
+capability-owned toolbar and content together during render. The app supplies
+branding, the page heading, Back to follow-ups navigation and outer placement;
+no visibility callback mirrors the workflow. `ThreePaneLayout` from
+`@ergon/ui-web` owns named leading/primary/trailing wrappers and responsive
+allocation. The feature supplies their domain landmarks in that order and
+keeps both execution and outcome placeholders present when detail is hidden.
 
 `useAssignedRunWorkflow` is an implementation boundary, not another resource
 cache or platform-neutral application core. It composes the cache-owned fresh
 discovery/detail gates and keeps a selected terminal run as local intent when
 active discovery no longer contains it. The workspace renders explicit typed
 read phases and callbacks; it owns no promises, subscription aborts, transport
-decoding or mirrored visibility. Pane/shell extraction is a later planned slice.
+decoding or mirrored visibility. Presentation consumes those same typed gates
+without introducing another request or focus owner.
 
 The feature consumes `@ergon/run-supervision-data-access-web` through its
 public API and `@ergon/ui-web` for reviewed primitives. Its Nx tags are

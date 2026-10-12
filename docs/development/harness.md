@@ -142,9 +142,19 @@ Those require owning behavioral tests and the semantic review:
 Console committed-phase tests now replace the previous `flushSync` dependency;
 cache hooks own fresh-read sequencing and subscriber retirement under
 [ADR 0025](../decisions/0025-own-private-console-disclosure-workflows.md).
-Feature-class chrome selectors remain migration debt, not permission for new
-copies. The [scoped remediation plan](plans/resolver-console-architecture-remediation.md)
-orders their replacement while retaining their current safety regressions.
+App chrome now consumes an explicit derived workspace slot under
+[ADR 0026](../decisions/0026-compose-console-shell-and-named-panes.md).
+Named panes retain loading/failure layout. Shell regressions cover one set of
+landmarks, route-preserving skip navigation, wrapped presence allocation, valid
+long context text at short desktop heights, and narrow/zoom-equivalent reflow.
+Every independently scrolling pane needs a named keyboard focus target and a
+visible focus indicator, including an outcome pane with no interactive controls;
+prove actual keyboard scrolling as well as axe compliance. Rechecks and recovery
+must move focus to a persistent control or heading before withdrawing their
+trigger. Feature-class chrome selectors and guessed header-height subtraction
+are not allowed.
+The [scoped remediation plan](plans/resolver-console-architecture-remediation.md)
+orders the remaining work while retaining current safety regressions.
 It defers unrelated landing/session/inbox decomposition until those pages are
 redesigned. Do not turn a deferred finding into a broad suppression.
 

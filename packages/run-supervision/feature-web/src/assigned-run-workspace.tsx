@@ -1,9 +1,10 @@
-import { Button } from '@ergon/ui-web';
-import type { ReactElement, ReactNode, RefObject } from 'react';
+import { ThreePaneLayout, type WorkspaceRenderer } from '@ergon/ui-web';
+import type { ReactElement, ReactNode } from 'react';
 
-import { AssignedRunConsoleView } from './assigned-run-console';
+import { AssignedRunExecutionPane } from './assigned-run-execution-pane';
 import { AssignedRunList } from './assigned-run-list';
-import { AssignedRunMessage } from './assigned-run-message';
+import { AssignedRunOutcomePane } from './assigned-run-outcome-pane';
+import { AssignedRunPresence } from './assigned-run-presence';
 import { useAssignedRunWorkflow } from './use-assigned-run-workflow';
 
 interface AssignedRunWorkspaceProps {
@@ -12,16 +13,24 @@ interface AssignedRunWorkspaceProps {
   readonly signInHref: string;
   /** Verified actor display only, not evidence of supervisor authority. */
   readonly presence?: ReactNode;
-  readonly onReturnToFollowUps?: () => void;
+  /** App-owned branding, navigation and viewport allocation around this view. */
+  readonly renderWorkspace: WorkspaceRenderer;
 }
 
 /**
  * Inspects server-assigned runs beneath the app's verified-session boundary.
  * Selection and page cursors are local, never URL or persistent state. A fresh
- * discovery/read hides retained private detail; failed discovery unmounts and
- * evicts it without discarding retry intent. Terminal detail may remain selected
+ * discovery/read hides retained private records; failed discovery closes this
+ * view's detail gate without discarding retry intent or affecting other readers.
+ * Terminal detail may remain selected
  * after it leaves active discovery, but only a fresh exact-run read permits it.
  * This snapshot workspace grants neither an exclusive lease nor execution power.
+ * Composition receives focused mode directly from the mounted workflow, not a
+ * visibility callback. The app owns shell chrome; this feature owns domain panes
+ * and the display-only presence/inspection toolbar.
+ * Explicit rechecks and recovery focus the persistent execution heading before
+ * their controls become unavailable; no background focus effect is added by
+ * these interactions.
  */
 export function AssignedRunWorkspace(
   props: AssignedRunWorkspaceProps,
@@ -34,173 +43,73 @@ function TenantAssignedRunWorkspace({
   tenantId,
   signInHref,
   presence,
-  onReturnToFollowUps,
+  renderWorkspace,
 }: AssignedRunWorkspaceProps): ReactElement {
   const workflow = useAssignedRunWorkflow(tenantId);
   const { assigned, detail, selectedRunId } = workflow;
   const isReadingAssigned = assigned.phase === 'pending';
 
-  return (
-    <div className="resolver-console-workspace min-h-screen min-w-0 bg-canvas text-ink">
-      <header className="flex min-h-16 flex-wrap items-center gap-4 border-b border-border bg-surface px-4 py-3 lg:px-6">
-        <div className="flex items-center gap-3 border-r border-border pr-5">
-          <span
-            aria-hidden="true"
-            className="grid size-8 place-items-center rounded-md border border-accent font-bold text-accent-strong"
-          >
-            E
-          </span>
-          <span className="text-lg font-extrabold tracking-tight">Ergon</span>
-        </div>
-        <h1 className="min-w-0 flex-1 text-2xl font-extrabold tracking-tight">
-          Resolver Console
-        </h1>
-        <span className="rounded-md border border-accent/60 bg-accent/10 px-3 py-1 text-xs font-bold tracking-wide text-accent-strong uppercase">
-          Assigned · read only
-        </span>
-        {onReturnToFollowUps === undefined ? null : (
-          <Button
-            type="button"
-            variant="quiet"
-            size="compact"
-            onClick={onReturnToFollowUps}
-          >
-            Back to follow-ups
-          </Button>
-        )}
-      </header>
-      <section
-        aria-label="Supervisor presence"
-        className="mx-3 mt-3 flex flex-wrap items-center justify-between gap-4 rounded-md border border-border bg-surface/90 px-4 py-3 sm:mx-4 lg:mx-5"
-      >
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
-            Supervisor workspace
-          </p>
-          <p className="mt-1 text-sm text-ink-muted">
-            Assignment and current resolver authority are checked by the control
-            plane. This is a snapshot, not a control lease.
-          </p>
-        </div>
-        {presence}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="quiet"
-            size="compact"
-            disabled={isReadingAssigned}
-            onClick={assigned.recheck}
-          >
-            Recheck assigned runs
-          </Button>
-          {selectedRunId === null ? null : (
-            <Button
-              type="button"
-              variant="quiet"
-              size="compact"
-              onClick={workflow.closeRun}
-            >
-              Close run
-            </Button>
-          )}
-        </div>
-      </section>
-      <div className="grid min-w-0 gap-3 px-3 py-4 sm:px-4 lg:px-5 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.8fr)_minmax(0,1.05fr)]">
-        <AssignedRunList
-          page={assigned.phase === 'ready' ? assigned.data : undefined}
-          selectedRunId={selectedRunId}
-          isFetching={isReadingAssigned}
-          isRecheck={assigned.phase === 'pending' && assigned.hasRetainedData}
-          error={assigned.phase === 'failed' ? assigned.error : undefined}
-          signInHref={signInHref}
-          hasPrevious={workflow.hasPrevious}
-          onSelect={workflow.selectRun}
-          onRetry={assigned.recheck}
-          onResetPage={workflow.resetTraversal}
-          onPrevious={workflow.previousPage}
-          onNext={workflow.nextPage}
-        />
-        {selectedRunId === null ? (
-          <ConsoleUnavailable
-            title="Select an assigned run"
-            description="Choose a run from your assignment snapshot to inspect its recorded start, pinned policy, and current state."
-            heading={workflow.heading}
-          />
-        ) : detail.phase === 'ready' ? (
-          <AssignedRunConsoleView
-            console={detail.data}
-            onRecheck={detail.recheck}
-            heading={workflow.heading}
-          />
-        ) : detail.phase === 'pending' ? (
-          <ConsoleUnavailable
-            title={
-              detail.hasRetainedData
-                ? 'Rechecking run access…'
-                : 'Loading run context…'
-            }
-            description="Requesting a fresh exact-run snapshot. Retained private context is hidden until access and the response are checked."
-            heading={workflow.heading}
-          />
-        ) : detail.phase === 'failed' ? (
-          <ConsoleUnavailable
-            title={
-              detail.error.kind === 'not-found'
-                ? 'Run context is unavailable'
-                : 'Run context could not be read'
-            }
-            error={detail.error}
-            signInHref={signInHref}
-            retryLabel="Retry run read"
-            onRetry={detail.recheck}
-            heading={workflow.heading}
-          />
-        ) : (
-          <ConsoleUnavailable
-            title="Run context hidden"
-            description="Selected private detail is hidden while assigned work is being read or after that read fails. Retry assigned runs to recheck access."
-            heading={workflow.heading}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
+  function handleAssignedRecheck(): void {
+    // Discovery controls become disabled or disappear during revalidation.
+    // The execution heading persists while their selected context is withheld.
+    workflow.heading.current?.focus();
+    assigned.recheck();
+  }
 
-function ConsoleUnavailable({
-  heading,
-  ...props
-}: Parameters<typeof AssignedRunMessage>[0] & {
-  readonly heading: RefObject<HTMLHeadingElement | null>;
-}): ReactElement {
-  return (
-    <>
-      <section
-        aria-labelledby="resolution-run-heading"
-        className="min-w-0 rounded-md border border-border bg-surface/90 p-4"
-      >
-        <h2
-          ref={heading}
-          tabIndex={-1}
-          id="resolution-run-heading"
-          className="mb-5 text-2xl font-extrabold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong"
-        >
-          Resolution run
-        </h2>
-        <AssignedRunMessage {...props} />
-      </section>
-      <section
-        aria-labelledby="outcome-proof-heading"
-        className="min-w-0 rounded-md border border-border bg-surface/90 p-4"
-      >
-        <h2 id="outcome-proof-heading" className="text-xl font-extrabold">
-          Outcome proof
-        </h2>
-        <p className="mt-5 text-sm leading-6 text-ink-muted">
-          No private run state or proof is displayed without a successful
-          current read.
-        </p>
-      </section>
-    </>
-  );
+  function handleAssignedReset(): void {
+    // A first-page rejection need not change the selected run or detail phase,
+    // so recovery cannot rely on the controller's selection focus effect.
+    workflow.heading.current?.focus();
+    workflow.resetTraversal();
+  }
+
+  return renderWorkspace({
+    mode: 'focused',
+    statusLabel: 'Assigned · read only',
+    toolbar: (
+      <AssignedRunPresence
+        presence={presence}
+        isReadingAssigned={isReadingAssigned}
+        hasSelectedRun={selectedRunId !== null}
+        onRecheck={handleAssignedRecheck}
+        onClose={workflow.closeRun}
+      />
+    ),
+    content: (
+      <ThreePaneLayout
+        leadingLabel="Assigned run discovery"
+        primaryLabel="Run execution"
+        trailingLabel="Run outcome"
+        leading={
+          <AssignedRunList
+            page={assigned.phase === 'ready' ? assigned.data : undefined}
+            selectedRunId={selectedRunId}
+            isFetching={isReadingAssigned}
+            isRecheck={assigned.phase === 'pending' && assigned.hasRetainedData}
+            error={assigned.phase === 'failed' ? assigned.error : undefined}
+            signInHref={signInHref}
+            hasPrevious={workflow.hasPrevious}
+            onSelect={workflow.selectRun}
+            onRetry={handleAssignedRecheck}
+            onResetPage={handleAssignedReset}
+            onPrevious={workflow.previousPage}
+            onNext={workflow.nextPage}
+          />
+        }
+        primary={
+          <AssignedRunExecutionPane
+            detail={detail}
+            selectedRunId={selectedRunId}
+            signInHref={signInHref}
+            heading={workflow.heading}
+          />
+        }
+        trailing={
+          <AssignedRunOutcomePane
+            run={detail.phase === 'ready' ? detail.data : undefined}
+          />
+        }
+      />
+    ),
+  });
 }

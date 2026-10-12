@@ -1,5 +1,11 @@
 # Follow-up web feature
 
+## TL;DR
+
+Keep follow-up interaction and protected read-only panes capability-local.
+The app-supplied `WorkspaceRenderer` owns shell chrome and available space;
+RTK Query owns resources, and the feature workflow owns selection and replay.
+
 ## Purpose
 
 Own the workbench's human-follow-up React behavior, keeping capability behavior
@@ -21,7 +27,7 @@ out of the deployable app and domain-agnostic UI primitives.
   The Console offers a deliberate claim recheck: it hides case evidence during
   the owned-work read and requests fresh owner-scoped context only if the exact
   claim remains visible. This is not a lease renewal.
-- Responsive, read-only, three-pane case inspection: recorded observations
+- Capability-local toolbar/presence and responsive, read-only, three-pane case inspection: recorded observations
   and provenance through a locally selected source-observation inspector, the
   failed automation handoff and ordered durable attempts with native disclosure
   of recorded transitions, connector results, and retry linkage, and the pinned
@@ -35,6 +41,10 @@ out of the deployable app and domain-agnostic UI primitives.
   provenance without claiming that either is verified or contradictory.
   Local section jumps focus evidence, attempts, or outcome without a URL
   fragment; evidence precedes execution and proof when panes stack.
+  Named leading/primary/trailing slots delegate evidence, execution, and outcome
+  to cohesive feature panes. Pending or failed private reads and owned-claim
+  rechecks preserve the three-pane allocation with withheld-state sections,
+  without retaining case goals, claim presence, source content or policy facts.
   The view introduces no verified-claim graph, client-side authority, live
   trace, lease, approval, or resolution claim.
 - One confirmed exact-claim release flow shared by active-work cards and the
@@ -47,6 +57,17 @@ out of the deployable app and domain-agnostic UI primitives.
   optional `renderWorkspace` slot instead of mirroring visibility. The inbox
   remains mounted but suspended during detours, retaining traversal and exact
   uncertain command intent without rendering rows or holding a subscription.
+  `HumanFollowUpWorkspace` forwards mode, status, capability toolbar and one
+  stable content subtree through its required app-supplied `WorkspaceRenderer`.
+  The app owns branding, navigation, initial Console heading focus, dark scope,
+  and viewport allocation; this feature has no chrome selector or assumed
+  header-height subtraction. Its toolbar remains in document flow when claim
+  information or release confirmation wraps.
+  Explicit claim recheck and Console read recovery move focus to the stable Back
+  control before retiring their controls; failed ownership rechecks retain the
+  existing failure-heading focus. Successful recovery does not lose focus when
+  the withheld body is replaced by fresh context.
+  No response callback schedules focus work or replays an action.
 - Translation of data-access-normalized follow-up failures into resolver-facing
   copy. Unexpected read defects hide retained case context and offer only an
   explicit retry; they are not reported as malformed server responses. Claim
@@ -61,6 +82,7 @@ out of the deployable app and domain-agnostic UI primitives.
 - Session verification, sign-in URL construction, route hierarchy, or Redux
   store composition.
 - Domain-agnostic web primitives.
+- App branding, global navigation, shell chrome, or viewport-height policy.
 
 ## Public API and dependencies
 
@@ -75,6 +97,9 @@ display as an opaque slot; this feature never inspects session identity.
 The compact Console slot appears only after a case is selected and the current
 owned-work read permits the Console to mount. It is display-only: claim
 ownership and case disclosure continue to depend on BFF reads.
+The app supplies a `WorkspaceRenderer` that preserves the content position while
+changing between standard and focused mode. The feature supplies current
+capability controls as an opaque toolbar; it never calls a shell-mode setter.
 
 ## Verification
 

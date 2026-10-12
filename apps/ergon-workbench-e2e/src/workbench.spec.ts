@@ -255,25 +255,28 @@ test(
           }),
         );
 
-        const releaseButton = consoleView.getByRole('button', {
+        const claimControls = page.getByRole('region', {
+          name: 'Current claim',
+        });
+        const releaseButton = claimControls.getByRole('button', {
           name: 'Release to shared queue',
         });
         await guide.action('request-release', releaseButton, () =>
           releaseButton.click(),
         );
-        const confirmButton = consoleView.getByRole('button', {
+        const confirmButton = claimControls.getByRole('button', {
           name: 'Confirm release',
         });
-        const cancelButton = consoleView.getByRole('button', {
+        const cancelButton = claimControls.getByRole('button', {
           name: 'Cancel',
         });
         await expect(confirmButton).toBeVisible();
         await expect(cancelButton).toBeVisible();
         await expect(
-          consoleView.getByText(/original shared queue/u),
+          claimControls.getByText(/original shared queue/u),
         ).toBeVisible();
         await expect(
-          consoleView.getByText(/does not complete the case/u),
+          claimControls.getByText(/does not complete the case/u),
         ).toBeVisible();
         expect(bff.releaseRequests()).toBe(0);
 

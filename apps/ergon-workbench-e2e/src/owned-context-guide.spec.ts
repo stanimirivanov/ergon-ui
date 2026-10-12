@@ -61,9 +61,15 @@ test(
         await expect(consoleView).toBeVisible();
         await expect(caseHeading).toBeVisible();
         await expect(
-          consoleView.getByText('741bcdba-9521-4e96-bfcc-7a5a2830eec8'),
+          page
+            .getByRole('region', { name: 'Current claim' })
+            .getByText('741bcdba-9521-4e96-bfcc-7a5a2830eec8'),
         ).toBeVisible();
-        await expect(consoleView.getByText('workforce-sso')).toBeVisible();
+        await expect(
+          page
+            .getByRole('region', { name: 'Current claim' })
+            .getByText('workforce-sso'),
+        ).toBeVisible();
         const evidence = consoleView.getByRole('region', {
           name: 'Recorded observations',
         });
@@ -313,21 +319,25 @@ test(
         await guide.result('inspect-proof', proof);
 
         const ownedReadsBeforeRecheck = bff.ownedReads();
-        const recheckClaim = consoleView.getByRole('button', {
+        const recheckClaim = page.getByRole('button', {
           name: 'Recheck current claim',
         });
-        await guide.action('recheck-current-claim', recheckClaim, () =>
-          recheckClaim.click(),
-        );
+        await guide.action('recheck-current-claim', recheckClaim, async () => {
+          await recheckClaim.focus();
+          await page.keyboard.press('Enter');
+        });
         await expect
           .poll(() => bff.ownedReads())
           .toBe(ownedReadsBeforeRecheck + 1);
         await expect.poll(() => bff.summaryReads()).toBe(2);
         await expect(caseHeading).toBeVisible();
+        await expect(
+          page.getByRole('button', { name: 'Back to active work' }),
+        ).toBeFocused();
         expect(bff.claimCommands()).toBe(0);
         await guide.result('claim-recheck-complete', caseHeading);
 
-        const backToWork = consoleView.getByRole('button', {
+        const backToWork = page.getByRole('button', {
           name: 'Back to active work',
         });
         await guide.action('hide-case-context', backToWork, () =>
@@ -595,10 +605,8 @@ test('places console panes in order without overflow at desktop and narrow width
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
 
-  await consoleView
-    .getByRole('button', { name: 'Release to shared queue' })
-    .click();
-  const confirmation = consoleView.getByRole('group', {
+  await page.getByRole('button', { name: 'Release to shared queue' }).click();
+  const confirmation = page.getByRole('group', {
     name: 'Confirm release to shared queue',
   });
   await expect(confirmation).toBeVisible();
@@ -616,6 +624,6 @@ test('places console panes in order without overflow at desktop and narrow width
   expect(confirmationAccessibility.violations).toEqual([]);
   await confirmation.getByRole('button', { name: 'Cancel' }).click();
   await expect(
-    consoleView.getByRole('button', { name: 'Release to shared queue' }),
+    page.getByRole('button', { name: 'Release to shared queue' }),
   ).toBeFocused();
 });

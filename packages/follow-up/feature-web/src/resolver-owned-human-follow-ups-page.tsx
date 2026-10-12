@@ -1,9 +1,10 @@
 import { normalizeHumanFollowUpFailure } from '@ergon/follow-up-data-access-web';
 import { Button } from '@ergon/ui-web';
-import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactElement } from 'react';
 
 import { FollowUpMessage } from './follow-up-message';
 import { ResolverFollowUpConsole } from './resolver-follow-up-console';
+import { ResolverContextWithheld } from './resolver-context-withheld';
 import { ownedWorkFailureCopy } from './resolver-owned-human-follow-ups-copy';
 import { ResolverOwnedHumanFollowUpsList } from './resolver-owned-human-follow-ups-view';
 import type { OwnedFollowUpWorkflow } from './use-owned-follow-up-workflow';
@@ -12,15 +13,16 @@ import type { OwnedFollowUpWorkflow } from './use-owned-follow-up-workflow';
 export function ResolverOwnedHumanFollowUpsPage({
   tenantId,
   signInHref,
-  consoleActorDetails,
   workflow,
   onMissingReturnFocus,
+  onBeforeConsoleRetry,
 }: {
   readonly tenantId: string;
   readonly signInHref: string;
-  readonly consoleActorDetails: ReactNode;
   readonly workflow: OwnedFollowUpWorkflow;
   readonly onMissingReturnFocus: () => void;
+  /** Moves focus out of a recovery control before its private body is replaced. */
+  readonly onBeforeConsoleRetry: () => void;
 }): ReactElement {
   const { ownedWork, isConsoleOpen, currentSelection } = workflow;
   const readFailureHeading = useRef<HTMLHeadingElement>(null);
@@ -43,17 +45,20 @@ export function ResolverOwnedHumanFollowUpsPage({
     (ownedWork.isFetching &&
       (ownedWork.currentData === undefined || isConsoleOpen))
   ) {
+    if (isConsoleOpen) {
+      return (
+        <ResolverContextWithheld
+          id="owned-work-check"
+          title="Loading your active work…"
+          description="The control plane is checking current ownership and resolver authority."
+          live
+        />
+      );
+    }
     return (
       <FollowUpMessage
         title="Loading your active work…"
         description="The control plane is checking current ownership and resolver authority."
-        action={
-          isConsoleOpen ? (
-            <Button type="button" variant="quiet" onClick={workflow.close}>
-              Back to active work
-            </Button>
-          ) : undefined
-        }
         live
       />
     );
@@ -69,42 +74,52 @@ export function ResolverOwnedHumanFollowUpsPage({
           <a href={signInHref}>Sign in again</a>
         </Button>
       ) : failure.kind === 'invalid-page' ? (
-        <Button type="button" variant="quiet" onClick={workflow.resetPages}>
+        <Button
+          type="button"
+          variant="quiet"
+          onClick={() => {
+            if (isConsoleOpen) onBeforeConsoleRetry();
+            workflow.resetPages();
+          }}
+        >
           Return to first claimed-work page
         </Button>
       ) : copy.canRetry ? (
         <Button
           type="button"
           variant="quiet"
-          onClick={() => ownedWork.refetch()}
+          onClick={() => {
+            if (isConsoleOpen) onBeforeConsoleRetry();
+            ownedWork.refetch();
+          }}
         >
           Try again
         </Button>
       ) : undefined;
+    if (isConsoleOpen) {
+      return (
+        <ResolverContextWithheld
+          id="owned-work-check"
+          title={copy.title}
+          description={copy.description}
+          action={action}
+          headingRef={readFailureHeading}
+        />
+      );
+    }
     return (
       <FollowUpMessage
         title={copy.title}
         description={copy.description}
-        action={
-          isConsoleOpen ? (
-            <div className="flex flex-wrap gap-3">
-              {action}
-              <Button type="button" variant="quiet" onClick={workflow.close}>
-                Back to active work
-              </Button>
-            </div>
-          ) : (
-            action
-          )
-        }
-        {...(isConsoleOpen ? { headingRef: readFailureHeading } : {})}
+        action={action}
       />
     );
   }
 
   if (isConsoleOpen) {
     return currentSelection === undefined ? (
-      <FollowUpMessage
+      <ResolverContextWithheld
+        id="owned-work-check"
         title="Returning to active work…"
         description="This exact claim is no longer present in the current owned-work view. Its case context is hidden."
         live
@@ -113,12 +128,8 @@ export function ResolverOwnedHumanFollowUpsPage({
       <ResolverFollowUpConsole
         tenantId={tenantId}
         signInHref={signInHref}
-        actorDetails={consoleActorDetails}
         item={currentSelection}
-        isReleasePending={workflow.isReleasePending}
-        onBack={workflow.close}
-        onRecheckOwnership={workflow.recheck}
-        onConfirmRelease={() => workflow.releaseFromConsole(currentSelection)}
+        onBeforeRetry={onBeforeConsoleRetry}
       />
     );
   }

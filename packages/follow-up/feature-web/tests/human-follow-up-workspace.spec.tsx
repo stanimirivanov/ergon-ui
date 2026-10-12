@@ -7,13 +7,17 @@ import {
 } from '@testing-library/react';
 import type {
   ClaimHumanFollowUp,
+  GetOwnedFollowUpCaseSummary,
   ListOpenHumanFollowUps,
+  ListOwnedHumanFollowUps,
 } from '@ergon/follow-up-data-access-web';
+import { humanFollowUpApi } from '@ergon/follow-up-data-access-web';
+import type { WorkspaceRenderer } from '@ergon/ui-web';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 
-import { HumanFollowUpWorkspace } from '../src';
+import { HumanFollowUpWorkspace, ResolverOwnedHumanFollowUps } from '../src';
 import {
   FIRST_WORK_ITEM_ID,
   SECOND_WORK_ITEM_ID,
@@ -34,6 +38,247 @@ const cursor = {
 };
 
 describe('follow-up workspace disclosure composition', () => {
+  it('derives shell mode and withdraws claim presence while preserving every pane during a held ownership gate', async () => {
+    let finishOwned: (
+      result: Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>,
+    ) => void = () => undefined;
+    const heldOwned = new Promise<
+      Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>
+    >((resolve) => {
+      finishOwned = resolve;
+    });
+    const listOwned = vi
+      .fn<ListOwnedHumanFollowUps['listOwned']>()
+      .mockResolvedValueOnce(
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      )
+      .mockImplementationOnce(() => heldOwned);
+    const shell = vi.fn<WorkspaceRenderer>(renderWorkspaceShell);
+    renderWorkspace({ listOwned }, shell);
+    expect(shell.mock.lastCall?.[0].mode).toBe('standard');
+
+    await openConsole();
+    expect(shell.mock.lastCall?.[0].mode).toBe('focused');
+    expect(screen.getByRole('region', { name: 'Current claim' })).toBeTruthy();
+    const recheck = screen.getByRole('button', {
+      name: 'Recheck current claim',
+    });
+    recheck.focus();
+    fireEvent.click(recheck);
+    await waitFor(() => expect(listOwned).toHaveBeenCalledTimes(2));
+    expect(shell.mock.lastCall?.[0].mode).toBe('focused');
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Back to active work' }),
+    );
+    expect(screen.queryByRole('region', { name: 'Current claim' })).toBeNull();
+    expect(screen.queryByText('Private Console evidence')).toBeNull();
+    expect(screen.queryByText('Verified actor display')).toBeNull();
+    expect(
+      screen
+        .getAllByRole('heading', { level: 3 })
+        .map((heading) => heading.textContent),
+    ).toEqual(['Evidence withheld', 'Execution withheld', 'Outcome withheld']);
+    expect(
+      screen.getAllByRole('button', { name: 'Back to active work' }),
+    ).toHaveLength(1);
+
+    finishOwned({ ok: false, error: { kind: 'transport' } });
+    const failure = await screen.findByRole('heading', {
+      name: 'Your active work is temporarily unavailable.',
+    });
+    expect(document.activeElement).toBe(failure);
+    expect(shell.mock.lastCall?.[0].mode).toBe('focused');
+    expect(screen.queryByRole('region', { name: 'Current claim' })).toBeNull();
+    expect(
+      screen
+        .getAllByRole('heading', { level: 3 })
+        .map((heading) => heading.textContent),
+    ).toEqual(['Evidence withheld', 'Execution withheld', 'Outcome withheld']);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Back to active work' }),
+    );
+    expect(shell.mock.lastCall?.[0].mode).toBe('standard');
+    expect(
+      screen.queryByRole('region', { name: 'Evidence withheld' }),
+    ).toBeNull();
+  });
+  it('retains stable toolbar focus after an immediately successful ownership recheck', async () => {
+    const listOwned = vi.fn<ListOwnedHumanFollowUps['listOwned']>(async () =>
+      successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+    );
+    renderWorkspace({ listOwned });
+    await openConsole();
+    const recheck = screen.getByRole('button', {
+      name: 'Recheck current claim',
+    });
+    recheck.focus();
+    fireEvent.click(recheck);
+    const back = screen.getByRole('button', { name: 'Back to active work' });
+    expect(document.activeElement).toBe(back);
+    await waitFor(() => expect(listOwned).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText('Private Console evidence')).toBeTruthy();
+    expect(document.activeElement).toBe(back);
+  });
+  it('retains stable toolbar focus through a held owned-work recovery and fresh case context', async () => {
+    let finishRecovery: (
+      result: Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>,
+    ) => void = () => undefined;
+    const recovery = new Promise<
+      Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>
+    >((resolve) => {
+      finishRecovery = resolve;
+    });
+    const listOwned = vi
+      .fn<ListOwnedHumanFollowUps['listOwned']>()
+      .mockResolvedValueOnce(
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+      )
+      .mockResolvedValueOnce({ ok: false, error: { kind: 'transport' } })
+      .mockImplementationOnce(() => recovery);
+    renderWorkspace({ listOwned });
+    await openConsole();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Recheck current claim' }),
+    );
+    const retry = await screen.findByRole('button', { name: 'Try again' });
+    retry.focus();
+    fireEvent.click(retry);
+    const back = screen.getByRole('button', { name: 'Back to active work' });
+    expect(document.activeElement).toBe(back);
+    await waitFor(() => expect(listOwned).toHaveBeenCalledTimes(3));
+    expect(screen.queryByText('Private Console evidence')).toBeNull();
+    expect(screen.queryByText('Verified actor display')).toBeNull();
+    expect(
+      screen
+        .getAllByRole('heading', { level: 3 })
+        .map((heading) => heading.textContent),
+    ).toEqual(['Evidence withheld', 'Execution withheld', 'Outcome withheld']);
+    finishRecovery(successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null));
+    expect(await screen.findByText('Private Console evidence')).toBeTruthy();
+    expect(document.activeElement).toBe(back);
+  });
+  it('retains stable toolbar focus through a held case-context recovery and fresh evidence', async () => {
+    let finishRecovery: (
+      result: Awaited<
+        ReturnType<GetOwnedFollowUpCaseSummary['getOwnedCaseSummary']>
+      >,
+    ) => void = () => undefined;
+    const recovery = new Promise<
+      Awaited<ReturnType<GetOwnedFollowUpCaseSummary['getOwnedCaseSummary']>>
+    >((resolve) => {
+      finishRecovery = resolve;
+    });
+    const getOwnedCaseSummary = vi
+      .fn<GetOwnedFollowUpCaseSummary['getOwnedCaseSummary']>()
+      .mockResolvedValueOnce({ ok: false, error: { kind: 'transport' } })
+      .mockImplementationOnce(() => recovery);
+    renderWorkspace({ getOwnedCaseSummary });
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Open resolver console' }),
+    );
+    const retry = await screen.findByRole('button', {
+      name: 'Try case context again',
+    });
+    retry.focus();
+    fireEvent.click(retry);
+    const back = screen.getByRole('button', { name: 'Back to active work' });
+    expect(document.activeElement).toBe(back);
+    await waitFor(() => expect(getOwnedCaseSummary).toHaveBeenCalledTimes(2));
+    expect(screen.queryByText('Private Console evidence')).toBeNull();
+    expect(
+      screen
+        .getAllByRole('heading', { level: 3 })
+        .map((heading) => heading.textContent),
+    ).toEqual(['Evidence withheld', 'Execution withheld', 'Outcome withheld']);
+    finishRecovery({
+      ok: true,
+      summary: resolverFollowUpCaseSummary(
+        FIRST_WORK_ITEM_ID,
+        'Private Console evidence',
+      ),
+    });
+    expect(await screen.findByText('Private Console evidence')).toBeTruthy();
+    expect(document.activeElement).toBe(back);
+  });
+  it('retains stable toolbar focus while an invalid claimed-work page recovers through the first page', async () => {
+    const nextCursor = {
+      afterClaimedAt: '2026-09-22T10:15:00Z',
+      afterClaimId: '77777777-7777-4777-8777-777777777777',
+    };
+    let finishRecovery: (
+      result: Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>,
+    ) => void = () => undefined;
+    const recovery = new Promise<
+      Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>
+    >((resolve) => {
+      finishRecovery = resolve;
+    });
+    const listOwned = vi
+      .fn<ListOwnedHumanFollowUps['listOwned']>()
+      .mockResolvedValueOnce(
+        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, nextCursor),
+      )
+      .mockResolvedValueOnce(
+        successfulOwnedFollowUpResult(SECOND_WORK_ITEM_ID, null),
+      )
+      .mockResolvedValueOnce({ ok: false, error: { kind: 'invalid-page' } })
+      .mockImplementationOnce(() => recovery);
+    const store = createFollowUpTestStore({
+      listOwned,
+      getOwnedCaseSummary: async () => ({
+        ok: true,
+        summary: resolverFollowUpCaseSummary(
+          SECOND_WORK_ITEM_ID,
+          'Private Console evidence',
+        ),
+      }),
+    });
+    render(
+      <Provider store={store}>
+        <ResolverOwnedHumanFollowUps
+          tenantId={TENANT_ID}
+          signInHref="/bff/login"
+          consoleActorDetails={<span>Verified actor display</span>}
+        />
+      </Provider>,
+    );
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Next claimed-work page' }),
+    );
+    expect(await screen.findByText(SECOND_WORK_ITEM_ID)).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Open resolver console' }),
+    );
+    expect(await screen.findByText('Private Console evidence')).toBeTruthy();
+    // The unsubscribed first-page cache retires too, so reset exercises a real read.
+    store.dispatch(
+      humanFollowUpApi.util.invalidateTags([
+        { type: 'ResolverOwnedHumanFollowUps', id: TENANT_ID },
+      ]),
+    );
+    const recover = await screen.findByRole('button', {
+      name: 'Return to first claimed-work page',
+    });
+    recover.focus();
+    fireEvent.click(recover);
+    const back = screen.getByRole('button', { name: 'Back to active work' });
+    expect(document.activeElement).toBe(back);
+    await waitFor(() => expect(listOwned).toHaveBeenCalledTimes(4));
+    expect(listOwned).toHaveBeenLastCalledWith(
+      { tenantId: TENANT_ID, limit: 25 },
+      expect.any(AbortSignal),
+    );
+    expect(screen.queryByText('Private Console evidence')).toBeNull();
+    expect(screen.queryByText('Verified actor display')).toBeNull();
+    expect(
+      screen
+        .getAllByRole('heading', { level: 3 })
+        .map((heading) => heading.textContent),
+    ).toEqual(['Evidence withheld', 'Execution withheld', 'Outcome withheld']);
+    finishRecovery(successfulOwnedFollowUpResult(SECOND_WORK_ITEM_ID, null));
+    expect(await screen.findByText('Private Console evidence')).toBeTruthy();
+    expect(document.activeElement).toBe(back);
+  });
   it('preserves inbox traversal across a Console detour without rendering suspended rows', async () => {
     const listOpen = vi.fn<ListOpenHumanFollowUps['listOpen']>(async (query) =>
       query.cursor === undefined
@@ -140,7 +385,10 @@ async function openConsole(): Promise<void> {
   expect(await screen.findByText('Private Console evidence')).toBeTruthy();
 }
 
-function renderWorkspace(capabilities: FollowUpTestCapabilities) {
+function renderWorkspace(
+  capabilities: FollowUpTestCapabilities,
+  shell: WorkspaceRenderer = renderWorkspaceShell,
+) {
   const store = createFollowUpTestStore({
     listOwned: async () =>
       successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
@@ -161,8 +409,20 @@ function renderWorkspace(capabilities: FollowUpTestCapabilities) {
           signInHref="/bff/login"
           actorDetails={<span>Verified actor display</span>}
           consoleActorDetails={<span>Verified actor display</span>}
+          renderWorkspace={shell}
         />
       </MemoryRouter>
     </Provider>,
   );
 }
+
+const renderWorkspaceShell: WorkspaceRenderer = ({
+  mode,
+  toolbar,
+  content,
+}) => (
+  <div data-workbench-mode={mode}>
+    <div>{toolbar}</div>
+    <main>{content}</main>
+  </div>
+);

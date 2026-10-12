@@ -54,6 +54,10 @@ describe('current actor page', () => {
       },
     );
     await screen.findByRole('heading', { name: 'Resolver Console' });
+    expect(screen.getAllByRole('banner')).toHaveLength(1);
+    expect(screen.getAllByRole('main')).toHaveLength(1);
+    expect(screen.queryByRole('contentinfo')).toBeNull();
+    expect(screen.getAllByRole('link', { name: 'Ergon home' })).toHaveLength(1);
     await waitFor(() => expect(listAssigned).toHaveBeenCalledOnce());
 
     await act(async () => {

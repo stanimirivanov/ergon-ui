@@ -13,7 +13,7 @@ export const ownedContextGuide: GuideChapter = {
   audience:
     'Resolvers returning to active work and reviewing an escalated case.',
   overview: [
-    'Claimed follow-ups are recovered from the server-backed active-work view, not from a browser-stored claim. A card in that view identifies work currently visible under your resolver session, but its case evidence is a separate, owner-scoped read. The workbench requests the case summary only when you choose Open resolver console. Recheck current claim deliberately rereads ownership and case context while hiding prior evidence. Returning to active work closes the console; reopening it triggers another read because ownership and resolver authority can change while a page remains open. The selection is local to this page, not a shareable case route.',
+    'Claimed follow-ups are recovered from the server-backed active-work view, not from a browser-stored claim. A card in that view identifies work currently visible under your resolver session, but its case evidence is a separate, owner-scoped read. The workbench requests the case summary only when you choose Open resolver console. Its single app-owned shell then switches from the standard workbench to a focused dark Console: branding and navigation appear once, with the Current claim toolbar above three explicit panes. Recheck current claim deliberately rereads ownership and case context while hiding prior evidence. Returning to active work closes the console and restores the standard shell; reopening it triggers another read because ownership and resolver authority can change while a page remains open. The selection is local to this page, not a shareable case route.',
     'This walkthrough uses one synthetic owned follow-up with two source observations and a deliberately controlled BFF response. One observation was available at the run’s pinned evidence snapshot; the other was recorded later. The first context request returns that synthetic evidence, and a deliberate recheck returns it again. A third request pauses and is closed before completion. Reopening starts a distinct fourth check, which returns the same neutral absence response used for several protected states. A later owned-work read returns an empty page. Those fixture choices illustrate the browser response, not why a real claim became unavailable. Every screenshot and the recording are labelled SIMULATED DATA; they do not verify OIDC, database transactions, authorization, or live revocation.',
   ],
   prerequisites: [
@@ -44,7 +44,7 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'open-case-context',
       title: 'Open the Resolver Console on demand',
-      body: 'Choose Open resolver console. The workbench replaces the active-work list with a console whose case evidence is read-only, and starts a separate owner-scoped read for the exact follow-up. The BFF must establish that the item is open, claimed by your verified actor, and visible under current resolver authority before assembling the case and run evidence. The card alone does not bypass that check.',
+      body: 'Choose Open resolver console. The workbench replaces the active-work list with a console whose case evidence is read-only, and starts a separate owner-scoped read for the exact follow-up. The focused shell replaces the standard header, work-view navigation, and footer rather than stacking a second set of branding above the case. Its presence toolbar takes the space its content needs; at narrow width the controls wrap and the panes stack below it. The BFF must establish that the item is open, claimed by your verified actor, and visible under current resolver authority before assembling the case and run evidence. The card alone does not bypass that check.',
       expected:
         'The workbench requests the case summary only after this action.',
     },
@@ -191,7 +191,7 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'recheck-current-claim',
       title: 'Recheck your current claim',
-      body: 'Choose Recheck current claim in the Console authority strip after a pause or before relying on these details. Ergon requests the owned-work page again and hides the old case context while the server checks the exact claim and resolver authority. If it remains current, a fresh owner-scoped case-summary read restores the Console. The strip is not a lease, lock, or countdown, and this action does not renew ownership.',
+      body: 'Choose Recheck current claim in the Console authority strip after a pause or before relying on these details. Ergon requests the owned-work page again and hides the old case context while the server checks the exact claim and resolver authority. Keyboard focus moves to the stable Back to active work control before the claim controls retire; it does not remain on a removed button. The same focused shell and three-pane structure remain, but withheld placeholders replace evidence, execution, and outcome facts until the reads permit disclosure again. If the exact claim remains current, a fresh owner-scoped case-summary read restores the Console. The strip is not a lease, lock, or countdown, and this action does not renew ownership.',
       expected:
         'A fresh owned-work read and case-summary read complete without a claim command.',
     },
@@ -225,7 +225,7 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'evidence-hidden-while-loading',
       title: 'Do not rely on stale evidence',
-      body: 'While the new request is pending, the console says Loading case context and the prior observation is absent. This is intentional: old evidence must not remain on screen while the control plane rechecks permission. Waiting for the fresh result is safer than acting on a screenshot, cached content, or a claim card that has not itself been refreshed.',
+      body: 'While the new request is pending, the console says Loading case context and the prior observation is absent. Evidence, execution, and outcome placeholders preserve the complete pane layout rather than allowing another column to occupy a missing pane. The focused app header remains; its presence is navigation, not evidence that the private read succeeded. Old evidence must not remain on screen while the control plane rechecks permission. Wait for the fresh result rather than relying on a screenshot, cached content, or a claim card that has not itself been refreshed.',
       expected:
         'The loading message is visible and the earlier case goal and observation remain hidden.',
     },
@@ -260,7 +260,7 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'context-unavailable',
       title: 'Read the neutral unavailable state',
-      body: 'The fixture now returns the BFF’s non-disclosing case-summary absence response. The console says Case context is no longer available and does not restore the old evidence or offer a blind retry for this definite result. The message does not reveal whether the item closed, ownership changed, authority changed, or the item was absent. Refresh active work before deciding what to do next.',
+      body: 'The fixture now returns the BFF’s non-disclosing case-summary absence response. The console says Case context is no longer available and does not restore the old evidence or offer a blind retry for this definite result. The shell and withheld panes remain available for orientation and Back to active work; no prior goal, source, or proof fact is restored merely to fill the layout. The message does not reveal whether the item closed, ownership changed, authority changed, or the item was absent. Refresh active work before deciding what to do next.',
       expected:
         'A neutral unavailable message replaces the evidence without naming another owner or an authorization reason.',
     },
@@ -282,13 +282,13 @@ export const ownedContextGuide: GuideChapter = {
     {
       symptom: 'The case-context read reports an unexpected workbench error.',
       guidance:
-        'Do not use retained evidence as current access. Try case context again performs an explicit fresh owner-scoped read; contact an operator if the defect persists. This is a client or dependency defect, not a malformed BFF response or proof that ownership changed. Private context remains hidden. The defect path is tested at cache/component boundaries, not represented as a synthetic HTTP status in this walkthrough.',
+        'Do not use retained evidence as current access. Try case context again performs an explicit fresh owner-scoped read and moves focus to the stable Back to active work control before the retry button disappears; contact an operator if the defect persists. This is a client or dependency defect, not a malformed BFF response or proof that ownership changed. Private context remains hidden. The defect path is tested at cache/component boundaries, not represented as a synthetic HTTP status in this walkthrough.',
     },
     {
       symptom:
         'Active work becomes temporarily unavailable while the console is open.',
       guidance:
-        'The console hides case evidence when the owned-work recheck fails, even if an earlier list is cached. Use Try again to request current ownership before relying on the case context, or Back to active work to leave the console. A failed read does not establish that the claim was lost.',
+        'The console hides case evidence when the owned-work recheck fails, even if an earlier list is cached. Use Try again to request current ownership before relying on the case context, or Back to active work to leave the console. Retrying moves focus to the stable Back control while the failed-read controls withdraw, so keyboard users are not left on a removed button. A failed read does not establish that the claim was lost.',
     },
     {
       symptom: 'Your active work is empty after reload.',

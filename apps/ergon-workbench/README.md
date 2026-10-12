@@ -27,6 +27,12 @@ pnpm nx e2e @ergon/workbench-e2e
 ## Boundaries
 
 - Compose routes and application providers here.
+- Own one standard/focused `WorkbenchFrame`: branding, home/skip navigation,
+  Console heading, global view navigation, landmarks and viewport allocation.
+  Bind each capability's derived `WorkspaceView` directly to that shell; do not
+  mirror mode in state or infer it from feature classes. Capability toolbars
+  occupy natural rows above explicit named panes. Keep main/content positions
+  stable across an owned-Console detour so mounted inbox intent survives.
 - Render follow-up behavior through
   the `@ergon/follow-up-feature-web` feature package; do
   not recreate capability-specific orchestration or presentation in the app.

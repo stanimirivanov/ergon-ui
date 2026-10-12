@@ -1,6 +1,6 @@
 # Resolver Console architecture remediation
 
-- Status: Task 1 present on main. Task 2 implemented and verified locally; awaiting review/merge. Tasks 3–4 remain planned.
+- Status: Tasks 1–2 present on local main. Task 3 implemented and locally verified on codex/console-shell-pane-ownership; review and merge pending. Task 4 remains planned.
 - Milestone: M05 - Human follow-up and resolver console
 
 ## TL;DR
@@ -88,7 +88,7 @@ updates; they do not authorize that page's full architectural or visual rewrite.
 
 ### 2. Make private Console disclosure a single-owned workflow
 
-Implemented locally under [ADR 0025](../../decisions/0025-own-private-console-disclosure-workflows.md):
+Implemented under [ADR 0025](../../decisions/0025-own-private-console-disclosure-workflows.md):
 cache hooks own fresh acquisition and subscriber retirement; feature controllers
 own exact selection, committed phases and focus intent. A derived workspace slot
 keeps inbox traversal/replay intent mounted but suspends its rows and reads.
@@ -120,6 +120,28 @@ Do not replace pending-read sequencing with an unproved
 refetch/skip option or broaden the legacy card redesign.
 
 ### 3. Make Resolver Console shell and pane ownership explicit
+
+Implemented under [ADR 0026](../../decisions/0026-compose-console-shell-and-named-panes.md):
+the app renders one standard/focused frame from the capability's derived
+workspace slot, while extracted feature sections fill three explicit UI-owned
+panes. Branding, navigation, landmarks and natural viewport allocation no longer
+depend on a feature class or an estimated header height. Stable controls/headings
+receive focus before rechecks and recovery withdraw their triggers; the native
+skip link preserves the route and tenant query. Named keyboard-scroll groups and
+a usable pane floor cover control-free outcomes and tall valid case context.
+
+`pnpm verify` passed all 32 workspace targets and all 16 Chromium scenarios.
+The final local run used `NX_PARALLEL=1` and `VITEST_MAX_WORKERS=1`, retaining
+all assertions and test deadlines after default-worker component timeouts.
+The browser scenarios cover ready, withheld and recovery states, wrapping
+presence, short desktop heights, 320-wide reflow and 720-wide CSS-equivalent
+200% reflow; actual browser zoom and non-Chromium engines were not exercised.
+These checks use synthetic BFF responses, not live backend or OIDC authority.
+`pnpm guide:generate` recorded all seven chapters uncached and assembled the
+Markdown/HTML book. Owned-context and assigned-run guidance now explains the
+single shell, complete withheld panes and keyboard recheck/recovery handoffs.
+Representative desktop ready/withheld and narrow assigned-run screenshots were
+visually reviewed; the generated book remains explicitly simulated.
 
 Compose both Consoles through an app-owned standard/focused shell contract driven
 by the single workflow owner, using render slots rather than a mirrored mode
