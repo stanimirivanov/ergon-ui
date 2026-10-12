@@ -142,7 +142,7 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'open-source-comparison',
       title: 'Compare two source records',
-      body: 'Choose Compare sources to open a modal inspector over the same owner-authorized response. Its selected source is the email report; the second source is the later SSO diagnostic. The records appear side by side at desktop width and stack at narrow width. Both show original text, origin and provider, reference, occurrence and recording times, and their distinct run-snapshot labels. No new BFF request is made, and this view does not infer a contradiction or bind either statement to a verified asset fact.',
+      body: 'Focus Compare sources and press Enter to open a modal inspector over the same owner-authorized response. Focus starts at the Source comparison heading so you can read its structured content before moving through Close comparison and Second observation with Tab or Shift+Tab. The background workbench is inert until the modal closes. Its selected source is the email report; the second source is the later SSO diagnostic. The records appear side by side at desktop width and stack at narrow width. Both show original text, origin and provider, reference, occurrence and recording times, and their distinct run-snapshot labels. No new BFF request is made, and this view does not infer a contradiction or bind either statement to a verified asset fact.',
       expected:
         'A modal source comparison shows the selected and later records with provenance and timing.',
     },
@@ -156,7 +156,7 @@ export const ownedContextGuide: GuideChapter = {
     {
       id: 'close-source-comparison',
       title: 'Return to the evidence pane',
-      body: 'Choose Close comparison or press Escape. The modal closes and keyboard focus returns to the Compare sources control in the still-authorized Console. Changing the timing filter to a single visible record removes the comparison action. Closing the Console later removes the source details and comparison state altogether.',
+      body: 'Choose Close comparison or press Escape. The modal closes and focus returns immediately to the live Compare sources control in the still-authorized Console; no delayed focus task can interrupt your next action. Close the modal before changing the timing filter or requesting a fresh access check. Filtering to one record removes the comparison action. If current observations disappear or an ownership check withdraws the Console, comparison is retired instead of reopening automatically when records return. The enclosing access workflow then owns focus, not the old comparison. Backdrop clicks do not dismiss this inspection. Closing the Console later removes source details and comparison state altogether.',
       expected:
         'The modal closes, focus returns to the evidence pane, and the case-summary read count is unchanged.',
     },

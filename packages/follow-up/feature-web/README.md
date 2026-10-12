@@ -37,6 +37,14 @@ out of the deployable app and domain-agnostic UI primitives.
   inspector keeps untrusted source content inert, labels whether it was
   available at the run's pinned snapshot, and
   locally filters observations by that temporal boundary without another read.
+  The inspector composes separately owned timing controls, source list, detail
+  and comparison content, with one provenance renderer for both presentations.
+  Only exact selection and comparison-pair identities are retained; removed
+  identities retire permanently rather than silently reopening when records
+  return. The consumed ui-web modal owns platform show/close, initial title focus,
+  keyboard containment, Escape/visible dismissal and viewport placement.
+  Explicit dismissal restores the live Compare sources control synchronously;
+  filter changes or access withdrawal retire the modal without queued focus work.
   A modal inspector compares two currently visible source records and their
   provenance without claiming that either is verified or contradictory.
   Local section jumps focus evidence, attempts, or outcome without a URL

@@ -1,6 +1,6 @@
 # Resolver Console architecture remediation
 
-- Status: Tasks 1–2 present on local main. Task 3 implemented and locally verified on codex/console-shell-pane-ownership; review and merge pending. Task 4 remains planned.
+- Status: Tasks 1–3 present on main. Task 4 implemented locally on codex/observation-inspection-boundaries, awaiting review.
 - Milestone: M05 - Human follow-up and resolver console
 
 ## TL;DR
@@ -156,6 +156,36 @@ reflow and 200% zoom; loading/failure panes preserve the layout. No landing or
 session-screen redesign and no fabricated execution/proof facts.
 
 ### 4. Separate observation inspection and accessible comparison boundaries
+
+Implemented under [ADR 0027](../../decisions/0027-own-inspection-modal-lifecycle-in-ui-primitives.md):
+dedicated feature sections own filter, source list, detail and comparison, with
+one shared provenance renderer. Selection retains only exact current identities;
+removed sources cannot resurrect a comparison. The consumed ui-web modal owns
+native lifecycle, naming, title focus, Escape/pointer dismissal and geometry.
+A pinned Radix FocusScope closes the browser-proven keyboard-loop gap without
+duplicating native inertness or scheduling return-focus work. Explicit dismissal
+restores the live invoking control synchronously; the enclosing disclosure
+workflow owns focus after withdrawal. Short comparison cards remain top-aligned
+beside long source content. No backend, cache-key or command change is included.
+
+`pnpm verify` passed all 32 workspace targets (14 valid cache hits) and all 17
+Chromium scenarios. The run used `NX_PARALLEL=1` and `VITEST_MAX_WORKERS=1`
+without changing assertions or deadlines. Regression tests cover stale focus,
+permanent identity retirement, StrictMode, obsolete close events and an open
+comparison withdrawn during held/failed ownership checks before fresh recovery.
+Browser checks cover initial title focus, forward/backward looping, rejected
+background focus, pointer/Escape dismissal, keyboard scrolling, literal inert
+markup, long-source alignment, 320-pixel reflow and axe checks.
+`pnpm install --frozen-lockfile` passed with no release-age policy exceptions or
+changes to existing dependency resolutions.
+
+`pnpm guide:generate` recorded all seven chapters uncached and assembled the
+Markdown/HTML book. Owned-context guidance now explains modal keyboard use,
+immediate focus restoration and permanent comparison retirement. Comparison,
+post-close and withheld guide screenshots were visually reviewed. Guides and
+browser checks use synthetic BFF responses, not live backend/OIDC authority;
+non-Chromium engines and actual browser zoom remain unverified. The build passes
+with Vite's large-chunk advisory; bundle optimization is outside this slice.
 
 Compose independently owned filter, observation list, source detail, and
 comparison sections. Put modal lifecycle, Escape, focus trapping/restoration and

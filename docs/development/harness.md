@@ -153,6 +153,19 @@ prove actual keyboard scrolling as well as axe compliance. Rechecks and recovery
 must move focus to a persistent control or heading before withdrawing their
 trigger. Feature-class chrome selectors and guessed header-height subtraction
 are not allowed.
+
+Inspection modal mechanics now have a consumed ui-web boundary under
+[ADR 0027](../decisions/0027-own-inspection-modal-lifecycle-in-ui-primitives.md).
+Feature tests must prove exact current-source selection, permanent retirement of
+removed comparison identities, and open-modal withdrawal through held/failed
+cache revalidation. Primitive tests cover explicit synchronous return focus,
+StrictMode and obsolete close events, disconnected targets and teardown without
+feature dismissal. jsdom doubles do not prove a top layer or inertness: browser
+checks must exercise real forward/backward tab containment, background-focus
+rejection, pointer/Escape dismissal, long inert content and narrow reflow.
+Do not use timer-based focus restoration or weaken these assertions to match
+an extraction. Native modality is not a substitute for verifying its behavior.
+
 The [scoped remediation plan](plans/resolver-console-architecture-remediation.md)
 orders the remaining work while retaining current safety regressions.
 It defers unrelated landing/session/inbox decomposition until those pages are
