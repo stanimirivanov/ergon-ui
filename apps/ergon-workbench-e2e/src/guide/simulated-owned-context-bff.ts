@@ -161,10 +161,15 @@ const summary = {
  * not the reason a real resolver lost access.
  * A goal override exercises layout without changing the default chapter;
  * callers must retain the domain's trimmed, non-blank, 500-character limit.
+ * An optional first-source content override exercises inert long-text inspection
+ * without changing the default recorded chapter or shared fixture objects.
  */
 export async function installSimulatedOwnedContextBff(
   page: Page,
-  options: { readonly caseGoal?: string } = {},
+  options: {
+    readonly caseGoal?: string;
+    readonly observationContent?: string;
+  } = {},
 ): Promise<{
   summaryReads: () => number;
   ownedReads: () => number;
@@ -179,6 +184,11 @@ export async function installSimulatedOwnedContextBff(
   const caseSummary = {
     ...summary,
     case: { ...summary.case, goal: options.caseGoal ?? summary.case.goal },
+    observations: summary.observations.map((observation, index) =>
+      index === 0 && options.observationContent !== undefined
+        ? { ...observation, content: options.observationContent }
+        : observation,
+    ),
   };
   const pendingRead = new Promise<void>((resolve) => {
     finishPendingRead = resolve;

@@ -5,9 +5,10 @@ import {
   screen,
   within,
 } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ResolverObservationInspector } from '../src/resolver-observation-inspector';
+import { installNativeDialogTestDouble } from './native-dialog-test-double';
 import {
   FIRST_WORK_ITEM_ID,
   resolverFollowUpCaseSummary,
@@ -17,54 +18,15 @@ describe('resolver observation inspector', () => {
   let restoreDialog: (() => void) | undefined;
 
   beforeEach(() => {
-    if (typeof HTMLDialogElement.prototype.showModal === 'function') {
-      return;
-    }
-    const showModal = Object.getOwnPropertyDescriptor(
-      HTMLDialogElement.prototype,
-      'showModal',
-    );
-    const close = Object.getOwnPropertyDescriptor(
-      HTMLDialogElement.prototype,
-      'close',
-    );
-    Object.defineProperties(HTMLDialogElement.prototype, {
-      showModal: {
-        configurable: true,
-        value(this: HTMLDialogElement) {
-          this.setAttribute('open', '');
-        },
-      },
-      close: {
-        configurable: true,
-        value(this: HTMLDialogElement) {
-          this.removeAttribute('open');
-          this.dispatchEvent(new Event('close'));
-        },
-      },
-    });
-    restoreDialog = () => {
-      if (showModal === undefined) {
-        Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal');
-      } else {
-        Object.defineProperty(
-          HTMLDialogElement.prototype,
-          'showModal',
-          showModal,
-        );
-      }
-      if (close === undefined) {
-        Reflect.deleteProperty(HTMLDialogElement.prototype, 'close');
-      } else {
-        Object.defineProperty(HTMLDialogElement.prototype, 'close', close);
-      }
-    };
+    restoreDialog = installNativeDialogTestDouble();
   });
 
   afterEach(() => {
     cleanup();
     restoreDialog?.();
     restoreDialog = undefined;
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it('derives selected detail from the current authorized observations', () => {
@@ -187,6 +149,57 @@ describe('resolver observation inspector', () => {
     ).toBeTruthy();
   });
 
+  it('does not schedule return focus that can steal a later interaction', () => {
+    vi.useFakeTimers();
+    const observations = sourcePair();
+    render(
+      <ResolverObservationInspector
+        observations={observations}
+        pinnedVersion={4}
+        regionId="authorized-case"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Compare sources' }));
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Close comparison',
+      }),
+    );
+    const filter = screen.getByRole('button', { name: 'Recorded later (1)' });
+    filter.focus();
+    vi.runOnlyPendingTimers();
+    expect(document.activeElement).toBe(filter);
+  });
+
+  it('retires a comparison when its source disappears, without resurrecting it on return', () => {
+    const observations = sourcePair();
+    const { rerender } = render(
+      <ResolverObservationInspector
+        observations={observations}
+        pinnedVersion={4}
+        regionId="authorized-case"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Compare sources' }));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    rerender(
+      <ResolverObservationInspector
+        observations={observations.slice(0, 1)}
+        pinnedVersion={4}
+        regionId="authorized-case"
+      />,
+    );
+    expect(screen.queryByRole('dialog')).toBeNull();
+    rerender(
+      <ResolverObservationInspector
+        observations={observations}
+        pinnedVersion={4}
+        regionId="authorized-case"
+      />,
+    );
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
   it('compares only currently authorized sources and closes when the filter removes one', () => {
     const original = resolverFollowUpCaseSummary(
       FIRST_WORK_ITEM_ID,
@@ -269,4 +282,88 @@ describe('resolver observation inspector', () => {
     expect(screen.queryByText(later.content)).toBeNull();
     expect(screen.queryByText(third.content)).toBeNull();
   });
+
+  it('retires selected detail identity and focuses only an explicit current inspection', () => {
+    const observations = sourcePair();
+    const { rerender } = render(
+      <ResolverObservationInspector
+        observations={observations}
+        pinnedVersion={4}
+        regionId="authorized-case"
+      />,
+    );
+    const later = screen.getByRole('button', {
+      name: 'Inspect observation: Later source report',
+    });
+    fireEvent.click(later);
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { name: 'Source observation details' }),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Back to observations' }),
+    );
+    expect(document.activeElement).toBe(later);
+    rerender(
+      <ResolverObservationInspector
+        observations={observations.slice(0, 1)}
+        pinnedVersion={4}
+        regionId="authorized-case"
+      />,
+    );
+    rerender(
+      <ResolverObservationInspector
+        observations={observations}
+        pinnedVersion={4}
+        regionId="authorized-case"
+      />,
+    );
+    expect(screen.queryByText('Private later content')).toBeNull();
+    expect(
+      screen
+        .getByRole('button', {
+          name: 'Inspect observation: Later source report',
+        })
+        .getAttribute('aria-pressed'),
+    ).toBe('false');
+  });
+
+  it('withdraws comparison and pending focus on unmount without stealing the next view focus', () => {
+    vi.useFakeTimers();
+    const observations = sourcePair();
+    const { rerender } = render(
+      <ResolverObservationInspector
+        observations={observations}
+        pinnedVersion={4}
+        regionId="authorized-case"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Compare sources' }));
+    const dialog = screen.getByRole('dialog');
+    rerender(<button>Current access status</button>);
+    const status = screen.getByRole('button', {
+      name: 'Current access status',
+    });
+    status.focus();
+    vi.runOnlyPendingTimers();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(dialog.hasAttribute('open')).toBe(false);
+    expect(screen.queryByText('Private later content')).toBeNull();
+    expect(document.activeElement).toBe(status);
+  });
 });
+
+function sourcePair() {
+  const original = resolverFollowUpCaseSummary(FIRST_WORK_ITEM_ID, 'Original');
+  const first = original.observations[0];
+  if (first === undefined) throw new Error('The fixture must contain a source');
+  return [
+    first,
+    {
+      ...first,
+      observationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      streamVersion: 5,
+      summary: 'Later source report',
+      content: 'Private later content',
+    },
+  ];
+}

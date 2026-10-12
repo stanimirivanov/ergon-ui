@@ -230,14 +230,41 @@ test(
         const compareSources = detail.getByRole('button', {
           name: 'Compare sources',
         });
-        await guide.action('open-source-comparison', compareSources, () =>
-          compareSources.click(),
+        await guide.action(
+          'open-source-comparison',
+          compareSources,
+          async () => {
+            await compareSources.focus();
+            await page.keyboard.press('Enter');
+          },
         );
         const comparison = page.getByRole('dialog', {
           name: 'Source comparison',
         });
         const comparedRecords = comparison.locator('article');
         await expect(comparison).toBeVisible();
+        await expect(
+          comparison.getByRole('heading', { name: 'Source comparison' }),
+        ).toBeFocused();
+        const modalClose = comparison.getByRole('button', {
+          name: 'Close comparison',
+        });
+        const secondSource = comparison.getByRole('combobox', {
+          name: 'Second observation',
+        });
+        await page.keyboard.press('Shift+Tab');
+        await expect(secondSource).toBeFocused();
+        await comparison
+          .getByRole('heading', { name: 'Source comparison' })
+          .focus();
+        await page.keyboard.press('Tab');
+        await expect(modalClose).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(secondSource).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(modalClose).toBeFocused();
+        await page.keyboard.press('Shift+Tab');
+        await expect(secondSource).toBeFocused();
         await expect(comparedRecords).toHaveCount(2);
         await expect(comparedRecords.nth(0)).toContainText(observation);
         await expect(comparedRecords.nth(0)).toContainText('In run snapshot');

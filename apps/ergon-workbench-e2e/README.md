@@ -130,6 +130,14 @@ are covered; 720 is the CSS-width equivalent of a 1440-pixel viewport at 200%
 zoom, not browser zoom automation. These fixtures prove browser presentation,
 not live control-plane authority.
 
+`observation-inspection.spec.ts` uses long source text, an unbroken token and
+literal markup to prove native modal keyboard scrolling, forward/backward
+containment, rejected background focus, inert content, pointer/Escape dismissal
+and desktop/320-pixel reflow. The owned-context guide records title focus and
+keyboard containment before comparing sources. Open-modal retirement during
+held/failed ownership checks is separately covered by feature/cache integration
+tests; recording does not fabricate a live revocation event.
+
 ## Failure handling
 
 A failed browser scenario removes its incomplete chapter directory and retains

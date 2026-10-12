@@ -232,6 +232,15 @@ and the failed-execution-to-escalation sequence before the browser caches it.
 Evidence text remains untrusted content and is rendered only through React
 text nodes.
 
+Observation inspection retains only local timing and exact source identities.
+Dedicated feature sections render the current authorized list, detail and
+comparison; unavailable identities cannot resurrect old inspection intent.
+The ui-web native modal owns platform lifecycle, keyboard containment, initial
+focus and placement. Explicit dismissal restores a live invoking control
+synchronously; teardown does not schedule focus or invoke feature dismissal.
+The enclosing disclosure workflow owns focus after access withdrawal. See
+[ADR 0027](decisions/0027-own-inspection-modal-lifecycle-in-ui-primitives.md).
+
 A tenant selected in the URL is navigation context only. The backend remains
 authoritative for subject mapping, authority evidence, tenant isolation, and
 non-disclosure. The production UI does not consume `/internal/v1` routes; a

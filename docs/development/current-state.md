@@ -19,7 +19,7 @@ requester app, or native app.
 - Node 24 and React 19.3 version contract;
 - Vite-built workbench with React Router Data Mode;
 - Tailwind CSS theme tokens, a dark scope for the selected Resolver Console,
-  and one shadcn-compatible button primitive;
+  a shadcn-compatible button primitive, and a consumed native inspection modal;
 - explicit app-owned standard/focused shell composition with one set of
   landmarks, branding/navigation and natural toolbar/viewport allocation;
   capability-owned presence controls and evidence/execution/outcome sections

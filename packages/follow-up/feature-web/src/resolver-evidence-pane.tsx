@@ -37,11 +37,13 @@ export function ResolverEvidencePane({
         {summary.observations.length - visibleCount} recorded later. These are
         source observations, not verified claims.
       </p>
-      <ResolverObservationInspector
-        observations={summary.observations}
-        pinnedVersion={pinnedVersion}
-        regionId={regionId}
-      />
+      <div className="mt-5">
+        <ResolverObservationInspector
+          observations={summary.observations}
+          pinnedVersion={pinnedVersion}
+          regionId={regionId}
+        />
+      </div>
     </section>
   );
 }
