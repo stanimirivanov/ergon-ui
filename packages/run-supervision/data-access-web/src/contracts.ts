@@ -35,6 +35,35 @@ export interface AssignedRunPage {
 }
 
 /**
+ * Winning receipt caller's monotonic gateway-call measurement, not provider
+ * operation latency, retries, billing or proof. Nanoseconds remain a canonical
+ * decimal string (0–Long.MAX_VALUE) so the RTK cache is exact and serializable.
+ * Wall-clock correction may place startedAt after completion; never subtract
+ * these instants to derive elapsed time. Units do not promise clock resolution.
+ */
+export interface AssignedRunExecutionTiming {
+  readonly source: 'ergon.dev/measurement/connector-call/v1';
+  readonly startedAt: string;
+  readonly elapsedNanoseconds: string;
+}
+
+/**
+ * Sanitized immutable terminal receipt for the Console's pinned step/capability.
+ * Null timing means unmeasured, including older writers; it is not measured zero.
+ * Recording is independent of current run-state projection and outcome proof.
+ * Contains no provider references, payloads or authorization coordinates.
+ */
+export interface AssignedRunExecution {
+  readonly stepId: string;
+  readonly capability: string;
+  readonly connector: string;
+  readonly outcome: 'SUCCEEDED' | 'FAILED';
+  readonly completedAt: string;
+  readonly recordedAt: string;
+  readonly timing: AssignedRunExecutionTiming | null;
+}
+
+/**
  * Read-only pinned start and current state from the assigned-only browser BFF.
  *
  * Positive contract/evidence revisions identify the start snapshot. Risk and
@@ -60,6 +89,12 @@ export interface AssignedRunConsole {
   readonly stateVersion: number;
   readonly stateUpdatedAt: string;
   readonly assignedAt: string;
+  /**
+   * Missing on older servers: projection unsupported/unknown. Null: no terminal
+   * receipt recorded, not proof that no external effect occurred. Present:
+   * exactly attributed result, never authority, state advancement or proof.
+   */
+  readonly execution?: AssignedRunExecution | null;
 }
 
 /** Tenant is navigation context only. Limit defaults to 30 and must be 1–100. */

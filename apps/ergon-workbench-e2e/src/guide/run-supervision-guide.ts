@@ -7,13 +7,13 @@ export const runSupervisionGuide: GuideChapter = {
   slug: 'inspect-assigned-resolution-runs',
   title: 'Inspect assigned resolution runs',
   summary:
-    'Find active runs assigned to your verified resolver identity, inspect their recorded state and execution policy, and recover safely when a fresh read fails or stops permitting disclosure.',
+    'Find active runs assigned to your verified resolver identity, inspect recorded state, execution policy and attributed gateway-call measurements, and recover safely when a fresh read fails or stops permitting disclosure.',
   verification: 'simulated-bff',
   presentation: 'workflow',
   audience:
     'Assigned supervisors reviewing an active resolution run without issuing execution commands.',
   overview: [
-    'Assigned runs is a separate workbench view from shared and claimed human follow-ups. A supervisor assignment makes one run discoverable to its assigned resolver under current server-side authority; it does not claim an escalated follow-up or create an exclusive control lease. The Console deliberately reads only the reviewed browser projection: immutable run-start inputs and the latest recorded state. One app-owned focused shell supplies branding and Back to follow-ups navigation, with the Supervisor presence toolbar above three explicit panes for assigned work, resolution execution context, and case/outcome boundaries. The toolbar can wrap without overlapping the panes, which stack in reading order at narrow width. Select a run to read its private context on demand. The selection stays local to the current page, while the view name can remain in the tenant URL.',
+    'Assigned runs is a separate workbench view from shared and claimed human follow-ups. A supervisor assignment makes one run discoverable to its assigned resolver under current server-side authority; it does not claim an escalated follow-up or create an exclusive control lease. The Console reads the reviewed browser projection: immutable run-start inputs, latest recorded state and a sanitized terminal execution receipt when supplied. One app-owned focused shell supplies branding and Back to follow-ups navigation, with the Supervisor presence toolbar above three explicit panes for assigned work, resolution execution context, and case/outcome boundaries. The toolbar can wrap without overlapping the panes, which stack in reading order at narrow width. Select a run to read its private context on demand. The selection stays local to the current page, while the view name can remain in the tenant URL.',
     'This walkthrough uses a synthetic verified session, one assigned run, and controlled BFF responses. The fixture first exposes a run waiting for approval, holds a recheck so you can see stale context disappear, returns a temporary failure, then permits an explicit retry. It later reports a recorded resolved state while removing the run from the active list, returns a neutral unavailable response, and demonstrates rejected pagination followed by a fresh first-page reset. These are illustrations of browser behavior, not a real approval, resolution, assignment change, or revocation. Every recording and screenshot is labelled SIMULATED DATA. The actual BFF must establish exact assignment and current resolver authority on every read.',
   ],
   prerequisites: [
@@ -45,7 +45,7 @@ export const runSupervisionGuide: GuideChapter = {
     {
       id: 'inspect-run-snapshot',
       title: 'Interpret the run snapshot',
-      body: 'The resolution pane identifies the pinned contract revision, execution step, attempt number, start recording time, and current recorded state revision. The synthetic step requests identity.lookup. These fields explain which runtime inputs were recorded, not a live waterfall of tool calls. There are no invented spans, elapsed-time counters, token costs, or inferred intermediate transitions. A state timestamp indicates when the persisted state changed; it is not a measured end-to-end latency. A newer backend can include a separate terminal-execution measurement, but this workbench does not yet render that member. Do not estimate call latency or cost from the timestamps shown here.',
+      body: 'The resolution pane identifies the pinned contract revision, execution step, attempt number, start recording time, and current recorded state revision. The synthetic step requests identity.lookup. The separate Connector result recorded card reports a succeeded terminal receipt and 305.123456 ms of gateway-call latency. These are deliberately synthetic receipt values, not a live execution in this recording. A receipt can be persisted before run-state projection, so Waiting for approval may remain beside a succeeded connector result. Neither is outcome proof. No live waterfall, elapsed-time counter or billing estimate is inferred from state timestamps.',
       expected:
         'Contract access-restoration, the verify-account-owner step, and the recorded waiting state are visible.',
     },
@@ -62,6 +62,88 @@ export const runSupervisionGuide: GuideChapter = {
       body: 'The case context pane shows the paired case identifier and the run’s pinned case-evidence stream version. This version is a boundary coordinate, not the source observations themselves. Evidence is not included in this browser read model. The outcome pane likewise states that verification checks and accepted proof are not included. Do not infer a desired-outcome claim, a contradiction, or success from these empty projections. They are honest limits of the delivered contract, not failed evidence acquisition.',
       expected:
         'The Console explicitly distinguishes its recorded context from unavailable evidence and outcome proof.',
+    },
+    {
+      id: 'open-execution-measurement',
+      title: 'Inspect measurement provenance with the keyboard',
+      body: 'Focus Inspect execution measurement and press Enter. The native disclosure opens already decoded data without another request. It shows the runtime source identifier, exact integer nanoseconds and wall-clock start observation. The millisecond value above is an exact decimal unit conversion, not rounded through a JavaScript floating-point integer. The source identifies a gateway-call measurement; it does not identify a provider bill or create an authorization decision.',
+      expected:
+        'The measurement disclosure opens without another Console read.',
+    },
+    {
+      id: 'inspect-measured-call',
+      title: 'Read the limits of the gateway-call measurement',
+      body: 'The synthetic sample is exactly 305123456 nanoseconds. It represents the winning receipt caller’s monotonic duration around its connector gateway call, not total provider-operation latency or the sum of uncertain retries. The fixture deliberately places the start observation after completion to illustrate wall-clock correction: subtracting UTC timestamps would be wrong. Nanosecond units do not promise that the clock has nanosecond resolution. Cost remains Not measured, and successful execution remains separate from verified resolution.',
+      expected:
+        'Exact duration and runtime provenance are visible while cost and outcome proof remain unestablished.',
+    },
+    {
+      id: 'recheck-zero-measurement',
+      title: 'Request a separately controlled zero-duration example',
+      body: 'The recording switches its synthetic response to a valid zero sample. Recheck selected run to obtain it through the same fresh private-read gate. This fixture change demonstrates rendering, not a production receipt changing: real terminal receipts and their measurements are immutable. The UI must preserve a measured zero rather than treating it as missing data, while still issuing no execution command.',
+      expected:
+        'The newly gated synthetic response replaces the previous sample.',
+    },
+    {
+      id: 'inspect-measured-zero',
+      title: 'Distinguish measured zero from unavailable timing',
+      body: 'Gateway-call latency now reads 0 ms. Zero is a valid recorded elapsed sample, not evidence that the provider did nothing or that resolution was instantaneous. The runtime measures one caller’s gateway call with the available monotonic clock resolution. Measurement provenance remains inspectable, and Cost stays Not measured. Do not substitute zero for an older receipt without a timing sample.',
+      expected:
+        'Measured zero is shown explicitly, not as Unmeasured or unavailable.',
+    },
+    {
+      id: 'recheck-unmeasured-result',
+      title: 'Request an older-writer failed receipt example',
+      body: 'The fixture now returns a failed terminal result with null timing. Recheck deliberately to read this separate compatibility example. It does not retry the capability, reverse the preceding succeeded production receipt or perform a compensation. Older writers can record receipts without timing; a new reader must preserve that distinction rather than backfilling elapsed time from recording timestamps.',
+      expected: 'A fresh read returns a failed result without a measurement.',
+    },
+    {
+      id: 'inspect-unmeasured-result',
+      title: 'Keep result availability separate from timing availability',
+      body: 'Connector failed describes the recorded terminal result. Gateway-call latency is Unmeasured because this receipt contains no sample. That is different from measured zero and different from having no receipt at all. Completion and receipt-recording times remain useful observations, but their difference cannot recover the gateway-call duration. No measurement inspector is offered when there is no provenance to inspect. Failure does not supply outcome proof or an automatic retry control.',
+      expected:
+        'The failed result remains visible with Unmeasured latency and no invented zero.',
+    },
+    {
+      id: 'recheck-no-receipt',
+      title: 'Request a snapshot with no recorded terminal result',
+      body: 'The fixture changes to an explicit null execution member and you recheck the selected run. This is a read-model example only, not removal of a real immutable receipt. The server can return no terminal receipt even if an external operation became uncertain before persistence. Treat the absence as a durability fact in this snapshot, never permission to repeat a potentially effectful operation.',
+      expected: 'A fresh response contains no terminal execution receipt.',
+    },
+    {
+      id: 'inspect-no-receipt',
+      title: 'Do not interpret absent receipt as absent external effect',
+      body: 'No terminal result recorded means exactly that the current projection contains no persisted result. It does not prove that no external effect occurred, that the action never started or that retries are safe. Connector and latency values from earlier responses are no longer displayed. The Console remains read only; recovery from execution uncertainty requires the runtime’s existing idempotency and authority contracts, not a browser-generated replacement command.',
+      expected:
+        'No terminal result recorded replaces the receipt without retaining old measurement values.',
+    },
+    {
+      id: 'recheck-older-server',
+      title: 'Request the older-server compatibility example',
+      body: 'The fixture now omits the execution member entirely, matching a server deployed before the additive projection. Recheck to obtain that snapshot. Existing run-start, policy and state fields remain usable, but this reader cannot determine whether a receipt exists. Browser upgrades need not be blocked on simultaneous backend rollout; unknown projection support is deliberately not interpreted as an explicit null receipt.',
+      expected:
+        'The older server response remains readable without an execution claim.',
+    },
+    {
+      id: 'inspect-older-server',
+      title: 'Recognize unsupported projection instead of definite absence',
+      body: 'Execution detail unavailable explains that this server did not supply the projection and receipt existence is unknown. This is not No terminal result recorded and not Unmeasured timing on a known result. Ask an operator about backend rollout if execution detail is expected. Do not estimate duration from run-state timestamps or manufacture zero cost; those facts remain unavailable even though the rest of the run snapshot is readable.',
+      expected:
+        'Unsupported execution projection is explicitly distinguished from absent receipt and unmeasured result.',
+    },
+    {
+      id: 'restore-measured-snapshot',
+      title: 'Return to the measured synthetic response',
+      body: 'Recheck after the fixture restores its initial measured result. This final fixture switch prepares the disclosure tests that follow; it is not a production history of one mutable receipt. The gate must hide the previous compatibility example before requesting the next snapshot. The returned measurement belongs to the selected run’s exact pinned step and capability and is rendered only after the response passes decoding.',
+      expected:
+        'The fresh measured receipt returns through the ordinary exact-run gate.',
+    },
+    {
+      id: 'inspect-result-state-boundary',
+      title: 'Separate result, current state and outcome proof',
+      body: 'Connector succeeded and 305.123456 ms appear again while the recorded state still says Waiting for approval at revision zero. Receipt persistence and state projection are separate runtime operations, so the browser never changes the displayed state merely because it received a result. Outcome proof remains absent. The following held recheck will withdraw the connector, duration and provenance together with all other private run facts.',
+      expected:
+        'The receipt does not manufacture state advancement or verified outcome.',
     },
     {
       id: 'recheck-selected-run',
@@ -220,7 +302,7 @@ export const runSupervisionGuide: GuideChapter = {
   ],
   limitations: [
     'All assignments, identities, state transitions, and failures in this chapter are synthetic marked BFF responses. The walkthrough verifies browser requests, disclosure, recovery, and presentation; it does not verify live OIDC, database isolation, backend authorization, supervisor assignment, or genuine resolution.',
-    'The delivered browser Console renders recorded start and current-state facts only. A newer backend can record monotonic gateway-call timing on a terminal receipt and add an optional execution member to the assigned read. Rendering that measurement is the next complete Console slice, not a behavior exercised by this fixture. Historical timing remains unavailable rather than zero; connector success still is not outcome proof, and cost is neither measured nor inferred from elapsed time.',
+    'The Console renders sanitized terminal receipt metadata and exact monotonic gateway-call latency when supplied, not a live execution trace. Missing projection, null receipt, unmeasured result and measured zero are distinct. All receipt/timing examples here are synthetic and switched explicitly between reads; production receipts are immutable. The recording does not establish real measurement accuracy, provider operation latency or billing. Connector success is not run-state advancement or outcome proof.',
     'Case evidence, contradiction graphs, multi-step execution spans, real cost attribution, exclusive control leases, handover, steering, authorization decisions, verification checks, and accepted outcome proof require separately reviewed capabilities. Waiting, resolved, risk, and approval labels do not supply those missing facts or commands.',
   ],
 };

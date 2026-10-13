@@ -1,6 +1,6 @@
 # Resolver Console architecture remediation
 
-- Status: Tasks 1–4 present on main. The approved next slice is backend-first measured capability execution (M04).
+- Status: Tasks 1–4 and backend measured capability execution are merged. Assigned Console consumption is implemented for review (M04).
 - Milestone: M05 - Human follow-up and resolver console
 
 ## TL;DR
@@ -234,3 +234,13 @@ Console presentation and executable-guide slice. A multi-step executor and real
 cost attribution remain separate runtime capabilities, not inferred stages or
 zero-cost placeholders. GitHub issues own review and merge status; local
 implementation notes do not claim deployed runtime fixes.
+
+The consumption slice is now implemented under
+[ADR 0028](../../decisions/0028-render-attributed-capability-execution.md):
+data access owns optional receipt decoding and exact scope validation; a
+dedicated feature section renders terminal result, exact gateway-call latency
+and provenance within the existing assigned Console gate. Missing projection,
+no receipt, unmeasured timing and measured zero remain distinct. Guide fixtures
+exercise those states, result-before-state projection, and measurement withdrawal
+during protected rechecks. No live execution tree, cost or proof is inferred.
+GitHub review/merge status and live compatibility remain separate from this note.

@@ -9,7 +9,8 @@ token, recover their active claims, release exact owned claims from a card or
 the selected Console, and inspect server-authorized case context there. The
 Console's case and run content remains read-only. Assigned supervisors can also
 discover active runs and inspect their recorded start, pinned policy, and
-current state in a separate three-pane Console. It has no resolution action,
+current state and sanitized terminal execution measurements in a separate
+three-pane Console. It has no resolution action,
 live trace, lease, approval control, logout flow, form workflow, Motion animation,
 requester app, or native app.
 
@@ -119,6 +120,11 @@ requester app, or native app.
 - executable first-page reset for rejected assignment traversal, without putting
   private cursors in URLs or retrying a rejected cursor; failed session rechecks
   keep authenticated work unmounted even while RTK retains the previous actor;
+- assigned-only execution receipt presentation, with exact decimal-string
+  nanoseconds, gateway-call milliseconds and keyboard provenance disclosure;
+  older-server omission, no receipt, unmeasured timing and measured zero are
+  distinct. Receipts never imply run-state advancement or outcome proof, and
+  their private fields withdraw under the existing fresh-read gate;
 - capability-first `type:*`, `scope:*`, and `platform:*` boundaries with a
   finite ledger for packages still under the old global-layer paths and a
   DOM-free TypeScript configuration for model and application cores;
@@ -152,7 +158,7 @@ requester app, or native app.
   assignment created by a separately authorized machine integration. This UI
   cannot create or change that assignment. It has no automatic polling or
   continuous revocation guarantee. The active-run Console does not receive case
-  evidence, ordered execution events, measured spans/costs, approval decisions,
+  evidence, ordered multi-step execution events, nested spans/costs, approval decisions,
   or proof checks. Its terminal state label reports backend state, not
   independent verification. Real session-to-PostgreSQL browser compatibility
   remains unverified by the synthetic guide.

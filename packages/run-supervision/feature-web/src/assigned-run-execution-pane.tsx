@@ -6,6 +6,7 @@ import { Button } from '@ergon/ui-web';
 import type { ReactElement, RefObject } from 'react';
 
 import { AssignedRunFact } from './assigned-run-fact';
+import { AssignedRunCapabilityExecution } from './assigned-run-capability-execution';
 import { AssignedRunMessage } from './assigned-run-message';
 import { formatRecordedAt, runStateLabels } from './run-supervision-copy';
 
@@ -145,8 +146,9 @@ function AssignedRunExecutionRecords({
         Run {run.runId}
       </p>
       <p className="mt-3 text-sm leading-6 text-ink-muted">
-        Recorded start and current state, not a live execution trace. No
-        automatic polling; recheck deliberately to read a newer snapshot.
+        Recorded start, terminal receipt when supplied, and current state, not a
+        live execution trace. No automatic polling; recheck deliberately to read
+        a newer snapshot.
       </p>
       <ol className="mt-6 space-y-4" aria-label="Available durable run records">
         <li className="rounded-md border border-border bg-canvas/60 p-4">
@@ -215,15 +217,14 @@ function AssignedRunExecutionRecords({
           </details>
         </li>
       </ol>
-      <div className="mt-5 rounded-md border border-dashed border-border p-4">
-        <h3 className="text-sm font-bold text-ink">
-          Execution detail unavailable
-        </h3>
-        <p className="mt-2 text-sm leading-6 text-ink-muted">
-          Ordered step execution, nested tool spans, latency, cost, and
-          intermediate transitions are not included in this read model.
-        </p>
+      <div className="mt-5">
+        <AssignedRunCapabilityExecution execution={run.execution} />
       </div>
+      <p className="mt-4 text-xs leading-5 text-ink-muted">
+        This projection supports one pinned capability receipt, not an ordered
+        multi-step trace. Nested tool spans, intermediate transitions and real
+        cost attribution are not included in this read model.
+      </p>
     </>
   );
 }

@@ -28,6 +28,32 @@ const snapshot = {
 } as const;
 
 type RunReadMode = 'success' | 'failure' | 'terminal' | 'not-found';
+type ExecutionMode =
+  'measured' | 'zero' | 'historical-failure' | 'no-receipt' | 'legacy';
+
+function executionProjection(mode: ExecutionMode): object {
+  if (mode === 'legacy') return {};
+  if (mode === 'no-receipt') return { execution: null };
+  return {
+    execution: {
+      stepId: snapshot.stepId,
+      capability: snapshot.capability,
+      connector: 'synthetic-identity-gateway',
+      outcome: mode === 'historical-failure' ? 'FAILED' : 'SUCCEEDED',
+      completedAt: '2026-09-21T09:10:00Z',
+      recordedAt: '2026-09-21T09:10:01Z',
+      timing:
+        mode === 'historical-failure'
+          ? null
+          : {
+              source: 'ergon.dev/measurement/connector-call/v1',
+              // Demonstrate valid wall-clock correction, never inferred duration.
+              startedAt: '2026-09-21T09:10:02Z',
+              elapsedNanoseconds: mode === 'zero' ? '0' : '305123456',
+            },
+    },
+  };
+}
 
 /**
  * Controls marked synthetic reads only; no assignment or execution is performed.
@@ -46,6 +72,7 @@ export async function installSimulatedRunSupervisionBff(page: Page): Promise<{
     assignmentId: string | null;
   }[];
   setRunReadMode: (mode: RunReadMode) => void;
+  setExecutionMode: (mode: ExecutionMode) => void;
   setActiveRunsVisible: (visible: boolean) => void;
   holdNextRunRead: () => void;
   releaseHeldRunRead: (mode: RunReadMode) => void;
@@ -59,6 +86,7 @@ export async function installSimulatedRunSupervisionBff(page: Page): Promise<{
   const cursors: { assignedAt: string | null; assignmentId: string | null }[] =
     [];
   let mode: RunReadMode = 'success';
+  let executionMode: ExecutionMode = 'measured';
   let heldRead: Promise<void> | undefined;
   let releaseRead: (() => void) | undefined;
 
@@ -172,11 +200,12 @@ export async function installSimulatedRunSupervisionBff(page: Page): Promise<{
         mode === 'terminal'
           ? {
               ...snapshot,
+              ...executionProjection(executionMode),
               state: 'VERIFIED_RESOLVED',
               stateVersion: 1,
               stateUpdatedAt: '2026-09-21T09:15:00Z',
             }
-          : snapshot,
+          : { ...snapshot, ...executionProjection(executionMode) },
       );
     },
   );
@@ -195,6 +224,9 @@ export async function installSimulatedRunSupervisionBff(page: Page): Promise<{
     assignedCursors: () => cursors.slice(),
     setRunReadMode: (nextMode) => {
       mode = nextMode;
+    },
+    setExecutionMode: (nextMode) => {
+      executionMode = nextMode;
     },
     setActiveRunsVisible: (visible) => {
       activeRunsVisible = visible;

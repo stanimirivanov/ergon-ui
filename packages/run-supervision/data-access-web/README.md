@@ -11,7 +11,12 @@ lease; this package grants no authority.
 - Same-origin, no-store `GET /bff/v1/tenants/{tenantId}/resolution-runs/assigned`
   with a bounded limit and intact assignment keyset cursor.
 - `GET /bff/v1/tenants/{tenantId}/resolution-runs/{runId}/console` for a recorded
-  start/current-state snapshot, including retained terminal-state reads.
+  start/current-state snapshot and sanitized terminal execution receipt, including
+  retained terminal-state reads.
+- Optional execution projection with distinct older-server omission, absent
+  receipt, unmeasured timing and measured zero; exact pinned step/capability
+  validation and canonical decimal-string nanoseconds through signed 64-bit
+  maximum. Unknown fields are stripped before entering the serializable cache.
 - Effect-based schema decoding, safe integer and identity validation, typed
   failures, per-attempt deadline, one transient retry, and caller cancellation.
 - RTK Query cache identity, lifecycle, dependency binding, and generated hooks.
@@ -30,7 +35,7 @@ request only after its last subscriber leaves, without aborting another reader.
 ## Does not own
 
 - Run assignment, control, approval, backend policy, or application workflows.
-- Case evidence, a live trace, span measurements, or outcome-proof records.
+- Case evidence, a live trace, multi-step span measurements, billing, or outcome-proof records.
 - React feature presentation, routes, or store composition.
 - Tokens, persistent browser storage, or private transport diagnostics.
 
@@ -67,6 +72,14 @@ available for integrations that do not own private fresh-disclosure semantics.
 
 Only the pinned Effect, Redux Toolkit, React, and React Redux dependencies are
 needed. There is no client-owned application policy or separate model package.
+
+`AssignedRunConsole.execution` is missing when an older server does not supply
+the projection, null when no terminal receipt is recorded, and otherwise the
+sanitized result for the pinned step/capability. No receipt is not proof of no
+external effect. `AssignedRunExecution.timing` is null for an unmeasured result;
+valid zero remains a measurement. Nanoseconds stay exact strings, never Number
+or BigInt cache values. Result persistence does not imply state advancement or
+outcome proof. See [ADR 0028](../../../docs/decisions/0028-render-attributed-capability-execution.md).
 
 ## Verification
 

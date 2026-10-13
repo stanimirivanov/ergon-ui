@@ -92,7 +92,12 @@ full-stack environment is required before calling these operational guides.
 
 The run-supervision chapter opens the assigned-only active-run Console,
 distinguishes pinned capability-policy requirements from approval decisions,
-and explains absent evidence/proof detail. It records private snapshot hiding
+and explains absent evidence/proof detail. It inspects a synthetic measured
+gateway-call receipt and its keyboard provenance disclosure, measured zero,
+an unmeasured failed result, explicit null receipt and older-server omission.
+Those fixture switches demonstrate compatibility, not mutation of production
+receipts. Result-before-state projection and wall-clock correction are explicit;
+milliseconds preserve exact nanoseconds and cost is never inferred. It records private snapshot hiding
 during pending and failed revalidation, safe retry, terminal detail after active
 discovery empties, and neutral protected absence. It also checks keyboard
 navigation and narrow reflow. The separate layout regression verifies that the

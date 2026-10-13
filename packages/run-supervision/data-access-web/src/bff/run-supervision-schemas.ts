@@ -43,6 +43,28 @@ const page = Schema.Struct({
   nextCursor: Schema.NullOr(cursor),
 });
 
+// Bound and compare canonical decimal strings without lossy Number coercion or
+// admitting arbitrarily large integers into the browser projection.
+const elapsedNanoseconds = Schema.String.pipe(
+  Schema.pattern(/^(?:0|[1-9][0-9]{0,18})$/),
+  Schema.filter((value) => value.length < 19 || value <= '9223372036854775807'),
+);
+const execution = Schema.Struct({
+  stepId: nonBlank,
+  capability: nonBlank,
+  connector: nonBlank,
+  outcome: Schema.Literal('SUCCEEDED', 'FAILED'),
+  completedAt: instant,
+  recordedAt: instant,
+  timing: Schema.NullOr(
+    Schema.Struct({
+      source: Schema.Literal('ergon.dev/measurement/connector-call/v1'),
+      startedAt: instant,
+      elapsedNanoseconds,
+    }),
+  ),
+});
+
 const consoleSnapshot = Schema.Struct({
   runId: uuid,
   caseId: uuid,
@@ -64,6 +86,7 @@ const consoleSnapshot = Schema.Struct({
   stateVersion: nonNegativeInteger,
   stateUpdatedAt: instant,
   assignedAt: instant,
+  execution: Schema.optionalWith(Schema.NullOr(execution), { exact: true }),
 });
 
 const listQuery = Schema.Struct({
@@ -127,6 +150,12 @@ export function decodeAssignedRunConsole(
   if ((value.attemptNumber === 1) !== (value.predecessorRunId === null))
     return undefined;
   if (value.predecessorRunId?.toLowerCase() === value.runId.toLowerCase())
+    return undefined;
+  if (
+    value.execution != null &&
+    (value.execution.stepId !== value.stepId ||
+      value.execution.capability !== value.capability)
+  )
     return undefined;
   return value;
 }
