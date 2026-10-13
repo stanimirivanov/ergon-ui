@@ -68,6 +68,13 @@ Dependency resolution is a separate networked, mutating bootstrap step:
 Focused project checks remain useful during editing but do not replace an
 applicable aggregate before handoff.
 
+The workspace formatting gate uses `nx format:check --all`: all eligible source
+files are checked without Git base/head discovery. Shallow, detached pull-request
+checkouts need no local `main` ref or extra fetch credentials. The repository
+policy's verification-workflow regressions protect that command, the full
+workspace target set, and fail-closed CI steps. Do not rely on Nx's missing-ref
+fallback, which prints an error before continuing with all files.
+
 ## Repository policy
 
 `pnpm repository:check` discovers policy-controlled Markdown and reports every
@@ -94,6 +101,12 @@ core-repository and review responsibility.
 Raw HTML, comments, code fences, and image-only text cannot satisfy required
 visible fields. External URL availability, factual accuracy, and prose
 freshness remain outside this deterministic offline sensor.
+
+The companion [verification-workflow sensor](../../tools/repository-policy/verification-workflow.test.mjs)
+also runs in `pnpm repository:check`. It rejects Git-range formatting, dropped
+workspace checks, conditional or tolerated CI verification failures, and changes
+to read-only checkout permissions. It validates configuration, not execution:
+`pnpm verify` and the remote CI job still have to run successfully.
 
 ## Frontend architecture feedback
 

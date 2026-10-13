@@ -214,6 +214,25 @@ test(
           resolution.getByRole('region', { name: 'Connector result recorded' }),
         );
 
+        const history = resolution.getByRole('region', {
+          name: 'Recorded run transitions',
+        });
+        await expect(
+          history.getByText(/No state transition has been recorded/u),
+        ).toBeVisible();
+        bff.setRunReadMode('projected');
+        await guide.action('recheck-projected-result', recheckRun, () =>
+          recheckRun.click(),
+        );
+        await expect(
+          history.getByRole('heading', {
+            name: '1 · Capability success projected',
+          }),
+        ).toBeVisible();
+        await expect(
+          outcome.getByText('Verifying', { exact: true }),
+        ).toBeVisible();
+        await guide.result('inspect-projected-history', history);
         bff.holdNextRunRead();
         await guide.action('recheck-selected-run', recheckRun, () =>
           recheckRun.click(),
@@ -235,6 +254,11 @@ test(
           page.getByText('305.123456 ms', { exact: true }),
         ).toHaveCount(0);
         await guide.result('inspect-hidden-context', rechecking);
+        await expect(
+          page.getByRole('heading', {
+            name: '1 · Capability success projected',
+          }),
+        ).toHaveCount(0);
 
         bff.releaseHeldRunRead('failure');
         const failure = page.getByRole('heading', {
@@ -251,7 +275,7 @@ test(
         await expect(retryRun).toBeVisible();
         await guide.result('inspect-temporary-failure', failure);
 
-        bff.setRunReadMode('success');
+        bff.setRunReadMode('projected');
         await guide.action('retry-run-read', retryRun, () => retryRun.click());
         await expect(
           resolution.getByText('access-restoration', { exact: true }),
@@ -275,6 +299,12 @@ test(
           outcome.getByText('Recorded resolved', { exact: true }),
         ).toBeVisible();
         bff.setActiveRunsVisible(false);
+        await expect(
+          history.getByRole('heading', {
+            name: '2 · Outcome proof acceptance recorded',
+          }),
+        ).toBeVisible();
+        await guide.result('inspect-terminal-transitions', history);
         const recheckAssigned = page.getByRole('button', {
           name: 'Recheck assigned runs',
         });
@@ -432,6 +462,7 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
 }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const bff = await installSimulatedRunSupervisionBff(page);
+  bff.setRunReadMode('projected');
   await page.goto(`${supervisorTenantPath}?view=runs`);
   const assigned = page.getByRole('region', { name: 'Assigned runs' });
   const runButton = assigned.getByRole('button', {
@@ -442,6 +473,11 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
   await page.keyboard.press('Enter');
   const resolution = page.getByRole('region', { name: 'Resolution run' });
   const outcome = page.getByRole('region', { name: 'Outcome proof' });
+  await expect(
+    resolution.getByRole('heading', {
+      name: '1 · Capability success projected',
+    }),
+  ).toBeVisible();
   await expect(
     resolution.getByText('access-restoration', { exact: true }),
   ).toBeVisible();

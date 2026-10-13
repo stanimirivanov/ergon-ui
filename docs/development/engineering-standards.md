@@ -256,6 +256,13 @@ prove protocol, security, persistence, and cache behavior; and feature tests
 prove user-visible states and transitions. A test should not acquire unrelated
 dependencies merely because one production project exposes them together.
 
+Synchronize asynchronous tests with the state the assertion actually needs.
+A request starting, or a cached row appearing, does not mean revalidation has
+settled and committed. Hold relevant responses with controlled promises, assert
+the pending state, then release them and await the completed DOM state. Do not
+replace this ordering evidence with sleeps, automatic test retries, or larger
+timeouts.
+
 `pnpm verify` is the required baseline and includes `pnpm repository:check`
 and `pnpm architecture:check`.
 Dependency changes also require a clean `pnpm install --frozen-lockfile`.

@@ -10,10 +10,10 @@
   "scripts": {
     "dev": "nx dev @ergon/workbench",
     "build": "nx build @ergon/workbench",
-    "repository:check": "node --test tools/repository-policy/repository-policy.test.mjs && node tools/verify-repository-policy.mjs",
+    "repository:check": "node --test tools/repository-policy/repository-policy.test.mjs tools/repository-policy/verification-workflow.test.mjs && node tools/verify-repository-policy.mjs",
     "architecture:check": "node --test tools/project-boundary-policy.test.mjs tools/frontend-boundary-rules.test.mjs && node tools/verify-project-boundaries.mjs",
     "format": "nx format:write",
-    "format:check": "nx format:check",
+    "format:check": "nx format:check --all",
     "lint": "nx run-many -t lint",
     "typecheck": "nx run-many -t typecheck",
     "test": "nx run-many -t test",

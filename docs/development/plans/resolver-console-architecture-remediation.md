@@ -244,3 +244,11 @@ no receipt, unmeasured timing and measured zero remain distinct. Guide fixtures
 exercise those states, result-before-state projection, and measurement withdrawal
 during protected rechecks. No live execution tree, cost or proof is inferred.
 GitHub review/merge status and live compatibility remain separate from this note.
+
+The next coherent slice consumes the existing immutable run-event prefix under
+[ADR 0029](../../decisions/0029-display-sequence-aligned-run-transitions.md).
+The assigned snapshot's observed revision bounds the backend read. Its browser
+decoder validates state/receipt alignment, and one stateless feature section
+renders append order within the existing private gate. The executable guide
+demonstrates receipt-before-projection, one-event verification and the two-event
+terminal decision. This does not deliver multi-step execution or inspected proof.

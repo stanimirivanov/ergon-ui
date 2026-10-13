@@ -64,6 +64,27 @@ export interface AssignedRunExecution {
 }
 
 /**
+ * Immutable state-transition metadata through the Console's returned revision.
+ * Sequence is authoritative order; UTC occurrence/recording instants need not
+ * increase after clock correction. No event/actor/authority/provider identifiers
+ * or proof payload are included. Current runtime histories contain at most two
+ * transitions, not a multi-step span tree.
+ */
+export interface AssignedRunTransition {
+  readonly sequence: number;
+  readonly type:
+    | 'CAPABILITY_SUCCEEDED'
+    | 'CAPABILITY_FAILED'
+    | 'OUTCOME_PROOF_ACCEPTED'
+    | 'RETRY_STARTED'
+    | 'ESCALATION_REQUESTED';
+  readonly fromState: AssignedRunState;
+  readonly toState: AssignedRunState;
+  readonly occurredAt: string;
+  readonly recordedAt: string;
+}
+
+/**
  * Read-only pinned start and current state from the assigned-only browser BFF.
  *
  * Positive contract/evidence revisions identify the start snapshot. Risk and
@@ -95,6 +116,8 @@ export interface AssignedRunConsole {
    * exactly attributed result, never authority, state advancement or proof.
    */
   readonly execution?: AssignedRunExecution | null;
+  /** Missing on older servers means unsupported history, not an empty stream. */
+  readonly transitions?: readonly AssignedRunTransition[];
 }
 
 /** Tenant is navigation context only. Limit defaults to 30 and must be 1–100. */

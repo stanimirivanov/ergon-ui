@@ -178,6 +178,19 @@ describe('assigned-run Resolver Console', () => {
     const held = deferred<AssignedRunConsoleResult>();
     const measuredConsole = {
       ...assignedRunConsole,
+      state: 'VERIFYING' as const,
+      stateVersion: 1,
+      stateUpdatedAt: '2026-10-09T10:01:00Z',
+      transitions: [
+        {
+          sequence: 1,
+          type: 'CAPABILITY_SUCCEEDED' as const,
+          fromState: 'WAITING_FOR_APPROVAL' as const,
+          toState: 'VERIFYING' as const,
+          occurredAt: '2026-10-09T10:01:00Z',
+          recordedAt: '2026-10-09T10:01:01Z',
+        },
+      ],
       execution: {
         stepId: assignedRunConsole.stepId,
         capability: assignedRunConsole.capability,
@@ -200,11 +213,17 @@ describe('assigned-run Resolver Console', () => {
     renderWorkspace({ ...successfulClient(), getConsole });
     await openRun();
     expect(screen.getByText('305.123456 ms')).toBeTruthy();
+    expect(
+      screen.getByRole('heading', { name: '1 · Capability success projected' }),
+    ).toBeTruthy();
     fireEvent.click(
       screen.getByRole('button', { name: 'Recheck selected run' }),
     );
     expect(screen.queryByText('measured-access-gateway')).toBeNull();
     expect(screen.queryByText('305.123456 ms')).toBeNull();
+    expect(
+      screen.queryByRole('region', { name: 'Recorded run transitions' }),
+    ).toBeNull();
 
     expect(
       await screen.findByRole('heading', { name: 'Rechecking run access…' }),
@@ -224,6 +243,9 @@ describe('assigned-run Resolver Console', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Retry run read' }));
     await loadedRunPane();
     expect(getConsole).toHaveBeenCalledTimes(3);
+    expect(
+      screen.getByRole('heading', { name: '1 · Capability success projected' }),
+    ).toBeTruthy();
   });
 
   it('commits private-detail hiding before synchronous exact and discovery recheck I/O', async () => {

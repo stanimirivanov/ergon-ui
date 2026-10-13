@@ -989,8 +989,11 @@ describe('resolver-owned human follow-ups', () => {
       }),
     ).toBeTruthy();
     expect(screen.queryByText('Private evidence')).toBeNull();
-    expect(document.activeElement).toBe(
-      screen.getByRole('heading', { name: 'Claimed follow-ups' }),
+    // The empty list commits before its passive effect restores fallback focus.
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByRole('heading', { name: 'Claimed follow-ups' }),
+      ),
     );
   });
 

@@ -7,7 +7,7 @@ export const runSupervisionGuide: GuideChapter = {
   slug: 'inspect-assigned-resolution-runs',
   title: 'Inspect assigned resolution runs',
   summary:
-    'Find active runs assigned to your verified resolver identity, inspect recorded state, execution policy and attributed gateway-call measurements, and recover safely when a fresh read fails or stops permitting disclosure.',
+    'Find active runs assigned to your verified resolver identity, inspect recorded state, ordered transitions, execution policy and attributed gateway-call measurements, and recover safely when a fresh read fails or stops permitting disclosure.',
   verification: 'simulated-bff',
   presentation: 'workflow',
   audience:
@@ -146,6 +146,20 @@ export const runSupervisionGuide: GuideChapter = {
         'The receipt does not manufacture state advancement or verified outcome.',
     },
     {
+      id: 'recheck-projected-result',
+      title: 'Read the separately projected capability result',
+      body: 'The initial snapshot has an empty transition prefix at revision zero even though a receipt exists. The fixture now simulates the runtime’s separate result-projection command. Choose Recheck selected run to read revision one; the browser still issues only a GET. The actual writer records the immutable event and state change atomically. The receipt itself is unchanged, and its measured duration is not recalculated from the later event recording time.',
+      expected:
+        'A fresh gated snapshot contains the first durable transition and the Verifying state.',
+    },
+    {
+      id: 'inspect-projected-history',
+      title: 'Follow append order, not a fabricated execution waterfall',
+      body: 'Recorded run transitions now contains 1 · Capability success projected, from Waiting for approval to Verifying. Sequence is append order; occurrence and database recording instants are separate observations, not extra latency measurements. This complete prefix ends at the returned state revision. A concurrent later append does not silently enter an older snapshot. The current runtime permits one capability result and one terminal decision per attempt, not nested calls or six invented stages. Source proof, authority identities, provider references and commands are not disclosed by this timeline.',
+      expected:
+        'One ordered state-transition card appears without advancing to resolved or adding proof detail.',
+    },
+    {
       id: 'recheck-selected-run',
       title: 'Request a fresh assigned-only run read',
       body: 'Choose Recheck selected run after a pause or before relying on the snapshot. Keyboard focus moves to the stable Resolution run heading while the private records and their controls withdraw. Ergon temporarily hides the previous private context while a fresh BFF request rechecks assignment and authority. It does not refresh a lock, renew a lease, approve the recorded capability, or resume execution. The fixture pauses this request so you can inspect the disclosure boundary instead of merely seeing a fast response.',
@@ -186,6 +200,14 @@ export const runSupervisionGuide: GuideChapter = {
       body: 'Request the selected run again after the fixture reports a recorded resolved state. The Console labels that terminal state while retaining the distinction between recorded runtime state and proof included in this response. It does not manufacture a verification checklist or accepted outcome artifact. To establish why a real run resolved, an authorized proof projection is needed; the current read model intentionally excludes it.',
       expected:
         'Recorded resolved replaces the earlier waiting state, with proof still explicitly not included.',
+    },
+    {
+      id: 'inspect-terminal-transitions',
+      title:
+        'Distinguish recorded proof acceptance from inspecting its evidence',
+      body: 'The synthetic terminal snapshot now has two transitions in append order: capability success projected, then outcome proof acceptance recorded. The final transition agrees with recorded resolved at state revision two. Its label reports a durable runtime decision; this browser projection still contains no accepted fact, observation, check result or independently verified proof payload. A production acceptance is immutable, and this recording merely changes controlled responses to illustrate browser presentation. Recheck deliberately for current access rather than treating an earlier timeline as continuing authority.',
+      expected:
+        'The two-event prefix agrees with the terminal state while proof evidence remains explicitly absent.',
     },
     {
       id: 'refresh-active-discovery',
@@ -301,6 +323,7 @@ export const runSupervisionGuide: GuideChapter = {
     },
   ],
   limitations: [
+    'Transition history is the complete immutable prefix through the returned revision, currently at most two events per attempt. The synthetic empty, projected and terminal responses demonstrate browser interpretation, not actual atomic appends. Recorded proof acceptance supplies no inspectable proof payload; append sequence is authoritative even after clock correction.',
     'All assignments, identities, state transitions, and failures in this chapter are synthetic marked BFF responses. The walkthrough verifies browser requests, disclosure, recovery, and presentation; it does not verify live OIDC, database isolation, backend authorization, supervisor assignment, or genuine resolution.',
     'The Console renders sanitized terminal receipt metadata and exact monotonic gateway-call latency when supplied, not a live execution trace. Missing projection, null receipt, unmeasured result and measured zero are distinct. All receipt/timing examples here are synthetic and switched explicitly between reads; production receipts are immutable. The recording does not establish real measurement accuracy, provider operation latency or billing. Connector success is not run-state advancement or outcome proof.',
     'Case evidence, contradiction graphs, multi-step execution spans, real cost attribution, exclusive control leases, handover, steering, authorization decisions, verification checks, and accepted outcome proof require separately reviewed capabilities. Waiting, resolved, risk, and approval labels do not supply those missing facts or commands.',

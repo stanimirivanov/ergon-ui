@@ -93,6 +93,14 @@ The feature consumes `@ergon/run-supervision-data-access-web` through its
 public API and `@ergon/ui-web` for reviewed primitives. Its Nx tags are
 `type:feature`, `scope:run-supervision`, and `platform:web`.
 
+`AssignedRunTransitionHistory` derives from that same current gated projection.
+It renders at most two durable transitions in append order, never timestamp
+order, and keeps unsupported history separate from a revision-zero empty
+prefix. No receipt, history or state copy is retained. Occurrence and recording
+times are not latency. A proof-acceptance label is a recorded decision, not
+inspected proof evidence; the outcome pane still explains that limitation.
+See [ADR 0029](../../../docs/decisions/0029-display-sequence-aligned-run-transitions.md).
+
 ## Verification
 
 ```powershell
