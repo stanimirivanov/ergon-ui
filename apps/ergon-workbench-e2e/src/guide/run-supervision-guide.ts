@@ -45,7 +45,7 @@ export const runSupervisionGuide: GuideChapter = {
     {
       id: 'inspect-run-snapshot',
       title: 'Interpret the run snapshot',
-      body: 'The resolution pane identifies the pinned contract revision, execution step, attempt number, start recording time, and current recorded state revision. The synthetic step requests identity.lookup. These fields explain which runtime inputs were recorded, not a live waterfall of tool calls. There are no invented spans, elapsed-time counters, token costs, or inferred intermediate transitions. A state timestamp indicates when the persisted state changed; it is not a measured end-to-end latency.',
+      body: 'The resolution pane identifies the pinned contract revision, execution step, attempt number, start recording time, and current recorded state revision. The synthetic step requests identity.lookup. These fields explain which runtime inputs were recorded, not a live waterfall of tool calls. There are no invented spans, elapsed-time counters, token costs, or inferred intermediate transitions. A state timestamp indicates when the persisted state changed; it is not a measured end-to-end latency. A newer backend can include a separate terminal-execution measurement, but this workbench does not yet render that member. Do not estimate call latency or cost from the timestamps shown here.',
       expected:
         'Contract access-restoration, the verify-account-owner step, and the recorded waiting state are visible.',
     },
@@ -220,6 +220,7 @@ export const runSupervisionGuide: GuideChapter = {
   ],
   limitations: [
     'All assignments, identities, state transitions, and failures in this chapter are synthetic marked BFF responses. The walkthrough verifies browser requests, disclosure, recovery, and presentation; it does not verify live OIDC, database isolation, backend authorization, supervisor assignment, or genuine resolution.',
-    'The delivered Console contains recorded start and current-state facts only. Case evidence, contradiction graphs, ordered execution spans, costs, exclusive control leases, handover, steering, authorization decisions, verification checks, and accepted outcome proof require separately reviewed backend slices. Waiting, resolved, risk, and approval labels do not supply those missing facts or commands.',
+    'The delivered browser Console renders recorded start and current-state facts only. A newer backend can record monotonic gateway-call timing on a terminal receipt and add an optional execution member to the assigned read. Rendering that measurement is the next complete Console slice, not a behavior exercised by this fixture. Historical timing remains unavailable rather than zero; connector success still is not outcome proof, and cost is neither measured nor inferred from elapsed time.',
+    'Case evidence, contradiction graphs, multi-step execution spans, real cost attribution, exclusive control leases, handover, steering, authorization decisions, verification checks, and accepted outcome proof require separately reviewed capabilities. Waiting, resolved, risk, and approval labels do not supply those missing facts or commands.',
   ],
 };

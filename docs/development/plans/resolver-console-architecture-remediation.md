@@ -1,6 +1,6 @@
 # Resolver Console architecture remediation
 
-- Status: Tasks 1–3 present on main. Task 4 implemented locally on codex/observation-inspection-boundaries, awaiting review.
+- Status: Tasks 1–4 present on main. The approved next slice is backend-first measured capability execution (M04).
 - Milestone: M05 - Human follow-up and resolver console
 
 ## TL;DR
@@ -227,5 +227,10 @@ them to fit the extraction. Guides remain labelled synthetic.
 Merge/review each slice before the next. Roll back a slice as a unit if disclosure
 or keyboard behavior regresses; no migration is needed. After these four fixes,
 resume the approved backend task **Record and project ordered resolution-step
-execution with attributable measurements** (M04). GitHub issues own review and
-merge status; local implementation notes do not claim deployed runtime fixes.
+execution with attributable measurements** (M04). Its approved first PR records
+the existing single gateway call's actual timing and exposes a sanitized
+assigned-only execution member. Next, consume that member in one complete
+Console presentation and executable-guide slice. A multi-step executor and real
+cost attribution remain separate runtime capabilities, not inferred stages or
+zero-cost placeholders. GitHub issues own review and merge status; local
+implementation notes do not claim deployed runtime fixes.
