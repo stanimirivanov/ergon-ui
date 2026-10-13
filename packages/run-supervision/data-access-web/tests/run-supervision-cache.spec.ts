@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   runSupervisionApi,
+  createRunSupervisionClient,
   type RunSupervisionClient,
   type RunSupervisionDependencies,
 } from '../src';
@@ -12,6 +13,8 @@ import {
   TENANT_ID,
   validConsole,
   validPage,
+  validExecution,
+  jsonResponse,
 } from './run-supervision-fixtures';
 
 const OTHER_TENANT_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
@@ -20,6 +23,33 @@ const query = { tenantId: TENANT_ID, runId: RUN_ID };
 afterEach(() => vi.useRealTimers());
 
 describe('assigned-run remote cache', () => {
+  it('caches measured receipt precision as serializable strings and strips private fields at the protocol boundary', async () => {
+    const execution = {
+      ...validExecution(),
+      timing: {
+        ...validExecution().timing,
+        elapsedNanoseconds: '9223372036854775807',
+      },
+      providerOperationReference: 'private-reference',
+    };
+    const store = createStore(
+      createRunSupervisionClient({
+        fetch: async () => jsonResponse({ ...validConsole(), execution }),
+      }),
+    );
+    const read = store.dispatch(
+      runSupervisionApi.endpoints.getAssignedRunConsole.initiate(query),
+    );
+    const snapshot = await read.unwrap();
+    expect(snapshot.execution?.timing?.elapsedNanoseconds).toBe(
+      '9223372036854775807',
+    );
+    const serialized = JSON.stringify(store.getState());
+    expect(serialized).toContain('9223372036854775807');
+    expect(serialized).not.toContain('private-reference');
+    read.unsubscribe();
+    store.dispatch(runSupervisionApi.util.resetApiState());
+  });
   it('deduplicates the exact tenant/run key and isolates another run and tenant', async () => {
     const getConsole = vi
       .fn<RunSupervisionClient['getConsole']>()

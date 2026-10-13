@@ -1,4 +1,8 @@
-import type { AssignedRunConsole, AssignedRunPage } from '../src';
+import type {
+  AssignedRunConsole,
+  AssignedRunPage,
+  AssignedRunExecution,
+} from '../src';
 
 export const TENANT_ID = '11111111-1111-4111-8111-111111111111';
 export const RUN_ID = '22222222-2222-4222-8222-222222222222';
@@ -41,6 +45,22 @@ export function validPage(): AssignedRunPage {
       },
     ],
     nextCursor: null,
+  };
+}
+
+export function validExecution(): AssignedRunExecution {
+  return {
+    stepId: 'restore-access',
+    capability: 'access.restore',
+    connector: 'access-gateway',
+    outcome: 'SUCCEEDED',
+    completedAt: '2026-10-01T09:10:01.000001Z',
+    recordedAt: '2026-10-01T09:10:02Z',
+    timing: {
+      source: 'ergon.dev/measurement/connector-call/v1',
+      startedAt: '2026-10-01T09:10:00Z',
+      elapsedNanoseconds: '305123456',
+    },
   };
 }
 

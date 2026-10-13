@@ -5,6 +5,8 @@ export type {
   AssignedRunCursor,
   AssignedRunPage,
   AssignedRunConsole,
+  AssignedRunExecution,
+  AssignedRunExecutionTiming,
   AssignedRunQuery,
   AssignedRunConsoleQuery,
   RunSupervisionFailure,

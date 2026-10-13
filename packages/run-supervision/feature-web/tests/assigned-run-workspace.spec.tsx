@@ -176,16 +176,35 @@ describe('assigned-run Resolver Console', () => {
 
   it('hides retained detail while exact-run access is rechecked, fails closed, and recovers explicitly', async () => {
     const held = deferred<AssignedRunConsoleResult>();
+    const measuredConsole = {
+      ...assignedRunConsole,
+      execution: {
+        stepId: assignedRunConsole.stepId,
+        capability: assignedRunConsole.capability,
+        connector: 'measured-access-gateway',
+        outcome: 'SUCCEEDED' as const,
+        completedAt: '2026-10-09T10:01:00Z',
+        recordedAt: '2026-10-09T10:01:01Z',
+        timing: {
+          source: 'ergon.dev/measurement/connector-call/v1' as const,
+          startedAt: '2026-10-09T10:00:59Z',
+          elapsedNanoseconds: '305123456',
+        },
+      },
+    };
     const getConsole = vi
       .fn<RunSupervisionClient['getConsole']>()
-      .mockResolvedValueOnce({ ok: true, console: assignedRunConsole })
+      .mockResolvedValueOnce({ ok: true, console: measuredConsole })
       .mockImplementationOnce(() => held.promise)
-      .mockResolvedValueOnce({ ok: true, console: assignedRunConsole });
+      .mockResolvedValueOnce({ ok: true, console: measuredConsole });
     renderWorkspace({ ...successfulClient(), getConsole });
     await openRun();
+    expect(screen.getByText('305.123456 ms')).toBeTruthy();
     fireEvent.click(
       screen.getByRole('button', { name: 'Recheck selected run' }),
     );
+    expect(screen.queryByText('measured-access-gateway')).toBeNull();
+    expect(screen.queryByText('305.123456 ms')).toBeNull();
 
     expect(
       await screen.findByRole('heading', { name: 'Rechecking run access…' }),

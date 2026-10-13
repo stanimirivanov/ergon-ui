@@ -57,6 +57,12 @@ test(
           }),
         ).toBeVisible();
         await expect(
+          resolution.getByText('305.123456 ms', { exact: true }),
+        ).toBeVisible();
+        await expect(
+          resolution.getByText('Connector succeeded', { exact: true }),
+        ).toBeVisible();
+        await expect(
           resolution.getByRole('heading', {
             name: 'Resolution run',
             exact: true,
@@ -101,10 +107,114 @@ test(
         expect(bff.consoleReads()).toBe(1);
         await guide.result('inspect-context-boundaries', outcome);
 
-        bff.holdNextRunRead();
+        const measurement = resolution.locator('summary', {
+          hasText: 'Inspect execution measurement',
+        });
+        await guide.action(
+          'open-execution-measurement',
+          measurement,
+          async () => {
+            await measurement.focus();
+            await page.keyboard.press('Enter');
+          },
+        );
+        await expect(
+          resolution.getByText('305123456', { exact: true }),
+        ).toBeVisible();
+        await expect(
+          resolution.getByText('ergon.dev/measurement/connector-call/v1', {
+            exact: true,
+          }),
+        ).toBeVisible();
+        expect(bff.consoleReads()).toBe(1);
+        await guide.result(
+          'inspect-measured-call',
+          resolution.getByRole('region', { name: 'Connector result recorded' }),
+        );
+
         const recheckRun = resolution.getByRole('button', {
           name: 'Recheck selected run',
         });
+        bff.setExecutionMode('zero');
+        await guide.action('recheck-zero-measurement', recheckRun, () =>
+          recheckRun.click(),
+        );
+        await expect(
+          resolution.getByText('0 ms', { exact: true }),
+        ).toBeVisible();
+        await guide.result(
+          'inspect-measured-zero',
+          resolution.getByRole('region', { name: 'Connector result recorded' }),
+        );
+
+        bff.setExecutionMode('historical-failure');
+        await guide.action('recheck-unmeasured-result', recheckRun, () =>
+          recheckRun.click(),
+        );
+        await expect(
+          resolution.getByText('Connector failed', { exact: true }),
+        ).toBeVisible();
+        await expect(
+          resolution.getByText('Unmeasured', { exact: true }),
+        ).toBeVisible();
+        await expect(resolution.getByText('0 ms', { exact: true })).toHaveCount(
+          0,
+        );
+        await guide.result(
+          'inspect-unmeasured-result',
+          resolution.getByRole('region', { name: 'Connector result recorded' }),
+        );
+
+        bff.setExecutionMode('no-receipt');
+        await guide.action('recheck-no-receipt', recheckRun, () =>
+          recheckRun.click(),
+        );
+        await expect(
+          resolution.getByRole('heading', {
+            name: 'No terminal result recorded',
+          }),
+        ).toBeVisible();
+        await expect(
+          resolution.getByText('synthetic-identity-gateway', { exact: true }),
+        ).toHaveCount(0);
+        await guide.result(
+          'inspect-no-receipt',
+          resolution.getByRole('region', { name: 'Capability execution' }),
+        );
+
+        bff.setExecutionMode('legacy');
+        await guide.action('recheck-older-server', recheckRun, () =>
+          recheckRun.click(),
+        );
+        await expect(
+          resolution.getByRole('heading', {
+            name: 'Execution detail unavailable',
+          }),
+        ).toBeVisible();
+        await expect(
+          resolution.getByText(/Whether a terminal receipt exists is unknown/u),
+        ).toBeVisible();
+        await guide.result(
+          'inspect-older-server',
+          resolution.getByRole('region', { name: 'Capability execution' }),
+        );
+
+        bff.setExecutionMode('measured');
+        await guide.action('restore-measured-snapshot', recheckRun, () =>
+          recheckRun.click(),
+        );
+        await expect(
+          resolution.getByText('305.123456 ms', { exact: true }),
+        ).toBeVisible();
+        await expect(
+          outcome.getByText('Waiting for approval', { exact: true }),
+        ).toBeVisible();
+        await guide.result(
+          'inspect-result-state-boundary',
+          resolution.getByRole('region', { name: 'Connector result recorded' }),
+        );
+
+        bff.holdNextRunRead();
         await guide.action('recheck-selected-run', recheckRun, () =>
           recheckRun.click(),
         );
@@ -118,6 +228,12 @@ test(
         await expect(page.getByText('policy-7', { exact: true })).toHaveCount(
           0,
         );
+        await expect(
+          page.getByText('synthetic-identity-gateway', { exact: true }),
+        ).toHaveCount(0);
+        await expect(
+          page.getByText('305.123456 ms', { exact: true }),
+        ).toHaveCount(0);
         await guide.result('inspect-hidden-context', rechecking);
 
         bff.releaseHeldRunRead('failure');
@@ -129,6 +245,9 @@ test(
           page.getByText('access-restoration', { exact: true }),
         ).toHaveCount(0);
         const retryRun = page.getByRole('button', { name: 'Retry run read' });
+        await expect(
+          page.getByText('305.123456 ms', { exact: true }),
+        ).toHaveCount(0);
         await expect(retryRun).toBeVisible();
         await guide.result('inspect-temporary-failure', failure);
 
@@ -139,6 +258,9 @@ test(
         ).toBeVisible();
         expect(bff.commands()).toBe(0);
         await guide.result('inspect-restored-run', resolution);
+        await expect(
+          resolution.getByText('305.123456 ms', { exact: true }),
+        ).toBeVisible();
 
         bff.setRunReadMode('terminal');
         await guide.action('read-recorded-terminal-state', recheckRun, () =>
@@ -181,6 +303,9 @@ test(
         await expect(
           page.getByText('access-restoration', { exact: true }),
         ).toHaveCount(0);
+        await expect(
+          page.getByText('305.123456 ms', { exact: true }),
+        ).toHaveCount(0);
         bff.setActiveRunsVisible(true);
         bff.setRunReadMode('not-found');
         await guide.action('rediscover-synthetic-run', recheckAssigned, () =>
@@ -208,6 +333,9 @@ test(
         expect(page.url()).not.toContain(assignedRunId);
         expect(bff.commands()).toBe(0);
         await guide.result('inspect-neutral-unavailable', unavailable);
+        await expect(
+          page.getByText('synthetic-identity-gateway', { exact: true }),
+        ).toHaveCount(0);
 
         bff.showPagedAssignments();
         await guide.action(
@@ -335,6 +463,27 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
   );
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
+  const executionViewport = page.getByRole('group', {
+    name: 'Run execution',
+    exact: true,
+  });
+  await executionViewport.focus();
+  const executionScroll = await executionViewport.evaluate(
+    (element) => element.scrollTop,
+  );
+  await page.keyboard.press('PageDown');
+  await expect
+    .poll(() => executionViewport.evaluate((element) => element.scrollTop))
+    .toBeGreaterThan(executionScroll);
+  const measurement = resolution.locator('summary', {
+    hasText: 'Inspect execution measurement',
+  });
+  await measurement.focus();
+  await page.keyboard.press('Enter');
+  await expect(
+    resolution.getByText('305123456', { exact: true }),
+  ).toBeVisible();
+  await expect(measurement).toBeFocused();
   await page.screenshot({
     path: testInfo.outputPath('assigned-run-console-desktop.png'),
     animations: 'disabled',
@@ -401,6 +550,11 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
     resolution.getByText('identity.lookup', { exact: true }),
   ).toBeVisible();
   await expect(policy).toBeFocused();
+  await measurement.focus();
+  await expect(
+    resolution.getByText('305123456', { exact: true }),
+  ).toBeVisible();
+  await expect(measurement).toBeFocused();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,

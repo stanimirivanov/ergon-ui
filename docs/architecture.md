@@ -196,8 +196,15 @@ tenant route. It presents the immutable run start, pinned capability policy,
 and latest server-recorded state. Rechecking the selected run refreshes exact
 detail; rechecking assignments refreshes discovery, then rereads selected detail
 after successful discovery. There is no automatic polling or live-monitoring promise. Case evidence,
-execution events, approval decisions, and proof detail are explicitly absent
-from this first projection. See [ADR 0023](decisions/0023-consume-assigned-run-console-snapshots.md).
+multi-step execution events, approval decisions, and proof detail remain absent.
+The additive terminal receipt supplies one pinned capability's connector result
+and optional gateway-call measurement. Data access decodes exact attribution,
+compatibility absence and canonical nanosecond strings; a dedicated feature
+section renders exact milliseconds and provenance without another cache,
+application core or live timer. Receipt persistence, run-state projection and
+outcome proof stay distinct. Private timing withdraws with the same fresh-read
+gate. See [ADR 0023](decisions/0023-consume-assigned-run-console-snapshots.md) and
+[ADR 0028](decisions/0028-render-attributed-capability-execution.md).
 
 The static artifact reads only public runtime configuration. Secrets never
 enter JavaScript bundles. The workbench consumes the confidential BFF through
