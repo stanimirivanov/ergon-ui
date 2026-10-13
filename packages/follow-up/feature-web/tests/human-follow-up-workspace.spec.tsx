@@ -280,11 +280,27 @@ describe('follow-up workspace disclosure composition', () => {
     expect(document.activeElement).toBe(back);
   });
   it('preserves inbox traversal across a Console detour without rendering suspended rows', async () => {
-    const listOpen = vi.fn<ListOpenHumanFollowUps['listOpen']>(async (query) =>
-      query.cursor === undefined
-        ? successfulOpenFollowUpResult(FIRST_WORK_ITEM_ID, cursor)
-        : successfulOpenFollowUpResult(SECOND_WORK_ITEM_ID, null),
-    );
+    let finishResumedRead: (
+      result: Awaited<ReturnType<ListOpenHumanFollowUps['listOpen']>>,
+    ) => void = () => undefined;
+    const resumedRead = new Promise<
+      Awaited<ReturnType<ListOpenHumanFollowUps['listOpen']>>
+    >((resolve) => {
+      finishResumedRead = resolve;
+    });
+    const listOpen = vi
+      .fn<ListOpenHumanFollowUps['listOpen']>(async (query) =>
+        query.cursor === undefined
+          ? successfulOpenFollowUpResult(FIRST_WORK_ITEM_ID, cursor)
+          : successfulOpenFollowUpResult(SECOND_WORK_ITEM_ID, null),
+      )
+      .mockResolvedValueOnce(
+        successfulOpenFollowUpResult(FIRST_WORK_ITEM_ID, cursor),
+      )
+      .mockResolvedValueOnce(
+        successfulOpenFollowUpResult(SECOND_WORK_ITEM_ID, null),
+      )
+      .mockImplementationOnce(() => resumedRead);
     renderWorkspace({ listOpen });
     const inbox = await screen.findByRole('region', {
       name: 'Open follow-up work',
@@ -317,10 +333,32 @@ describe('follow-up workspace disclosure composition', () => {
       { tenantId: TENANT_ID, limit: 25, cursor },
       expect.any(AbortSignal),
     );
-    expect(
-      within(restoredInbox).getByRole('button', { name: 'Previous page' }),
-    ).toHaveProperty('disabled', false);
+    const previousPage = within(restoredInbox).getByRole('button', {
+      name: 'Previous page',
+    });
+    expect(previousPage).toHaveProperty('disabled', true);
     expect(screen.queryByText('Private Console evidence')).toBeNull();
+    finishResumedRead(successfulOpenFollowUpResult(SECOND_WORK_ITEM_ID, null));
+    // Request acquisition and cached rows do not establish that the resumed read has committed.
+    await waitFor(() =>
+      expect(
+        within(restoredInbox).getByRole('button', { name: 'Previous page' }),
+      ).toHaveProperty('disabled', false),
+    );
+    expect(screen.queryByText('Private Console evidence')).toBeNull();
+    fireEvent.click(
+      within(restoredInbox).getByRole('button', { name: 'Previous page' }),
+    );
+    await waitFor(() =>
+      expect(listOpen).toHaveBeenCalledTimes(readsWhileSuspended + 2),
+    );
+    expect(listOpen).toHaveBeenLastCalledWith(
+      { tenantId: TENANT_ID, limit: 25 },
+      expect.any(AbortSignal),
+    );
+    expect(
+      await within(restoredInbox).findByText(FIRST_WORK_ITEM_ID),
+    ).toBeTruthy();
   });
 
   it('retains the exact uncertain claim command across the detour without automatic replay', async () => {

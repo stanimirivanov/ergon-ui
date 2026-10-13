@@ -1,0 +1,106 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import test from 'node:test';
+import { parse as parseYaml } from 'yaml';
+
+const manifest = JSON.parse(
+  await readFile(new URL('../../package.json', import.meta.url), 'utf8'),
+);
+const workflow = parseYaml(
+  await readFile(
+    new URL('../../.github/workflows/verify.yml', import.meta.url),
+    'utf8',
+  ),
+);
+
+function assertVerificationConfiguration(packageJson, verifyWorkflow) {
+  // Nx's default formatting range requires Git refs absent from shallow PR checkouts.
+  assert.equal(
+    packageJson.scripts['format:check'],
+    'nx format:check --all',
+    'format:check must check all files without resolving a Git base/head',
+  );
+  assert.equal(
+    packageJson.scripts['verify:workspace'],
+    'pnpm format:check && pnpm guide:check && pnpm nx run-many -t lint typecheck test build',
+    'workspace verification must retain formatting, guide validation and all four Nx targets',
+  );
+  const job = verifyWorkflow.jobs.verify;
+  const workspaceStep = job.steps.find(
+    (step) => step.name === 'Verify workspace',
+  );
+  assert.equal(workspaceStep?.run, 'pnpm verify:workspace');
+  assert.equal(
+    workspaceStep?.if,
+    undefined,
+    'workspace checks must not be conditionally skipped',
+  );
+  assert.equal(
+    workspaceStep?.['continue-on-error'],
+    undefined,
+    'workspace failures must fail CI',
+  );
+  assert.equal(
+    job['continue-on-error'],
+    undefined,
+    'failed verification must not be masked at job level',
+  );
+  assert.deepEqual(verifyWorkflow.permissions, { contents: 'read' });
+  assert.equal(
+    job.steps.find((step) => step.uses?.startsWith('actions/checkout@'))
+      ?.with?.['persist-credentials'],
+    false,
+    'format verification must not require persisted checkout credentials',
+  );
+}
+
+test('workspace verification is Git-ref-independent and retains the complete failure gate', () => {
+  assertVerificationConfiguration(manifest, workflow);
+});
+
+test('rejects formatting commands that silently reintroduce Git range discovery', () => {
+  for (const command of [
+    'nx format:check',
+    'nx format:check --base=main',
+    'nx format:check --files=package.json',
+  ]) {
+    const changed = structuredClone(manifest);
+    changed.scripts['format:check'] = command;
+    assert.throws(
+      () => assertVerificationConfiguration(changed, workflow),
+      /without resolving a Git base\/head/u,
+    );
+  }
+});
+
+test('rejects dropped workspace verification capabilities', () => {
+  const changed = structuredClone(manifest);
+  changed.scripts['verify:workspace'] =
+    'pnpm nx run-many -t lint typecheck build';
+  assert.throws(
+    () => assertVerificationConfiguration(changed, workflow),
+    /retain formatting/u,
+  );
+});
+
+test('rejects conditional or tolerated workspace failures', () => {
+  for (const options of [{ if: 'false' }, { 'continue-on-error': true }]) {
+    const changed = structuredClone(workflow);
+    Object.assign(
+      changed.jobs.verify.steps.find(
+        (step) => step.name === 'Verify workspace',
+      ),
+      options,
+    );
+    assert.throws(
+      () => assertVerificationConfiguration(manifest, changed),
+      /must not|must fail/u,
+    );
+  }
+  const changed = structuredClone(workflow);
+  changed.jobs.verify['continue-on-error'] = true;
+  assert.throws(
+    () => assertVerificationConfiguration(manifest, changed),
+    /must not be masked/u,
+  );
+});
