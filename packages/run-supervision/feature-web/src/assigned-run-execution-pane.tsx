@@ -7,6 +7,7 @@ import type { ReactElement, RefObject } from 'react';
 
 import { AssignedRunFact } from './assigned-run-fact';
 import { AssignedRunCapabilityExecution } from './assigned-run-capability-execution';
+import { AssignedRunTransitionHistory } from './assigned-run-transition-history';
 import { AssignedRunMessage } from './assigned-run-message';
 import { formatRecordedAt, runStateLabels } from './run-supervision-copy';
 
@@ -220,10 +221,13 @@ function AssignedRunExecutionRecords({
       <div className="mt-5">
         <AssignedRunCapabilityExecution execution={run.execution} />
       </div>
+      <div className="mt-5">
+        <AssignedRunTransitionHistory transitions={run.transitions} />
+      </div>
       <p className="mt-4 text-xs leading-5 text-ink-muted">
         This projection supports one pinned capability receipt, not an ordered
-        multi-step trace. Nested tool spans, intermediate transitions and real
-        cost attribution are not included in this read model.
+        multi-step trace. Nested tool spans, additional step transitions and
+        real cost attribution are not included in this read model.
       </p>
     </>
   );

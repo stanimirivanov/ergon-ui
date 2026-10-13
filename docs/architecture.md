@@ -255,6 +255,16 @@ slice must first establish a reviewed browser-facing endpoint.
 
 ## Presentation
 
+Assigned-run history is another member of the same protected RTK projection,
+not a second resource owner. Data access validates its immutable prefix against
+the state revision, final update and terminal receipt before caching. The
+feature renders append order and distinct occurrence/recording observations;
+clock correction does not reorder events or supply latency. Missing history
+means unsupported; an empty revision-zero prefix means no projected event.
+The existing fresh-read gate withdraws the whole section. Recorded proof
+acceptance is not inspected proof evidence. See
+[ADR 0029](decisions/0029-display-sequence-aligned-run-transitions.md).
+
 Tailwind owns utility generation and semantic theme tokens. shadcn source is
 checked-in and reviewed in `@ergon/ui-web`. Feature components remain near
 their behavior. The selected Console scopes dark semantic tokens to its work

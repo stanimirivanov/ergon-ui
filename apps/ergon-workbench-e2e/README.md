@@ -97,6 +97,10 @@ gateway-call receipt and its keyboard provenance disclosure, measured zero,
 an unmeasured failed result, explicit null receipt and older-server omission.
 Those fixture switches demonstrate compatibility, not mutation of production
 receipts. Result-before-state projection and wall-clock correction are explicit;
+its 37 steps also show the revision-zero empty history, projected capability
+result and two-event terminal prefix. Sequence, not timestamp order, is
+authoritative; proof acceptance metadata is not inspected outcome evidence.
+The fixtures simulate returned records, not real runtime commands or persistence.
 milliseconds preserve exact nanoseconds and cost is never inferred. It records private snapshot hiding
 during pending and failed revalidation, safe retry, terminal detail after active
 discovery empties, and neutral protected absence. It also checks keyboard

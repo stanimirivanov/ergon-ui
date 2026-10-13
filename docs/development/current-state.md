@@ -9,7 +9,8 @@ token, recover their active claims, release exact owned claims from a card or
 the selected Console, and inspect server-authorized case context there. The
 Console's case and run content remains read-only. Assigned supervisors can also
 discover active runs and inspect their recorded start, pinned policy, and
-current state and sanitized terminal execution measurements in a separate
+current state, sanitized terminal execution measurements and ordered recorded
+transitions in a separate
 three-pane Console. It has no resolution action,
 live trace, lease, approval control, logout flow, form workflow, Motion animation,
 requester app, or native app.
@@ -128,6 +129,12 @@ requester app, or native app.
 - capability-first `type:*`, `scope:*`, and `platform:*` boundaries with a
   finite ledger for packages still under the old global-layer paths and a
   DOM-free TypeScript configuration for model and application cores;
+- sequence-aligned assigned-run transition presentation: revision-zero empty,
+  capability-result projection and terminal decision retain distinct meanings.
+  Data access validates chain, revision, timestamps and receipt attribution;
+  explicit rechecks hide the history with all other private context. Missing
+  old-server history is unsupported, not empty. The current stream is bounded
+  to two events; no live spans or proof payloads are inferred;
 - CommonMark-aware repository policy for local links, summaries, ADR history,
   milestone fields, and GitHub templates;
 - progressively routed harness guidance and staged GitHub verification; and

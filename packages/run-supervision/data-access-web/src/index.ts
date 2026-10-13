@@ -7,6 +7,7 @@ export type {
   AssignedRunConsole,
   AssignedRunExecution,
   AssignedRunExecutionTiming,
+  AssignedRunTransition,
   AssignedRunQuery,
   AssignedRunConsoleQuery,
   RunSupervisionFailure,

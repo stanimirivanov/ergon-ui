@@ -6,6 +6,7 @@ import type {
   AssignedRunPage,
   AssignedRunQuery,
 } from '../contracts';
+import { isConsistentRunHistory } from './run-transition-consistency';
 
 const uuid = Schema.String.pipe(
   Schema.pattern(
@@ -87,6 +88,31 @@ const consoleSnapshot = Schema.Struct({
   stateUpdatedAt: instant,
   assignedAt: instant,
   execution: Schema.optionalWith(Schema.NullOr(execution), { exact: true }),
+  transitions: Schema.optionalWith(
+    Schema.Array(
+      Schema.Struct({
+        sequence: positiveInteger,
+        type: Schema.Literal(
+          'CAPABILITY_SUCCEEDED',
+          'CAPABILITY_FAILED',
+          'OUTCOME_PROOF_ACCEPTED',
+          'RETRY_STARTED',
+          'ESCALATION_REQUESTED',
+        ),
+        fromState: Schema.Union(
+          activeState,
+          Schema.Literal('VERIFIED_RESOLVED', 'SUPERSEDED', 'ESCALATED'),
+        ),
+        toState: Schema.Union(
+          activeState,
+          Schema.Literal('VERIFIED_RESOLVED', 'SUPERSEDED', 'ESCALATED'),
+        ),
+        occurredAt: instant,
+        recordedAt: instant,
+      }),
+    ).pipe(Schema.filter((events) => events.length <= 2)),
+    { exact: true },
+  ),
 });
 
 const listQuery = Schema.Struct({
@@ -157,6 +183,7 @@ export function decodeAssignedRunConsole(
       value.execution.capability !== value.capability)
   )
     return undefined;
+  if (!isConsistentRunHistory(value)) return undefined;
   return value;
 }
 

@@ -81,6 +81,16 @@ valid zero remains a measurement. Nanoseconds stay exact strings, never Number
 or BigInt cache values. Result persistence does not imply state advancement or
 outcome proof. See [ADR 0028](../../../docs/decisions/0028-render-attributed-capability-execution.md).
 
+`AssignedRunConsole.transitions` is optional only for older-server compatibility.
+An empty array means a supported revision-zero prefix, not unsupported history.
+Decode at most two known event shapes and validate contiguous sequence, initial
+and chained states, final state/revision/update and receipt outcome/completion
+before caching. UTC comparison preserves fractional precision and accepts
+equivalent trailing-zero padding. Reject inconsistent/null histories without
+retry or partial caching; strip unconsumed private fields. Existing cache keys,
+fresh-read gates and receipt timing semantics stay unchanged. See
+[ADR 0029](../../../docs/decisions/0029-display-sequence-aligned-run-transitions.md).
+
 ## Verification
 
 ```powershell

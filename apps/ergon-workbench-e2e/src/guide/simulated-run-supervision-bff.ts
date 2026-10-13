@@ -27,7 +27,8 @@ const snapshot = {
   assignedAt: '2026-09-21T09:02:00Z',
 } as const;
 
-type RunReadMode = 'success' | 'failure' | 'terminal' | 'not-found';
+type RunReadMode =
+  'success' | 'projected' | 'failure' | 'terminal' | 'not-found';
 type ExecutionMode =
   'measured' | 'zero' | 'historical-failure' | 'no-receipt' | 'legacy';
 
@@ -202,10 +203,50 @@ export async function installSimulatedRunSupervisionBff(page: Page): Promise<{
               ...snapshot,
               ...executionProjection(executionMode),
               state: 'VERIFIED_RESOLVED',
-              stateVersion: 1,
+              stateVersion: 2,
               stateUpdatedAt: '2026-09-21T09:15:00Z',
+              transitions: [
+                {
+                  sequence: 1,
+                  type: 'CAPABILITY_SUCCEEDED',
+                  fromState: snapshot.state,
+                  toState: 'VERIFYING',
+                  occurredAt: '2026-09-21T09:10:00Z',
+                  recordedAt: '2026-09-21T09:10:01Z',
+                },
+                {
+                  sequence: 2,
+                  type: 'OUTCOME_PROOF_ACCEPTED',
+                  fromState: 'VERIFYING',
+                  toState: 'VERIFIED_RESOLVED',
+                  occurredAt: '2026-09-21T09:15:00Z',
+                  recordedAt: '2026-09-21T09:15:01Z',
+                },
+              ],
             }
-          : { ...snapshot, ...executionProjection(executionMode) },
+          : mode === 'projected'
+            ? {
+                ...snapshot,
+                ...executionProjection(executionMode),
+                state: 'VERIFYING',
+                stateVersion: 1,
+                stateUpdatedAt: '2026-09-21T09:10:00Z',
+                transitions: [
+                  {
+                    sequence: 1,
+                    type: 'CAPABILITY_SUCCEEDED',
+                    fromState: snapshot.state,
+                    toState: 'VERIFYING',
+                    occurredAt: '2026-09-21T09:10:00Z',
+                    recordedAt: '2026-09-21T09:10:01Z',
+                  },
+                ],
+              }
+            : {
+                ...snapshot,
+                ...executionProjection(executionMode),
+                ...(executionMode === 'legacy' ? {} : { transitions: [] }),
+              },
       );
     },
   );
