@@ -10,6 +10,13 @@ import type {
 } from '../contracts';
 import { normalizeRunSupervisionFailure } from '../normalize-run-supervision-failure';
 import { normalizeRunHandoverFailure } from '../normalize-run-handover-failure';
+import { normalizeRunApprovalFailure } from '../bff/run-approval-http';
+import type {
+  RunApprovalClient,
+  RunApprovalCommand,
+  RunApprovalFailure,
+  RunApprovalReceipt,
+} from '../approval-contracts';
 import type {
   RunSupervisorCandidatePage,
   RunSupervisorCandidateQuery,
@@ -38,9 +45,38 @@ export interface RunSupervisionDependencies {
  */
 export const runSupervisionApi = createApi({
   reducerPath: 'runSupervisionApi',
-  baseQuery: fakeBaseQuery<RunSupervisorHandoverFailure>(),
+  baseQuery: fakeBaseQuery<RunSupervisorHandoverFailure | RunApprovalFailure>(),
   tagTypes: ['AssignedRuns', 'RunDetail', 'RunCandidates'],
   endpoints: (build) => ({
+    decideRunApproval: build.mutation<RunApprovalReceipt, RunApprovalCommand>({
+      invalidatesTags: (result, _error, command) =>
+        result === undefined
+          ? []
+          : [
+              { type: 'AssignedRuns', id: command.tenantId },
+              { type: 'RunDetail', id: `${command.tenantId}:${command.runId}` },
+              {
+                type: 'RunCandidates',
+                id: `${command.tenantId}:${command.runId}`,
+              },
+            ],
+      async queryFn(
+        command,
+        api,
+      ): Promise<{ data: RunApprovalReceipt } | { error: RunApprovalFailure }> {
+        try {
+          const client = clientFrom(api.extra);
+          if (!isApprovalClient(client))
+            return { error: { kind: 'unexpected-defect' } };
+          const result = await client.decideApproval(command, api.signal);
+          return result.ok
+            ? { data: result.receipt }
+            : { error: normalizeRunApprovalFailure(result.error) };
+        } catch {
+          return { error: { kind: 'unexpected-defect' } };
+        }
+      },
+    }),
     listAssignedRuns: build.query<AssignedRunPage, AssignedRunQuery>({
       keepUnusedDataFor: 0,
       providesTags: (_result, _error, query) => [
@@ -161,7 +197,16 @@ export const {
   useGetAssignedRunConsoleQuery,
   useLazyGetAssignedRunConsoleQuery,
   useHandoverRunSupervisorMutation,
+  useDecideRunApprovalMutation,
 } = runSupervisionApi;
+
+function isApprovalClient(
+  client: RunSupervisionClient,
+): client is RunSupervisionClient & RunApprovalClient {
+  return (
+    'decideApproval' in client && typeof client.decideApproval === 'function'
+  );
+}
 
 function handoverClientFrom(extra: unknown): RunSupervisorHandoverClient {
   const client = clientFrom(extra);

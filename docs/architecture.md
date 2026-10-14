@@ -204,12 +204,14 @@ offers only the existing confirmed release action. It does not infer a timed
 lease, countdown, verified claims, a live trace, approval decisions, direct
 handover, or completed verification from this read model.
 
-The assigned-run Console is a separate read-only work surface in the same
+The assigned-run Console is a separate snapshot work surface in the same
 tenant route. It presents the immutable run start, pinned capability policy,
 and latest server-recorded state. Rechecking the selected run refreshes exact
 detail; rechecking assignments refreshes discovery, then rereads selected detail
 after successful discovery. There is no automatic polling or live-monitoring promise. Case evidence,
-multi-step execution events, approval decisions, and proof detail remain absent.
+multi-step execution events and proof detail remain absent. Human approval review
+is a separate optional member of this same protected resource, not inferred
+from its pinned policy requirement.
 The additive terminal receipt supplies one pinned capability's connector result
 and optional gateway-call measurement. Data access decodes exact attribution,
 compatibility absence and canonical nanosecond strings; a dedicated feature
@@ -267,6 +269,19 @@ non-disclosure. The production UI does not consume `/internal/v1` routes; a
 slice must first establish a reviewed browser-facing endpoint.
 
 ## Presentation
+
+Approval review/decisions use the existing run-supervision capability. Data
+access owns optional lifecycle decoding, exact receipt attribution, session-CSRF
+execution, safe failure normalization and RTK mutation invalidation. Feature
+owns the dedicated review card, acknowledged RHF modal and immutable command
+intent; ui-web still owns focus/inertness and app still owns shell composition.
+The shared, consumed command controller and HTTP executor preserve handover's
+existing mechanics without adding a core, package, cache or dependency edge.
+All private run/candidate disclosure is suspended before a decision POST.
+Only exact replay is offered for uncertain results; definite conflicts require
+fresh facts. Success resets selection and rechecks assigned work. A historical
+decision is not current supervision, a grant, execution, resumption or proof.
+See [ADR 0031](decisions/0031-confirm-human-approval-prerequisites.md).
 
 Assigned-run history is another member of the same protected RTK projection,
 not a second resource owner. Data access validates its immutable prefix against

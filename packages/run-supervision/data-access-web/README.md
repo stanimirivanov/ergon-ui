@@ -1,5 +1,11 @@
 # Run supervision web data access
 
+## TL;DR
+
+Own the confidential Console's reads, confirmed handover/approval protocols and
+RTK cache lifecycle. The backend owns current authority; a human decision is
+not a capability grant. Private resources never acquire a second cache.
+
 ## Purpose
 
 Own confidential-browser reads and remote-cache integration for resolution runs
@@ -34,7 +40,7 @@ request only after its last subscriber leaves, without aborting another reader.
 
 ## Does not own
 
-- Run assignment, control, approval, backend policy, or application workflows.
+- Run assignment, runtime control, backend approval policy, or application workflows.
 - Case evidence, a live trace, multi-step span measurements, billing, or outcome-proof records.
 - React feature presentation, routes, or store composition.
 - Tokens, persistent browser storage, or private transport diagnostics.
@@ -91,7 +97,17 @@ retry or partial caching; strip unconsumed private fields. Existing cache keys,
 fresh-read gates and receipt timing semantics stay unchanged. See
 [ADR 0029](../../../docs/decisions/0029-display-sequence-aligned-run-transitions.md).
 
-## Verification
+## Confirmed commands
+
+Approval review is an optional member of the exact Console resource. Decoding
+distinguishes unsupported omission, no request, pending, expiry and immutable
+decision; inconsistent authority/lifecycle/eligibility fails closed. The
+`decideApproval` client uses invocation-local CSRF, a complete command deadline
+and no automatic retry. Receipts must match request/run/command/outcome and the
+unchanged supervision epoch. RTK's `decideRunApproval` mutation contains safe
+typed failures/defects and invalidates related resources on success. The
+consumed command HTTP executor preserves handover's existing cancellation and
+read-retry semantics. See [ADR 0031](../../../docs/decisions/0031-confirm-human-approval-prerequisites.md).
 
 Confirmed handover extends this API with current-epoch recipient discovery and
 session-CSRF transfer. `useRunSupervisorCandidates` closes/reopens with the same
@@ -103,6 +119,8 @@ and unexpected defects are contained at the cache boundary. Successful transfer
 invalidates related discovery/detail/candidate subscribers; mutation feedback
 is historical, never current supervision truth. See
 [ADR 0030](../../../docs/decisions/0030-confirm-revisioned-supervisor-handover.md).
+
+## Verification
 
 ```powershell
 pnpm nx lint @ergon/run-supervision-data-access-web

@@ -2,6 +2,7 @@ import { rmSync } from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { checkRepositoryGuideMetadata } from './source-metadata.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url));
 const outputRoot = fileURLToPath(
@@ -29,6 +30,9 @@ function runStep(label, command, args, environment = process.env) {
     );
   }
 }
+
+// Detect book identity collisions before clearing useful evidence or recording browsers.
+await checkRepositoryGuideMetadata(repositoryRoot);
 
 // This script may remove only its ignored, generated output directory.
 if (

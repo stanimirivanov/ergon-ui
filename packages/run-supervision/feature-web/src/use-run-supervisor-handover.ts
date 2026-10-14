@@ -5,41 +5,24 @@ import {
   type RunSupervisorHandoverFailure,
   type RunSupervisorHandoverReceipt,
 } from '@ergon/run-supervision-data-access-web';
+import { useCallback, useLayoutEffect, useState, type RefObject } from 'react';
 import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-  type RefObject,
-} from 'react';
+  useConfirmedRunCommand,
+  type ConfirmedRunCommandState,
+} from './use-confirmed-run-command';
 
 export type RunHandoverState =
-  | { readonly phase: 'idle' }
+  | ConfirmedRunCommandState<
+      RunSupervisorHandoverCommand,
+      RunSupervisorHandoverReceipt,
+      RunSupervisorHandoverFailure
+    >
   | {
       readonly phase: 'candidate-failed';
       readonly error: RunSupervisorHandoverFailure;
-    }
-  | {
-      readonly phase: 'submitting';
-      readonly command: RunSupervisorHandoverCommand;
-    }
-  | {
-      readonly phase: 'failed';
-      readonly command: RunSupervisorHandoverCommand;
-      readonly error: RunSupervisorHandoverFailure;
-    }
-  | {
-      readonly phase: 'succeeded';
-      readonly receipt: RunSupervisorHandoverReceipt;
     };
 
-/**
- * Owns confirmed transfer/replay intent, never a run or candidate snapshot.
- * The submitting phase commits closed disclosure before RTK starts the POST.
- * StrictMode's abandoned effect cannot acquire a command. Cleanup retires late
- * callbacks and removes this mutation subscription; the bounded transport may
- * finish a write, so navigation does not promise cancellation of the transfer.
- */
+/** Confirmed transfer intent plus access-check retirement; candidate failures never manufacture replayable command intent. */
 export function useRunSupervisorHandover({
   heading,
   onSuccess,
@@ -54,79 +37,42 @@ export function useRunSupervisorHandover({
   readonly clear: () => void;
   readonly rejectCandidates: (error: RunSupervisorHandoverFailure) => void;
 } {
-  const [state, setState] = useState<RunHandoverState>({ phase: 'idle' });
   const [transfer] = useHandoverRunSupervisorMutation();
+  const command = useConfirmedRunCommand({
+    send: transfer,
+    normalize: normalizeRunHandoverFailure,
+    heading,
+    onSuccess,
+  });
+  const [candidateError, setCandidateError] =
+    useState<RunSupervisorHandoverFailure | null>(null);
+  const isCommandBlocking = command.isBlockingDisclosure;
   const rejectCandidates = useCallback(
     (error: RunSupervisorHandoverFailure): void => {
-      setState((previous) =>
-        previous.phase === 'submitting' || previous.phase === 'failed'
-          ? previous
-          : {
-              phase: 'candidate-failed',
-              error: normalizeRunHandoverFailure(error),
-            },
-      );
+      if (!isCommandBlocking)
+        setCandidateError(normalizeRunHandoverFailure(error));
     },
-    [],
+    [isCommandBlocking],
   );
-
   useLayoutEffect(() => {
-    // The modal's layout cleanup has closed its top layer before focus moves
-    // to this persistent target; focusing an inert outer heading earlier fails.
-    if (state.phase === 'submitting' || state.phase === 'candidate-failed')
-      heading.current?.focus();
-  }, [state, heading]);
-
-  useEffect(() => {
-    if (state.phase !== 'submitting') return;
-    let active = true;
-    let request: ReturnType<typeof transfer> | undefined;
-    void Promise.resolve().then(async () => {
-      if (!active) return;
-      try {
-        request = transfer(state.command);
-        const result = await request;
-        if (!active) return;
-        if (result.data !== undefined) {
-          setState({ phase: 'succeeded', receipt: result.data });
-          onSuccess();
-        } else {
-          setState({
-            phase: 'failed',
-            command: state.command,
-            error: normalizeRunHandoverFailure(result.error),
-          });
-        }
-      } catch {
-        if (active)
-          setState({
-            phase: 'failed',
-            command: state.command,
-            error: { kind: 'unexpected-defect' },
-          });
-      }
-    });
-    return () => {
-      active = false;
-      request?.reset();
-    };
-  }, [state, transfer, onSuccess]);
-
+    if (candidateError !== null) heading.current?.focus();
+  }, [candidateError, heading]);
+  const state: RunHandoverState =
+    candidateError !== null && !isCommandBlocking
+      ? { phase: 'candidate-failed', error: candidateError }
+      : command.state;
   return {
+    ...command,
     state,
-    isBlockingDisclosure:
-      state.phase === 'submitting' ||
-      state.phase === 'failed' ||
-      state.phase === 'candidate-failed',
+    isBlockingDisclosure: isCommandBlocking || candidateError !== null,
     rejectCandidates,
-    submit: (command) => {
-      if (state.phase !== 'submitting')
-        setState({ phase: 'submitting', command });
+    submit: (intent) => {
+      setCandidateError(null);
+      command.submit(intent);
     },
-    retry: () => {
-      if (state.phase === 'failed')
-        setState({ phase: 'submitting', command: state.command });
+    clear: () => {
+      setCandidateError(null);
+      command.clear();
     },
-    clear: () => setState({ phase: 'idle' }),
   };
 }

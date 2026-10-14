@@ -5,7 +5,7 @@ import type {
   RunSupervisorHandoverCommand,
   RunSupervisorHandoverReceipt,
 } from '../handover-contracts';
-import { isUtcInstant } from './run-supervision-schemas';
+import { isUtcInstant } from './run-wire-instant';
 
 const uuid = Schema.String.pipe(
   Schema.pattern(
@@ -52,17 +52,6 @@ const receiptSchema = Schema.Struct({
   supervisionRevision: revision,
   handedOverAt: instant,
   recordedAt: instant,
-});
-const csrfSchema = Schema.Struct({
-  headerName: Schema.Literal('X-CSRF-TOKEN'),
-  token: Schema.String.pipe(
-    Schema.filter(
-      (value) =>
-        value.trim().length > 0 &&
-        value.length <= 4096 &&
-        !/[\r\n]/.test(value),
-    ),
-  ),
 });
 
 export function isValidCandidateQuery(
@@ -120,12 +109,4 @@ export function decodeHandoverReceipt(
     value.supervisionRevision === command.expectedSupervisionRevision + 1
     ? value
     : undefined;
-}
-
-/** Token exists only for this invocation; a replay obtains a fresh token without changing command intent. */
-export function decodeHandoverCsrf(
-  body: unknown,
-): { readonly headerName: 'X-CSRF-TOKEN'; readonly token: string } | undefined {
-  const result = Schema.decodeUnknownEither(csrfSchema)(body);
-  return Either.isRight(result) ? result.right : undefined;
 }

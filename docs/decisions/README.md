@@ -51,6 +51,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0028](0028-render-attributed-capability-execution.md)             | Proposed   | Render exact attributed execution with compatibility absence   |
 | [0029](0029-display-sequence-aligned-run-transitions.md)           | Proposed   | Display state-aligned immutable transition prefixes            |
 | [0030](0030-confirm-revisioned-supervisor-handover.md)             | Proposed   | Confirm handover with exact replay and committed disclosure    |
+| [0031](0031-confirm-human-approval-prerequisites.md)               | Proposed   | Confirm exact human prerequisites without granting execution   |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple
