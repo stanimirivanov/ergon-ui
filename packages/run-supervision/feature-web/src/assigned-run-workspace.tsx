@@ -6,6 +6,8 @@ import { AssignedRunList } from './assigned-run-list';
 import { AssignedRunOutcomePane } from './assigned-run-outcome-pane';
 import { AssignedRunPresence } from './assigned-run-presence';
 import { useAssignedRunWorkflow } from './use-assigned-run-workflow';
+import { RunSupervisorHandover } from './run-supervisor-handover';
+import { AssignedRunHandoverFeedback } from './assigned-run-handover-feedback';
 
 interface AssignedRunWorkspaceProps {
   readonly tenantId: string;
@@ -47,7 +49,19 @@ function TenantAssignedRunWorkspace({
 }: AssignedRunWorkspaceProps): ReactElement {
   const workflow = useAssignedRunWorkflow(tenantId);
   const { assigned, detail, selectedRunId } = workflow;
-  const isReadingAssigned = assigned.phase === 'pending';
+  const isReadingAssigned =
+    assigned.phase === 'pending' || workflow.handover.isBlockingDisclosure;
+  const handoverState = workflow.handover.state;
+  const handoverFeedback =
+    handoverState.phase === 'idle' ? undefined : (
+      <AssignedRunHandoverFeedback
+        state={handoverState}
+        signInHref={signInHref}
+        onRetry={workflow.handover.retry}
+        onRecheck={workflow.recoverHandover}
+        onLeave={workflow.closeRun}
+      />
+    );
 
   function handleAssignedRecheck(): void {
     // Discovery controls become disabled or disappear during revalidation.
@@ -65,7 +79,16 @@ function TenantAssignedRunWorkspace({
 
   return renderWorkspace({
     mode: 'focused',
-    statusLabel: 'Assigned · read only',
+    statusLabel:
+      handoverState.phase === 'submitting'
+        ? 'Handover pending'
+        : handoverState.phase === 'candidate-failed'
+          ? 'Recipient access unavailable'
+          : handoverState.phase === 'failed'
+            ? 'Handover result unavailable'
+            : detail.phase === 'ready' && detail.data.handoverSupported === true
+              ? 'Assigned · handover enabled'
+              : 'Assigned · read only',
     toolbar: (
       <AssignedRunPresence
         presence={presence}
@@ -73,6 +96,18 @@ function TenantAssignedRunWorkspace({
         hasSelectedRun={selectedRunId !== null}
         onRecheck={handleAssignedRecheck}
         onClose={workflow.closeRun}
+        isTransferring={handoverState.phase === 'submitting'}
+        handoverControl={
+          detail.phase === 'ready' ? (
+            <RunSupervisorHandover
+              key={`${detail.data.runId}:${detail.data.supervisionRevision ?? 'unsupported'}`}
+              tenantId={tenantId}
+              run={detail.data}
+              onConfirm={workflow.handover.submit}
+              onAccessFailure={workflow.handover.rejectCandidates}
+            />
+          ) : undefined
+        }
       />
     ),
     content: (
@@ -85,6 +120,7 @@ function TenantAssignedRunWorkspace({
             page={assigned.phase === 'ready' ? assigned.data : undefined}
             selectedRunId={selectedRunId}
             isFetching={isReadingAssigned}
+            isWithheld={workflow.handover.isBlockingDisclosure}
             isRecheck={assigned.phase === 'pending' && assigned.hasRetainedData}
             error={assigned.phase === 'failed' ? assigned.error : undefined}
             signInHref={signInHref}
@@ -102,6 +138,7 @@ function TenantAssignedRunWorkspace({
             selectedRunId={selectedRunId}
             signInHref={signInHref}
             heading={workflow.heading}
+            handoverFeedback={handoverFeedback}
           />
         }
         trailing={

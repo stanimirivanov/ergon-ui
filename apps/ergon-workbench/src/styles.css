@@ -15,6 +15,7 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
+  --color-accent-foreground: var(--accent-foreground);
   --color-highlight: var(--highlight);
   --font-sans: 'Manrope', 'Aptos', 'Segoe UI', sans-serif;
   --font-display: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
@@ -30,6 +31,7 @@
   --border: #ccd0c6;
   --accent: #26745b;
   --accent-strong: #175442;
+  --accent-foreground: #ffffff;
   --highlight: #d8a94f;
 }
 
@@ -73,6 +75,8 @@ a {
   --border: #31506c;
   --accent: #218fda;
   --accent-strong: #79dcff;
+  /* Dark foreground preserves small-text contrast on both blue button states. */
+  --accent-foreground: #07111c;
   --highlight: #f6bd31;
   background:
     radial-gradient(circle at 50% 0%, rgb(31 96 144 / 13%), transparent 42rem),

@@ -168,6 +168,19 @@ the exact BFF gate succeeds. Discovery membership does not replace that gate.
 
 ## Routing and rendering
 
+Run supervision also owns current-epoch recipient reads and confirmed browser
+handover. RTK remains the resource owner; React Hook Form owns the transient
+recipient and acknowledgement fields. A feature-owned submitting phase retires
+discovery/detail and recipient DOM before mutation acquisition, and retains
+only exact command intent for an explicit uncertain-result replay. The shared
+modal owns focus/inertness and placement. Effect owns invocation-local CSRF,
+the bounded POST and receipt decoding; no transfer retries automatically.
+A failed candidate read withdraws the earlier private run snapshot and dialog.
+Fresh recovery is required; no command was created or offered for replay.
+Historical receipts do not substitute for current supervision, and no browser
+self-assignment, lease, execution permission or persistent directory is added.
+See [ADR 0030](decisions/0030-confirm-revisioned-supervisor-handover.md).
+
 Both Consoles use one app-owned standard/focused shell composed directly from
 the capability workflow's `WorkspaceView`. The app owns branding, navigation,
 landmarks, dark token scope and viewport allocation; features supply cohesive

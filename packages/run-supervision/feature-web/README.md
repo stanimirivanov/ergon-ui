@@ -1,10 +1,11 @@
 # Run-supervision web feature
 
-## Purpose
+## TL;DR
 
 Own the assigned-supervisor Resolver Console's React interaction and complete
-responsive three-pane presentation. This is a server-authoritative read slice,
-not a client application core or an execution-control surface.
+responsive three-pane presentation and confirmed supervision transfers. Reads
+remain server-authoritative; handover changes access, never execution authority.
+This is not a client application core or an execution-control surface.
 
 ## Owns
 
@@ -51,7 +52,7 @@ not a client application core or an execution-control surface.
 - App branding, global navigation, standard/focused shell, theme scope or
   viewport allocation. Presence can wrap without an assumed header height;
   panels never subtract fixed chrome dimensions from the viewport.
-- Lease ownership, timers, handover, grants, approval decisions, steering,
+- Lease ownership, timers, grants, approval decisions, steering,
   multi-step execution events, tool spans, billing, evidence claims, or proof.
   Their absence is explicit rather than filled with synthetic data.
 - Shared domain-agnostic primitives or an interface-only application layer.
@@ -102,6 +103,21 @@ inspected proof evidence; the outcome pane still explains that limitation.
 See [ADR 0029](../../../docs/decisions/0029-display-sequence-aligned-run-transitions.md).
 
 ## Verification
+
+Recipient lookup rechecks supervision. Any failed candidate read withdraws the
+earlier run snapshot and dialog before paint, without manufacturing a command
+or offering mutation replay. Recovery must establish fresh run access.
+
+The handover surface owns a confirmed React Hook Form recipient/acknowledgement
+form, local private candidate traversal and immutable command intent. The
+existing ui-web modal owns native focus/inertness and layout. A committed
+submitting phase suspends all private discovery/detail before I/O and focuses
+the persistent execution heading after modal teardown. Uncertain results offer
+only exact replay; definite conflicts require revalidation before a new choice.
+Late callbacks are retired after navigation or tenant change. The original
+assignment timestamp is historical, and a receipt never asserts current ownership.
+No state enters URLs or persistent storage. See
+[ADR 0030](../../../docs/decisions/0030-confirm-revisioned-supervisor-handover.md).
 
 ```powershell
 pnpm nx lint @ergon/run-supervision-feature-web

@@ -12,16 +12,22 @@ import type {
 } from '../contracts';
 import { normalizeRunSupervisionFailure } from '../normalize-run-supervision-failure';
 import { runSupervisionApi } from './run-supervision-api';
+import { normalizeRunHandoverFailure } from '../normalize-run-handover-failure';
+import type {
+  RunSupervisorCandidatePage,
+  RunSupervisorCandidateQuery,
+  RunSupervisorHandoverFailure,
+} from '../handover-contracts';
 
 /**
  * A fresh-disclosure gate, not a second resource cache. Only `ready` exposes the
  * current RTK-owned projection. Pending/failed phases suppress retained data.
  */
-export type AssignedRunRead<T> = (
+export type AssignedRunRead<T, Failure = RunSupervisionFailure> = (
   | { readonly phase: 'closed' }
   | { readonly phase: 'pending'; readonly hasRetainedData: boolean }
   | { readonly phase: 'ready'; readonly data: T }
-  | { readonly phase: 'failed'; readonly error: RunSupervisionFailure }
+  | { readonly phase: 'failed'; readonly error: Failure }
 ) & { readonly recheck: () => void };
 
 type CacheDispatch = ThunkDispatch<unknown, unknown, UnknownAction>;
@@ -31,26 +37,34 @@ type CacheDispatch = ThunkDispatch<unknown, unknown, UnknownAction>;
  * Rechecking immediately closes this hook's gate before starting I/O. A retired
  * subscriber never aborts a request still owned by another subscriber; RTK's
  * zero-grace eviction owns last-reader cancellation. No page is copied locally.
+ * A null query closes disclosure and retires this subscription, including during
+ * an uncertain handover; retained RTK data is not evidence of current membership.
  */
 export function useAssignedRunDiscovery(
-  query: AssignedRunQuery,
+  query: AssignedRunQuery | null,
 ): AssignedRunRead<AssignedRunPage> {
   const dispatch = useDispatch<CacheDispatch>();
-  const { tenantId, limit, cursor } = query;
+  const tenantId = query?.tenantId;
+  const limit = query?.limit;
+  const cursor = query?.cursor;
   const assignedAt = cursor?.assignedAt;
   const assignmentId = cursor?.assignmentId;
   const stableQuery = useMemo(
-    (): AssignedRunQuery => ({
-      tenantId,
-      ...(limit === undefined ? {} : { limit }),
-      ...(assignedAt === undefined || assignmentId === undefined
-        ? {}
-        : { cursor: { assignedAt, assignmentId } }),
-    }),
+    (): AssignedRunQuery | null =>
+      tenantId === undefined
+        ? null
+        : {
+            tenantId,
+            ...(limit === undefined ? {} : { limit }),
+            ...(assignedAt === undefined || assignmentId === undefined
+              ? {}
+              : { cursor: { assignedAt, assignmentId } }),
+          },
     [tenantId, limit, assignedAt, assignmentId],
   );
-  const state =
-    runSupervisionApi.endpoints.listAssignedRuns.useQueryState(stableQuery);
+  const state = runSupervisionApi.endpoints.listAssignedRuns.useQueryState(
+    stableQuery ?? skipToken,
+  );
   const start = useCallback(
     (arg: AssignedRunQuery) =>
       dispatch(
@@ -67,7 +81,13 @@ export function useAssignedRunDiscovery(
       ),
     [dispatch],
   );
-  return useFreshAssignedRead(stableQuery, state, start, running);
+  return useFreshAssignedRead(
+    stableQuery,
+    state,
+    start,
+    running,
+    normalizeRunSupervisionFailure,
+  );
 }
 
 /**
@@ -113,7 +133,75 @@ export function useAssignedRunDisclosure(
       ),
     [dispatch],
   );
-  return useFreshAssignedRead(stableQuery, state, start, running);
+  return useFreshAssignedRead(
+    stableQuery,
+    state,
+    start,
+    running,
+    normalizeRunSupervisionFailure,
+  );
+}
+
+/**
+ * Fresh private recipient discovery tied to tenant/run/epoch/cursor. Closing or
+ * a failed access recheck retires identities; reopening cannot reuse a pending
+ * pre-close response. It shares the same proven subscriber-retirement mechanism
+ * as Console reads, not another resource cache.
+ */
+export function useRunSupervisorCandidates(
+  query: RunSupervisorCandidateQuery | null,
+): AssignedRunRead<RunSupervisorCandidatePage, RunSupervisorHandoverFailure> {
+  const dispatch = useDispatch<CacheDispatch>();
+  const tenantId = query?.tenantId;
+  const runId = query?.runId;
+  const expectedSupervisionRevision = query?.expectedSupervisionRevision;
+  const limit = query?.limit;
+  const afterActorId = query?.afterActorId;
+  const stableQuery = useMemo(
+    (): RunSupervisorCandidateQuery | null =>
+      tenantId === undefined ||
+      runId === undefined ||
+      expectedSupervisionRevision === undefined
+        ? null
+        : {
+            tenantId,
+            runId,
+            expectedSupervisionRevision,
+            ...(limit === undefined ? {} : { limit }),
+            ...(afterActorId === undefined ? {} : { afterActorId }),
+          },
+    [tenantId, runId, expectedSupervisionRevision, limit, afterActorId],
+  );
+  const state =
+    runSupervisionApi.endpoints.listRunHandoverCandidates.useQueryState(
+      stableQuery ?? skipToken,
+    );
+  const start = useCallback(
+    (arg: RunSupervisorCandidateQuery) =>
+      dispatch(
+        runSupervisionApi.endpoints.listRunHandoverCandidates.initiate(arg, {
+          forceRefetch: true,
+        }),
+      ),
+    [dispatch],
+  );
+  const running = useCallback(
+    (arg: RunSupervisorCandidateQuery) =>
+      dispatch(
+        runSupervisionApi.util.getRunningQueryThunk(
+          'listRunHandoverCandidates',
+          arg,
+        ),
+      ),
+    [dispatch],
+  );
+  return useFreshAssignedRead(
+    stableQuery,
+    state,
+    start,
+    running,
+    normalizeRunHandoverFailure,
+  );
 }
 
 interface ReadHandle extends PromiseLike<unknown> {
@@ -126,12 +214,13 @@ interface ReadState<T> {
   readonly error?: unknown;
 }
 
-function useFreshAssignedRead<T, Q>(
+function useFreshAssignedRead<T, Q, Failure>(
   query: Q | null,
   state: ReadState<T>,
   start: (query: Q) => ReadHandle,
   running: (query: Q) => PromiseLike<unknown> | undefined,
-): AssignedRunRead<T> {
+  normalizeFailure: (value: unknown) => Failure,
+): AssignedRunRead<T, Failure> {
   const [generation, setGeneration] = useState(0);
   const [accepted, setAccepted] = useState<{
     readonly query: Q;
@@ -180,7 +269,7 @@ function useFreshAssignedRead<T, Q>(
   if (state.error !== undefined) {
     return {
       phase: 'failed',
-      error: normalizeRunSupervisionFailure(state.error),
+      error: normalizeFailure(state.error),
       recheck,
     };
   }

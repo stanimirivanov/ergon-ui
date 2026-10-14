@@ -37,6 +37,7 @@ const overview = Schema.Struct({
   stateVersion: nonNegativeInteger,
   stateUpdatedAt: instant,
   assignedAt: instant,
+  supervisionRevision: Schema.optionalWith(nonNegativeInteger, { exact: true }),
 });
 
 const page = Schema.Struct({
@@ -88,6 +89,8 @@ const consoleSnapshot = Schema.Struct({
   stateUpdatedAt: instant,
   assignedAt: instant,
   execution: Schema.optionalWith(Schema.NullOr(execution), { exact: true }),
+  supervisionRevision: Schema.optionalWith(nonNegativeInteger, { exact: true }),
+  handoverSupported: Schema.optionalWith(Schema.Boolean, { exact: true }),
   transitions: Schema.optionalWith(
     Schema.Array(
       Schema.Struct({
@@ -171,6 +174,21 @@ export function decodeAssignedRunConsole(
   if (Either.isLeft(decoded)) return undefined;
   const value = decoded.right;
   if (value.runId.toLowerCase() !== query.runId.toLowerCase()) return undefined;
+  if (
+    (value.supervisionRevision === undefined) !==
+    (value.handoverSupported === undefined)
+  )
+    return undefined;
+  if (
+    value.supervisionRevision !== undefined &&
+    value.supervisionRevision > Number.MAX_SAFE_INTEGER - 1
+  )
+    return undefined;
+  if (
+    value.handoverSupported === true &&
+    ['VERIFIED_RESOLVED', 'SUPERSEDED', 'ESCALATED'].includes(value.state)
+  )
+    return undefined;
   if (value.effectiveRisk === 'HIGH' && value.requiredApproval === 'NONE')
     return undefined;
   if ((value.attemptNumber === 1) !== (value.predecessorRunId === null))
@@ -188,7 +206,7 @@ export function decodeAssignedRunConsole(
 }
 
 /** Java Instant serializes UTC with up to nanosecond precision; do not truncate cursor values. */
-function isUtcInstant(value: string): boolean {
+export function isUtcInstant(value: string): boolean {
   if (
     !/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?Z$/.test(
       value,

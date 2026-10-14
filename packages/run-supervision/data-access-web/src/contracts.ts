@@ -20,6 +20,8 @@ export interface AssignedRunOverview {
   readonly stateVersion: number;
   readonly stateUpdatedAt: string;
   readonly assignedAt: string;
+  /** Missing only on older servers; independent of the run-state revision. */
+  readonly supervisionRevision?: number;
 }
 
 /** Preserve both opaque keyset values together; never derive a cursor from a row. */
@@ -118,6 +120,9 @@ export interface AssignedRunConsole {
   readonly execution?: AssignedRunExecution | null;
   /** Missing on older servers means unsupported history, not an empty stream. */
   readonly transitions?: readonly AssignedRunTransition[];
+  /** Paired rollout metadata. Omitted on older servers; never inferred from assignment alone. */
+  readonly supervisionRevision?: number;
+  readonly handoverSupported?: boolean;
 }
 
 /** Tenant is navigation context only. Limit defaults to 30 and must be 1–100. */

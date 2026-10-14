@@ -6,9 +6,18 @@ import {
   type AssignedRunPage,
   type AssignedRunRead,
 } from '@ergon/run-supervision-data-access-web';
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from 'react';
+import { useRunSupervisorHandover } from './use-run-supervisor-handover';
 
 interface AssignedRunWorkflow {
+  readonly handover: ReturnType<typeof useRunSupervisorHandover>;
+  readonly recoverHandover: () => void;
   readonly selectedRunId: string | null;
   readonly assigned: AssignedRunRead<AssignedRunPage>;
   readonly detail: AssignedRunRead<AssignedRunConsole>;
@@ -30,17 +39,31 @@ interface AssignedRunWorkflow {
 export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [cursors, setCursors] = useState<readonly AssignedRunCursor[]>([]);
-  const cursor = cursors.at(-1);
-  const assigned = useAssignedRunDiscovery({
-    tenantId,
-    ...(cursor === undefined ? {} : { cursor }),
+  const heading = useRef<HTMLHeadingElement>(null);
+  const afterHandover = useCallback(() => {
+    setSelectedRunId(null);
+    setCursors([]);
+  }, []);
+  const handover = useRunSupervisorHandover({
+    heading,
+    onSuccess: afterHandover,
   });
+  const cursor = cursors.at(-1);
+  const assigned = useAssignedRunDiscovery(
+    handover.isBlockingDisclosure
+      ? null
+      : {
+          tenantId,
+          ...(cursor === undefined ? {} : { cursor }),
+        },
+  );
   const detail = useAssignedRunDisclosure(
-    selectedRunId !== null && assigned.phase === 'ready'
+    selectedRunId !== null &&
+      assigned.phase === 'ready' &&
+      !handover.isBlockingDisclosure
       ? { tenantId, runId: selectedRunId }
       : null,
   );
-  const heading = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     if (selectedRunId === null || detail.phase === 'ready') {
@@ -49,14 +72,27 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   }, [selectedRunId, detail.phase]);
 
   return {
+    handover,
+    recoverHandover: () => {
+      heading.current?.focus();
+      handover.clear();
+      detail.recheck();
+    },
     selectedRunId,
     assigned,
     detail,
     heading,
     hasPrevious: cursors.length > 0,
-    selectRun: setSelectedRunId,
-    closeRun: () => setSelectedRunId(null),
+    selectRun: (runId) => {
+      handover.clear();
+      setSelectedRunId(runId);
+    },
+    closeRun: () => {
+      handover.clear();
+      setSelectedRunId(null);
+    },
     resetTraversal: () => {
+      handover.clear();
       setSelectedRunId(null);
       // Recheck is required even when an invalid first-page request leaves the
       // cursor unchanged; the gate closes in this same committed render.

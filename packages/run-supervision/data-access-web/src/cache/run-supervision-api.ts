@@ -9,6 +9,15 @@ import type {
   RunSupervisionFailure,
 } from '../contracts';
 import { normalizeRunSupervisionFailure } from '../normalize-run-supervision-failure';
+import { normalizeRunHandoverFailure } from '../normalize-run-handover-failure';
+import type {
+  RunSupervisorCandidatePage,
+  RunSupervisorCandidateQuery,
+  RunSupervisorHandoverClient,
+  RunSupervisorHandoverCommand,
+  RunSupervisorHandoverFailure,
+  RunSupervisorHandoverReceipt,
+} from '../handover-contracts';
 
 /** Executable thunk-extra binding supplied by the app; never put the client in Redux state. */
 export interface RunSupervisionDependencies {
@@ -29,10 +38,14 @@ export interface RunSupervisionDependencies {
  */
 export const runSupervisionApi = createApi({
   reducerPath: 'runSupervisionApi',
-  baseQuery: fakeBaseQuery<RunSupervisionFailure>(),
+  baseQuery: fakeBaseQuery<RunSupervisorHandoverFailure>(),
+  tagTypes: ['AssignedRuns', 'RunDetail', 'RunCandidates'],
   endpoints: (build) => ({
     listAssignedRuns: build.query<AssignedRunPage, AssignedRunQuery>({
       keepUnusedDataFor: 0,
+      providesTags: (_result, _error, query) => [
+        { type: 'AssignedRuns', id: query.tenantId },
+      ],
       async queryFn(
         query,
         api,
@@ -55,6 +68,9 @@ export const runSupervisionApi = createApi({
       AssignedRunConsoleQuery
     >({
       keepUnusedDataFor: 0,
+      providesTags: (_result, _error, query) => [
+        { type: 'RunDetail', id: `${query.tenantId}:${query.runId}` },
+      ],
       async queryFn(
         query,
         api,
@@ -74,6 +90,68 @@ export const runSupervisionApi = createApi({
         }
       },
     }),
+    listRunHandoverCandidates: build.query<
+      RunSupervisorCandidatePage,
+      RunSupervisorCandidateQuery
+    >({
+      keepUnusedDataFor: 0,
+      providesTags: (_result, _error, query) => [
+        { type: 'RunCandidates', id: `${query.tenantId}:${query.runId}` },
+      ],
+      async queryFn(
+        query,
+        api,
+      ): Promise<
+        | { data: RunSupervisorCandidatePage }
+        | { error: RunSupervisorHandoverFailure }
+      > {
+        try {
+          const result = await handoverClientFrom(
+            api.extra,
+          ).listHandoverCandidates(query, api.signal);
+          return result.ok
+            ? { data: result.page }
+            : { error: normalizeRunHandoverFailure(result.error) };
+        } catch {
+          return { error: { kind: 'unexpected-defect' } };
+        }
+      },
+    }),
+    handoverRunSupervisor: build.mutation<
+      RunSupervisorHandoverReceipt,
+      RunSupervisorHandoverCommand
+    >({
+      invalidatesTags: (result, _error, command) =>
+        result === undefined
+          ? []
+          : [
+              { type: 'AssignedRuns', id: command.tenantId },
+              { type: 'RunDetail', id: `${command.tenantId}:${command.runId}` },
+              {
+                type: 'RunCandidates',
+                id: `${command.tenantId}:${command.runId}`,
+              },
+            ],
+      async queryFn(
+        command,
+        api,
+      ): Promise<
+        | { data: RunSupervisorHandoverReceipt }
+        | { error: RunSupervisorHandoverFailure }
+      > {
+        try {
+          const result = await handoverClientFrom(api.extra).handoverSupervisor(
+            command,
+            api.signal,
+          );
+          return result.ok
+            ? { data: result.receipt }
+            : { error: normalizeRunHandoverFailure(result.error) };
+        } catch {
+          return { error: { kind: 'unexpected-defect' } };
+        }
+      },
+    }),
   }),
 });
 
@@ -82,7 +160,25 @@ export const {
   useLazyListAssignedRunsQuery,
   useGetAssignedRunConsoleQuery,
   useLazyGetAssignedRunConsoleQuery,
+  useHandoverRunSupervisorMutation,
 } = runSupervisionApi;
+
+function handoverClientFrom(extra: unknown): RunSupervisorHandoverClient {
+  const client = clientFrom(extra);
+  if (isHandoverClient(client)) return client;
+  throw new Error('Run handover client is not configured');
+}
+
+function isHandoverClient(
+  client: RunSupervisionClient,
+): client is RunSupervisionClient & RunSupervisorHandoverClient {
+  return (
+    'listHandoverCandidates' in client &&
+    typeof client.listHandoverCandidates === 'function' &&
+    'handoverSupervisor' in client &&
+    typeof client.handoverSupervisor === 'function'
+  );
+}
 
 function clientFrom(extra: unknown): RunSupervisionClient {
   if (

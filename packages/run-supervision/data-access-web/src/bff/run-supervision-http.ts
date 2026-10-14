@@ -57,27 +57,35 @@ export function readHttpFailure(
         ? Effect.fail(failure)
         : Effect.succeed(undefined),
     ),
-    Effect.map((body): RunSupervisionFailure => {
-      const decoded = Schema.decodeUnknownEither(problemSchema)(body);
-      const problem = Either.isRight(decoded) ? decoded.right : undefined;
-      if (
-        response.status === 401 &&
-        problem?.type === 'urn:ergon:problem:browser-authentication-required' &&
-        problem.signInPath === '/bff/login'
-      ) {
-        return { kind: 'authentication-required' };
-      }
-      const kind =
-        problem === undefined
-          ? undefined
-          : problemFailures.get(`${response.status}:${problem.type}`);
-      if (kind !== undefined) return { kind };
-      if (response.status === 403) return { kind: 'forbidden' };
-      if (response.status >= 500 && response.status <= 599)
-        return { kind: 'service-unavailable', status: response.status };
-      return { kind: 'unexpected-http-status', status: response.status };
-    }),
+    Effect.map((body): RunSupervisionFailure =>
+      mapReadHttpFailure(response.status, body),
+    ),
   );
+}
+
+/** Pure problem mapping shared by reads and the handover boundary after one body read. */
+export function mapReadHttpFailure(
+  status: number,
+  body: unknown,
+): RunSupervisionFailure {
+  const decoded = Schema.decodeUnknownEither(problemSchema)(body);
+  const problem = Either.isRight(decoded) ? decoded.right : undefined;
+  if (
+    status === 401 &&
+    problem?.type === 'urn:ergon:problem:browser-authentication-required' &&
+    problem.signInPath === '/bff/login'
+  ) {
+    return { kind: 'authentication-required' };
+  }
+  const kind =
+    problem === undefined
+      ? undefined
+      : problemFailures.get(`${status}:${problem.type}`);
+  if (kind !== undefined) return { kind };
+  if (status === 403) return { kind: 'forbidden' };
+  if (status >= 500 && status <= 599)
+    return { kind: 'service-unavailable', status };
+  return { kind: 'unexpected-http-status', status };
 }
 
 function isAbortError(cause: unknown): boolean {

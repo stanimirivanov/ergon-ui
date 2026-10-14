@@ -3,7 +3,7 @@ import type {
   AssignedRunRead,
 } from '@ergon/run-supervision-data-access-web';
 import { Button } from '@ergon/ui-web';
-import type { ReactElement, RefObject } from 'react';
+import type { ReactElement, ReactNode, RefObject } from 'react';
 
 import { AssignedRunFact } from './assigned-run-fact';
 import { AssignedRunCapabilityExecution } from './assigned-run-capability-execution';
@@ -16,11 +16,13 @@ export function AssignedRunExecutionPane({
   selectedRunId,
   signInHref,
   heading,
+  handoverFeedback,
 }: {
   readonly detail: AssignedRunRead<AssignedRunConsole>;
   readonly selectedRunId: string | null;
   readonly signInHref: string;
   readonly heading: RefObject<HTMLHeadingElement | null>;
+  readonly handoverFeedback?: ReactNode;
 }): ReactElement {
   function handleDetailRecheck(): void {
     // Recheck and recovery controls disappear when the fresh gate closes; the
@@ -64,9 +66,12 @@ export function AssignedRunExecutionPane({
           </div>
         ) : null}
       </div>
+      {handoverFeedback === undefined ? null : (
+        <div className="mt-5">{handoverFeedback}</div>
+      )}
       {detail.phase === 'ready' ? (
         <AssignedRunExecutionRecords run={detail.data} />
-      ) : (
+      ) : handoverFeedback === undefined ? (
         <div className="mt-5">
           <AssignedRunReadMessage
             detail={detail}
@@ -75,7 +80,7 @@ export function AssignedRunExecutionPane({
             onRetry={handleDetailRecheck}
           />
         </div>
-      )}
+      ) : null}
     </section>
   );
 }
