@@ -15,6 +15,10 @@ be imported by future shared or native packages.
 - Add a variant only when it represents stable UI meaning.
 - Test through roles, names, keyboard behavior, and observable state.
 
+Primary buttons consume the app's `accent-foreground` semantic token rather
+than assuming white text. Both resting and hover accent backgrounds must retain
+small-text contrast in standard and focused shells.
+
 `WorkspaceView` and `WorkspaceRenderer` are presentation-only composition types:
 capabilities derive mode/status/toolbar/content directly; the app owns chrome.
 They carry no resource cache, authority decision or mirrored state.

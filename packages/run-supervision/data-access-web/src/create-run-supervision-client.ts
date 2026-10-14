@@ -7,6 +7,8 @@ import type {
   RunSupervisionFailure,
 } from './contracts';
 import { readHttpFailure, readJson } from './bff/run-supervision-http';
+import { createRunHandoverClient } from './create-run-handover-client';
+import type { RunSupervisorHandoverClient } from './handover-contracts';
 import {
   decodeAssignedRunConsole,
   decodeAssignedRunPage,
@@ -22,23 +24,28 @@ export interface RunSupervisionClientOptions {
 }
 
 /**
- * Creates same-origin, no-store reads with one classified transient retry.
+ * Creates same-origin, no-store reads and confirmed supervision transfers.
  *
  * Each attempt includes body decoding in its deadline. Transport, timeout, and
  * generic 5xx failures retry once; disabled authentication and permanent failures
  * do not. Caller cancellation interrupts fetch/body work and returns cancellation.
  * Raw causes never enter Redux; unexpected Effect defects still reject.
+ * Candidate reads use the same bounded retry policy. Transfers acquire fresh
+ * session CSRF and never retry automatically; explicit replay retains the exact
+ * command tuple and acknowledges a historical receipt, not present ownership.
  *
  * @throws RangeError when the configured deadline is not positive and finite.
  */
 export function createRunSupervisionClient({
   fetch,
   requestTimeoutMs = 10_000,
-}: RunSupervisionClientOptions): RunSupervisionClient {
+}: RunSupervisionClientOptions): RunSupervisionClient &
+  RunSupervisorHandoverClient {
   if (!Number.isFinite(requestTimeoutMs) || requestTimeoutMs <= 0) {
     throw new RangeError('Run supervision timeout must be positive and finite');
   }
   return {
+    ...createRunHandoverClient({ fetch, requestTimeoutMs }),
     listAssigned: async (query, signal): Promise<AssignedRunListResult> => {
       if (!isValidListQuery(query))
         return { ok: false, error: { kind: 'invalid-page' } };

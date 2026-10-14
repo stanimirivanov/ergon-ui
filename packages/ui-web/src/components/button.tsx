@@ -11,7 +11,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'bg-accent px-5 py-3 text-white shadow-[0_12px_30px_rgb(23_84_66_/_18%)] hover:bg-accent-strong',
+          'bg-accent px-5 py-3 text-accent-foreground shadow-[0_12px_30px_rgb(23_84_66_/_18%)] hover:bg-accent-strong',
         quiet:
           'border border-border bg-surface px-4 py-2 text-ink hover:bg-surface-strong',
       },

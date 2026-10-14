@@ -93,6 +93,17 @@ fresh-read gates and receipt timing semantics stay unchanged. See
 
 ## Verification
 
+Confirmed handover extends this API with current-epoch recipient discovery and
+session-CSRF transfer. `useRunSupervisorCandidates` closes/reopens with the same
+fresh-disclosure mechanism as run reads; its key includes tenant, run, expected
+supervision revision and private cursor. Tokens are invocation-local, not cached.
+Transfers have one deadline across setup/POST/decoding and no automatic retry.
+The receipt must match run, command and next epoch. Safe typed handover failures
+and unexpected defects are contained at the cache boundary. Successful transfer
+invalidates related discovery/detail/candidate subscribers; mutation feedback
+is historical, never current supervision truth. See
+[ADR 0030](../../../docs/decisions/0030-confirm-revisioned-supervisor-handover.md).
+
 ```powershell
 pnpm nx lint @ergon/run-supervision-data-access-web
 pnpm nx typecheck @ergon/run-supervision-data-access-web

@@ -7,12 +7,16 @@ export function AssignedRunPresence({
   hasSelectedRun,
   onRecheck,
   onClose,
+  handoverControl,
+  isTransferring,
 }: {
   readonly presence: ReactNode;
   readonly isReadingAssigned: boolean;
   readonly hasSelectedRun: boolean;
   readonly onRecheck: () => void;
   readonly onClose: () => void;
+  readonly handoverControl?: ReactNode;
+  readonly isTransferring: boolean;
 }): ReactElement {
   return (
     <section
@@ -30,6 +34,7 @@ export function AssignedRunPresence({
       </div>
       {presence}
       <div className="flex flex-wrap gap-2">
+        {handoverControl}
         <Button
           type="button"
           variant="quiet"
@@ -45,6 +50,7 @@ export function AssignedRunPresence({
             variant="quiet"
             size="compact"
             onClick={onClose}
+            disabled={isTransferring}
           >
             Close run
           </Button>

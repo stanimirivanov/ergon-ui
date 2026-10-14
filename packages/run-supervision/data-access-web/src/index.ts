@@ -20,9 +20,21 @@ export {
   type RunSupervisionClientOptions,
 } from './create-run-supervision-client';
 export { normalizeRunSupervisionFailure } from './normalize-run-supervision-failure';
+export { normalizeRunHandoverFailure } from './normalize-run-handover-failure';
+export type {
+  RunSupervisorCandidateQuery,
+  RunSupervisorCandidatePage,
+  RunSupervisorHandoverCommand,
+  RunSupervisorHandoverReceipt,
+  RunSupervisorHandoverFailure,
+  RunSupervisorCandidateResult,
+  RunSupervisorHandoverResult,
+  RunSupervisorHandoverClient,
+} from './handover-contracts';
 export {
   useAssignedRunDiscovery,
   useAssignedRunDisclosure,
+  useRunSupervisorCandidates,
   type AssignedRunRead,
 } from './cache/use-assigned-run-reads';
 export {
@@ -32,4 +44,5 @@ export {
   useLazyListAssignedRunsQuery,
   useGetAssignedRunConsoleQuery,
   useLazyGetAssignedRunConsoleQuery,
+  useHandoverRunSupervisorMutation,
 } from './cache/run-supervision-api';

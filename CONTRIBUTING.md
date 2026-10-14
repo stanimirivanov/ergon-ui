@@ -346,3 +346,7 @@ After every coding task, provide:
 3. a copy/paste-ready Markdown issue body using the required structure;
 4. assumptions, unresolved questions, and limitations; and
 5. verification commands separated into **passed**, **failed**, and **not run**.
+
+For a slice spanning Ergon and ergon-ui, provide a separate issue title, body,
+and verification report for each repository. Use the same owning milestone but
+distinct scopes, acceptance evidence, limitations and rollout dependencies.

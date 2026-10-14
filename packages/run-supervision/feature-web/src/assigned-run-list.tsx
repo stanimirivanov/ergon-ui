@@ -13,6 +13,7 @@ export function AssignedRunList({
   selectedRunId,
   isFetching,
   isRecheck = false,
+  isWithheld = false,
   error,
   signInHref,
   hasPrevious,
@@ -26,6 +27,7 @@ export function AssignedRunList({
   readonly selectedRunId: string | null;
   readonly isFetching: boolean;
   readonly isRecheck?: boolean;
+  readonly isWithheld?: boolean;
   readonly error: RunSupervisionFailure | undefined;
   readonly signInHref: string;
   readonly hasPrevious: boolean;
@@ -55,7 +57,12 @@ export function AssignedRunList({
         resolver authority.
       </p>
       <div className="mt-5">
-        {isFetching ? (
+        {isWithheld ? (
+          <AssignedRunMessage
+            title="Assignment context withheld"
+            description="A supervision transfer is pending or its result needs recovery. Revalidate current assignments instead of relying on retained rows."
+          />
+        ) : isFetching ? (
           <AssignedRunMessage
             title={
               !isRecheck
@@ -102,7 +109,7 @@ export function AssignedRunList({
                     </span>
                   </span>
                   <span className="mt-2 block text-xs text-ink-muted">
-                    Assigned{' '}
+                    Initially assigned{' '}
                     <time dateTime={entry.assignedAt}>
                       {formatRecordedAt(entry.assignedAt)}
                     </time>
@@ -151,8 +158,9 @@ export function AssignedRunList({
         </Button>
       </div>
       <p className="mt-4 text-xs leading-5 text-ink-muted">
-        Assignment is not an exclusive control lease. No browser claim, timer,
-        handover, or execution command is available here.
+        Assignment is not an exclusive control lease. Handover is offered only
+        from a current, enabled run snapshot; no browser self-assignment, timer,
+        or execution command is available here.
       </p>
     </section>
   );

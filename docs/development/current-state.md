@@ -11,8 +11,9 @@ Console's case and run content remains read-only. Assigned supervisors can also
 discover active runs and inspect their recorded start, pinned policy, and
 current state, sanitized terminal execution measurements and ordered recorded
 transitions in a separate
-three-pane Console. It has no resolution action,
-live trace, lease, approval control, logout flow, form workflow, Motion animation,
+three-pane Console with confirmed current-supervisor handover and an ephemeral
+React Hook Form confirmation. It has no resolution action,
+live trace, lease, approval control, logout flow, Motion animation,
 requester app, or native app.
 
 ## Implemented
@@ -83,7 +84,7 @@ requester app, or native app.
   and reads while preserving traversal and exact uncertain claim-retry intent;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
-- seven local executable guides for simulated workbench access states,
+- eight local executable guides for simulated workbench access states,
   shared-inbox pagination and filtering, the claim and release workflow,
   owned-case-context revalidation, competing or uncertain claim recovery, and
   disabled or uncertain release recovery, and assigned-run snapshot supervision
@@ -140,6 +141,13 @@ requester app, or native app.
 - progressively routed harness guidance and staged GitHub verification; and
 - accepted workbench/requester topology decision.
 
+- Confirmed browser supervision handover uses an ephemeral recipient and
+  acknowledgement form, fresh current-epoch candidate reads, committed private
+  withdrawal before POST and explicit exact-command replay. Success is a
+  historical receipt followed by fresh assigned discovery, not execution or
+  current-owner inference. The eighth synthetic guide records this workflow
+  and recovery.
+
 ## Deliberate limits
 
 - OIDC client credentials and provider tokens remain entirely server-side.
@@ -163,14 +171,18 @@ requester app, or native app.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - Assigned-run reads require Ergon core's assigned-only BFF and an immutable
   assignment created by a separately authorized machine integration. This UI
-  cannot create or change that assignment. It has no automatic polling or
+  cannot create or rewrite that initial assignment. Current supervisors can
+  explicitly hand over current supervision when the backend rollout flag is
+  enabled. It has no automatic polling or
   continuous revocation guarantee. The active-run Console does not receive case
   evidence, ordered multi-step execution events, nested spans/costs, approval decisions,
   or proof checks. Its terminal state label reports backend state, not
   independent verification. Real session-to-PostgreSQL browser compatibility
   remains unverified by the synthetic guide.
+- Backend handover is disabled by default during reader upgrades. Old backend
+  readers are unsafe after transfer; disable new commands and recover forward.
 - No requester, widget, or native placeholder has been created.
-- React Hook Form and Motion are deferred until their first behavior needs them.
+- React Hook Form owns the handover form; Motion remains deferred until a behavior needs it.
 
 Future resolver slices must use reviewed browser contracts for priority,
 reassignment, completion, or resolution. Existing `/internal/v1` routes remain

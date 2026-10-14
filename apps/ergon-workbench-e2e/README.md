@@ -4,8 +4,8 @@
 
 The tagged access-state, inbox-navigation, follow-up, owned-context,
 claim-recovery, release-recovery, and run-supervision scenarios are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all seven with
-annotations, screenshots, and video, then assembles a local seven-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all eight with
+annotations, screenshots, and video, then assembles a local eight-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -130,6 +130,16 @@ schema, simulation disclosure, and security checks. The guide runtime remains
 inside this `type:test` project and adds no browser-bundle dependency.
 
 ## Shell regression coverage
+
+The eighth chapter covers confirmed run-supervision handover in 25 executable
+steps: disabled rollout, recipient paging, required fields, cancellation,
+fresh reopening, stale-epoch rejection, revalidation, hidden-before-POST
+context, an uncertain committed transfer, exact replay, recipient recovery,
+keyboard containment and 320-pixel reflow. The test-owned wire fixture is
+independent of client contract types. It explicitly changes synthetic session
+and epoch responses; it never performs live login or updates a real database.
+The guide distinguishes current supervision from the unchanged initial
+assignment and runtime state, and documents lost local retry intent on navigation.
 
 `console-shell.spec.ts` also verifies both redesigned surfaces through one
 app-owned focused shell, explicit pane slots during pending/failed reads,
