@@ -3,9 +3,10 @@
 ## TL;DR
 
 The tagged access-state, inbox-navigation, follow-up, owned-context,
-claim-recovery, release-recovery, and run-supervision scenarios are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all eight with
-annotations, screenshots, and video, then assembles a local eight-chapter Markdown
+claim-recovery, release-recovery, run-supervision, handover, and approval scenarios
+are ordinary assertion-first
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all nine with
+annotations, screenshots, and video, then assembles a local nine-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -20,6 +21,11 @@ pnpm guide:check
 pnpm guide:generate
 pnpm guide:preview
 ```
+
+`guide:check` validates unique literal chapter orders and slugs before browser
+recording, alongside the book and workflow tooling tests. Each `*-guide.ts`
+exports one typed `GuideChapter` object with a positive integer order and a
+lowercase hyphenated slug. Generation repeats this check before clearing output.
 
 `guide:generate` builds the workbench, ensures Chromium is installed, clears
 only the ignored `dist/user-guide` output, runs `@user-guide` scenarios in
@@ -131,7 +137,7 @@ inside this `type:test` project and adds no browser-bundle dependency.
 
 ## Shell regression coverage
 
-The eighth chapter covers confirmed run-supervision handover in 25 executable
+The handover chapter covers confirmed run-supervision handover in 25 executable
 steps: disabled rollout, recipient paging, required fields, cancellation,
 fresh reopening, stale-epoch rejection, revalidation, hidden-before-POST
 context, an uncertain committed transfer, exact replay, recipient recovery,
@@ -156,6 +162,18 @@ and desktop/320-pixel reflow. The owned-context guide records title focus and
 keyboard containment before comparing sources. Open-modal retirement during
 held/failed ownership checks is separately covered by feature/cache integration
 tests; recording does not fabricate a live revocation event.
+
+## Approval walkthrough
+
+The approval chapter has 21 approval-review steps: older-server omission, absent
+request, exact requester scope, exclusive expiry, explicit acknowledgement and
+cancellation, stale-epoch rejection, fresh recovery, hidden-before-POST context,
+uncertain committed approval and exact replay, immutable APPROVED/REJECTED facts,
+keyboard containment and 320-pixel reflow. A later replacement fixture advances
+past the earlier expiry; snapshot switches are labelled simulations, not live
+authority provisioning or browser request creation. No grant, execution or run
+advancement is inferred. PostgreSQL authorization/migration evidence belongs
+to Ergon, not this synthetic guide.
 
 ## Failure handling
 

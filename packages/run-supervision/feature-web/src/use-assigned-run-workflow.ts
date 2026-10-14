@@ -14,8 +14,12 @@ import {
   type RefObject,
 } from 'react';
 import { useRunSupervisorHandover } from './use-run-supervisor-handover';
+import { useRunApprovalDecision } from './use-run-approval-decision';
 
 interface AssignedRunWorkflow {
+  readonly approval: ReturnType<typeof useRunApprovalDecision>;
+  readonly recoverApproval: () => void;
+  readonly isBlockingDisclosure: boolean;
   readonly handover: ReturnType<typeof useRunSupervisorHandover>;
   readonly recoverHandover: () => void;
   readonly selectedRunId: string | null;
@@ -48,9 +52,15 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     heading,
     onSuccess: afterHandover,
   });
+  const approval = useRunApprovalDecision({
+    heading,
+    onSuccess: afterHandover,
+  });
+  const isBlockingDisclosure =
+    handover.isBlockingDisclosure || approval.isBlockingDisclosure;
   const cursor = cursors.at(-1);
   const assigned = useAssignedRunDiscovery(
-    handover.isBlockingDisclosure
+    isBlockingDisclosure
       ? null
       : {
           tenantId,
@@ -60,7 +70,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   const detail = useAssignedRunDisclosure(
     selectedRunId !== null &&
       assigned.phase === 'ready' &&
-      !handover.isBlockingDisclosure
+      !isBlockingDisclosure
       ? { tenantId, runId: selectedRunId }
       : null,
   );
@@ -72,6 +82,13 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   }, [selectedRunId, detail.phase]);
 
   return {
+    approval,
+    isBlockingDisclosure,
+    recoverApproval: () => {
+      heading.current?.focus();
+      approval.clear();
+      detail.recheck();
+    },
     handover,
     recoverHandover: () => {
       heading.current?.focus();
@@ -84,14 +101,17 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     heading,
     hasPrevious: cursors.length > 0,
     selectRun: (runId) => {
+      approval.clear();
       handover.clear();
       setSelectedRunId(runId);
     },
     closeRun: () => {
+      approval.clear();
       handover.clear();
       setSelectedRunId(null);
     },
     resetTraversal: () => {
+      approval.clear();
       handover.clear();
       setSelectedRunId(null);
       // Recheck is required even when an invalid first-page request leaves the

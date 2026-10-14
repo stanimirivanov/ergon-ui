@@ -9,6 +9,8 @@ import type {
 import { readHttpFailure, readJson } from './bff/run-supervision-http';
 import { createRunHandoverClient } from './create-run-handover-client';
 import type { RunSupervisorHandoverClient } from './handover-contracts';
+import type { RunApprovalClient } from './approval-contracts';
+import { createRunApprovalClient } from './create-run-approval-client';
 import {
   decodeAssignedRunConsole,
   decodeAssignedRunPage,
@@ -24,15 +26,16 @@ export interface RunSupervisionClientOptions {
 }
 
 /**
- * Creates same-origin, no-store reads and confirmed supervision transfers.
+ * Creates same-origin reads and confirmed supervision/approval commands.
  *
  * Each attempt includes body decoding in its deadline. Transport, timeout, and
  * generic 5xx failures retry once; disabled authentication and permanent failures
  * do not. Caller cancellation interrupts fetch/body work and returns cancellation.
  * Raw causes never enter Redux; unexpected Effect defects still reject.
- * Candidate reads use the same bounded retry policy. Transfers acquire fresh
- * session CSRF and never retry automatically; explicit replay retains the exact
- * command tuple and acknowledges a historical receipt, not present ownership.
+ * Candidate reads use the same bounded retry policy. Both command kinds acquire
+ * fresh session CSRF and never retry automatically; explicit replay retains the
+ * exact tuple and acknowledges historical feedback, not present ownership,
+ * execution authorization or a second human response.
  *
  * @throws RangeError when the configured deadline is not positive and finite.
  */
@@ -40,12 +43,14 @@ export function createRunSupervisionClient({
   fetch,
   requestTimeoutMs = 10_000,
 }: RunSupervisionClientOptions): RunSupervisionClient &
-  RunSupervisorHandoverClient {
+  RunSupervisorHandoverClient &
+  RunApprovalClient {
   if (!Number.isFinite(requestTimeoutMs) || requestTimeoutMs <= 0) {
     throw new RangeError('Run supervision timeout must be positive and finite');
   }
   return {
     ...createRunHandoverClient({ fetch, requestTimeoutMs }),
+    ...createRunApprovalClient({ fetch, requestTimeoutMs }),
     listAssigned: async (query, signal): Promise<AssignedRunListResult> => {
       if (!isValidListQuery(query))
         return { ok: false, error: { kind: 'invalid-page' } };

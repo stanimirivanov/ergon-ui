@@ -84,7 +84,7 @@ requester app, or native app.
   and reads while preserving traversal and exact uncertain claim-retry intent;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
-- eight local executable guides for simulated workbench access states,
+- nine local executable guides for simulated workbench access states,
   shared-inbox pagination and filtering, the claim and release workflow,
   owned-case-context revalidation, competing or uncertain claim recovery, and
   disabled or uncertain release recovery, and assigned-run snapshot supervision
@@ -148,6 +148,15 @@ requester app, or native app.
   current-owner inference. The eighth synthetic guide records this workflow
   and recovery.
 
+- The assigned Console now derives human approval lifecycle and exact observed
+  eligibility from its gated RTK projection. An acknowledged modal can confirm
+  APPROVED/REJECTED through session CSRF and a supervision-fenced command.
+  Private reads withdraw before POST; uncertain results keep exact replay intent,
+  while conflicts require revalidation. Historical success triggers fresh work
+  discovery, never optimistic runtime advancement. The ninth guide covers 21
+  synthetic steps and explicitly distinguishes a prerequisite from a grant,
+  execution, resumption and proof.
+
 ## Deliberate limits
 
 - OIDC client credentials and provider tokens remain entirely server-side.
@@ -175,12 +184,16 @@ requester app, or native app.
   explicitly hand over current supervision when the backend rollout flag is
   enabled. It has no automatic polling or
   continuous revocation guarantee. The active-run Console does not receive case
-  evidence, ordered multi-step execution events, nested spans/costs, approval decisions,
+  evidence, ordered multi-step execution events, nested spans/costs,
   or proof checks. Its terminal state label reports backend state, not
   independent verification. Real session-to-PostgreSQL browser compatibility
   remains unverified by the synthetic guide.
 - Backend handover is disabled by default during reader upgrades. Old backend
   readers are unsafe after transfer; disable new commands and recover forward.
+- Backend browser approvals default off until its additive schema/backend is
+  deployed. The browser cannot create/extend requests, provision authority,
+  substitute resolver evidence for requester scope, withdraw a response, derive
+  grants or invoke/advance a run. Earlier servers show unsupported approval review.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form owns the handover form; Motion remains deferred until a behavior needs it.
 

@@ -3,6 +3,19 @@ import type {
   RunSupervisionFailure,
 } from '@ergon/run-supervision-data-access-web';
 
+/** Labels current offered confirmations only, not continuing authority or execution control. */
+export function assignedRunSnapshotStatus(
+  run: AssignedRunConsole | undefined,
+): string {
+  if (run?.approvalReview?.canDecide === true)
+    return run.handoverSupported === true
+      ? 'Assigned · confirmed commands enabled'
+      : 'Assigned · approval enabled';
+  return run?.handoverSupported === true
+    ? 'Assigned · handover enabled'
+    : 'Assigned · read only';
+}
+
 export const runStateLabels: Readonly<
   Record<AssignedRunConsole['state'], string>
 > = {

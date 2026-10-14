@@ -1,3 +1,5 @@
+import type { RunApprovalReview } from './approval-contracts';
+
 /** Active discovery excludes completed, superseded, and escalated runs. */
 export type ActiveRunState =
   | 'WAITING_FOR_APPROVAL'
@@ -123,6 +125,8 @@ export interface AssignedRunConsole {
   /** Paired rollout metadata. Omitted on older servers; never inferred from assignment alone. */
   readonly supervisionRevision?: number;
   readonly handoverSupported?: boolean;
+  /** Missing on older servers means unsupported, not an absent request. No private attribution is included. */
+  readonly approvalReview?: RunApprovalReview;
 }
 
 /** Tenant is navigation context only. Limit defaults to 30 and must be 1–100. */

@@ -7,6 +7,11 @@ import type {
   AssignedRunQuery,
 } from '../contracts';
 import { isConsistentRunHistory } from './run-transition-consistency';
+import { isUtcInstant } from './run-wire-instant';
+import {
+  approvalReviewSchema,
+  isConsistentApprovalReview,
+} from './run-approval-schemas';
 
 const uuid = Schema.String.pipe(
   Schema.pattern(
@@ -91,6 +96,7 @@ const consoleSnapshot = Schema.Struct({
   execution: Schema.optionalWith(Schema.NullOr(execution), { exact: true }),
   supervisionRevision: Schema.optionalWith(nonNegativeInteger, { exact: true }),
   handoverSupported: Schema.optionalWith(Schema.Boolean, { exact: true }),
+  approvalReview: Schema.optionalWith(approvalReviewSchema, { exact: true }),
   transitions: Schema.optionalWith(
     Schema.Array(
       Schema.Struct({
@@ -202,23 +208,6 @@ export function decodeAssignedRunConsole(
   )
     return undefined;
   if (!isConsistentRunHistory(value)) return undefined;
+  if (!isConsistentApprovalReview(value)) return undefined;
   return value;
-}
-
-/** Java Instant serializes UTC with up to nanosecond precision; do not truncate cursor values. */
-export function isUtcInstant(value: string): boolean {
-  if (
-    !/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?Z$/.test(
-      value,
-    )
-  )
-    return false;
-  const parsed = Date.parse(value);
-  if (!Number.isFinite(parsed)) return false;
-  const date = new Date(parsed);
-  return (
-    date.getUTCFullYear() === Number(value.slice(0, 4)) &&
-    date.getUTCMonth() + 1 === Number(value.slice(5, 7)) &&
-    date.getUTCDate() === Number(value.slice(8, 10))
-  );
 }

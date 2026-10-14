@@ -8,6 +8,9 @@ import { AssignedRunPresence } from './assigned-run-presence';
 import { useAssignedRunWorkflow } from './use-assigned-run-workflow';
 import { RunSupervisorHandover } from './run-supervisor-handover';
 import { AssignedRunHandoverFeedback } from './assigned-run-handover-feedback';
+import { RunApprovalFeedback } from './run-approval-feedback';
+import { RunApprovalCard } from './run-approval-card';
+import { assignedRunSnapshotStatus } from './run-supervision-copy';
 
 interface AssignedRunWorkspaceProps {
   readonly tenantId: string;
@@ -50,8 +53,19 @@ function TenantAssignedRunWorkspace({
   const workflow = useAssignedRunWorkflow(tenantId);
   const { assigned, detail, selectedRunId } = workflow;
   const isReadingAssigned =
-    assigned.phase === 'pending' || workflow.handover.isBlockingDisclosure;
+    assigned.phase === 'pending' || workflow.isBlockingDisclosure;
   const handoverState = workflow.handover.state;
+  const approvalState = workflow.approval.state;
+  const approvalFeedback =
+    approvalState.phase === 'idle' ? undefined : (
+      <RunApprovalFeedback
+        state={approvalState}
+        signInHref={signInHref}
+        onRetry={workflow.approval.retry}
+        onRecheck={workflow.recoverApproval}
+        onLeave={workflow.closeRun}
+      />
+    );
   const handoverFeedback =
     handoverState.phase === 'idle' ? undefined : (
       <AssignedRunHandoverFeedback
@@ -80,15 +94,19 @@ function TenantAssignedRunWorkspace({
   return renderWorkspace({
     mode: 'focused',
     statusLabel:
-      handoverState.phase === 'submitting'
-        ? 'Handover pending'
-        : handoverState.phase === 'candidate-failed'
-          ? 'Recipient access unavailable'
-          : handoverState.phase === 'failed'
-            ? 'Handover result unavailable'
-            : detail.phase === 'ready' && detail.data.handoverSupported === true
-              ? 'Assigned · handover enabled'
-              : 'Assigned · read only',
+      approvalState.phase === 'submitting'
+        ? 'Approval decision pending'
+        : approvalState.phase === 'failed'
+          ? 'Approval result unavailable'
+          : handoverState.phase === 'submitting'
+            ? 'Handover pending'
+            : handoverState.phase === 'candidate-failed'
+              ? 'Recipient access unavailable'
+              : handoverState.phase === 'failed'
+                ? 'Handover result unavailable'
+                : assignedRunSnapshotStatus(
+                    detail.phase === 'ready' ? detail.data : undefined,
+                  ),
     toolbar: (
       <AssignedRunPresence
         presence={presence}
@@ -96,7 +114,10 @@ function TenantAssignedRunWorkspace({
         hasSelectedRun={selectedRunId !== null}
         onRecheck={handleAssignedRecheck}
         onClose={workflow.closeRun}
-        isTransferring={handoverState.phase === 'submitting'}
+        isCommandPending={
+          handoverState.phase === 'submitting' ||
+          approvalState.phase === 'submitting'
+        }
         handoverControl={
           detail.phase === 'ready' ? (
             <RunSupervisorHandover
@@ -120,7 +141,7 @@ function TenantAssignedRunWorkspace({
             page={assigned.phase === 'ready' ? assigned.data : undefined}
             selectedRunId={selectedRunId}
             isFetching={isReadingAssigned}
-            isWithheld={workflow.handover.isBlockingDisclosure}
+            isWithheld={workflow.isBlockingDisclosure}
             isRecheck={assigned.phase === 'pending' && assigned.hasRetainedData}
             error={assigned.phase === 'failed' ? assigned.error : undefined}
             signInHref={signInHref}
@@ -138,7 +159,17 @@ function TenantAssignedRunWorkspace({
             selectedRunId={selectedRunId}
             signInHref={signInHref}
             heading={workflow.heading}
-            handoverFeedback={handoverFeedback}
+            handoverFeedback={approvalFeedback ?? handoverFeedback}
+            approvalControl={
+              detail.phase === 'ready' ? (
+                <RunApprovalCard
+                  key={`${detail.data.runId}:${detail.data.supervisionRevision}:${detail.data.approvalReview?.request?.requestId ?? 'none'}`}
+                  tenantId={tenantId}
+                  run={detail.data}
+                  onConfirm={workflow.approval.submit}
+                />
+              ) : undefined
+            }
           />
         }
         trailing={

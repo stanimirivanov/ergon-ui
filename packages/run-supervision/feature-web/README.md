@@ -52,7 +52,7 @@ This is not a client application core or an execution-control surface.
 - App branding, global navigation, standard/focused shell, theme scope or
   viewport allocation. Presence can wrap without an assumed header height;
   panels never subtract fixed chrome dimensions from the viewport.
-- Lease ownership, timers, grants, approval decisions, steering,
+- Lease ownership, timers, grants, backend approval policy, steering,
   multi-step execution events, tool spans, billing, evidence claims, or proof.
   Their absence is explicit rather than filled with synthetic data.
 - Shared domain-agnostic primitives or an interface-only application layer.
@@ -102,7 +102,16 @@ times are not latency. A proof-acceptance label is a recorded decision, not
 inspected proof evidence; the outcome pane still explains that limitation.
 See [ADR 0029](../../../docs/decisions/0029-display-sequence-aligned-run-transitions.md).
 
-## Verification
+## Confirmed commands
+
+The approval card derives current request/decision facts from the gated Console,
+never a local resource copy. An eligible supervisor can confirm APPROVED or
+REJECTED through an acknowledged RHF form in the reviewed modal. The shared
+feature-local confirmed-command controller blocks all private resources before
+I/O, retires callbacks and keeps exact intent for explicit uncertain replay.
+Conflicts require revalidation. Success is historical feedback and resets private
+selection before fresh discovery. Neither outcome grants, executes, resumes or
+verifies anything. See [ADR 0031](../../../docs/decisions/0031-confirm-human-approval-prerequisites.md).
 
 Recipient lookup rechecks supervision. Any failed candidate read withdraws the
 earlier run snapshot and dialog before paint, without manufacturing a command
@@ -118,6 +127,8 @@ Late callbacks are retired after navigation or tenant change. The original
 assignment timestamp is historical, and a receipt never asserts current ownership.
 No state enters URLs or persistent storage. See
 [ADR 0030](../../../docs/decisions/0030-confirm-revisioned-supervisor-handover.md).
+
+## Verification
 
 ```powershell
 pnpm nx lint @ergon/run-supervision-feature-web

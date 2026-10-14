@@ -21,6 +21,18 @@ export {
 } from './create-run-supervision-client';
 export { normalizeRunSupervisionFailure } from './normalize-run-supervision-failure';
 export { normalizeRunHandoverFailure } from './normalize-run-handover-failure';
+export { normalizeRunApprovalFailure } from './bff/run-approval-http';
+export type {
+  RunApprovalReview,
+  RunApprovalRequest,
+  RunApprovalDecision,
+  RunApprovalCommand,
+  RunApprovalReceipt,
+  RunApprovalFailure,
+  RunApprovalOutcome,
+  RunApprovalResult,
+  RunApprovalClient,
+} from './approval-contracts';
 export type {
   RunSupervisorCandidateQuery,
   RunSupervisorCandidatePage,
@@ -45,4 +57,5 @@ export {
   useGetAssignedRunConsoleQuery,
   useLazyGetAssignedRunConsoleQuery,
   useHandoverRunSupervisorMutation,
+  useDecideRunApprovalMutation,
 } from './cache/run-supervision-api';

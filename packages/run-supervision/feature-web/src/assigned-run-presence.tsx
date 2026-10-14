@@ -8,7 +8,7 @@ export function AssignedRunPresence({
   onRecheck,
   onClose,
   handoverControl,
-  isTransferring,
+  isCommandPending,
 }: {
   readonly presence: ReactNode;
   readonly isReadingAssigned: boolean;
@@ -16,7 +16,7 @@ export function AssignedRunPresence({
   readonly onRecheck: () => void;
   readonly onClose: () => void;
   readonly handoverControl?: ReactNode;
-  readonly isTransferring: boolean;
+  readonly isCommandPending: boolean;
 }): ReactElement {
   return (
     <section
@@ -50,7 +50,7 @@ export function AssignedRunPresence({
             variant="quiet"
             size="compact"
             onClick={onClose}
-            disabled={isTransferring}
+            disabled={isCommandPending}
           >
             Close run
           </Button>

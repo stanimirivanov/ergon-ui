@@ -60,7 +60,7 @@ export function AssignedRunList({
         {isWithheld ? (
           <AssignedRunMessage
             title="Assignment context withheld"
-            description="A supervision transfer is pending or its result needs recovery. Revalidate current assignments instead of relying on retained rows."
+            description="A confirmed Console command is pending or its result needs recovery. Revalidate current assignments instead of relying on retained rows."
           />
         ) : isFetching ? (
           <AssignedRunMessage

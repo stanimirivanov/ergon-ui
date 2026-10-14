@@ -60,13 +60,20 @@ Dependency resolution is a separate networked, mutating bootstrap step:
 | `pnpm architecture:check` | Nx metadata/dependencies and adversarial tests of the frontend lint configuration                                               | T1    |
 | `pnpm verify:workspace`   | Formatting, linting, type checking, unit/component behavior, and production builds                                              | T2    |
 | `pnpm e2e`                | Critical resolver behavior in Chromium                                                                                          | T3    |
-| `pnpm guide:check`        | User-guide manifest, content, and media-path validation tests                                                                   | T1    |
+| `pnpm guide:check`        | Literal source chapter order/slug uniqueness plus user-guide manifest, content, and media-path validation tests                 | T1    |
 | `pnpm guide:generate`     | Tagged browser recording, fixture-network isolation, and static-book generation                                                 | T3    |
 | `User guide artifact` CI  | Regenerated, validated simulated book uploaded for review; `main` alone packages and deploys it to Pages after repository setup | T3    |
 | `pnpm verify`             | The complete current local acceptance sequence                                                                                  | T1–T3 |
 
 Focused project checks remain useful during editing but do not replace an
 applicable aggregate before handoff.
+
+The guide metadata sensor uses the pinned TypeScript parser without executing
+scenario modules. Each `*-guide.ts` declares one exported `GuideChapter` object
+with a positive literal order and a lowercase hyphenated literal slug, both
+unique across chapters. Generation checks these identities before clearing
+output or recording. This early sensor does not prove content, media, or browser
+behavior; the book validator and recorded assertions still own those checks.
 
 The workspace formatting gate uses `nx format:check --all`: all eligible source
 files are checked without Git base/head discovery. Shallow, detached pull-request

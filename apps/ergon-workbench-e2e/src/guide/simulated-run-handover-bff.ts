@@ -41,6 +41,9 @@ const snapshot = {
   transitions: [],
 } as const;
 
+/** Shared source-owned immutable run fixture; companion guide scenarios add their own capability projections. */
+export const syntheticAssignedRunSnapshot = snapshot;
+
 /**
  * Marked synthetic supervision only. Simulate an intervening epoch and a
  * committed transfer whose response is unavailable; exact replay returns its

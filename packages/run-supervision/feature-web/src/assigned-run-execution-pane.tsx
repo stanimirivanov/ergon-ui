@@ -17,12 +17,14 @@ export function AssignedRunExecutionPane({
   signInHref,
   heading,
   handoverFeedback,
+  approvalControl,
 }: {
   readonly detail: AssignedRunRead<AssignedRunConsole>;
   readonly selectedRunId: string | null;
   readonly signInHref: string;
   readonly heading: RefObject<HTMLHeadingElement | null>;
   readonly handoverFeedback?: ReactNode;
+  readonly approvalControl?: ReactNode;
 }): ReactElement {
   function handleDetailRecheck(): void {
     // Recheck and recovery controls disappear when the fresh gate closes; the
@@ -70,7 +72,10 @@ export function AssignedRunExecutionPane({
         <div className="mt-5">{handoverFeedback}</div>
       )}
       {detail.phase === 'ready' ? (
-        <AssignedRunExecutionRecords run={detail.data} />
+        <>
+          <div className="mt-5">{approvalControl}</div>
+          <AssignedRunExecutionRecords run={detail.data} />
+        </>
       ) : handoverFeedback === undefined ? (
         <div className="mt-5">
           <AssignedRunReadMessage
@@ -216,8 +221,9 @@ function AssignedRunExecutionRecords({
               </dl>
               <p className="mt-4 text-xs leading-5 text-ink-muted">
                 This inspector cannot authorize, limit scope, steer, or resume
-                execution. Approval requirements describe recorded policy, not
-                an approval you can issue here.
+                execution. Approval requirements describe recorded policy, not a
+                current approval decision. Use the separate human approval
+                review for supported, eligible requests.
               </p>
             </div>
           </details>
