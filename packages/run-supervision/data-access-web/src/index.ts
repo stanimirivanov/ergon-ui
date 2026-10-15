@@ -59,3 +59,8 @@ export {
   useHandoverRunSupervisorMutation,
   useDecideRunApprovalMutation,
 } from './cache/run-supervision-api';
+export type {
+  PinnedRunEvidence,
+  PinnedEvidenceFact,
+  PinnedEvidenceSource,
+} from './evidence-contracts';

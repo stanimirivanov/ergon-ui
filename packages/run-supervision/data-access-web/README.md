@@ -120,6 +120,16 @@ invalidates related discovery/detail/candidate subscribers; mutation feedback
 is historical, never current supervision truth. See
 [ADR 0030](../../../docs/decisions/0030-confirm-revisioned-supervisor-handover.md).
 
+## Pinned evidence
+
+`pinnedEvidence` is an optional member of the same gated Console resource, not
+a separate endpoint/cache. Omission is unsupported; null or malformed attribution
+fails closed. Decoding checks the exact case/pinned version, unique ordered
+bindings and source identities, source-before-binding positions, matching account
+references, supported values and bounded text/collection sizes. Only the first
+100 bindings are returned with explicit truncation, never as current truth or
+contradiction assessment. See [ADR 0032](../../../docs/decisions/0032-inspect-supervisor-scoped-pinned-evidence.md).
+
 ## Verification
 
 ```powershell

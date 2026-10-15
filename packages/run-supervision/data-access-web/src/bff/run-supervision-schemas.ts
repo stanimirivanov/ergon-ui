@@ -9,6 +9,10 @@ import type {
 import { isConsistentRunHistory } from './run-transition-consistency';
 import { isUtcInstant } from './run-wire-instant';
 import {
+  pinnedRunEvidenceSchema,
+  isConsistentPinnedEvidence,
+} from './run-evidence-schemas';
+import {
   approvalReviewSchema,
   isConsistentApprovalReview,
 } from './run-approval-schemas';
@@ -97,6 +101,7 @@ const consoleSnapshot = Schema.Struct({
   supervisionRevision: Schema.optionalWith(nonNegativeInteger, { exact: true }),
   handoverSupported: Schema.optionalWith(Schema.Boolean, { exact: true }),
   approvalReview: Schema.optionalWith(approvalReviewSchema, { exact: true }),
+  pinnedEvidence: Schema.optionalWith(pinnedRunEvidenceSchema, { exact: true }),
   transitions: Schema.optionalWith(
     Schema.Array(
       Schema.Struct({
@@ -209,5 +214,6 @@ export function decodeAssignedRunConsole(
     return undefined;
   if (!isConsistentRunHistory(value)) return undefined;
   if (!isConsistentApprovalReview(value)) return undefined;
+  if (!isConsistentPinnedEvidence(value)) return undefined;
   return value;
 }

@@ -52,6 +52,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0029](0029-display-sequence-aligned-run-transitions.md)           | Proposed   | Display state-aligned immutable transition prefixes            |
 | [0030](0030-confirm-revisioned-supervisor-handover.md)             | Proposed   | Confirm handover with exact replay and committed disclosure    |
 | [0031](0031-confirm-human-approval-prerequisites.md)               | Proposed   | Confirm exact human prerequisites without granting execution   |
+| [0032](0032-inspect-supervisor-scoped-pinned-evidence.md)          | Proposed   | Inspect pinned bindings and only their linked sources          |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

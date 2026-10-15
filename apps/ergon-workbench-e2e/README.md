@@ -3,10 +3,10 @@
 ## TL;DR
 
 The tagged access-state, inbox-navigation, follow-up, owned-context,
-claim-recovery, release-recovery, run-supervision, handover, and approval scenarios
+claim-recovery, release-recovery, run-supervision, handover, approval, and pinned-evidence scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all nine with
-annotations, screenshots, and video, then assembles a local nine-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all ten with
+annotations, screenshots, and video, then assembles a local ten-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -174,6 +174,16 @@ past the earlier expiry; snapshot switches are labelled simulations, not live
 authority provisioning or browser request creation. No grant, execution or run
 advancement is inferred. PostgreSQL authorization/migration evidence belongs
 to Ergon, not this synthetic guide.
+
+## Pinned evidence walkthrough
+
+The pinned-evidence chapter records 17 steps covering older-server omission,
+supported empty history, exact binding/source inspection, ordinary historical
+value changes without contradiction inference, inert long text, keyboard and
+320-pixel reflow, held/denied revalidation, malformed attribution, explicit
+100-binding truncation and zero writes. The fixture uses producer-owned evidence
+types; it does not implement actual backend filtering or authority changes.
+Real PostgreSQL and browser-security verification belongs to Ergon.
 
 ## Failure handling
 

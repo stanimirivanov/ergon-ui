@@ -2,6 +2,7 @@ import type { AssignedRunConsole } from '@ergon/run-supervision-data-access-web'
 import type { ReactElement } from 'react';
 
 import { AssignedRunFact } from './assigned-run-fact';
+import { AssignedRunEvidence } from './assigned-run-evidence';
 import {
   formatRecordedAt,
   isTerminalState,
@@ -106,10 +107,17 @@ function AssignedRunOutcomeRecords({
           </AssignedRunFact>
         </dl>
         <p className="mt-4 text-xs leading-5 text-ink-muted">
-          Evidence is not included in this read model. The pinned stream version
-          identifies the run snapshot; it is not a count of verified facts.
+          The pinned stream version identifies the run snapshot; it is not a
+          count of verified facts. Evidence below includes only supported
+          bindings and their linked sources.
         </p>
       </section>
+      <div className="mt-4">
+        <AssignedRunEvidence
+          key={`${run.runId}:${run.caseEvidenceStreamVersion}`}
+          evidence={run.pinnedEvidence}
+        />
+      </div>
     </>
   );
 }

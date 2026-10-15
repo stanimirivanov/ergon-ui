@@ -89,7 +89,7 @@ test(
           resolution.getByText('policy-7', { exact: true }),
         ).toBeVisible();
         await expect(
-          outcome.getByText('Evidence is not included in this read model.', {
+          outcome.getByText('This server does not supply pinned evidence.', {
             exact: false,
           }),
         ).toBeVisible();
