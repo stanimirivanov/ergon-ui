@@ -7,13 +7,14 @@ confidential-BFF session boundary, a shared resolver inbox, and a web-only UI
 package. Resolvers can claim visible work with an ephemeral session-bound CSRF
 token, recover their active claims, release exact owned claims from a card or
 the selected Console, and inspect server-authorized case context there. The
-Console's case and run content remains read-only. Assigned supervisors can also
+Console's case evidence and runtime state remain read-only. Assigned supervisors can also
 discover active runs and inspect their recorded start, pinned policy, and
 current state, sanitized terminal execution measurements and ordered recorded
 transitions in a separate
-three-pane Console with confirmed current-supervisor handover and an ephemeral
-React Hook Form confirmation. It has no resolution action,
-live trace, lease, approval control, logout flow, Motion animation,
+three-pane Console with confirmed current-supervisor handover, exact human
+approval prerequisites and pinned binding/source inspection. React Hook Form owns
+confirmation fields. It has no resolution action,
+live trace, lease, logout flow, Motion animation,
 requester app, or native app.
 
 ## Implemented
@@ -84,7 +85,7 @@ requester app, or native app.
   and reads while preserving traversal and exact uncertain claim-retry intent;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
-- nine local executable guides for simulated workbench access states,
+- ten local executable guides for simulated workbench access states,
   shared-inbox pagination and filtering, the claim and release workflow,
   owned-case-context revalidation, competing or uncertain claim recovery, and
   disabled or uncertain release recovery, and assigned-run snapshot supervision
@@ -157,6 +158,14 @@ requester app, or native app.
   synthetic steps and explicitly distinguishes a prerequisite from a grant,
   execution, resumption and proof.
 
+- Pinned evidence now extends the same gated Console resource, with exact
+  case/boundary, subject/source, stream-order and size validation. The trailing
+  pane presents binding history and keyed source modals as inert text. Unsupported,
+  empty, malformed and truncated snapshots stay distinct; resource withdrawal
+  retires inspection. The tenth synthetic guide records 17 steps, keyboard/narrow
+  behavior, failed/held rechecks and zero writes. No general claim, confidence,
+  validity or contradiction model is implied.
+
 ## Deliberate limits
 
 - OIDC client credentials and provider tokens remain entirely server-side.
@@ -183,8 +192,9 @@ requester app, or native app.
   cannot create or rewrite that initial assignment. Current supervisors can
   explicitly hand over current supervision when the backend rollout flag is
   enabled. It has no automatic polling or
-  continuous revocation guarantee. The active-run Console does not receive case
-  evidence, ordered multi-step execution events, nested spans/costs,
+  continuous revocation guarantee. The active-run Console receives only pinned
+  account-access bindings and their exact linked sources, not later/unbound
+  case evidence, ordered multi-step execution events, nested spans/costs,
   or proof checks. Its terminal state label reports backend state, not
   independent verification. Real session-to-PostgreSQL browser compatibility
   remains unverified by the synthetic guide.

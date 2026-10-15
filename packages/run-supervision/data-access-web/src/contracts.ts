@@ -1,4 +1,5 @@
 import type { RunApprovalReview } from './approval-contracts';
+import type { PinnedRunEvidence } from './evidence-contracts';
 
 /** Active discovery excludes completed, superseded, and escalated runs. */
 export type ActiveRunState =
@@ -94,7 +95,7 @@ export interface AssignedRunTransition {
  * Positive contract/evidence revisions identify the start snapshot. Risk and
  * approval are prerequisites, not an approval receipt or execution permission.
  * `predecessorRunId` is null on the first attempt. This projection contains no
- * evidence text, execution spans, control lease, or outcome-proof material.
+ * unlinked/later evidence, execution spans, control lease, or outcome-proof material.
  */
 export interface AssignedRunConsole {
   readonly runId: string;
@@ -127,6 +128,8 @@ export interface AssignedRunConsole {
   readonly handoverSupported?: boolean;
   /** Missing on older servers means unsupported, not an absent request. No private attribution is included. */
   readonly approvalReview?: RunApprovalReview;
+  /** Missing on older servers means unsupported, not an empty snapshot. Retired with the exact Console disclosure gate. */
+  readonly pinnedEvidence?: PinnedRunEvidence;
 }
 
 /** Tenant is navigation context only. Limit defaults to 30 and must be 1–100. */

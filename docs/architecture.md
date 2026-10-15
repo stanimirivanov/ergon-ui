@@ -104,6 +104,14 @@ because this slice has no separate platform-neutral client policy.
 
 ## State ownership
 
+The assigned Console's optional pinned-evidence projection stays in its existing
+RTK resource and disclosure lifetime. Run-supervision data access validates the
+exact case/pinned boundary and binding/source relationships; its feature owns
+history presentation and ephemeral keyed source inspection. No new production
+project or dependency edge is introduced. The guide's producer-owned fixture
+types require an explicit test-project dependency on supervision data access.
+See [ADR 0032](decisions/0032-inspect-supervisor-scoped-pinned-evidence.md).
+
 | State                                                            | Owner               |
 | :--------------------------------------------------------------- | :------------------ |
 | Remote resources, request lifecycle, deduplication, invalidation | RTK Query           |

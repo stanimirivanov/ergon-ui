@@ -2,6 +2,9 @@
   "name": "@ergon/workbench-e2e",
   "version": "0.0.1",
   "private": true,
+  "devDependencies": {
+    "@ergon/run-supervision-data-access-web": "workspace:*"
+  },
   "nx": {
     "tags": [
       "type:test",

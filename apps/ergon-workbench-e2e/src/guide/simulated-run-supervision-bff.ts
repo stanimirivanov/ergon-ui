@@ -27,6 +27,9 @@ const snapshot = {
   assignedAt: '2026-09-21T09:02:00Z',
 } as const;
 
+/** Shared synthetic start for the supervision and pinned-evidence recordings; never production data. */
+export const simulatedRunSupervisionSnapshot = snapshot;
+
 type RunReadMode =
   'success' | 'projected' | 'failure' | 'terminal' | 'not-found';
 type ExecutionMode =

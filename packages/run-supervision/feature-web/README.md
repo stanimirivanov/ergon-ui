@@ -65,7 +65,7 @@ sign-in URL, an opaque verified-actor presence slot, and the required app-owned
 Presence display is not authority. All server state stays in RTK Query;
 private selection and pagination intent stay in React state.
 
-The renderer receives focused mode, `Assigned · read only` status, a
+The renderer receives focused mode, snapshot-derived command availability, a
 capability-owned toolbar and content together during render. The app supplies
 branding, the page heading, Back to follow-ups navigation and outer placement;
 no visibility callback mirrors the workflow. `ThreePaneLayout` from
@@ -127,6 +127,16 @@ Late callbacks are retired after navigation or tenant change. The original
 assignment timestamp is historical, and a receipt never asserts current ownership.
 No state enters URLs or persistent storage. See
 [ADR 0030](../../../docs/decisions/0030-confirm-revisioned-supervisor-handover.md).
+
+## Pinned evidence
+
+The trailing case/outcome pane also owns pinned binding history and exact linked
+source inspection. Each keyed binding owns only modal visibility; all facts stay
+in the current RTK projection. The ui-web modal owns keyboard/focus behavior, and
+the private gate withdraws source content during revalidation, denial, mutations
+or navigation. Source text/references are inert plain text. Unsupported, empty and
+truncated history have different copy; no confidence, contradiction, latest-value
+or proof claim is inferred. See [ADR 0032](../../../docs/decisions/0032-inspect-supervisor-scoped-pinned-evidence.md).
 
 ## Verification
 

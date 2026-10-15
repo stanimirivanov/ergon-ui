@@ -386,7 +386,11 @@ importers:
         specifier: 9.3.0
         version: 9.3.0(@types/react@19.3.0)(react@19.3.0)(redux@5.0.1)
 
-  apps/ergon-workbench-e2e: {}
+  apps/ergon-workbench-e2e:
+    devDependencies:
+      '@ergon/run-supervision-data-access-web':
+        specifier: workspace:*
+        version: link:../../packages/run-supervision/data-access-web
 
   packages/follow-up/data-access-web:
     dependencies:
