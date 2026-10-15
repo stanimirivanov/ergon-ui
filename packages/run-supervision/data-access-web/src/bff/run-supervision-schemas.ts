@@ -104,6 +104,9 @@ const consoleSnapshot = Schema.Struct({
   execution: Schema.optionalWith(Schema.NullOr(execution), { exact: true }),
   supervisionRevision: Schema.optionalWith(nonNegativeInteger, { exact: true }),
   handoverSupported: Schema.optionalWith(Schema.Boolean, { exact: true }),
+  proofFinalizationSupported: Schema.optionalWith(Schema.Boolean, {
+    exact: true,
+  }),
   approvalReview: Schema.optionalWith(approvalReviewSchema, { exact: true }),
   pinnedEvidence: Schema.optionalWith(pinnedRunEvidenceSchema, { exact: true }),
   outcomeVerification: Schema.optionalWith(runVerificationSchema, {
@@ -223,5 +226,11 @@ export function decodeAssignedRunConsole(
   if (!isConsistentApprovalReview(value)) return undefined;
   if (!isConsistentPinnedEvidence(value)) return undefined;
   if (!isConsistentVerification(value)) return undefined;
+  if (
+    value.proofFinalizationSupported !== undefined &&
+    (value.supervisionRevision === undefined ||
+      value.outcomeVerification === undefined)
+  )
+    return undefined;
   return value;
 }

@@ -14,7 +14,7 @@ section order in the template. Supported statuses are `Proposed`, `Accepted`,
 
 A replacement adds `- Supersedes:` with exact links to every decision it
 replaces; each older record points back through its status. The published ADR
-high-water mark is `0029`. It may advance with the next decision but must never
+high-water mark is `0034`. It may advance with the next decision but must never
 decrease, even when the newest record is later superseded or deprecated.
 
 ## Index
@@ -54,6 +54,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0031](0031-confirm-human-approval-prerequisites.md)               | Proposed   | Confirm exact human prerequisites without granting execution   |
 | [0032](0032-inspect-supervisor-scoped-pinned-evidence.md)          | Proposed   | Inspect pinned bindings and only their linked sources          |
 | [0033](0033-inspect-outcome-verification-and-accepted-proof.md)    | Proposed   | Distinguish mutable matching from durable proof acceptance     |
+| [0034](0034-confirm-exact-outcome-proof.md)                        | Proposed   | Confirm exact reviewed proof with replay-safe case closure     |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

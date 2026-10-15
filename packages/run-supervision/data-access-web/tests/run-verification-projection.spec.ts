@@ -67,6 +67,47 @@ const accepted: RunOutcomeVerification = {
     caseClosureStreamVersion: 8,
   },
 };
+describe('browser proof-finalization support compatibility', () => {
+  const query = { tenantId: TENANT_ID, runId: RUN_ID };
+  const snapshot = {
+    ...verifying,
+    outcomeVerification: matching,
+    supervisionRevision: 0,
+    handoverSupported: false,
+  };
+  it('preserves older-server omission separately from enabled and disabled rollout', () => {
+    expect(
+      decodeAssignedRunConsole(snapshot, query)?.proofFinalizationSupported,
+    ).toBeUndefined();
+    for (const supported of [false, true])
+      expect(
+        decodeAssignedRunConsole(
+          { ...snapshot, proofFinalizationSupported: supported },
+          query,
+        )?.proofFinalizationSupported,
+      ).toBe(supported);
+  });
+  it.each([null, 'true', 1])(
+    'rejects malformed support without partially disclosing proof',
+    (support) => {
+      expect(
+        decodeAssignedRunConsole(
+          { ...snapshot, proofFinalizationSupported: support },
+          query,
+        ),
+      ).toBeUndefined();
+    },
+  );
+  it('rejects command support without its reviewed proof coordinates', () => {
+    expect(
+      decodeAssignedRunConsole(
+        { ...validConsole(), proofFinalizationSupported: true },
+        query,
+      ),
+    ).toBeUndefined();
+  });
+});
+
 const terminal: AssignedRunConsole = {
   ...verifying,
   state: 'VERIFIED_RESOLVED',

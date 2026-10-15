@@ -58,7 +58,16 @@ export {
   useLazyGetAssignedRunConsoleQuery,
   useHandoverRunSupervisorMutation,
   useDecideRunApprovalMutation,
+  useFinalizeRunProofMutation,
 } from './cache/run-supervision-api';
+export { normalizeRunProofFinalizationFailure } from './bff/run-proof-finalization-http';
+export type {
+  RunProofFinalizationCommand,
+  RunProofFinalizationReceipt,
+  RunProofFinalizationFailure,
+  RunProofFinalizationResult,
+  RunProofFinalizationClient,
+} from './proof-finalization-contracts';
 export type {
   PinnedRunEvidence,
   PinnedEvidenceFact,

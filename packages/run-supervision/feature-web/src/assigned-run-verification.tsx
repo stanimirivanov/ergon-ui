@@ -76,8 +76,10 @@ export function AssignedRunVerification({
         </div>
       ) : null}
       <p className="mt-4 text-xs leading-5 text-ink-muted">
-        This view reads one recorded contract condition. It cannot accept proof,
-        execute an action or independently verify the external account.
+        This view reads one recorded contract condition. Only an explicitly
+        confirmed, server-authorized acceptance can close the case. Reading a
+        match cannot execute an action or independently verify the external
+        account.
       </p>
     </section>
   );

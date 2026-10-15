@@ -12,8 +12,9 @@ discover active runs and inspect their recorded start, pinned policy, and
 current state, sanitized terminal execution measurements and ordered recorded
 transitions in a separate
 three-pane Console with confirmed current-supervisor handover, exact human
-approval prerequisites and pinned binding/source inspection. React Hook Form owns
-confirmation fields. It has no resolution action,
+approval prerequisites, pinned binding/source inspection and confirmed exact proof
+acceptance with verified case closure. React Hook Form owns confirmation fields.
+It has no connector execution action,
 live trace, lease, logout flow, Motion animation,
 requester app, or native app.
 
@@ -85,7 +86,7 @@ requester app, or native app.
   and reads while preserving traversal and exact uncertain claim-retry intent;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
-- eleven local executable guides for simulated workbench access states,
+- twelve local executable guides for simulated workbench access states,
   shared-inbox pagination and filtering, the claim and release workflow,
   owned-case-context revalidation, competing or uncertain claim recovery, and
   disabled or uncertain release recovery, and assigned-run snapshot supervision
@@ -214,6 +215,15 @@ malformed attribution. No new cache, package or dependency edge is added. See
   grants or invoke/advance a run. Earlier servers show unsupported approval review.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form owns the handover form; Motion remains deferred until a behavior needs it.
+
+The Resolver Console now confirms exact reviewed matching proof through the
+supervisor-authorized BFF command. RHF acknowledgement, cancellation, stale-proof
+recovery and exact uncertain replay reuse the committed private-disclosure
+barrier. Fresh protected reads recover terminal accepted proof and paired case
+closure after active discovery empties. Protocol tests and the 19-step
+twelfth guide cover the behavior; the guide's backend facts remain synthetic.
+Ergon's `ERGON_RUN_PROOF_FINALIZATION_ENABLED` defaults off until additive schema
+and backend deployment. This grants neither arbitrary steering nor forced closure.
 
 Future resolver slices must use reviewed browser contracts for priority,
 reassignment, completion, or resolution. Existing `/internal/v1` routes remain

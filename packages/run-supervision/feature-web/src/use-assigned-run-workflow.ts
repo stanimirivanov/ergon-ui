@@ -15,8 +15,11 @@ import {
 } from 'react';
 import { useRunSupervisorHandover } from './use-run-supervisor-handover';
 import { useRunApprovalDecision } from './use-run-approval-decision';
+import { useRunProofFinalization } from './use-run-proof-finalization';
 
 interface AssignedRunWorkflow {
+  readonly proofFinalization: ReturnType<typeof useRunProofFinalization>;
+  readonly recoverProofFinalization: () => void;
   readonly approval: ReturnType<typeof useRunApprovalDecision>;
   readonly recoverApproval: () => void;
   readonly isBlockingDisclosure: boolean;
@@ -56,8 +59,17 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     heading,
     onSuccess: afterHandover,
   });
+  // Retain selection, not proof data: reopening both gates must fetch the
+  // terminal record even after it disappears from active discovery.
+  const afterProofFinalization = useCallback(() => setCursors([]), []);
+  const proofFinalization = useRunProofFinalization({
+    heading,
+    onSuccess: afterProofFinalization,
+  });
   const isBlockingDisclosure =
-    handover.isBlockingDisclosure || approval.isBlockingDisclosure;
+    handover.isBlockingDisclosure ||
+    approval.isBlockingDisclosure ||
+    proofFinalization.isBlockingDisclosure;
   const cursor = cursors.at(-1);
   const assigned = useAssignedRunDiscovery(
     isBlockingDisclosure
@@ -82,6 +94,12 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   }, [selectedRunId, detail.phase]);
 
   return {
+    proofFinalization,
+    recoverProofFinalization: () => {
+      heading.current?.focus();
+      proofFinalization.clear();
+      detail.recheck();
+    },
     approval,
     isBlockingDisclosure,
     recoverApproval: () => {
@@ -101,16 +119,19 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     heading,
     hasPrevious: cursors.length > 0,
     selectRun: (runId) => {
+      proofFinalization.clear();
       approval.clear();
       handover.clear();
       setSelectedRunId(runId);
     },
     closeRun: () => {
+      proofFinalization.clear();
       approval.clear();
       handover.clear();
       setSelectedRunId(null);
     },
     resetTraversal: () => {
+      proofFinalization.clear();
       approval.clear();
       handover.clear();
       setSelectedRunId(null);

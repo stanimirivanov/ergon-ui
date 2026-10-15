@@ -100,7 +100,9 @@ function verification(mode: VerificationMode): RunOutcomeVerification {
   };
 }
 
-function snapshot(mode: VerificationMode): AssignedRunConsole {
+export function simulatedRunVerificationSnapshot(
+  mode: VerificationMode,
+): AssignedRunConsole {
   const proof = verification(mode);
   if (mode === 'legacy') return start;
   if (mode === 'unassessed')
@@ -189,7 +191,7 @@ export async function installSimulatedRunVerificationBff(page: Page): Promise<{
         );
         return;
       }
-      const run = snapshot(mode);
+      const run = simulatedRunVerificationSnapshot(mode);
       await fulfillSimulatedBff(
         route,
         mode === 'malformed'

@@ -11,7 +11,7 @@ type MutationRequest<R> = PromiseLike<{
 }> & { readonly reset: () => void };
 
 /**
- * Committed disclosure barrier shared by the two real Console mutations.
+ * Committed disclosure barrier shared by confirmed Console mutations.
  * Caller withdraws private readers whenever isBlockingDisclosure is true.
  * After modal teardown, focus reaches the persistent heading before acquisition.
  * A microtask prevents abandoned StrictMode setup from sending a mutation;
