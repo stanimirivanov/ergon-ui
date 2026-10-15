@@ -18,6 +18,8 @@ import { Provider } from 'react-redux';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AssignedRunWorkspace } from '../src';
 import { AssignedRunEvidence } from '../src/assigned-run-evidence';
+import { AssignedRunVerification } from '../src/assigned-run-verification';
+import { matchingVerification, verifyingRun } from './run-verification-fixture';
 import {
   assignedPage,
   assignedRunConsole,
@@ -92,6 +94,48 @@ afterEach(() => {
 });
 
 describe('pinned evidence inspection', () => {
+  it('renders proof text literally, restores focus and retires replaced proof inspection permanently', () => {
+    const view = render(
+      <StrictMode>
+        <AssignedRunVerification run={verifyingRun} />
+      </StrictMode>,
+    );
+    const trigger = screen.getByRole('button', {
+      name: 'Inspect verification evidence',
+    });
+    fireEvent.click(trigger);
+    expect(screen.getByRole('dialog').textContent).toContain(
+      'PRIVATE_PROOF_SOURCE',
+    );
+    expect(screen.getByRole('dialog').querySelector('img')).toBeNull();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Close verification inspector' }),
+    );
+    expect(document.activeElement).toBe(trigger);
+    fireEvent.click(trigger);
+    view.rerender(
+      <StrictMode>
+        <AssignedRunVerification
+          run={{
+            ...verifyingRun,
+            outcomeVerification: {
+              ...matchingVerification,
+              status: 'PENDING',
+              reason: 'ELIGIBLE_EVIDENCE_MISSING',
+              evidence: null,
+            },
+          }}
+        />
+      </StrictMode>,
+    );
+    expect(screen.queryByRole('dialog')).toBeNull();
+    view.rerender(
+      <StrictMode>
+        <AssignedRunVerification run={verifyingRun} />
+      </StrictMode>,
+    );
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
   it('distinguishes old-server omission and an empty supported snapshot', () => {
     const view = render(<AssignedRunEvidence evidence={undefined} />);
     expect(
@@ -146,76 +190,87 @@ describe('pinned evidence inspection', () => {
     );
     expect(screen.getByText(/not assessed contradictions/)).toBeTruthy();
   });
-  it('withdraws source DOM during held revalidation and keeps it hidden after access denial', async () => {
-    let resolve: (value: AssignedRunConsoleResult) => void = () => undefined;
-    const held = new Promise<AssignedRunConsoleResult>((complete) => {
-      resolve = complete;
-    });
-    const read = vi
-      .fn<RunSupervisionClient['getConsole']>()
-      .mockResolvedValueOnce({
-        ok: true,
-        console: { ...assignedRunConsole, pinnedEvidence: evidence },
-      })
-      .mockReturnValue(held);
-    const client: RunSupervisionClient = {
-      listAssigned: async () => ({ ok: true, page: assignedPage() }),
-      getConsole: read,
-    };
-    const store = createStore(client);
-    stores.push(store);
-    render(
-      <StrictMode>
-        <Provider store={store}>
-          <AssignedRunWorkspace
-            tenantId={TENANT_ID}
-            signInHref="/bff/login"
-            renderWorkspace={({ content, toolbar }) => (
-              <>
-                {toolbar}
-                <main>{content}</main>
-              </>
-            )}
-          />
-        </Provider>
-      </StrictMode>,
-    );
-    fireEvent.click(
-      await screen.findByRole('button', { name: `Inspect run ${RUN_ID}` }),
-    );
-    fireEvent.click(
-      await screen.findByRole('button', {
-        name: 'Inspect source for binding 3',
-      }),
-    );
-    expect(screen.getByRole('dialog')).toBeTruthy();
-    // Cache revalidation represents authority withdrawal while a modal is open.
-    act(() => {
-      store.dispatch(
-        runSupervisionApi.util.invalidateTags([
-          { type: 'RunDetail', id: `${TENANT_ID}:${RUN_ID}` },
-        ]),
+  it.each(['pinned', 'proof'] as const)(
+    'withdraws open %s inspection during held revalidation and keeps it hidden after access denial',
+    async (kind) => {
+      let resolve: (value: AssignedRunConsoleResult) => void = () => undefined;
+      const held = new Promise<AssignedRunConsoleResult>((complete) => {
+        resolve = complete;
+      });
+      const read = vi
+        .fn<RunSupervisionClient['getConsole']>()
+        .mockResolvedValueOnce({
+          ok: true,
+          console: { ...verifyingRun, pinnedEvidence: evidence },
+        })
+        .mockReturnValue(held);
+      const client: RunSupervisionClient = {
+        listAssigned: async () => ({ ok: true, page: assignedPage() }),
+        getConsole: read,
+      };
+      const store = createStore(client);
+      stores.push(store);
+      render(
+        <StrictMode>
+          <Provider store={store}>
+            <AssignedRunWorkspace
+              tenantId={TENANT_ID}
+              signInHref="/bff/login"
+              renderWorkspace={({ content, toolbar }) => (
+                <>
+                  {toolbar}
+                  <main>{content}</main>
+                </>
+              )}
+            />
+          </Provider>
+        </StrictMode>,
       );
-    });
-    await waitFor(() => expect(read).toHaveBeenCalledTimes(2));
-    // Background invalidation starts in RTK; assert withdrawal in its committed
-    // render, not synchronous hide-before-I/O promised only by explicit workflows.
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(
-      screen.queryByText(evidence.facts[0]?.source.content ?? ''),
-    ).toBeNull();
-    await act(async () => {
-      resolve({ ok: false, error: { kind: 'not-found' } });
-    });
-    expect(
-      await screen.findByRole('heading', {
-        name: 'Run context is unavailable',
-      }),
-    ).toBeTruthy();
-    expect(
-      screen.queryByText(evidence.facts[0]?.source.content ?? ''),
-    ).toBeNull();
-  });
+      fireEvent.click(
+        await screen.findByRole('button', { name: `Inspect run ${RUN_ID}` }),
+      );
+      fireEvent.click(
+        await screen.findByRole('button', {
+          name:
+            kind === 'pinned'
+              ? 'Inspect source for binding 3'
+              : 'Inspect verification evidence',
+        }),
+      );
+      expect(screen.getByRole('dialog')).toBeTruthy();
+      expect(screen.getByRole('dialog').textContent).toContain(
+        kind === 'proof' ? 'PRIVATE_PROOF_SOURCE' : 'PRIVATE_SOURCE',
+      );
+      // Cache revalidation represents authority withdrawal while a modal is open.
+      act(() => {
+        store.dispatch(
+          runSupervisionApi.util.invalidateTags([
+            { type: 'RunDetail', id: `${TENANT_ID}:${RUN_ID}` },
+          ]),
+        );
+      });
+      await waitFor(() => expect(read).toHaveBeenCalledTimes(2));
+      // Background invalidation starts in RTK; assert withdrawal in its committed
+      // render, not synchronous hide-before-I/O promised only by explicit workflows.
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(screen.queryByText(/PRIVATE_PROOF_SOURCE/)).toBeNull();
+      expect(
+        screen.queryByText(evidence.facts[0]?.source.content ?? ''),
+      ).toBeNull();
+      await act(async () => {
+        resolve({ ok: false, error: { kind: 'not-found' } });
+      });
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Run context is unavailable',
+        }),
+      ).toBeTruthy();
+      expect(screen.queryByText(/PRIVATE_PROOF_SOURCE/)).toBeNull();
+      expect(
+        screen.queryByText(evidence.facts[0]?.source.content ?? ''),
+      ).toBeNull();
+    },
+  );
 });
 
 function createStore(client: RunSupervisionClient) {

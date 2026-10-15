@@ -1,5 +1,6 @@
 import type { RunApprovalReview } from './approval-contracts';
 import type { PinnedRunEvidence } from './evidence-contracts';
+import type { RunOutcomeVerification } from './verification-contracts';
 
 /** Active discovery excludes completed, superseded, and escalated runs. */
 export type ActiveRunState =
@@ -94,8 +95,9 @@ export interface AssignedRunTransition {
  *
  * Positive contract/evidence revisions identify the start snapshot. Risk and
  * approval are prerequisites, not an approval receipt or execution permission.
- * `predecessorRunId` is null on the first attempt. This projection contains no
- * unlinked/later evidence, execution spans, control lease, or outcome-proof material.
+ * `predecessorRunId` is null on the first attempt. Post-pin evidence is restricted
+ * to the exact outcome assessment/acceptance citation; no unrelated history,
+ * execution spans or control lease is included.
  */
 export interface AssignedRunConsole {
   readonly runId: string;
@@ -130,6 +132,8 @@ export interface AssignedRunConsole {
   readonly approvalReview?: RunApprovalReview;
   /** Missing on older servers means unsupported, not an empty snapshot. Retired with the exact Console disclosure gate. */
   readonly pinnedEvidence?: PinnedRunEvidence;
+  /** Omission means an older server, not unassessed or pending proof. Null/malformed proof fails the entire read. */
+  readonly outcomeVerification?: RunOutcomeVerification;
 }
 
 /** Tenant is navigation context only. Limit defaults to 30 and must be 1–100. */

@@ -53,7 +53,7 @@ This is not a client application core or an execution-control surface.
   viewport allocation. Presence can wrap without an assumed header height;
   panels never subtract fixed chrome dimensions from the viewport.
 - Lease ownership, timers, grants, backend approval policy, steering,
-  multi-step execution events, tool spans, billing, evidence claims, or proof.
+  multi-step execution events, tool spans, billing, evidence compilation, or proof-acceptance commands.
   Their absence is explicit rather than filled with synthetic data.
 - Shared domain-agnostic primitives or an interface-only application layer.
 
@@ -99,7 +99,8 @@ It renders at most two durable transitions in append order, never timestamp
 order, and keeps unsupported history separate from a revision-zero empty
 prefix. No receipt, history or state copy is retained. Occurrence and recording
 times are not latency. A proof-acceptance label is a recorded decision, not
-inspected proof evidence; the outcome pane still explains that limitation.
+inspected proof evidence itself. The separate verification section now supplies
+only its selected citation and distinguishes mutable matching from durable proof.
 See [ADR 0029](../../../docs/decisions/0029-display-sequence-aligned-run-transitions.md).
 
 ## Confirmed commands
@@ -137,6 +138,16 @@ the private gate withdraws source content during revalidation, denial, mutations
 or navigation. Source text/references are inert plain text. Unsupported, empty and
 truncated history have different copy; no confidence, contradiction, latest-value
 or proof claim is inferred. See [ADR 0032](../../../docs/decisions/0032-inspect-supervisor-scoped-pinned-evidence.md).
+
+## Outcome verification
+
+`AssignedRunVerification` renders one real pinned condition, status and exact
+assessment or accepted proof in the outcome pane. Its keyed inspector owns only
+modal visibility, never a source copy. Proof withdraws with the Console gate;
+replaced run/status/version/fact identities cannot resurrect an old modal. No
+multi-check count, confidence or generalized contradiction is inferred. The shared
+modal owns focus and narrow reflow. No proof-acceptance command is offered. See
+[ADR 0033](../../../docs/decisions/0033-inspect-outcome-verification-and-accepted-proof.md).
 
 ## Verification
 
