@@ -85,7 +85,7 @@ requester app, or native app.
   and reads while preserving traversal and exact uncertain claim-retry intent;
 - strict TypeScript, source-owned TSDoc for non-obvious public contracts,
   ESLint project boundaries, Prettier, Vitest, and Playwright;
-- ten local executable guides for simulated workbench access states,
+- eleven local executable guides for simulated workbench access states,
   shared-inbox pagination and filtering, the claim and release workflow,
   owned-case-context revalidation, competing or uncertain claim recovery, and
   disabled or uncertain release recovery, and assigned-run snapshot supervision
@@ -166,6 +166,14 @@ requester app, or native app.
   behavior, failed/held rechecks and zero writes. No general claim, confidence,
   validity or contradiction model is implied.
 
+The assigned Console now displays one real pinned outcome condition, current
+assessment and exact selected post-action citation, or immutable accepted proof
+and paired case closure. MATCHING is explicitly not durable acceptance. The
+eleventh synthetic guide records 16 verification steps, including later mismatch,
+keyboard/narrow source inspection, terminal discovery, failed/held rechecks and
+malformed attribution. No new cache, package or dependency edge is added. See
+[ADR 0033](../decisions/0033-inspect-outcome-verification-and-accepted-proof.md).
+
 ## Deliberate limits
 
 - OIDC client credentials and provider tokens remain entirely server-side.
@@ -192,11 +200,11 @@ requester app, or native app.
   cannot create or rewrite that initial assignment. Current supervisors can
   explicitly hand over current supervision when the backend rollout flag is
   enabled. It has no automatic polling or
-  continuous revocation guarantee. The active-run Console receives only pinned
-  account-access bindings and their exact linked sources, not later/unbound
-  case evidence, ordered multi-step execution events, nested spans/costs,
-  or proof checks. Its terminal state label reports backend state, not
-  independent verification. Real session-to-PostgreSQL browser compatibility
+  continuous revocation guarantee. The active-run Console receives pinned
+  account-access bindings and a separate narrowly selected post-action proof
+  citation, not unrelated later/unbound case evidence, ordered multi-step
+  execution events or nested spans/costs. It displays runtime acceptance rather
+  than independently observing the external outcome. Real session-to-PostgreSQL browser compatibility
   remains unverified by the synthetic guide.
 - Backend handover is disabled by default during reader upgrades. Old backend
   readers are unsafe after transfer; disable new commands and recover forward.

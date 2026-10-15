@@ -3,11 +3,8 @@ import type { ReactElement } from 'react';
 
 import { AssignedRunFact } from './assigned-run-fact';
 import { AssignedRunEvidence } from './assigned-run-evidence';
-import {
-  formatRecordedAt,
-  isTerminalState,
-  runStateLabels,
-} from './run-supervision-copy';
+import { AssignedRunVerification } from './assigned-run-verification';
+import { formatRecordedAt, runStateLabels } from './run-supervision-copy';
 
 export function AssignedRunOutcomePane({
   run,
@@ -45,24 +42,10 @@ function AssignedRunOutcomeRecords({
 }: {
   readonly run: AssignedRunConsole;
 }): ReactElement {
-  const terminal = isTerminalState(run.state);
   return (
     <>
-      <div className="mt-5 rounded-md border border-border bg-canvas/60 p-4">
-        <h3 className="font-bold text-ink">
-          {terminal
-            ? 'Recorded terminal state · proof not included'
-            : 'Outcome is not established by this view'}
-        </h3>
-        <p className="mt-2 text-sm leading-6 text-ink-muted">
-          {terminal
-            ? 'The control plane records this terminal run state. It is distinct from the browser inspecting an accepted proof or independently verifying the outcome.'
-            : 'A current run state is not evidence that the desired outcome has been achieved.'}
-        </p>
-        <p className="mt-3 text-sm leading-6 text-ink-muted">
-          Verification checks and accepted proof are not included in this read
-          model.
-        </p>
+      <div className="mt-5">
+        <AssignedRunVerification run={run} />
       </div>
       <section
         aria-labelledby="run-state-heading"

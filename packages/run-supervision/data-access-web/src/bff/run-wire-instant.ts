@@ -15,3 +15,11 @@ export function isUtcInstant(value: string): boolean {
     date.getUTCDate() === Number(value.slice(8, 10))
   );
 }
+
+/** Compares schema-validated UTC instants without losing sub-millisecond eligibility boundaries. */
+export function compareUtcInstants(left: string, right: string): number {
+  const key = (value: string): string =>
+    value.slice(0, 19) +
+    (value.slice(19, -1).replace('.', '') + '000000000').slice(0, 9);
+  return key(left) < key(right) ? -1 : key(left) > key(right) ? 1 : 0;
+}

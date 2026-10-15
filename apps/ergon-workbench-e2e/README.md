@@ -3,10 +3,11 @@
 ## TL;DR
 
 The tagged access-state, inbox-navigation, follow-up, owned-context,
-claim-recovery, release-recovery, run-supervision, handover, approval, and pinned-evidence scenarios
+claim-recovery, release-recovery, run-supervision, handover, approval,
+pinned-evidence and outcome-verification scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all ten with
-annotations, screenshots, and video, then assembles a local ten-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all eleven with
+annotations, screenshots, and video, then assembles a local eleven-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -184,6 +185,16 @@ value changes without contradiction inference, inert long text, keyboard and
 100-binding truncation and zero writes. The fixture uses producer-owned evidence
 types; it does not implement actual backend filtering or authority changes.
 Real PostgreSQL and browser-security verification belongs to Ergon.
+
+## Outcome verification walkthrough
+
+The outcome-verification chapter records 16 steps distinguishing unsupported,
+unassessed, missing, mismatching, mutable matching and durably accepted proof.
+It verifies exact post-action inspection, literal long source text, keyboard
+containment, 320-pixel reflow, terminal detail after active discovery empties,
+held/denied revalidation, fresh recovery, malformed proof and zero writes. All
+snapshots are synthetic comparisons; actual evaluator/acceptance/authorization
+evidence belongs to Ergon's PostgreSQL tests.
 
 ## Failure handling
 

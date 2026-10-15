@@ -64,3 +64,8 @@ export type {
   PinnedEvidenceFact,
   PinnedEvidenceSource,
 } from './evidence-contracts';
+export type {
+  RunOutcomeVerification,
+  RunVerificationEvidence,
+  RunProofAcceptance,
+} from './verification-contracts';

@@ -41,7 +41,7 @@ request only after its last subscriber leaves, without aborting another reader.
 ## Does not own
 
 - Run assignment, runtime control, backend approval policy, or application workflows.
-- Case evidence, a live trace, multi-step span measurements, billing, or outcome-proof records.
+- Evidence compilation, a live trace, multi-step span measurements, billing, or proof-acceptance commands.
 - React feature presentation, routes, or store composition.
 - Tokens, persistent browser storage, or private transport diagnostics.
 
@@ -129,6 +129,16 @@ bindings and source identities, source-before-binding positions, matching accoun
 references, supported values and bounded text/collection sizes. Only the first
 100 bindings are returned with explicit truncation, never as current truth or
 contradiction assessment. See [ADR 0032](../../../docs/decisions/0032-inspect-supervisor-scoped-pinned-evidence.md).
+
+## Outcome verification
+
+`outcomeVerification` extends the same gated resource. Omission means unsupported,
+not unassessed. Status-specific decoding distinguishes missing evidence, mismatch,
+mutable matching and immutable acceptance. Validate post-pin source/binding order,
+subject, observed-after-action eligibility, successful receipt, state/transition
+alignment and exact acceptance/closure coordinates before caching. Private extras
+are discarded; null or malformed proof rejects the complete read. No case-event
+recording time is invented. See [ADR 0033](../../../docs/decisions/0033-inspect-outcome-verification-and-accepted-proof.md).
 
 ## Verification
 

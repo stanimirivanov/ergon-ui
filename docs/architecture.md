@@ -104,6 +104,12 @@ because this slice has no separate platform-neutral client policy.
 
 ## State ownership
 
+Outcome verification stays in the existing protected RTK Console resource.
+Data access owns status-specific decoding, exact post-action attribution and
+state/receipt/acceptance consistency. Feature owns the single-condition section
+and keyed inspector; ui-web owns modality. No new dependency edge is added. See
+[ADR 0033](decisions/0033-inspect-outcome-verification-and-accepted-proof.md).
+
 The assigned Console's optional pinned-evidence projection stays in its existing
 RTK resource and disclosure lifetime. Run-supervision data access validates the
 exact case/pinned boundary and binding/source relationships; its feature owns
@@ -216,8 +222,9 @@ The assigned-run Console is a separate snapshot work surface in the same
 tenant route. It presents the immutable run start, pinned capability policy,
 and latest server-recorded state. Rechecking the selected run refreshes exact
 detail; rechecking assignments refreshes discovery, then rereads selected detail
-after successful discovery. There is no automatic polling or live-monitoring promise. Case evidence,
-multi-step execution events and proof detail remain absent. Human approval review
+after successful discovery. There is no automatic polling or live-monitoring promise.
+Pinned evidence and narrowly selected post-action proof are now supplied;
+multi-step execution remains absent. Human approval review
 is a separate optional member of this same protected resource, not inferred
 from its pinned policy requirement.
 The additive terminal receipt supplies one pinned capability's connector result
