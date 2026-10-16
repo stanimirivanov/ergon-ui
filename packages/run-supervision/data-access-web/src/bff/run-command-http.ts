@@ -7,8 +7,9 @@ interface RunCommandHttp<F> {
   readonly request: <A>(
     url: string,
     init: RequestInit,
-    decode: (body: unknown) => A | undefined,
+    decode: (body: unknown, status: number) => A | undefined,
     signal: AbortSignal,
+    acceptedStatuses?: readonly number[],
   ) => Effect.Effect<A, F | RunSupervisionFailure, never>;
   readonly execute: <A>(
     program: Effect.Effect<A, F | RunSupervisionFailure, never>,
@@ -25,6 +26,8 @@ interface RunCommandHttp<F> {
  * Each request controller covers headers and body and is released on every path.
  * execute bounds the complete supplied program; only explicitly classified reads
  * retry. Mutation callers put CSRF and POST in one program and pass retryRead=false.
+ * Additional success statuses must be opted into explicitly; the decoder receives
+ * HTTP status so a non-terminal acknowledgement cannot become terminal success.
  * Genuine defects reject, including concurrent aborts; causes never become results.
  */
 export function createRunCommandHttp<F extends { readonly kind: string }>(
@@ -37,8 +40,9 @@ export function createRunCommandHttp<F extends { readonly kind: string }>(
   function request<A>(
     url: string,
     init: RequestInit,
-    decode: (body: unknown) => A | undefined,
+    decode: (body: unknown, status: number) => A | undefined,
     signal: AbortSignal,
+    acceptedStatuses?: readonly number[],
   ): Effect.Effect<A, F | RunSupervisionFailure, never> {
     return Effect.acquireUseRelease(
       Effect.sync(() => new AbortController()),
@@ -58,13 +62,17 @@ export function createRunCommandHttp<F extends { readonly kind: string }>(
           catch: (): RunSupervisionFailure => ({ kind: 'transport' }),
         }).pipe(
           Effect.flatMap((response) => {
+            // Execution acknowledgements include 202, but other commands keep
+            // their existing exact success statuses rather than accepting all 2xx.
             const success =
-              response.status === 200 ||
-              (init.method === 'POST' && response.status === 201);
+              acceptedStatuses === undefined
+                ? response.status === 200 ||
+                  (init.method === 'POST' && response.status === 201)
+                : acceptedStatuses.includes(response.status);
             return success
               ? readJson(response, signal).pipe(
                   Effect.flatMap((body) => {
-                    const value = decode(body);
+                    const value = decode(body, response.status);
                     return value === undefined
                       ? Effect.fail({ kind: 'invalid-response' } as const)
                       : Effect.succeed(value);

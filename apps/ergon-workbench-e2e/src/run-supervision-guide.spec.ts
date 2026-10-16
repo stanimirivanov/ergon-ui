@@ -179,7 +179,10 @@ test(
         ).toHaveCount(0);
         await guide.result(
           'inspect-no-receipt',
-          resolution.getByRole('region', { name: 'Capability execution' }),
+          resolution.getByRole('region', {
+            name: 'Capability execution',
+            exact: true,
+          }),
         );
 
         bff.setExecutionMode('legacy');
@@ -196,7 +199,10 @@ test(
         ).toBeVisible();
         await guide.result(
           'inspect-older-server',
-          resolution.getByRole('region', { name: 'Capability execution' }),
+          resolution.getByRole('region', {
+            name: 'Capability execution',
+            exact: true,
+          }),
         );
 
         bff.setExecutionMode('measured');

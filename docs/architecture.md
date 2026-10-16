@@ -104,6 +104,17 @@ because this slice has no separate platform-neutral client policy.
 
 ## State ownership
 
+Execution review is an explicitly acquired private RTK resource in the existing
+run-supervision API, not a Console copy or a lasting authorization token.
+Data access owns exact HTTP/identity/status decoding, invocation-local CSRF and
+bounded no-retry commands. The feature owns acknowledged execute/recover forms,
+immutable intent, historical feedback and the existing committed disclosure
+barrier. An admitted identity only acknowledges status; an unadmitted identity
+may first admit its original confirmed intent on retry. An additional confirmed attempt
+targets the original reservation. Superseded command feedback retires on new
+intent. No project or dependency edge changes. See
+[ADR 0035](decisions/0035-confirm-capability-execution-and-recovery.md).
+
 Outcome verification stays in the existing protected RTK Console resource.
 Data access owns status-specific decoding, exact post-action attribution and
 state/receipt/acceptance consistency. Feature owns the single-condition section

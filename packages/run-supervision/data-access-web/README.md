@@ -2,7 +2,7 @@
 
 ## TL;DR
 
-Own the confidential Console's reads, confirmed handover/approval protocols and
+Own the confidential Console's reads, confirmed handover/approval/execution protocols and
 RTK cache lifecycle. The backend owns current authority; a human decision is
 not a capability grant. Private resources never acquire a second cache.
 
@@ -151,6 +151,26 @@ case completion, never present disclosure authority. Success invalidates related
 run resources. `proofFinalizationSupported` omission means unsupported, false
 means disabled rollout; it is not proof eligibility. See
 [ADR 0034](../../../docs/decisions/0034-confirm-exact-outcome-proof.md).
+
+## Execution and recovery
+
+Execution adds explicit `getExecutionReview`, `submitExecution` and
+`useRunExecutionReview` to the same cache/client composition. Review is requested
+only on demand and is keyed by tenant/run and reviewed revisions. Closing the
+modal retires its subscription; reopening forces a distinct authority check.
+The feature compares returned epochs/prerequisites with the current Console.
+
+The command union distinguishes first execution from an explicit recovery attempt.
+Both use one deadline across invocation-local CSRF, POST and status-specific
+decoding, with no automatic retry. An admitted identity only acknowledges status;
+retrying an unadmitted identity may first admit the original confirmed intent. A new
+confirmed attempt reuses the original command/reservation; the backend owns
+originator and current-supervisor/resolver gates. Decode 202 INCOMPLETE or
+RESULT_RECORDED separately from 200 COMPLETED, validate exact command/run/attempt
+identities and result/state/nullability, and strip private extras. Every command
+result invalidates related resources because even a lost acknowledgement may
+follow an effect. Cache-boundary defects remain cause-free. See
+[ADR 0035](../../../docs/decisions/0035-confirm-capability-execution-and-recovery.md).
 
 ## Verification
 

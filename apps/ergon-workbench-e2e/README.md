@@ -4,10 +4,10 @@
 
 The tagged access-state, inbox-navigation, follow-up, owned-context,
 claim-recovery, release-recovery, run-supervision, handover, approval,
-pinned-evidence, outcome-verification and proof-finalization scenarios
+pinned-evidence, outcome-verification, proof-finalization and execution/recovery scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twelve with
-annotations, screenshots, and video, then assembles a local twelve-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all thirteen with
+annotations, screenshots, and video, then assembles a local thirteen-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -53,6 +53,19 @@ on pending/denied revalidation. Its synthetic transaction and authority facts ar
 not real backend verification. The backend rollout defaults off; deploy schema
 and backend before enabling browser commands.
 
+## Execution and recovery walkthrough
+
+The execution/recovery chapter has 20 assertion-backed steps covering disabled
+rollout, explicit acknowledgement/cancellation, keyboard containment and narrow
+reflow, stale-epoch rejection, committed private withdrawal, lost acknowledgements,
+admitted status-only replay, possible first admission on exact-intent retry,
+distinct same-command recovery, receipt-only projection
+repair and VERIFYING without closure. Held/denied revalidation hides earlier private
+facts. Separate browser checks cover unsupported and denied review without writes.
+The fixture counts synthetic dispatch checkpoints; it does not prove real provider
+idempotency, authority, PostgreSQL durability or production recovery. Deploy backend
+schema/code before enabling the separate default-off execution flag.
+
 ## Publication
 
 The [publication decision](../../docs/decisions/0022-publish-simulated-user-guide-from-main.md)
@@ -76,7 +89,9 @@ the simulation boundary or granting PR jobs deployment authority.
 The reader-facing chapter definition is co-located with the browser scenario
 under `src/guide/`. It supplies audience, overview, prerequisites, actions,
 expected results, troubleshooting, and limitations. Each declared step ID must
-be executed in order by the tagged scenario. The assembler rejects missing or
+be executed in order by the tagged scenario. Actions/result checkpoints also
+require one visible target in ordinary test mode, so locator ambiguity cannot
+hide until recording. The assembler rejects missing or
 escaping media, malformed structure, an unlabelled verification mode, and a
 chapter too thin to explain a multi-step workflow. These checks are a floor,
 not a substitute for reviewing the rendered prose and screenshots for clarity

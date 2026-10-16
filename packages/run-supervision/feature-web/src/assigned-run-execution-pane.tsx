@@ -19,6 +19,7 @@ export function AssignedRunExecutionPane({
   commandFeedback,
   isBlockingDisclosure,
   approvalControl,
+  executionControl,
 }: {
   readonly detail: AssignedRunRead<AssignedRunConsole>;
   readonly selectedRunId: string | null;
@@ -27,6 +28,7 @@ export function AssignedRunExecutionPane({
   readonly commandFeedback?: ReactNode;
   readonly isBlockingDisclosure: boolean;
   readonly approvalControl?: ReactNode;
+  readonly executionControl?: ReactNode;
 }): ReactElement {
   function handleDetailRecheck(): void {
     // Recheck and recovery controls disappear when the fresh gate closes; the
@@ -76,6 +78,7 @@ export function AssignedRunExecutionPane({
       {detail.phase === 'ready' ? (
         <>
           <div className="mt-5">{approvalControl}</div>
+          <div className="mt-5">{executionControl}</div>
           <AssignedRunExecutionRecords run={detail.data} />
         </>
       ) : !isBlockingDisclosure ? (

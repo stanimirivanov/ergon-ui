@@ -11,6 +11,12 @@ export function assignedRunSnapshotStatus(
     return run.handoverSupported === true
       ? 'Assigned · confirmed commands enabled'
       : 'Assigned · approval enabled';
+  if (
+    run?.stateVersion === 0 &&
+    run.supervisionRevision !== undefined &&
+    run.handoverSupported !== true
+  )
+    return 'Assigned · execution review available';
   return run?.handoverSupported === true
     ? 'Assigned · handover enabled'
     : 'Assigned · read only';

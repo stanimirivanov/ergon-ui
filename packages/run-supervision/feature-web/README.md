@@ -5,7 +5,8 @@
 Own the assigned-supervisor Resolver Console's React interaction and complete
 responsive three-pane presentation and confirmed supervision transfers. Reads
 remain server-authoritative; handover changes access, never execution authority.
-This is not a client application core or an execution-control surface.
+It also confirms the backend's bounded pinned execution/recovery contract;
+it is neither a client application core nor a general steering surface.
 
 ## Owns
 
@@ -157,6 +158,26 @@ only on uncertainty. A definite conflict needs a fresh review. Success retains
 selection while fresh gated reads recover the terminal accepted proof even when
 active discovery is empty. No proof snapshot is copied into local state. See
 [ADR 0034](../../../docs/decisions/0034-confirm-exact-outcome-proof.md).
+
+## Execution and recovery
+
+The pinned execution control opens a fresh eligibility review and an acknowledged
+RHF confirmation. Disabled/unsupported/stale/denied review never creates command
+intent; failed access review withdraws the earlier private Console and modal.
+Execution and recovery show risk, scope, revisions and irreversible admission.
+Submission uses the existing committed disclosure barrier before I/O; navigation
+retires callbacks, not server effects. Only immutable intent or historical feedback
+is retained, never a review/Console copy.
+
+An uncertain POST offers **Retry exact execution intent**, preserving its tuple.
+An admitted identity only acknowledges status; an unadmitted one may first admit
+and dispatch that original confirmation. Additional recovery requires a fresh review
+and **Confirm new recovery attempt** on the original command. INCOMPLETE,
+RESULT_RECORDED and COMPLETED remain distinct; success reaches VERIFYING, not
+independent proof or case closure. New command intent clears superseded command
+feedback so execution cannot mask later proof/handover feedback. The existing
+modal owns focus/placement; app shell and project edges are unchanged. See
+[ADR 0035](../../../docs/decisions/0035-confirm-capability-execution-and-recovery.md).
 
 ## Verification
 

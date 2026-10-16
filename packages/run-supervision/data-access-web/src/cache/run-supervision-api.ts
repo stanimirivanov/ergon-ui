@@ -12,6 +12,7 @@ import { normalizeRunSupervisionFailure } from '../normalize-run-supervision-fai
 import { normalizeRunHandoverFailure } from '../normalize-run-handover-failure';
 import { normalizeRunApprovalFailure } from '../bff/run-approval-http';
 import { normalizeRunProofFinalizationFailure } from '../bff/run-proof-finalization-http';
+import type { RunExecutionFailure } from '../execution-command-contracts';
 import type {
   RunProofFinalizationClient,
   RunProofFinalizationCommand,
@@ -56,6 +57,7 @@ export const runSupervisionApi = createApi({
     | RunSupervisorHandoverFailure
     | RunApprovalFailure
     | RunProofFinalizationFailure
+    | RunExecutionFailure
   >(),
   tagTypes: ['AssignedRuns', 'RunDetail', 'RunCandidates'],
   endpoints: (build) => ({
@@ -280,7 +282,7 @@ function isHandoverClient(
   );
 }
 
-function clientFrom(extra: unknown): RunSupervisionClient {
+export function clientFrom(extra: unknown): RunSupervisionClient {
   if (
     typeof extra === 'object' &&
     extra !== null &&

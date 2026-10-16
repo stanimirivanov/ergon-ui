@@ -78,3 +78,19 @@ export type {
   RunVerificationEvidence,
   RunProofAcceptance,
 } from './verification-contracts';
+export type {
+  RunExecutionCommand,
+  RunExecutionReceipt,
+  RunExecutionReview,
+  RunExecutionReviewQuery,
+  RunExecutionFailure,
+  RunExecutionCommandResult,
+  RunExecutionReviewResult,
+  RunExecutionClient,
+} from './execution-command-contracts';
+export { normalizeRunExecutionFailure } from './bff/run-execution-command-http';
+export {
+  runExecutionApi,
+  useSubmitRunExecutionMutation,
+} from './cache/run-execution-api';
+export { useRunExecutionReview } from './cache/use-run-execution-review';
