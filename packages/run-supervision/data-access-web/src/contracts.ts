@@ -128,6 +128,8 @@ export interface AssignedRunConsole {
   /** Paired rollout metadata. Omitted on older servers; never inferred from assignment alone. */
   readonly supervisionRevision?: number;
   readonly handoverSupported?: boolean;
+  /** Omission is older-server unsupported; false is an explicitly disabled rollout, not missing proof. */
+  readonly proofFinalizationSupported?: boolean;
   /** Missing on older servers means unsupported, not an absent request. No private attribution is included. */
   readonly approvalReview?: RunApprovalReview;
   /** Missing on older servers means unsupported, not an empty snapshot. Retired with the exact Console disclosure gate. */

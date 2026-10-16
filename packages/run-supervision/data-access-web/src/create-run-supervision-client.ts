@@ -11,6 +11,8 @@ import { createRunHandoverClient } from './create-run-handover-client';
 import type { RunSupervisorHandoverClient } from './handover-contracts';
 import type { RunApprovalClient } from './approval-contracts';
 import { createRunApprovalClient } from './create-run-approval-client';
+import { createRunProofFinalizationClient } from './create-run-proof-finalization-client';
+import type { RunProofFinalizationClient } from './proof-finalization-contracts';
 import {
   decodeAssignedRunConsole,
   decodeAssignedRunPage,
@@ -44,13 +46,15 @@ export function createRunSupervisionClient({
   requestTimeoutMs = 10_000,
 }: RunSupervisionClientOptions): RunSupervisionClient &
   RunSupervisorHandoverClient &
-  RunApprovalClient {
+  RunApprovalClient &
+  RunProofFinalizationClient {
   if (!Number.isFinite(requestTimeoutMs) || requestTimeoutMs <= 0) {
     throw new RangeError('Run supervision timeout must be positive and finite');
   }
   return {
     ...createRunHandoverClient({ fetch, requestTimeoutMs }),
     ...createRunApprovalClient({ fetch, requestTimeoutMs }),
+    ...createRunProofFinalizationClient({ fetch, requestTimeoutMs }),
     listAssigned: async (query, signal): Promise<AssignedRunListResult> => {
       if (!isValidListQuery(query))
         return { ok: false, error: { kind: 'invalid-page' } };

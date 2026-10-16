@@ -11,6 +11,13 @@ import type {
 import { normalizeRunSupervisionFailure } from '../normalize-run-supervision-failure';
 import { normalizeRunHandoverFailure } from '../normalize-run-handover-failure';
 import { normalizeRunApprovalFailure } from '../bff/run-approval-http';
+import { normalizeRunProofFinalizationFailure } from '../bff/run-proof-finalization-http';
+import type {
+  RunProofFinalizationClient,
+  RunProofFinalizationCommand,
+  RunProofFinalizationReceipt,
+  RunProofFinalizationFailure,
+} from '../proof-finalization-contracts';
 import type {
   RunApprovalClient,
   RunApprovalCommand,
@@ -45,9 +52,48 @@ export interface RunSupervisionDependencies {
  */
 export const runSupervisionApi = createApi({
   reducerPath: 'runSupervisionApi',
-  baseQuery: fakeBaseQuery<RunSupervisorHandoverFailure | RunApprovalFailure>(),
+  baseQuery: fakeBaseQuery<
+    | RunSupervisorHandoverFailure
+    | RunApprovalFailure
+    | RunProofFinalizationFailure
+  >(),
   tagTypes: ['AssignedRuns', 'RunDetail', 'RunCandidates'],
   endpoints: (build) => ({
+    finalizeRunProof: build.mutation<
+      RunProofFinalizationReceipt,
+      RunProofFinalizationCommand
+    >({
+      invalidatesTags: (result, _error, command) =>
+        result === undefined
+          ? []
+          : [
+              { type: 'AssignedRuns', id: command.tenantId },
+              { type: 'RunDetail', id: `${command.tenantId}:${command.runId}` },
+              {
+                type: 'RunCandidates',
+                id: `${command.tenantId}:${command.runId}`,
+              },
+            ],
+      async queryFn(
+        command,
+        api,
+      ): Promise<
+        | { data: RunProofFinalizationReceipt }
+        | { error: RunProofFinalizationFailure }
+      > {
+        try {
+          const client = clientFrom(api.extra);
+          if (!isProofClient(client))
+            return { error: { kind: 'unexpected-defect' } };
+          const result = await client.finalizeProof(command, api.signal);
+          return result.ok
+            ? { data: result.receipt }
+            : { error: normalizeRunProofFinalizationFailure(result.error) };
+        } catch {
+          return { error: { kind: 'unexpected-defect' } };
+        }
+      },
+    }),
     decideRunApproval: build.mutation<RunApprovalReceipt, RunApprovalCommand>({
       invalidatesTags: (result, _error, command) =>
         result === undefined
@@ -198,7 +244,16 @@ export const {
   useLazyGetAssignedRunConsoleQuery,
   useHandoverRunSupervisorMutation,
   useDecideRunApprovalMutation,
+  useFinalizeRunProofMutation,
 } = runSupervisionApi;
+
+function isProofClient(
+  client: RunSupervisionClient,
+): client is RunSupervisionClient & RunProofFinalizationClient {
+  return (
+    'finalizeProof' in client && typeof client.finalizeProof === 'function'
+  );
+}
 
 function isApprovalClient(
   client: RunSupervisionClient,

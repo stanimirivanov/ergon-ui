@@ -53,7 +53,7 @@ This is not a client application core or an execution-control surface.
   viewport allocation. Presence can wrap without an assumed header height;
   panels never subtract fixed chrome dimensions from the viewport.
 - Lease ownership, timers, grants, backend approval policy, steering,
-  multi-step execution events, tool spans, billing, evidence compilation, or proof-acceptance commands.
+  multi-step execution events, tool spans, billing or evidence compilation.
   Their absence is explicit rather than filled with synthetic data.
 - Shared domain-agnostic primitives or an interface-only application layer.
 
@@ -146,8 +146,17 @@ assessment or accepted proof in the outcome pane. Its keyed inspector owns only
 modal visibility, never a source copy. Proof withdraws with the Console gate;
 replaced run/status/version/fact identities cannot resurrect an old modal. No
 multi-check count, confidence or generalized contradiction is inferred. The shared
-modal owns focus and narrow reflow. No proof-acceptance command is offered. See
+modal owns focus and narrow reflow. See
 [ADR 0033](../../../docs/decisions/0033-inspect-outcome-verification-and-accepted-proof.md).
+
+An enabled MATCHING snapshot can open a separate acknowledged exact-proof
+confirmation. The server owns authorization and reassessment; the feature owns
+only form/modal state, exact command intent and historical feedback. It reuses
+the command disclosure barrier, retires stale callbacks and offers exact replay
+only on uncertainty. A definite conflict needs a fresh review. Success retains
+selection while fresh gated reads recover the terminal accepted proof even when
+active discovery is empty. No proof snapshot is copied into local state. See
+[ADR 0034](../../../docs/decisions/0034-confirm-exact-outcome-proof.md).
 
 ## Verification
 

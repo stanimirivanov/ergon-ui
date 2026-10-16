@@ -1,5 +1,5 @@
 import type { AssignedRunConsole } from '@ergon/run-supervision-data-access-web';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 import { AssignedRunFact } from './assigned-run-fact';
 import { AssignedRunEvidence } from './assigned-run-evidence';
@@ -8,8 +8,10 @@ import { formatRecordedAt, runStateLabels } from './run-supervision-copy';
 
 export function AssignedRunOutcomePane({
   run,
+  proofFinalizationControl,
 }: {
   readonly run: AssignedRunConsole | undefined;
+  readonly proofFinalizationControl?: ReactNode;
 }): ReactElement {
   return (
     <section
@@ -31,7 +33,10 @@ export function AssignedRunOutcomePane({
           current read.
         </p>
       ) : (
-        <AssignedRunOutcomeRecords run={run} />
+        <AssignedRunOutcomeRecords
+          run={run}
+          proofFinalizationControl={proofFinalizationControl}
+        />
       )}
     </section>
   );
@@ -39,13 +44,16 @@ export function AssignedRunOutcomePane({
 
 function AssignedRunOutcomeRecords({
   run,
+  proofFinalizationControl,
 }: {
   readonly run: AssignedRunConsole;
+  readonly proofFinalizationControl?: ReactNode;
 }): ReactElement {
   return (
     <>
       <div className="mt-5">
         <AssignedRunVerification run={run} />
+        <div className="mt-4">{proofFinalizationControl}</div>
       </div>
       <section
         aria-labelledby="run-state-heading"

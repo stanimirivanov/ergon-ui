@@ -4,10 +4,10 @@
 
 The tagged access-state, inbox-navigation, follow-up, owned-context,
 claim-recovery, release-recovery, run-supervision, handover, approval,
-pinned-evidence and outcome-verification scenarios
+pinned-evidence, outcome-verification and proof-finalization scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all eleven with
-annotations, screenshots, and video, then assembles a local eleven-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twelve with
+annotations, screenshots, and video, then assembles a local twelve-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -41,6 +41,17 @@ The `User guide artifact` GitHub Actions workflow runs on pull requests and
 from the workflow run to review the rendered book. The artifact expires after
 seven days. A failed recording uploads available guide and Playwright evidence
 separately. The generation job has read-only repository permission.
+
+## Proof-finalization walkthrough
+
+The proof-finalization chapter reviews a disabled/enabled matching outcome,
+inspects its source, requires explicit acknowledgement, cancels without I/O,
+checks narrow modal accessibility, rejects stale proof, reviews changed evidence,
+hides private resources before a held command, recovers a lost response by exact
+replay, reads terminal accepted proof after active discovery empties and hides it
+on pending/denied revalidation. Its synthetic transaction and authority facts are
+not real backend verification. The backend rollout defaults off; deploy schema
+and backend before enabling browser commands.
 
 ## Publication
 

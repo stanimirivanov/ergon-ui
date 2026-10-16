@@ -41,7 +41,7 @@ request only after its last subscriber leaves, without aborting another reader.
 ## Does not own
 
 - Run assignment, runtime control, backend approval policy, or application workflows.
-- Evidence compilation, a live trace, multi-step span measurements, billing, or proof-acceptance commands.
+- Evidence compilation, a live trace, multi-step span measurements or billing.
 - React feature presentation, routes, or store composition.
 - Tokens, persistent browser storage, or private transport diagnostics.
 
@@ -139,6 +139,18 @@ subject, observed-after-action eligibility, successful receipt, state/transition
 alignment and exact acceptance/closure coordinates before caching. Private extras
 are discarded; null or malformed proof rejects the complete read. No case-event
 recording time is invented. See [ADR 0033](../../../docs/decisions/0033-inspect-outcome-verification-and-accepted-proof.md).
+
+## Proof finalization
+
+`finalizeProof` and `useFinalizeRunProofMutation` accept the exact reviewed
+supervision/run versions, assessed case version and source/fact identities.
+One deadline includes invocation-local CSRF, POST and strict receipt decoding;
+there is no automatic retry. Only the originating actor with current resolver
+authority can replay unchanged intent. A receipt acknowledges atomic proof/run/
+case completion, never present disclosure authority. Success invalidates related
+run resources. `proofFinalizationSupported` omission means unsupported, false
+means disabled rollout; it is not proof eligibility. See
+[ADR 0034](../../../docs/decisions/0034-confirm-exact-outcome-proof.md).
 
 ## Verification
 

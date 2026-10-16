@@ -16,14 +16,16 @@ export function AssignedRunExecutionPane({
   selectedRunId,
   signInHref,
   heading,
-  handoverFeedback,
+  commandFeedback,
+  isBlockingDisclosure,
   approvalControl,
 }: {
   readonly detail: AssignedRunRead<AssignedRunConsole>;
   readonly selectedRunId: string | null;
   readonly signInHref: string;
   readonly heading: RefObject<HTMLHeadingElement | null>;
-  readonly handoverFeedback?: ReactNode;
+  readonly commandFeedback?: ReactNode;
+  readonly isBlockingDisclosure: boolean;
   readonly approvalControl?: ReactNode;
 }): ReactElement {
   function handleDetailRecheck(): void {
@@ -68,15 +70,15 @@ export function AssignedRunExecutionPane({
           </div>
         ) : null}
       </div>
-      {handoverFeedback === undefined ? null : (
-        <div className="mt-5">{handoverFeedback}</div>
+      {commandFeedback === undefined ? null : (
+        <div className="mt-5">{commandFeedback}</div>
       )}
       {detail.phase === 'ready' ? (
         <>
           <div className="mt-5">{approvalControl}</div>
           <AssignedRunExecutionRecords run={detail.data} />
         </>
-      ) : handoverFeedback === undefined ? (
+      ) : !isBlockingDisclosure ? (
         <div className="mt-5">
           <AssignedRunReadMessage
             detail={detail}
