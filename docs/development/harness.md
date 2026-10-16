@@ -75,6 +75,13 @@ unique across chapters. Generation checks these identities before clearing
 output or recording. This early sensor does not prove content, media, or browser
 behavior; the book validator and recorded assertions still own those checks.
 
+Guide actions and result checkpoints require exactly one visible target in both
+ordinary browser verification and recording mode. The non-recording regression in
+`apps/ergon-workbench-e2e/src/guide-checkpoints.spec.ts` rejects ambiguous targets.
+This catches locator collisions before expensive recording instead of letting a
+green `pnpm e2e` silently skip the checkpoint's browser contract. Generated book
+content and media still require the full `pnpm guide:generate` gate.
+
 The workspace formatting gate uses `nx format:check --all`: all eligible source
 files are checked without Git base/head discovery. Shallow, detached pull-request
 checkouts need no local `main` ref or extra fetch credentials. The repository

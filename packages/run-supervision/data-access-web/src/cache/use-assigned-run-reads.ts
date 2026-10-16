@@ -214,7 +214,7 @@ interface ReadState<T> {
   readonly error?: unknown;
 }
 
-function useFreshAssignedRead<T, Q, Failure>(
+export function useFreshAssignedRead<T, Q, Failure>(
   query: Q | null,
   state: ReadState<T>,
   start: (query: Q) => ReadHandle,

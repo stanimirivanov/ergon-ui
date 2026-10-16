@@ -7,12 +7,14 @@ import { AssignedRunOutcomePane } from './assigned-run-outcome-pane';
 import { AssignedRunPresence } from './assigned-run-presence';
 import { useAssignedRunWorkflow } from './use-assigned-run-workflow';
 import { RunSupervisorHandover } from './run-supervisor-handover';
-import { AssignedRunHandoverFeedback } from './assigned-run-handover-feedback';
-import { RunApprovalFeedback } from './run-approval-feedback';
 import { RunApprovalCard } from './run-approval-card';
 import { RunProofFinalizationControl } from './run-proof-finalization-control';
-import { RunProofFinalizationFeedback } from './run-proof-finalization-feedback';
-import { assignedRunSnapshotStatus } from './run-supervision-copy';
+import { RunCapabilityExecutionControl } from './run-capability-execution-control';
+import {
+  assignedRunCommandFeedback,
+  assignedRunCommandStatus,
+  isRunCommandPending,
+} from './assigned-run-command-presentation';
 
 interface AssignedRunWorkspaceProps {
   readonly tenantId: string;
@@ -31,7 +33,8 @@ interface AssignedRunWorkspaceProps {
  * view's detail gate without discarding retry intent or affecting other readers.
  * Terminal detail may remain selected
  * after it leaves active discovery, but only a fresh exact-run read permits it.
- * This snapshot workspace grants neither an exclusive lease nor execution power.
+ * Backend-authorized commands are separately confirmed; inspection itself grants
+ * neither an exclusive lease nor execution power.
  * Composition receives focused mode directly from the mounted workflow, not a
  * visibility callback. The app owns shell chrome; this feature owns domain panes
  * and the display-only presence/inspection toolbar.
@@ -56,39 +59,6 @@ function TenantAssignedRunWorkspace({
   const { assigned, detail, selectedRunId } = workflow;
   const isReadingAssigned =
     assigned.phase === 'pending' || workflow.isBlockingDisclosure;
-  const handoverState = workflow.handover.state;
-  const approvalState = workflow.approval.state;
-  const proofState = workflow.proofFinalization.state;
-  const proofFeedback =
-    proofState.phase === 'idle' ? undefined : (
-      <RunProofFinalizationFeedback
-        state={proofState}
-        signInHref={signInHref}
-        onRetry={workflow.proofFinalization.retry}
-        onRecheck={workflow.recoverProofFinalization}
-        onLeave={workflow.closeRun}
-      />
-    );
-  const approvalFeedback =
-    approvalState.phase === 'idle' ? undefined : (
-      <RunApprovalFeedback
-        state={approvalState}
-        signInHref={signInHref}
-        onRetry={workflow.approval.retry}
-        onRecheck={workflow.recoverApproval}
-        onLeave={workflow.closeRun}
-      />
-    );
-  const handoverFeedback =
-    handoverState.phase === 'idle' ? undefined : (
-      <AssignedRunHandoverFeedback
-        state={handoverState}
-        signInHref={signInHref}
-        onRetry={workflow.handover.retry}
-        onRecheck={workflow.recoverHandover}
-        onLeave={workflow.closeRun}
-      />
-    );
 
   function handleAssignedRecheck(): void {
     // Discovery controls become disabled or disappear during revalidation.
@@ -106,24 +76,7 @@ function TenantAssignedRunWorkspace({
 
   return renderWorkspace({
     mode: 'focused',
-    statusLabel:
-      proofState.phase === 'submitting'
-        ? 'Proof acceptance pending'
-        : proofState.phase === 'failed'
-          ? 'Proof acceptance result unavailable'
-          : approvalState.phase === 'submitting'
-            ? 'Approval decision pending'
-            : approvalState.phase === 'failed'
-              ? 'Approval result unavailable'
-              : handoverState.phase === 'submitting'
-                ? 'Handover pending'
-                : handoverState.phase === 'candidate-failed'
-                  ? 'Recipient access unavailable'
-                  : handoverState.phase === 'failed'
-                    ? 'Handover result unavailable'
-                    : assignedRunSnapshotStatus(
-                        detail.phase === 'ready' ? detail.data : undefined,
-                      ),
+    statusLabel: assignedRunCommandStatus(workflow),
     toolbar: (
       <AssignedRunPresence
         presence={presence}
@@ -131,11 +84,7 @@ function TenantAssignedRunWorkspace({
         hasSelectedRun={selectedRunId !== null}
         onRecheck={handleAssignedRecheck}
         onClose={workflow.closeRun}
-        isCommandPending={
-          proofState.phase === 'submitting' ||
-          handoverState.phase === 'submitting' ||
-          approvalState.phase === 'submitting'
-        }
+        isCommandPending={isRunCommandPending(workflow)}
         handoverControl={
           detail.phase === 'ready' ? (
             <RunSupervisorHandover
@@ -177,10 +126,19 @@ function TenantAssignedRunWorkspace({
             selectedRunId={selectedRunId}
             signInHref={signInHref}
             heading={workflow.heading}
-            commandFeedback={
-              proofFeedback ?? approvalFeedback ?? handoverFeedback
-            }
+            commandFeedback={assignedRunCommandFeedback(workflow, signInHref)}
             isBlockingDisclosure={workflow.isBlockingDisclosure}
+            executionControl={
+              detail.phase === 'ready' ? (
+                <RunCapabilityExecutionControl
+                  key={`${detail.data.runId}:${detail.data.supervisionRevision}:${detail.data.stateVersion}:${detail.data.approvalReview?.decision?.decisionId}`}
+                  tenantId={tenantId}
+                  run={detail.data}
+                  onConfirm={workflow.execution.submit}
+                  onAccessFailure={workflow.execution.rejectReview}
+                />
+              ) : undefined
+            }
             approvalControl={
               detail.phase === 'ready' ? (
                 <RunApprovalCard

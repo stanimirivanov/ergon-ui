@@ -13,8 +13,9 @@ current state, sanitized terminal execution measurements and ordered recorded
 transitions in a separate
 three-pane Console with confirmed current-supervisor handover, exact human
 approval prerequisites, pinned binding/source inspection and confirmed exact proof
-acceptance with verified case closure. React Hook Form owns confirmation fields.
-It has no connector execution action,
+acceptance with verified case closure, and approved pinned-capability execution
+with explicit same-reservation recovery. React Hook Form owns confirmation fields.
+It has no general steering,
 live trace, lease, logout flow, Motion animation,
 requester app, or native app.
 
@@ -175,6 +176,27 @@ keyboard/narrow source inspection, terminal discovery, failed/held rechecks and
 malformed attribution. No new cache, package or dependency edge is added. See
 [ADR 0033](../decisions/0033-inspect-outcome-verification-and-accepted-proof.md).
 
+## Pinned capability execution
+
+The assigned Console now explicitly reviews, confirms and recovers the exact
+approved pinned action through Ergon PR #164's merged browser contract. Fresh
+eligibility remains RTK-owned; acknowledgement and immutable intent reuse the
+existing command disclosure barrier. Admitted identities acknowledge only;
+retrying an unadmitted identity may first admit the original confirmed intent.
+New recovery attempts retain the original command/provider reservation and need
+fresh original-actor/current-supervisor/resolver gates. Receipt-only projection
+repair does not repeat connector I/O. Successful execution reaches VERIFYING,
+not proof acceptance or closure. The thirteenth synthetic guide has 20 steps,
+including acknowledgement/cancellation, narrow keyboard interaction, stale intent,
+lost acknowledgement, explicit recovery and pending/denied revalidation. See
+[ADR 0035](../decisions/0035-confirm-capability-execution-and-recovery.md).
+
+Execution defaults off under `ERGON_RUN_SUPERVISOR_EXECUTION_ENABLED`; backend
+schema/code must be deployed first. No real-provider, live session-to-database
+execution or production operator recovery is established by the synthetic guide.
+Incoming supervisors cannot adopt another actor's command. Navigation can discard
+local replay intent without undoing admitted effects.
+
 ## Deliberate limits
 
 - OIDC client credentials and provider tokens remain entirely server-side.
@@ -211,8 +233,9 @@ malformed attribution. No new cache, package or dependency edge is added. See
   readers are unsafe after transfer; disable new commands and recover forward.
 - Backend browser approvals default off until its additive schema/backend is
   deployed. The browser cannot create/extend requests, provision authority,
-  substitute resolver evidence for requester scope, withdraw a response, derive
-  grants or invoke/advance a run. Earlier servers show unsupported approval review.
+  substitute resolver evidence for requester scope or withdraw a response. An
+  approval decision alone cannot derive grants or invoke/advance a run; execution
+  uses its separate reviewed command. Earlier servers show unsupported approval review.
 - No requester, widget, or native placeholder has been created.
 - React Hook Form owns the handover form; Motion remains deferred until a behavior needs it.
 

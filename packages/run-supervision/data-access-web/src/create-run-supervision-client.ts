@@ -13,6 +13,8 @@ import type { RunApprovalClient } from './approval-contracts';
 import { createRunApprovalClient } from './create-run-approval-client';
 import { createRunProofFinalizationClient } from './create-run-proof-finalization-client';
 import type { RunProofFinalizationClient } from './proof-finalization-contracts';
+import type { RunExecutionClient } from './execution-command-contracts';
+import { createRunExecutionClient } from './create-run-execution-client';
 import {
   decodeAssignedRunConsole,
   decodeAssignedRunPage,
@@ -28,16 +30,18 @@ export interface RunSupervisionClientOptions {
 }
 
 /**
- * Creates same-origin reads and confirmed supervision/approval commands.
+ * Creates same-origin reads and confirmed supervision, approval, proof and execution commands.
  *
  * Each attempt includes body decoding in its deadline. Transport, timeout, and
  * generic 5xx failures retry once; disabled authentication and permanent failures
  * do not. Caller cancellation interrupts fetch/body work and returns cancellation.
  * Raw causes never enter Redux; unexpected Effect defects still reject.
- * Candidate reads use the same bounded retry policy. Both command kinds acquire
+ * Candidate and execution-review reads use the same bounded retry policy. Commands acquire
  * fresh session CSRF and never retry automatically; explicit replay retains the
  * exact tuple and acknowledges historical feedback, not present ownership,
- * execution authorization or a second human response.
+ * current execution authority or a second human response. An admitted execution
+ * identity only acknowledges status; an unadmitted one may first admit its original
+ * intent. Additional recovery requires a distinct explicitly confirmed attempt.
  *
  * @throws RangeError when the configured deadline is not positive and finite.
  */
@@ -47,7 +51,8 @@ export function createRunSupervisionClient({
 }: RunSupervisionClientOptions): RunSupervisionClient &
   RunSupervisorHandoverClient &
   RunApprovalClient &
-  RunProofFinalizationClient {
+  RunProofFinalizationClient &
+  RunExecutionClient {
   if (!Number.isFinite(requestTimeoutMs) || requestTimeoutMs <= 0) {
     throw new RangeError('Run supervision timeout must be positive and finite');
   }
@@ -55,6 +60,7 @@ export function createRunSupervisionClient({
     ...createRunHandoverClient({ fetch, requestTimeoutMs }),
     ...createRunApprovalClient({ fetch, requestTimeoutMs }),
     ...createRunProofFinalizationClient({ fetch, requestTimeoutMs }),
+    ...createRunExecutionClient({ fetch, requestTimeoutMs }),
     listAssigned: async (query, signal): Promise<AssignedRunListResult> => {
       if (!isValidListQuery(query))
         return { ok: false, error: { kind: 'invalid-page' } };

@@ -16,8 +16,11 @@ import {
 import { useRunSupervisorHandover } from './use-run-supervisor-handover';
 import { useRunApprovalDecision } from './use-run-approval-decision';
 import { useRunProofFinalization } from './use-run-proof-finalization';
+import { useRunCapabilityExecution } from './use-run-capability-execution';
 
-interface AssignedRunWorkflow {
+export interface AssignedRunWorkflow {
+  readonly execution: ReturnType<typeof useRunCapabilityExecution>;
+  readonly recoverExecution: () => void;
   readonly proofFinalization: ReturnType<typeof useRunProofFinalization>;
   readonly recoverProofFinalization: () => void;
   readonly approval: ReturnType<typeof useRunApprovalDecision>;
@@ -66,10 +69,15 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     heading,
     onSuccess: afterProofFinalization,
   });
+  const execution = useRunCapabilityExecution({
+    heading,
+    onSuccess: afterProofFinalization,
+  });
   const isBlockingDisclosure =
     handover.isBlockingDisclosure ||
     approval.isBlockingDisclosure ||
-    proofFinalization.isBlockingDisclosure;
+    proofFinalization.isBlockingDisclosure ||
+    execution.isBlockingDisclosure;
   const cursor = cursors.at(-1);
   const assigned = useAssignedRunDiscovery(
     isBlockingDisclosure
@@ -94,20 +102,58 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   }, [selectedRunId, detail.phase]);
 
   return {
-    proofFinalization,
+    execution: {
+      ...execution,
+      submit: (intent) => {
+        handover.clear();
+        approval.clear();
+        proofFinalization.clear();
+        execution.submit(intent);
+      },
+    },
+    recoverExecution: () => {
+      heading.current?.focus();
+      execution.clear();
+      detail.recheck();
+    },
+    proofFinalization: {
+      ...proofFinalization,
+      submit: (intent) => {
+        execution.clear();
+        approval.clear();
+        handover.clear();
+        proofFinalization.submit(intent);
+      },
+    },
     recoverProofFinalization: () => {
       heading.current?.focus();
       proofFinalization.clear();
       detail.recheck();
     },
-    approval,
+    approval: {
+      ...approval,
+      submit: (intent) => {
+        execution.clear();
+        proofFinalization.clear();
+        handover.clear();
+        approval.submit(intent);
+      },
+    },
     isBlockingDisclosure,
     recoverApproval: () => {
       heading.current?.focus();
       approval.clear();
       detail.recheck();
     },
-    handover,
+    handover: {
+      ...handover,
+      submit: (intent) => {
+        execution.clear();
+        proofFinalization.clear();
+        approval.clear();
+        handover.submit(intent);
+      },
+    },
     recoverHandover: () => {
       heading.current?.focus();
       handover.clear();
@@ -119,18 +165,21 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     heading,
     hasPrevious: cursors.length > 0,
     selectRun: (runId) => {
+      execution.clear();
       proofFinalization.clear();
       approval.clear();
       handover.clear();
       setSelectedRunId(runId);
     },
     closeRun: () => {
+      execution.clear();
       proofFinalization.clear();
       approval.clear();
       handover.clear();
       setSelectedRunId(null);
     },
     resetTraversal: () => {
+      execution.clear();
       proofFinalization.clear();
       approval.clear();
       handover.clear();

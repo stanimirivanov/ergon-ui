@@ -1,12 +1,13 @@
 import { mkdir, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { workspaceRoot } from '@nx/devkit';
-import type {
-  Browser,
-  BrowserContext,
-  Locator,
-  Page,
-  Video,
+import {
+  expect,
+  type Browser,
+  type BrowserContext,
+  type Locator,
+  type Page,
+  type Video,
 } from '@playwright/test';
 
 import type { GuideChapter, GuideStep } from './guide-chapter';
@@ -25,7 +26,9 @@ function isGuideMode(): boolean {
 /**
  * Executes one asserted Playwright workflow in test-only or narrated mode.
  * The dedicated context is the exact video boundary; aborted runs discard
- * incomplete artifacts. Step IDs and order are checked in both modes.
+ * incomplete artifacts. Step IDs/order and unique visible checkpoint targets
+ * are checked in both modes, so recording cannot discover otherwise-hidden
+ * locator ambiguity after ordinary browser verification has passed.
  */
 export class UserGuideSession {
   readonly page: Page;
@@ -118,6 +121,7 @@ export class UserGuideSession {
     perform: () => Promise<void>,
   ): Promise<void> {
     const step = this.consumeStep(id);
+    await this.verifyTarget(target);
     if (this.recordsGuide) {
       await this.showAnnotation(target, step.title);
       await this.captureStep(step);
@@ -132,6 +136,7 @@ export class UserGuideSession {
 
   async result(id: string, target: Locator): Promise<void> {
     const step = this.consumeStep(id);
+    await this.verifyTarget(target);
     if (!this.recordsGuide) return;
     await this.showAnnotation(target, step.title);
     await this.captureStep(step);
@@ -139,6 +144,11 @@ export class UserGuideSession {
     // eslint-disable-next-line playwright/no-wait-for-timeout
     await this.page.waitForTimeout(1_200);
     await this.clearAnnotation();
+  }
+
+  private async verifyTarget(target: Locator): Promise<void> {
+    await expect(target).toHaveCount(1);
+    await expect(target).toBeVisible();
   }
 
   async finish(): Promise<void> {
