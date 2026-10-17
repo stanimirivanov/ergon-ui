@@ -14,7 +14,8 @@ transitions in a separate
 three-pane Console with confirmed current-supervisor handover, exact human
 approval prerequisites, pinned binding/source inspection and confirmed exact proof
 acceptance with verified case closure, and approved pinned-capability execution
-with explicit same-reservation recovery. React Hook Form owns confirmation fields.
+with explicit same-reservation recovery, plus confirmed failed-run successors
+with fresh access and independently evaluated safeguards. React Hook Form owns confirmation fields.
 It has no general steering,
 live trace, lease, logout flow, Motion animation,
 requester app, or native app.
@@ -197,6 +198,24 @@ execution or production operator recovery is established by the synthetic guide.
 Incoming supervisors cannot adopt another actor's command. Navigation can discard
 local replay intent without undoing admitted effects.
 
+## Failed-run retry
+
+The fourteenth simulated guide records twenty steps for the merged Ergon PR
+#166 retry contract. A fresh review exposes narrow current planning and the
+versioned total-attempt ceiling. Confirmed session-CSRF intent atomically creates
+and assigns only its fresh successor at the backend; the browser neither invokes
+a connector nor inherits approval, grant, receipt or provider key. Uncertainty
+retains the exact command and plan for explicit replay, which may first commit
+the original intent if absent. Success selects only an identity and reacquires
+fresh discovery/detail; a historical acknowledgement cannot restore access after
+handover. Exhaustion offers no third attempt or browser escalation. See
+[ADR 0036](../decisions/0036-confirm-failed-run-retry-and-fresh-successor-access.md).
+
+The backend defaults off under ERGON_RUN_SUPERVISOR_RETRY_ENABLED. Every nullable-
+provenance assignment reader must be upgraded before enabling. After first use,
+disable commands and recover forward, preserving audit. Guide recording remains
+synthetic, not real IdP/provider/database-backed browser verification.
+
 ## Deliberate limits
 
 - OIDC client credentials and provider tokens remain entirely server-side.
@@ -219,8 +238,9 @@ local replay intent without undoing admitted effects.
   edges, a graph, evidence editing, or a source-fetch command.
 - No `/internal/v1` endpoint is treated as a supported browser contract.
 - Assigned-run reads require Ergon core's assigned-only BFF and an immutable
-  assignment created by a separately authorized machine integration. This UI
-  cannot create or rewrite that initial assignment. Current supervisors can
+  assignment created by a separately authorized machine integration or by the
+  approved atomic fresh-successor retry boundary. This UI cannot generally
+  assign existing runs or rewrite their initial assignment. Current supervisors can
   explicitly hand over current supervision when the backend rollout flag is
   enabled. It has no automatic polling or
   continuous revocation guarantee. The active-run Console receives pinned

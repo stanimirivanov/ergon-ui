@@ -142,12 +142,15 @@ leave the active list while its selected, still-authorized detail remains
 available. Closing the view evicts unused detail and reopening rechecks it.
 An empty list and absent detail are non-disclosing, not explanations of current
 authority. The backend must already expose the assigned-only BFF and a trusted
-machine integration must have created the immutable assignment.
+machine integration or the approved atomic successor-retry command must have
+created the immutable assignment.
 
-The active-run projection contains no case evidence, execution-event trace,
-approval decision, lease, measured cost/latency, or proof checks. The Console
-labels these limitations rather than recreating the concept image with
-fictional operational facts. Recheck is manual; there is no live polling.
+The current protected projection and separately confirmed commands are indexed
+in [current state](../../docs/development/current-state.md). A failed-run retry
+selects only the acknowledged successor ID, then obtains fresh protected facts
+with independently evaluated requirements. The receipt is not current access,
+execution or case closure. No general lease, live multi-step trace or measured
+cost is inferred; recheck is manual rather than automatic polling.
 
 Local Vite development proxies `/bff`, `/oauth2`, and `/login/oauth2` to
 `http://localhost:8090`. Override the target with the server-side

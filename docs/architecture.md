@@ -104,6 +104,15 @@ because this slice has no separate platform-neutral client policy.
 
 ## State ownership
 
+Failed-run retry uses a fresh private RTK review and the existing committed
+command barrier. Data access validates exact plan/budget/receipt coordinates;
+the feature owns acknowledged confirmation, immutable intent and historical
+feedback. Receipt success selects only the successor ID and opens fresh
+discovery/detail gates; it never copies predecessor facts or confers current
+successor access. Execution requirements are evaluated independently. No new
+project, dependency edge or cache is added. See
+[ADR 0036](decisions/0036-confirm-failed-run-retry-and-fresh-successor-access.md).
+
 Execution review is an explicitly acquired private RTK resource in the existing
 run-supervision API, not a Console copy or a lasting authorization token.
 Data access owns exact HTTP/identity/status decoding, invocation-local CSRF and

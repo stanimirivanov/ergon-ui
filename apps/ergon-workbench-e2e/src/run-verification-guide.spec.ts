@@ -103,6 +103,16 @@ test(
         await expect
           .poll(() => dialog.evaluate((element) => element.scrollTop))
           .toBeGreaterThan(0);
+        // Native keyboard scrolling can animate even with reduced motion.
+        // Finish End before Home: observing one moved pixel races two gestures.
+        await expect
+          .poll(() =>
+            dialog.evaluate(
+              (element) =>
+                element.scrollHeight - element.clientHeight - element.scrollTop,
+            ),
+          )
+          .toBe(0);
         await page.keyboard.press('Home');
         await expect
           .poll(() => dialog.evaluate((element) => element.scrollTop))

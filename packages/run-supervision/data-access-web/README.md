@@ -172,6 +172,20 @@ result invalidates related resources because even a lost acknowledgement may
 follow an effect. Cache-boundary defects remain cause-free. See
 [ADR 0035](../../../docs/decisions/0035-confirm-capability-execution-and-recovery.md).
 
+## Failed-run retry
+
+`getRetryReview`, `retryRun`, `useRunRetryReview` and `useRetryFailedRunMutation`
+consume the separately enabled browser retry contract. Review is an advisory,
+fresh RTK resource, not a grant or a retained feature snapshot. Decoding checks
+rollout/eligibility parity, total-attempt budget, exact planning coordinates,
+browser-safe revisions and receipt attribution; private extras are stripped.
+The local expected attempt validates the acknowledgement and is never sent as
+a server-selected field. Commands use invocation-local CSRF under one deadline
+and never retry automatically. Every result invalidates related observations,
+including uncertain acknowledgements. Historical replay may first commit absent
+original intent and never restores successor access. See
+[ADR 0036](../../../docs/decisions/0036-confirm-failed-run-retry-and-fresh-successor-access.md).
+
 ## Verification
 
 ```powershell

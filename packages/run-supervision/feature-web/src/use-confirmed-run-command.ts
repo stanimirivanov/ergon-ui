@@ -27,7 +27,7 @@ export function useConfirmedRunCommand<C, R, F>({
   readonly send: (command: C) => MutationRequest<R>;
   readonly normalize: (failure: unknown) => F;
   readonly heading: RefObject<HTMLHeadingElement | null>;
-  readonly onSuccess: () => void;
+  readonly onSuccess: (receipt: R) => void;
 }): {
   readonly state: ConfirmedRunCommandState<C, R, F>;
   readonly isBlockingDisclosure: boolean;
@@ -53,7 +53,7 @@ export function useConfirmedRunCommand<C, R, F>({
         if (!active) return;
         if (result.data !== undefined) {
           setState({ phase: 'succeeded', receipt: result.data });
-          onSuccess();
+          onSuccess(result.data);
         } else
           setState({
             phase: 'failed',

@@ -6,7 +6,7 @@ Ergon UI is the browser workspace for Ergon's evidence-led resolution
 experiences. The repository contains the resolver workbench, a typed
 confidential-BFF boundary, a human follow-up inbox with CSRF-protected claiming,
 an active claimed-work view, an assigned-run snapshot Console, and a web-only UI package. The requester
-application, React Native clients, forms, and animation enter only with a slice
+application, React Native clients, and animation enter only with a slice
 that uses them.
 
 ## Current status
@@ -29,8 +29,9 @@ The first foundation provides:
 - lazy, server-authorized case context for owned follow-ups, including the
   pinned resolution contract, escalated run, bounded observation evidence,
   failed connector execution, and exhausted retry decision;
-- assigned-only active-run discovery and a read-only three-pane Console for
-  pinned execution policy and current state, with fail-closed explicit recheck;
+- assigned-only discovery and a three-pane Console with protected inspection,
+  separately confirmed execution/recovery, proof and fresh-run retry; each
+  acknowledged successor still requires fresh access checks;
 - Vitest component tests and a Chromium Playwright smoke path;
 - [local executable guides](apps/ergon-workbench-e2e/README.md) for workbench
   access states, shared-inbox navigation, follow-up handling, owned-context
