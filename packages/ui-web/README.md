@@ -45,7 +45,11 @@ FocusScope is a pinned MIT DOM dependency; its automatic focus is prevented on
 mount/unmount, including deferred cleanup, so it cannot undo explicit restoration
 or an enclosing workflow's newer focus. Backward Tab from the static title enters
 the same control loop. No portal discards the app's inherited theme tokens.
-Unit doubles prove lifecycle only; Chromium proves actual inertness, keyboard
+Unmodified Home/End while the static title is focused scroll the dialog to its
+start/end instantly without moving focus. The primitive owns these endpoints
+because native key routing can leave a long modal scrolled at the bottom.
+Modified keys and descendant form controls retain their native semantics.
+Unit doubles prove lifecycle and key dispatch only; Chromium proves actual inertness, keyboard
 containment, long-content scrolling and narrow reflow. See
 [ADR 0027](../../docs/decisions/0027-own-inspection-modal-lifecycle-in-ui-primitives.md).
 

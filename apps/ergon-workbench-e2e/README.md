@@ -239,7 +239,10 @@ evidence belongs to Ergon's PostgreSQL tests.
 ## Failure handling
 
 A failed browser scenario removes its incomplete chapter directory and retains
-the normal Playwright failure artifacts. The assembler runs only after all
+the normal Playwright failure artifacts. CI uploads them from the config-relative
+`apps/ergon-workbench-e2e/test-output/playwright` directory, not a similarly named
+repository-root directory. The workflow regression derives this path from the
+installed Nx preset. The assembler runs only after all
 tagged scenarios pass. The guide scripts do not start, reset, or mutate a
 shared database. A live guide environment remains out of scope. Both the
 review artifact and Pages output have the same synthetic trust boundary as

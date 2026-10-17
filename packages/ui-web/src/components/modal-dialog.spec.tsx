@@ -219,6 +219,91 @@ describe('ModalDialog', () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    ['Home', 0],
+    ['End', 1700],
+  ] as const)(
+    'scrolls the title keyboard viewport to %s without moving focus',
+    (key, top) => {
+      render(
+        <ModalDialog
+          id="inspection"
+          title="Inspection"
+          dismissLabel="Close inspection"
+          returnFocusRef={createRef()}
+          onDismiss={vi.fn()}
+        >
+          <p>Long inspection content</p>
+        </ModalDialog>,
+      );
+      const dialog = screen.getByRole('dialog');
+      Object.defineProperties(dialog, {
+        scrollHeight: { value: 2000 },
+        clientHeight: { value: 300 },
+        scrollTo: { value: vi.fn() },
+      });
+      const title = within(dialog).getByRole('heading', { name: 'Inspection' });
+      const event = new KeyboardEvent('keydown', {
+        key,
+        bubbles: true,
+        cancelable: true,
+      });
+      fireEvent(title, event);
+      expect(event.defaultPrevented).toBe(true);
+      expect(dialog.scrollTo).toHaveBeenCalledWith({
+        top,
+        behavior: 'instant',
+      });
+      expect(document.activeElement).toBe(title);
+    },
+  );
+
+  it('preserves modified title keys and native field navigation', () => {
+    render(
+      <ModalDialog
+        id="inspection"
+        title="Inspection"
+        dismissLabel="Close inspection"
+        returnFocusRef={createRef()}
+        onDismiss={vi.fn()}
+      >
+        <label>
+          Operator note
+          <input defaultValue="Retain native text navigation" />
+        </label>
+      </ModalDialog>,
+    );
+    const dialog = screen.getByRole('dialog');
+    const scrollTo = vi.fn();
+    Object.defineProperty(dialog, 'scrollTo', { value: scrollTo });
+    const title = within(dialog).getByRole('heading', { name: 'Inspection' });
+    for (const key of ['Home', 'End']) {
+      for (const modifier of ['shiftKey', 'altKey', 'ctrlKey', 'metaKey']) {
+        const event = new KeyboardEvent('keydown', {
+          key,
+          [modifier]: true,
+          bubbles: true,
+          cancelable: true,
+        });
+        fireEvent(title, event);
+        expect(event.defaultPrevented).toBe(false);
+      }
+    }
+    const field = within(dialog).getByRole('textbox', {
+      name: 'Operator note',
+    });
+    for (const key of ['Home', 'End']) {
+      const event = new KeyboardEvent('keydown', {
+        key,
+        bubbles: true,
+        cancelable: true,
+      });
+      fireEvent(field, event);
+      expect(event.defaultPrevented).toBe(false);
+    }
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
   it('loops from the static title and first/last controls without delayed return focus', () => {
     vi.useFakeTimers();
     const target = createRef<HTMLButtonElement>();

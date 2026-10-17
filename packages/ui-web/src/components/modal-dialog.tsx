@@ -2,6 +2,7 @@ import { FocusScope } from '@radix-ui/react-focus-scope';
 import {
   useLayoutEffect,
   useRef,
+  type KeyboardEvent,
   type ReactElement,
   type ReactNode,
   type RefObject,
@@ -28,6 +29,8 @@ interface ModalDialogProps {
  * closes the keyboard loop without allowing Tab to visit browser chrome.
  * This primitive owns naming, initial title focus, Escape/close-button dismissal,
  * viewport placement and cleanup. Backdrop clicks do not dismiss the inspection.
+ * Unmodified Home/End on its static title scroll this viewport instantly without
+ * moving focus. Descendant controls keep their native key semantics.
  *
  * Explicit dismissal closes the native dialog before synchronously restoring
  * the live return target. Unmount closes it without invoking onDismiss or custom
@@ -59,6 +62,43 @@ export function ModalDialog({
       if (element.open) element.close();
     };
   }, []);
+
+  function handleTitleKeyDown(event: KeyboardEvent<HTMLHeadingElement>): void {
+    if (
+      event.key === 'Tab' &&
+      event.shiftKey &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey
+    ) {
+      // The title is outside sequential tab order. Enter the first control so
+      // FocusScope wraps this same backward event to its last candidate.
+      closeButton.current?.focus({ preventScroll: true });
+      return;
+    }
+    if (
+      event.defaultPrevented ||
+      event.shiftKey ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      (event.key !== 'Home' && event.key !== 'End')
+    )
+      return;
+    const viewport = dialog.current;
+    if (viewport === null) return;
+    // Native Home can leave a long dialog at its bottom even while the offscreen
+    // title stays focused. Own the intended viewport, not browser scroll routing.
+    // Instant endpoints also avoid OS keyboard animation and respect reduced motion.
+    event.preventDefault();
+    viewport.scrollTo({
+      top:
+        event.key === 'Home'
+          ? 0
+          : Math.max(0, viewport.scrollHeight - viewport.clientHeight),
+      behavior: 'instant',
+    });
+  }
 
   function dismiss(): void {
     const element = dialog.current;
@@ -97,20 +137,7 @@ export function ModalDialog({
             ref={heading}
             id={`${id}-heading`}
             tabIndex={-1}
-            onKeyDown={(event) => {
-              if (
-                event.key === 'Tab' &&
-                event.shiftKey &&
-                !event.altKey &&
-                !event.ctrlKey &&
-                !event.metaKey
-              ) {
-                // The static title is outside the sequential tab order. Anchor
-                // backward traversal at the first control so FocusScope wraps
-                // this same event to its last candidate, rather than browser chrome.
-                closeButton.current?.focus({ preventScroll: true });
-              }
-            }}
+            onKeyDown={handleTitleKeyDown}
             className="text-lg font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong"
           >
             {title}

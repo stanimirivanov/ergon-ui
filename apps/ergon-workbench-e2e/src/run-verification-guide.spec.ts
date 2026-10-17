@@ -103,8 +103,8 @@ test(
         await expect
           .poll(() => dialog.evaluate((element) => element.scrollTop))
           .toBeGreaterThan(0);
-        // Native keyboard scrolling can animate even with reduced motion.
-        // Finish End before Home: observing one moved pixel races two gestures.
+        // The focused static title owns both endpoints of this modal viewport;
+        // neither a background page nor an offscreen focus target may retarget Home.
         await expect
           .poll(() =>
             dialog.evaluate(
@@ -113,10 +113,12 @@ test(
             ),
           )
           .toBe(0);
+        await expect(title).toBeFocused();
         await page.keyboard.press('Home');
         await expect
           .poll(() => dialog.evaluate((element) => element.scrollTop))
           .toBe(0);
+        await expect(title).toBeFocused();
         expect(
           await dialog.evaluate(
             (element) => element.scrollWidth <= element.clientWidth,

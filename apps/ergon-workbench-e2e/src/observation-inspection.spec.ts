@@ -66,14 +66,31 @@ test('keeps long untrusted comparison content inert, keyboard-contained and read
         (element) => element.scrollHeight > element.clientHeight,
       ),
     ).toBe(true);
-    await page.keyboard.press('End');
-    await expect
-      .poll(() => dialog.evaluate((element) => element.scrollTop))
-      .toBeGreaterThan(0);
-    await page.keyboard.press('Home');
-    await expect
-      .poll(() => dialog.evaluate((element) => element.scrollTop))
-      .toBe(0);
+    for (const cycle of [1, 2, 3]) {
+      await test.step(`Title keyboard viewport endpoints, cycle ${cycle}`, async () => {
+        // Rejected background focus must not retarget the title's scroll keys.
+        await compare.evaluate((element) => element.focus());
+        await expect(title).toBeFocused();
+        await page.keyboard.press('End');
+        await expect
+          .poll(() => dialog.evaluate((element) => element.scrollTop))
+          .toBeGreaterThan(0);
+        await expect
+          .poll(() =>
+            dialog.evaluate(
+              (element) =>
+                element.scrollHeight - element.clientHeight - element.scrollTop,
+            ),
+          )
+          .toBe(0);
+        await expect(title).toBeFocused();
+        await page.keyboard.press('Home');
+        await expect
+          .poll(() => dialog.evaluate((element) => element.scrollTop))
+          .toBe(0);
+        await expect(title).toBeFocused();
+      });
+    }
     await page.keyboard.press('Tab');
     await expect(close).toBeFocused();
     await page.keyboard.press('Tab');
