@@ -10,6 +10,7 @@ import { RunSupervisorHandover } from './run-supervisor-handover';
 import { RunApprovalCard } from './run-approval-card';
 import { RunProofFinalizationControl } from './run-proof-finalization-control';
 import { RunCapabilityExecutionControl } from './run-capability-execution-control';
+import { RunRetryControl } from './run-retry-control';
 import {
   assignedRunCommandFeedback,
   assignedRunCommandStatus,
@@ -128,6 +129,17 @@ function TenantAssignedRunWorkspace({
             heading={workflow.heading}
             commandFeedback={assignedRunCommandFeedback(workflow, signInHref)}
             isBlockingDisclosure={workflow.isBlockingDisclosure}
+            retryControl={
+              detail.phase === 'ready' ? (
+                <RunRetryControl
+                  key={`${detail.data.runId}:${detail.data.supervisionRevision}:${detail.data.stateVersion}`}
+                  tenantId={tenantId}
+                  run={detail.data}
+                  onConfirm={workflow.retryRun.submit}
+                  onAccessFailure={workflow.retryRun.rejectReview}
+                />
+              ) : undefined
+            }
             executionControl={
               detail.phase === 'ready' ? (
                 <RunCapabilityExecutionControl

@@ -5,6 +5,7 @@ import {
   type AssignedRunCursor,
   type AssignedRunPage,
   type AssignedRunRead,
+  type RunRetryReceipt,
 } from '@ergon/run-supervision-data-access-web';
 import {
   useCallback,
@@ -17,8 +18,11 @@ import { useRunSupervisorHandover } from './use-run-supervisor-handover';
 import { useRunApprovalDecision } from './use-run-approval-decision';
 import { useRunProofFinalization } from './use-run-proof-finalization';
 import { useRunCapabilityExecution } from './use-run-capability-execution';
+import { useRunRetry } from './use-run-retry';
 
 export interface AssignedRunWorkflow {
+  readonly retryRun: ReturnType<typeof useRunRetry>;
+  readonly recoverRetry: () => void;
   readonly execution: ReturnType<typeof useRunCapabilityExecution>;
   readonly recoverExecution: () => void;
   readonly proofFinalization: ReturnType<typeof useRunProofFinalization>;
@@ -73,7 +77,15 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     heading,
     onSuccess: afterProofFinalization,
   });
+  const afterRetry = useCallback((receipt: RunRetryReceipt) => {
+    // Select only historical identity, never successor data or access. Both
+    // RTK gates reopen freshly, including when discovery no longer lists it.
+    setSelectedRunId(receipt.successorRunId);
+    setCursors([]);
+  }, []);
+  const retryRun = useRunRetry({ heading, onSuccess: afterRetry });
   const isBlockingDisclosure =
+    retryRun.isBlockingDisclosure ||
     handover.isBlockingDisclosure ||
     approval.isBlockingDisclosure ||
     proofFinalization.isBlockingDisclosure ||
@@ -102,9 +114,25 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   }, [selectedRunId, detail.phase]);
 
   return {
+    retryRun: {
+      ...retryRun,
+      submit: (intent) => {
+        execution.clear();
+        proofFinalization.clear();
+        approval.clear();
+        handover.clear();
+        retryRun.submit(intent);
+      },
+    },
+    recoverRetry: () => {
+      heading.current?.focus();
+      retryRun.clear();
+      detail.recheck();
+    },
     execution: {
       ...execution,
       submit: (intent) => {
+        retryRun.clear();
         handover.clear();
         approval.clear();
         proofFinalization.clear();
@@ -119,6 +147,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     proofFinalization: {
       ...proofFinalization,
       submit: (intent) => {
+        retryRun.clear();
         execution.clear();
         approval.clear();
         handover.clear();
@@ -133,6 +162,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     approval: {
       ...approval,
       submit: (intent) => {
+        retryRun.clear();
         execution.clear();
         proofFinalization.clear();
         handover.clear();
@@ -148,6 +178,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     handover: {
       ...handover,
       submit: (intent) => {
+        retryRun.clear();
         execution.clear();
         proofFinalization.clear();
         approval.clear();
@@ -165,6 +196,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     heading,
     hasPrevious: cursors.length > 0,
     selectRun: (runId) => {
+      retryRun.clear();
       execution.clear();
       proofFinalization.clear();
       approval.clear();
@@ -172,6 +204,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
       setSelectedRunId(runId);
     },
     closeRun: () => {
+      retryRun.clear();
       execution.clear();
       proofFinalization.clear();
       approval.clear();
@@ -179,6 +212,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
       setSelectedRunId(null);
     },
     resetTraversal: () => {
+      retryRun.clear();
       execution.clear();
       proofFinalization.clear();
       approval.clear();

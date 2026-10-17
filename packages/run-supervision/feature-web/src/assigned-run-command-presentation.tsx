@@ -5,14 +5,34 @@ import { RunApprovalFeedback } from './run-approval-feedback';
 import { RunProofFinalizationFeedback } from './run-proof-finalization-feedback';
 import { RunCapabilityExecutionFeedback } from './run-capability-execution-feedback';
 import { assignedRunSnapshotStatus } from './run-supervision-copy';
+import { RunRetryFeedback } from './run-retry-feedback';
 
 /** Active barriers outrank every historical receipt, including read failures that have no submitted command. No new state owner is introduced. */
 export function assignedRunCommandFeedback(
   workflow: AssignedRunWorkflow,
   signInHref: string,
 ): ReactElement | undefined {
-  const { execution, proofFinalization: proof, approval, handover } = workflow;
+  const {
+    retryRun,
+    execution,
+    proofFinalization: proof,
+    approval,
+    handover,
+  } = workflow;
   const feedback = [
+    {
+      blocking: retryRun.isBlockingDisclosure,
+      content:
+        retryRun.state.phase === 'idle' ? null : (
+          <RunRetryFeedback
+            state={retryRun.state}
+            signInHref={signInHref}
+            onRetry={retryRun.retry}
+            onRecheck={workflow.recoverRetry}
+            onLeave={workflow.closeRun}
+          />
+        ),
+    },
     {
       blocking: execution.isBlockingDisclosure,
       content:
@@ -74,6 +94,9 @@ export function assignedRunCommandFeedback(
 }
 
 const statusLabels: ReadonlyMap<string, string> = new Map([
+  ['retry:submitting', 'Fresh-run retry pending'],
+  ['retry:failed', 'Retry acknowledgement unavailable'],
+  ['retry:review-failed', 'Retry review unavailable'],
   ['execution:submitting', 'Execution acknowledgement pending'],
   ['execution:failed', 'Execution review or acknowledgement unavailable'],
   [
@@ -93,6 +116,7 @@ export function assignedRunCommandStatus(
   workflow: AssignedRunWorkflow,
 ): string {
   const phases = [
+    `retry:${workflow.retryRun.state.phase}`,
     `execution:${workflow.execution.state.phase}`,
     `proof:${workflow.proofFinalization.state.phase}`,
     `approval:${workflow.approval.state.phase}`,
@@ -110,6 +134,7 @@ export function assignedRunCommandStatus(
 
 export function isRunCommandPending(workflow: AssignedRunWorkflow): boolean {
   return [
+    workflow.retryRun.state.phase,
     workflow.execution.state.phase,
     workflow.proofFinalization.state.phase,
     workflow.approval.state.phase,

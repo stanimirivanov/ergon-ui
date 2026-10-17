@@ -82,6 +82,12 @@ This catches locator collisions before expensive recording instead of letting a
 green `pnpm e2e` silently skip the checkpoint's browser contract. Generated book
 content and media still require the full `pnpm guide:generate` gate.
 
+The guide workflow regression derives the failure-diagnostic directory from the
+installed Nx Playwright preset and its config location. Nx output paths are
+config-relative; accepting a matching suffix alone can silently upload no traces.
+The CI artifact must retain the actual output/report directory alongside partial
+guide recordings, without relaxing the generation or publication gate.
+
 The workspace formatting gate uses `nx format:check --all`: all eligible source
 files are checked without Git base/head discovery. Shallow, detached pull-request
 checkouts need no local `main` ref or extra fetch credentials. The repository

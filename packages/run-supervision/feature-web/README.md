@@ -179,6 +179,20 @@ feedback so execution cannot mask later proof/handover feedback. The existing
 modal owns focus/placement; app shell and project edges are unchanged. See
 [ADR 0035](../../../docs/decisions/0035-confirm-capability-execution-and-recovery.md).
 
+## Failed-run retry
+
+The dedicated retry control opens fresh eligibility for ACTION_FAILED at its
+eligible revision. The RHF form shows the current plan, retry policy, total
+ceiling and fresh safeguards; failed or stale review withdraws earlier private
+context. Valid confirmation creates immutable intent and uses the existing
+committed disclosure barrier. Only explicit unchanged replay is offered for
+uncertainty; conflicts require fresh review. Acknowledgement selects just the
+successor identity before fresh discovery/detail gates. No predecessor approval,
+receipt or proof is copied, and historical feedback grants no access after
+handover. Exhaustion offers neither a third attempt nor browser escalation.
+Modal/focus ownership and shell composition are unchanged. See
+[ADR 0036](../../../docs/decisions/0036-confirm-failed-run-retry-and-fresh-successor-access.md).
+
 ## Verification
 
 ```powershell

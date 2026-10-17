@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
+import path from 'node:path';
+import { nxE2EPreset } from '@nx/playwright/preset';
 import { parse as parseYaml } from 'yaml';
 
 const workflowPath = fileURLToPath(
@@ -39,14 +41,24 @@ test('CI reviews every guide run and publishes only validated main artifacts', a
   assert.equal(artifact?.with?.path, 'dist/user-guide');
   assert.equal(artifact.with['if-no-files-found'], 'error');
   assert.match(artifact.with.name, /^simulated-user-guide-/u);
-  assert.ok(
-    steps.some(
-      (step) =>
-        step.uses?.startsWith('actions/upload-artifact@') &&
-        step.if === 'failure()' &&
-        step.with.path.includes('test-output/playwright'),
-    ),
+  const failureArtifact = steps.find(
+    (step) =>
+      step.uses?.startsWith('actions/upload-artifact@') &&
+      step.if === 'failure()',
   );
+  // Nx paths are relative to the Playwright config, not the repository root.
+  // Derive the uploaded directory from the installed preset that config uses.
+  const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url));
+  const configDirectory = path.join(repositoryRoot, 'apps/ergon-workbench-e2e');
+  const { outputDir } = nxE2EPreset(configDirectory, { testDir: './src' });
+  const diagnosticDirectory = path
+    .relative(repositoryRoot, path.resolve(configDirectory, outputDir, '..'))
+    .split(path.sep)
+    .join('/');
+  assert.deepEqual(failureArtifact?.with?.path.trim().split(/\r?\n/u), [
+    'dist/user-guide',
+    diagnosticDirectory,
+  ]);
   const mainOnly =
     "${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}";
   const pagesArtifact = steps.find((step) =>

@@ -4,10 +4,10 @@
 
 The tagged access-state, inbox-navigation, follow-up, owned-context,
 claim-recovery, release-recovery, run-supervision, handover, approval,
-pinned-evidence, outcome-verification, proof-finalization and execution/recovery scenarios
+pinned-evidence, outcome-verification, proof-finalization, execution/recovery and failed-run retry scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all thirteen with
-annotations, screenshots, and video, then assembles a local thirteen-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all fourteen with
+annotations, screenshots, and video, then assembles a local fourteen-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -65,6 +65,20 @@ facts. Separate browser checks cover unsupported and denied review without write
 The fixture counts synthetic dispatch checkpoints; it does not prove real provider
 idempotency, authority, PostgreSQL durability or production recovery. Deploy backend
 schema/code before enabling the separate default-off execution flag.
+
+## Failed-run retry walkthrough
+
+The retry chapter has twenty assertion-backed steps: disabled/enabled fresh
+review, exact plan/budget and fresh safeguards, required acknowledgement,
+cancellation, keyboard/320-pixel reflow, stale case planning, held-command
+privacy withdrawal, lost committed acknowledgement, unchanged replay and fresh
+successor access. It also records held/denied successor revalidation, fresh
+access recovery and an exhausted second attempt without a third run or automatic
+escalation. Separate browser checks cover unsupported/denied/malformed review
+and first commitment when the original POST never committed. Fixture counters
+are synthetic protocol checkpoints, not real authorization or transaction proof.
+Deploy Ergon PR #166's schema/readers before enabling its default-off retry flag.
+No guide media or generated book is committed.
 
 ## Publication
 
@@ -225,7 +239,10 @@ evidence belongs to Ergon's PostgreSQL tests.
 ## Failure handling
 
 A failed browser scenario removes its incomplete chapter directory and retains
-the normal Playwright failure artifacts. The assembler runs only after all
+the normal Playwright failure artifacts. CI uploads them from the config-relative
+`apps/ergon-workbench-e2e/test-output/playwright` directory, not a similarly named
+repository-root directory. The workflow regression derives this path from the
+installed Nx preset. The assembler runs only after all
 tagged scenarios pass. The guide scripts do not start, reset, or mutate a
 shared database. A live guide environment remains out of scope. Both the
 review artifact and Pages output have the same synthetic trust boundary as

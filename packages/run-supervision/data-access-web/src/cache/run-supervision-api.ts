@@ -13,6 +13,7 @@ import { normalizeRunHandoverFailure } from '../normalize-run-handover-failure';
 import { normalizeRunApprovalFailure } from '../bff/run-approval-http';
 import { normalizeRunProofFinalizationFailure } from '../bff/run-proof-finalization-http';
 import type { RunExecutionFailure } from '../execution-command-contracts';
+import type { RunRetryFailure } from '../retry-contracts';
 import type {
   RunProofFinalizationClient,
   RunProofFinalizationCommand,
@@ -58,6 +59,7 @@ export const runSupervisionApi = createApi({
     | RunApprovalFailure
     | RunProofFinalizationFailure
     | RunExecutionFailure
+    | RunRetryFailure
   >(),
   tagTypes: ['AssignedRuns', 'RunDetail', 'RunCandidates'],
   endpoints: (build) => ({

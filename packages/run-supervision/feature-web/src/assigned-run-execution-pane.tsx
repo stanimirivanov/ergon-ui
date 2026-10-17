@@ -20,6 +20,7 @@ export function AssignedRunExecutionPane({
   isBlockingDisclosure,
   approvalControl,
   executionControl,
+  retryControl,
 }: {
   readonly detail: AssignedRunRead<AssignedRunConsole>;
   readonly selectedRunId: string | null;
@@ -29,6 +30,7 @@ export function AssignedRunExecutionPane({
   readonly isBlockingDisclosure: boolean;
   readonly approvalControl?: ReactNode;
   readonly executionControl?: ReactNode;
+  readonly retryControl?: ReactNode;
 }): ReactElement {
   function handleDetailRecheck(): void {
     // Recheck and recovery controls disappear when the fresh gate closes; the
@@ -79,6 +81,7 @@ export function AssignedRunExecutionPane({
         <>
           <div className="mt-5">{approvalControl}</div>
           <div className="mt-5">{executionControl}</div>
+          <div className="mt-5">{retryControl}</div>
           <AssignedRunExecutionRecords run={detail.data} />
         </>
       ) : !isBlockingDisclosure ? (

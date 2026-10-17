@@ -94,3 +94,18 @@ export {
   useSubmitRunExecutionMutation,
 } from './cache/run-execution-api';
 export { useRunExecutionReview } from './cache/use-run-execution-review';
+export type {
+  RunRetryPlan,
+  RunRetryReviewQuery,
+  RunRetryReviewReason,
+  RunRetryReview,
+  RunRetryCommand,
+  RunRetryReceipt,
+  RunRetryFailure,
+  RunRetryReviewResult,
+  RunRetryCommandResult,
+  RunRetryClient,
+} from './retry-contracts';
+export { normalizeRunRetryFailure } from './bff/run-retry-http';
+export { runRetryApi, useRetryFailedRunMutation } from './cache/run-retry-api';
+export { useRunRetryReview } from './cache/use-run-retry-review';
