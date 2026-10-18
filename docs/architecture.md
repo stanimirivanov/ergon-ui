@@ -253,6 +253,13 @@ tenant route. It presents the immutable run start, pinned capability policy,
 and latest server-recorded state. Rechecking the selected run refreshes exact
 detail; rechecking assignments refreshes discovery, then rereads selected detail
 after successful discovery. There is no automatic polling or live-monitoring promise.
+Its immediate predecessor control reads only the relationship already disclosed
+by that current run. The feature workflow keeps one ephemeral return identity,
+never a resource copy or inherited authority, and selects either run through the
+existing fresh exact-run gate. Neutral absence stays neutral. Ordinary selection,
+close, reset and tenant change discard the return target; route/storage contracts
+and backend authorization are unchanged. The persistent pane heading owns focus
+while replacing or withholding an attempt. No complete retry tree is inferred.
 Pinned evidence and narrowly selected post-action proof are now supplied;
 multi-step execution remains absent. Human approval review
 is a separate optional member of this same protected resource, not inferred

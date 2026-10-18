@@ -12,6 +12,7 @@ import {
 
 import type { GuideChapter, GuideStep } from './guide-chapter';
 import { installSimulatedGuideNetworkBoundary } from './simulated-guide-network-boundary';
+import { showGuideAnnotation, clearGuideAnnotation } from './guide-annotation';
 
 const guideOutputRoot = path.join(workspaceRoot, 'dist', 'user-guide');
 const guideViewport = { width: 1440, height: 900 } as const;
@@ -123,13 +124,13 @@ export class UserGuideSession {
     const step = this.consumeStep(id);
     await this.verifyTarget(target);
     if (this.recordsGuide) {
-      await this.showAnnotation(target, step.title);
+      await showGuideAnnotation(this.page, target, step.title);
       await this.captureStep(step);
       // The dwell communicates the highlighted control in the recording;
       // assertions, not this delay, synchronize the application state.
       // eslint-disable-next-line playwright/no-wait-for-timeout
       await this.page.waitForTimeout(700);
-      await this.clearAnnotation();
+      await clearGuideAnnotation(this.page);
     }
     await perform();
   }
@@ -138,12 +139,12 @@ export class UserGuideSession {
     const step = this.consumeStep(id);
     await this.verifyTarget(target);
     if (!this.recordsGuide) return;
-    await this.showAnnotation(target, step.title);
+    await showGuideAnnotation(this.page, target, step.title);
     await this.captureStep(step);
     // Deliberate narration dwell, never used to wait for server state.
     // eslint-disable-next-line playwright/no-wait-for-timeout
     await this.page.waitForTimeout(1_200);
-    await this.clearAnnotation();
+    await clearGuideAnnotation(this.page);
   }
 
   private async verifyTarget(target: Locator): Promise<void> {
@@ -217,58 +218,9 @@ export class UserGuideSession {
     this.images.push({ id: step.id, image });
   }
 
-  private async showAnnotation(target: Locator, title: string): Promise<void> {
-    await target.scrollIntoViewIfNeeded();
-    const box = await target.boundingBox();
-    if (box === null) throw new Error('Guide target is not visible.');
-    await this.clearAnnotation();
-    await this.page.evaluate(
-      ({ targetBox, label }) => {
-        if (
-          document.querySelector('[data-ergon-guide-simulation="true"]') ===
-          null
-        ) {
-          const badge = document.createElement('div');
-          badge.dataset['ergonGuideSimulation'] = 'true';
-          badge.textContent = 'SIMULATED DATA';
-          badge.style.cssText =
-            'position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:2147483646;padding:6px 10px;border-radius:7px;background:#f4d99d;color:#33220d;font:800 12px/1.2 system-ui,sans-serif;letter-spacing:.08em;pointer-events:none';
-          (document.querySelector('main') ?? document.body).append(badge);
-        }
-        const layer = document.createElement('div');
-        layer.dataset['ergonGuideAnnotation'] = 'true';
-        layer.style.cssText =
-          'position:fixed;inset:0;pointer-events:none;z-index:2147483647';
-        const highlight = document.createElement('div');
-        highlight.style.cssText =
-          'position:fixed;border:3px solid #d3a234;border-radius:10px;box-shadow:0 0 0 4px rgba(211,162,52,.24)';
-        highlight.style.left = `${Math.max(4, targetBox.x - 4)}px`;
-        highlight.style.top = `${Math.max(4, targetBox.y - 4)}px`;
-        highlight.style.width = `${targetBox.width + 8}px`;
-        highlight.style.height = `${targetBox.height + 8}px`;
-        const note = document.createElement('div');
-        note.textContent = label;
-        note.style.cssText =
-          'position:fixed;max-width:380px;padding:13px 16px;border-radius:10px;background:#193d31;color:white;font:600 16px/1.4 system-ui,sans-serif;box-shadow:0 12px 32px rgba(0,0,0,.25)';
-        note.style.left = `${Math.min(Math.max(12, targetBox.x), window.innerWidth - 400)}px`;
-        note.style.top = `${Math.min(targetBox.y + targetBox.height + 16, window.innerHeight - 90)}px`;
-        layer.append(highlight, note);
-        document.body.append(layer);
-      },
-      { targetBox: box, label: title },
-    );
-  }
-
-  private async clearAnnotation(): Promise<void> {
-    if (this.page.isClosed()) return;
-    await this.page
-      .locator('[data-ergon-guide-annotation="true"]')
-      .evaluateAll((nodes) => nodes.forEach((node) => node.remove()));
-  }
-
   private async closeContext(): Promise<void> {
     if (this.contextClosed) return;
-    await this.clearAnnotation();
+    await clearGuideAnnotation(this.page);
     await this.context.close();
     this.contextClosed = true;
   }

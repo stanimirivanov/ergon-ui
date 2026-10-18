@@ -236,6 +236,21 @@ the recorded guide cover browser behavior, not real IdP/provider/database-backed
 browser certification. See
 [ADR 0037](../decisions/0037-confirm-exhausted-run-escalation-and-fresh-follow-up-access.md).
 
+## Recorded attempt navigation
+
+The assigned Console now exposes the existing immediate predecessor relationship
+in a dedicated attempt-context section. Explicit inspection and one-level return
+retain identities only and acquire fresh independently authorized exact-run reads,
+including terminal runs outside active discovery. Pending/denied/malformed reads
+withhold earlier snapshots; returning cannot restore previous authority. Ordinary
+selection, close, traversal reset and tenant changes discard return intent.
+
+The sixteenth simulated guide records thirteen steps for keyboard/320-pixel
+interaction, terminal detail after empty discovery, neutral denial on either side,
+late response retirement, malformed data and zero commands. Existing backend
+contracts and authorization remain unchanged. No full retry tree, successor search,
+new budget, automatic traversal or live identity/database certification is added.
+
 ## Deliberate limits
 
 - OIDC client credentials and provider tokens remain entirely server-side.

@@ -163,7 +163,14 @@ describe('assigned-run Resolver Console', () => {
     expect(
       screen.queryByRole('button', { name: /authorize|steer|handover/i }),
     ).toBeNull();
-    expect(screen.queryByText(/remaining|elapsed/i)).toBeNull();
+    // A budget disclaimer is not a fabricated lease or elapsed-time value.
+    expect(screen.queryByRole('timer')).toBeNull();
+    expect(
+      screen.queryByText(
+        /(?:^\s*(?:remaining|elapsed)\s*:|\b\d[\d:.\s]*\s*(?:remaining|elapsed)\b)/i,
+      ),
+    ).toBeNull();
+    expect(screen.getByText(/not remaining retry budget/i)).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Verified fact' })).toBeNull();
     expect(screen.getByRole('heading', { name: 'Resolution run' })).toBe(
       document.activeElement,
