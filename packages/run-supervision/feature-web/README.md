@@ -209,6 +209,22 @@ queue discovery and a separate claim decision; no work ID grants private access.
 No third attempt, connector, notification, claim, proof or case closure follows.
 See [ADR 0037](../../../docs/decisions/0037-confirm-exhausted-run-escalation-and-fresh-follow-up-access.md).
 
+## Attempt navigation
+
+The execution pane's dedicated attempt-context section derives the attempt
+number and immediate predecessor identity from the current gated response.
+Inspection is explicit, never a speculative preload or inferred full retry tree.
+`useAssignedRunWorkflow` retains a single local return identity and selects the
+related run through the existing exact-run gate. Pending/failed reads hide both
+earlier snapshots; neutral absence does not reveal why access failed. Returning
+performs another fresh check, even when active discovery no longer lists that run.
+
+Related selection retires command feedback and intent just like ordinary row
+selection. Close, reset, ordinary row selection and tenant replacement discard
+the return target. The persistent execution heading receives focus before the
+invoking control disappears. Shell, route, primitive and data-access contracts
+are unchanged; no new cache, backend policy, package or dependency is needed.
+
 ## Verification
 
 ```powershell

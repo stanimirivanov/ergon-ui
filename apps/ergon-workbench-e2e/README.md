@@ -4,10 +4,11 @@
 
 The tagged access-state, inbox-navigation, follow-up, owned-context,
 claim-recovery, release-recovery, run-supervision, handover, approval,
-pinned-evidence, outcome-verification, proof-finalization, execution/recovery, failed-run retry and exhausted-run escalation scenarios
+pinned-evidence, outcome-verification, proof-finalization, execution/recovery,
+failed-run retry, exhausted-run escalation and predecessor-inspection scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all fifteen with
-annotations, screenshots, and video, then assembles a local fifteen-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all sixteen with
+annotations, screenshots, and video, then assembles a local sixteen-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -250,6 +251,23 @@ containment, 320-pixel reflow, terminal detail after active discovery empties,
 held/denied revalidation, fresh recovery, malformed proof and zero writes. All
 snapshots are synthetic comparisons; actual evaluator/acceptance/authorization
 evidence belongs to Ergon's PostgreSQL tests.
+
+## Attempt navigation walkthrough
+
+The sixteenth chapter has thirteen read-only steps: immediate predecessor
+inspection, keyboard/320-pixel reflow, fresh terminal access after discovery
+empties, neutral predecessor and origin denial, explicit recovery, held response
+retirement, malformed detail and close. Each attempt is independently authorized;
+the return target stores an identity, not a resource snapshot. No command is sent.
+Its producer-owned wire fixture changes only marked synthetic responses, not real
+assignment, OIDC, database or provider behavior. Full retry graphs, budget and
+arbitrary run lookup are excluded.
+
+The consumed annotation helper measures wrapped captions before clamping them
+to viewport gutters. Direct 320/1440-pixel regressions in `guide-checkpoints.spec.ts`
+cover placement, long labels, replacement and cleanup without video recording.
+Denial checkpoints highlight the complete message so the caption does not cover
+its non-disclosure explanation. This affects test-owned guide overlays only.
 
 ## Failure handling
 

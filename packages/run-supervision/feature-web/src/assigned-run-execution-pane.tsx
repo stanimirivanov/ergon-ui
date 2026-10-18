@@ -6,6 +6,7 @@ import { Button } from '@ergon/ui-web';
 import type { ReactElement, ReactNode, RefObject } from 'react';
 
 import { AssignedRunFact } from './assigned-run-fact';
+import { AssignedRunAttemptContext } from './assigned-run-attempt-context';
 import { AssignedRunCapabilityExecution } from './assigned-run-capability-execution';
 import { AssignedRunTransitionHistory } from './assigned-run-transition-history';
 import { AssignedRunMessage } from './assigned-run-message';
@@ -22,6 +23,8 @@ export function AssignedRunExecutionPane({
   executionControl,
   retryControl,
   escalationControl,
+  onInspectPredecessor,
+  onReturnToAttempt,
 }: {
   readonly detail: AssignedRunRead<AssignedRunConsole>;
   readonly selectedRunId: string | null;
@@ -33,6 +36,8 @@ export function AssignedRunExecutionPane({
   readonly executionControl?: ReactNode;
   readonly retryControl?: ReactNode;
   readonly escalationControl?: ReactNode;
+  readonly onInspectPredecessor: () => void;
+  readonly onReturnToAttempt?: () => void;
 }): ReactElement {
   function handleDetailRecheck(): void {
     // Recheck and recovery controls disappear when the fresh gate closes; the
@@ -76,11 +81,33 @@ export function AssignedRunExecutionPane({
           </div>
         ) : null}
       </div>
+      {onReturnToAttempt === undefined ? null : (
+        <div className="mt-5 rounded-md border border-border p-3">
+          <Button
+            type="button"
+            variant="quiet"
+            size="compact"
+            onClick={onReturnToAttempt}
+          >
+            Return to originating attempt
+          </Button>
+          <p className="mt-2 text-xs leading-5 text-ink-muted">
+            Return requests fresh access; it does not restore an earlier
+            snapshot.
+          </p>
+        </div>
+      )}
       {commandFeedback === undefined ? null : (
         <div className="mt-5">{commandFeedback}</div>
       )}
       {detail.phase === 'ready' ? (
         <>
+          <div className="mt-5">
+            <AssignedRunAttemptContext
+              run={detail.data}
+              onInspectPredecessor={onInspectPredecessor}
+            />
+          </div>
           <div className="mt-5">{approvalControl}</div>
           <div className="mt-5">{executionControl}</div>
           <div className="mt-5">{retryControl}</div>

@@ -82,6 +82,13 @@ This catches locator collisions before expensive recording instead of letting a
 green `pnpm e2e` silently skip the checkpoint's browser contract. Generated book
 content and media still require the full `pnpm guide:generate` gate.
 
+Recording captions are measured after wrapping, clamped to viewport gutters and
+placed outside their highlighted target when space permits. The same annotation
+helper is exercised directly in Chromium at 320 and 1440 pixels, including long
+unbroken labels, above/below placement, replacement and cleanup. These tests run
+without recording video; visual review still checks that a checkpoint targets
+the complete relevant message rather than hiding its explanation with a caption.
+
 The guide workflow regression derives the failure-diagnostic directory from the
 installed Nx Playwright preset and its config location. Nx output paths are
 config-relative; accepting a matching suffix alone can silently upload no traces.

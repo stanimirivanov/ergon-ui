@@ -36,6 +36,9 @@ export interface AssignedRunWorkflow {
   readonly handover: ReturnType<typeof useRunSupervisorHandover>;
   readonly recoverHandover: () => void;
   readonly selectedRunId: string | null;
+  readonly canReturnToAttempt: boolean;
+  readonly inspectPredecessor: () => void;
+  readonly returnToAttempt: () => void;
   readonly assigned: AssignedRunRead<AssignedRunPage>;
   readonly detail: AssignedRunRead<AssignedRunConsole>;
   readonly hasPrevious: boolean;
@@ -52,12 +55,19 @@ export interface AssignedRunWorkflow {
  * mounted tenant workspace. RTK-owned projections remain behind data-access
  * gates. Discovery revalidation retires disclosure before I/O; successful
  * discovery permits a fresh exact read even when a terminal run left its list.
+ * Predecessor inspection retains one return identity, not a history stack or
+ * resource copy. Related selection and return use that same fresh disclosure
+ * gate; ordinary selection, close, reset and tenant replacement discard it.
  */
 export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+  // A return target is navigation intent, never a retained Console or proof of
+  // access. It survives a denied predecessor read but not ordinary selection.
+  const [returnRunId, setReturnRunId] = useState<string | null>(null);
   const [cursors, setCursors] = useState<readonly AssignedRunCursor[]>([]);
   const heading = useRef<HTMLHeadingElement>(null);
   const afterHandover = useCallback(() => {
+    setReturnRunId(null);
     setSelectedRunId(null);
     setCursors([]);
   }, []);
@@ -81,6 +91,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     onSuccess: afterProofFinalization,
   });
   const afterRetry = useCallback((receipt: RunRetryReceipt) => {
+    setReturnRunId(null);
     // Select only historical identity, never successor data or access. Both
     // RTK gates reopen freshly, including when discovery no longer lists it.
     setSelectedRunId(receipt.successorRunId);
@@ -122,6 +133,18 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
       heading.current?.focus();
     }
   }, [selectedRunId, detail.phase]);
+
+  function selectRun(runId: string | null): void {
+    heading.current?.focus();
+    escalation.clear();
+    retryRun.clear();
+    execution.clear();
+    proofFinalization.clear();
+    approval.clear();
+    handover.clear();
+    setReturnRunId(null);
+    setSelectedRunId(runId);
+  }
 
   return {
     escalation: {
@@ -222,36 +245,25 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
       detail.recheck();
     },
     selectedRunId,
+    canReturnToAttempt: returnRunId !== null && !isBlockingDisclosure,
+    inspectPredecessor: () => {
+      if (detail.phase !== 'ready' || detail.data.predecessorRunId === null)
+        return;
+      const origin = detail.data.runId;
+      selectRun(detail.data.predecessorRunId);
+      setReturnRunId(origin);
+    },
+    returnToAttempt: () => {
+      if (returnRunId !== null && !isBlockingDisclosure) selectRun(returnRunId);
+    },
     assigned,
     detail,
     heading,
     hasPrevious: cursors.length > 0,
-    selectRun: (runId) => {
-      escalation.clear();
-      retryRun.clear();
-      execution.clear();
-      proofFinalization.clear();
-      approval.clear();
-      handover.clear();
-      setSelectedRunId(runId);
-    },
-    closeRun: () => {
-      escalation.clear();
-      retryRun.clear();
-      execution.clear();
-      proofFinalization.clear();
-      approval.clear();
-      handover.clear();
-      setSelectedRunId(null);
-    },
+    selectRun,
+    closeRun: () => selectRun(null),
     resetTraversal: () => {
-      escalation.clear();
-      retryRun.clear();
-      execution.clear();
-      proofFinalization.clear();
-      approval.clear();
-      handover.clear();
-      setSelectedRunId(null);
+      selectRun(null);
       // Recheck is required even when an invalid first-page request leaves the
       // cursor unchanged; the gate closes in this same committed render.
       setCursors([]);

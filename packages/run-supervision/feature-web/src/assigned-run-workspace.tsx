@@ -124,6 +124,10 @@ function TenantAssignedRunWorkspace({
         }
         primary={
           <AssignedRunExecutionPane
+            onInspectPredecessor={workflow.inspectPredecessor}
+            {...(workflow.canReturnToAttempt
+              ? { onReturnToAttempt: workflow.returnToAttempt }
+              : {})}
             detail={detail}
             selectedRunId={selectedRunId}
             signInHref={signInHref}
