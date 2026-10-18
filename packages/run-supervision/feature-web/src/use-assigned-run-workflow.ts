@@ -19,8 +19,11 @@ import { useRunApprovalDecision } from './use-run-approval-decision';
 import { useRunProofFinalization } from './use-run-proof-finalization';
 import { useRunCapabilityExecution } from './use-run-capability-execution';
 import { useRunRetry } from './use-run-retry';
+import { useRunEscalation } from './use-run-escalation';
 
 export interface AssignedRunWorkflow {
+  readonly escalation: ReturnType<typeof useRunEscalation>;
+  readonly recoverEscalation: () => void;
   readonly retryRun: ReturnType<typeof useRunRetry>;
   readonly recoverRetry: () => void;
   readonly execution: ReturnType<typeof useRunCapabilityExecution>;
@@ -84,7 +87,14 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     setCursors([]);
   }, []);
   const retryRun = useRunRetry({ heading, onSuccess: afterRetry });
+  // Keep only the selected run identity; fresh reads must recover terminal
+  // detail independently even after it leaves active assignment discovery.
+  const escalation = useRunEscalation({
+    heading,
+    onSuccess: afterProofFinalization,
+  });
   const isBlockingDisclosure =
+    escalation.isBlockingDisclosure ||
     retryRun.isBlockingDisclosure ||
     handover.isBlockingDisclosure ||
     approval.isBlockingDisclosure ||
@@ -114,9 +124,26 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   }, [selectedRunId, detail.phase]);
 
   return {
+    escalation: {
+      ...escalation,
+      submit: (intent) => {
+        retryRun.clear();
+        execution.clear();
+        proofFinalization.clear();
+        approval.clear();
+        handover.clear();
+        escalation.submit(intent);
+      },
+    },
+    recoverEscalation: () => {
+      heading.current?.focus();
+      escalation.clear();
+      detail.recheck();
+    },
     retryRun: {
       ...retryRun,
       submit: (intent) => {
+        escalation.clear();
         execution.clear();
         proofFinalization.clear();
         approval.clear();
@@ -132,6 +159,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     execution: {
       ...execution,
       submit: (intent) => {
+        escalation.clear();
         retryRun.clear();
         handover.clear();
         approval.clear();
@@ -147,6 +175,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     proofFinalization: {
       ...proofFinalization,
       submit: (intent) => {
+        escalation.clear();
         retryRun.clear();
         execution.clear();
         approval.clear();
@@ -162,6 +191,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     approval: {
       ...approval,
       submit: (intent) => {
+        escalation.clear();
         retryRun.clear();
         execution.clear();
         proofFinalization.clear();
@@ -178,6 +208,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     handover: {
       ...handover,
       submit: (intent) => {
+        escalation.clear();
         retryRun.clear();
         execution.clear();
         proofFinalization.clear();
@@ -196,6 +227,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     heading,
     hasPrevious: cursors.length > 0,
     selectRun: (runId) => {
+      escalation.clear();
       retryRun.clear();
       execution.clear();
       proofFinalization.clear();
@@ -204,6 +236,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
       setSelectedRunId(runId);
     },
     closeRun: () => {
+      escalation.clear();
       retryRun.clear();
       execution.clear();
       proofFinalization.clear();
@@ -212,6 +245,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
       setSelectedRunId(null);
     },
     resetTraversal: () => {
+      escalation.clear();
       retryRun.clear();
       execution.clear();
       proofFinalization.clear();

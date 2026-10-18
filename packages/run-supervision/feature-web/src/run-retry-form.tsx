@@ -14,7 +14,7 @@ const unavailable: Record<RunRetryReviewReason, string> = {
   RUN_NOT_FAILED:
     'The run is not at the eligible failed revision. Recheck current run facts before making another decision.',
   ATTEMPT_LIMIT_REACHED:
-    'The total-attempt limit is reached. This view cannot create another attempt or escalate the run.',
+    'The total-attempt limit is reached. This view cannot create another attempt. Cancel and review exhausted-run escalation separately when supported.',
   PLAN_NOT_READY:
     'Current evidence is not ready for a fresh plan. No successor can be confirmed from this observation.',
   PLAN_DENIED:

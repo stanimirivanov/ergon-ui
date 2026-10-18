@@ -183,12 +183,12 @@ export const runRetryGuide: GuideChapter = {
     {
       symptom: 'The retry limit is reached.',
       guidance:
-        'Stop. The ceiling counts total attempts and cannot be reset by reloading, opening a new dialog or changing command IDs. This slice adds no third attempt, autonomous backoff or browser escalation. The case remains open for the separate approved recovery process.',
+        'Stop. The ceiling counts total attempts and cannot be reset by reloading, opening a new dialog or changing command IDs. This retry flow adds no third attempt or autonomous backoff. Cancel and use the separately enabled exhausted-run escalation review when supported; its own chapter explains unassigned work and the still-open case.',
     },
   ],
   limitations: [
     'All scenes use marked synthetic BFF responses. Screenshots and counters establish browser protocol, presentation and disclosure behavior, not live OIDC, database atomicity, real provider execution or production rollout.',
-    'No automatic mutation retry, general assignment, arbitrary recipient, adoption of an unrelated internal successor, lease, pause/cancel/branch, exhausted-run escalation, compensation or multi-step execution is implemented.',
+    'This retry walkthrough exercises no automatic mutation retry, general assignment, arbitrary recipient, unrelated-successor adoption, lease, pause/cancel/branch, escalation, compensation or multi-step execution. The separate escalation chapter covers its own reviewed boundary.',
     'Local replay intent is not persisted across reload, navigation or signing in again. Leaving is not server cancellation. Only the original command actor with current resolver evidence can obtain its historical replay; successor detail always requires its own current access gate.',
     'Verification covers Chromium and 320-pixel reflow. It is not a full cross-browser or production accessibility certification.',
   ],

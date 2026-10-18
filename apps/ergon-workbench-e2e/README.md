@@ -4,10 +4,10 @@
 
 The tagged access-state, inbox-navigation, follow-up, owned-context,
 claim-recovery, release-recovery, run-supervision, handover, approval,
-pinned-evidence, outcome-verification, proof-finalization, execution/recovery and failed-run retry scenarios
+pinned-evidence, outcome-verification, proof-finalization, execution/recovery, failed-run retry and exhausted-run escalation scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all fourteen with
-annotations, screenshots, and video, then assembles a local fourteen-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all fifteen with
+annotations, screenshots, and video, then assembles a local fifteen-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -41,6 +41,21 @@ The `User guide artifact` GitHub Actions workflow runs on pull requests and
 from the workflow run to review the rendered book. The artifact expires after
 seven days. A failed recording uploads available guide and Playwright evidence
 separately. The generation job has read-only repository permission.
+
+## Exhausted-run escalation walkthrough
+
+The escalation chapter has 17 assertion-backed steps: disabled rollout, exact
+exhaustion review, acknowledgement/cancellation, keyboard containment and narrow
+reflow, stale-epoch conflict, fresh review, hidden-before-POST disclosure, lost
+committed acknowledgement, unchanged replay, terminal detail outside discovery,
+held/denied revalidation, fresh recovery and independent shared-queue discovery
+without auto-claim. Separate browser tests cover unsupported, denied, malformed
+and remaining-budget reviews and first commit on uncertain uncommitted replay.
+OPEN in a receipt is original creation status, never current work ownership.
+Deploy backend PR #168/schema before enabling
+ERGON_RUN_SUPERVISOR_ESCALATION_ENABLED (default false). Fixtures simulate
+authority and work creation; real authorization, races and database atomicity
+belong to Ergon verification, not this guide.
 
 ## Proof-finalization walkthrough
 
