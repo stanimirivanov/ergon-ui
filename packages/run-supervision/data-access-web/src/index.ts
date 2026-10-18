@@ -126,3 +126,20 @@ export {
   useEscalateExhaustedRunMutation,
 } from './cache/run-escalation-api';
 export { useRunEscalationReview } from './cache/use-run-escalation-review';
+export type {
+  RunCancellationClient,
+  RunCancellationReviewQuery,
+  RunCancellationReviewReason,
+  RunCancellationReview,
+  RunCancellationCommand,
+  RunCancellationReceipt,
+  RunCancellationFailure,
+  RunCancellationReviewResult,
+  RunCancellationCommandResult,
+} from './cancellation-contracts';
+export { normalizeRunCancellationFailure } from './bff/run-cancellation-http';
+export {
+  runCancellationApi,
+  useCancelUntouchedRunMutation,
+} from './cache/run-cancellation-api';
+export { useRunCancellationReview } from './cache/use-run-cancellation-review';

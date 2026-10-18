@@ -20,8 +20,11 @@ import { useRunProofFinalization } from './use-run-proof-finalization';
 import { useRunCapabilityExecution } from './use-run-capability-execution';
 import { useRunRetry } from './use-run-retry';
 import { useRunEscalation } from './use-run-escalation';
+import { useRunCancellation } from './use-run-cancellation';
 
 export interface AssignedRunWorkflow {
+  readonly cancellation: ReturnType<typeof useRunCancellation>;
+  readonly recoverCancellation: () => void;
   readonly escalation: ReturnType<typeof useRunEscalation>;
   readonly recoverEscalation: () => void;
   readonly retryRun: ReturnType<typeof useRunRetry>;
@@ -104,7 +107,12 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     heading,
     onSuccess: afterProofFinalization,
   });
+  const cancellation = useRunCancellation({
+    heading,
+    onSuccess: afterProofFinalization,
+  });
   const isBlockingDisclosure =
+    cancellation.isBlockingDisclosure ||
     escalation.isBlockingDisclosure ||
     retryRun.isBlockingDisclosure ||
     handover.isBlockingDisclosure ||
@@ -136,6 +144,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
 
   function selectRun(runId: string | null): void {
     heading.current?.focus();
+    cancellation.clear();
     escalation.clear();
     retryRun.clear();
     execution.clear();
@@ -147,9 +156,27 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   }
 
   return {
+    cancellation: {
+      ...cancellation,
+      submit: (intent) => {
+        escalation.clear();
+        retryRun.clear();
+        execution.clear();
+        proofFinalization.clear();
+        approval.clear();
+        handover.clear();
+        cancellation.submit(intent);
+      },
+    },
+    recoverCancellation: () => {
+      heading.current?.focus();
+      cancellation.clear();
+      detail.recheck();
+    },
     escalation: {
       ...escalation,
       submit: (intent) => {
+        cancellation.clear();
         retryRun.clear();
         execution.clear();
         proofFinalization.clear();
@@ -166,6 +193,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     retryRun: {
       ...retryRun,
       submit: (intent) => {
+        cancellation.clear();
         escalation.clear();
         execution.clear();
         proofFinalization.clear();
@@ -182,6 +210,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     execution: {
       ...execution,
       submit: (intent) => {
+        cancellation.clear();
         escalation.clear();
         retryRun.clear();
         handover.clear();
@@ -198,6 +227,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     proofFinalization: {
       ...proofFinalization,
       submit: (intent) => {
+        cancellation.clear();
         escalation.clear();
         retryRun.clear();
         execution.clear();
@@ -214,6 +244,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     approval: {
       ...approval,
       submit: (intent) => {
+        cancellation.clear();
         escalation.clear();
         retryRun.clear();
         execution.clear();
@@ -231,6 +262,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     handover: {
       ...handover,
       submit: (intent) => {
+        cancellation.clear();
         escalation.clear();
         retryRun.clear();
         execution.clear();

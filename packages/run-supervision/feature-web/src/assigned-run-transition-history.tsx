@@ -10,6 +10,7 @@ const eventLabels: Record<AssignedRunTransition['type'], string> = {
   OUTCOME_PROOF_ACCEPTED: 'Outcome proof acceptance recorded',
   RETRY_STARTED: 'Retry handoff recorded',
   ESCALATION_REQUESTED: 'Escalation recorded',
+  RUN_CANCELLED: 'Untouched-run cancellation recorded',
 };
 
 /** Current gated history only; the enclosing read lifecycle owns withdrawal and freshness. */

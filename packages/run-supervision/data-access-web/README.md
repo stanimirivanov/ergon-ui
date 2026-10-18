@@ -199,6 +199,17 @@ commit. Cause-free failures/defects stay behind the cache boundary. Historical
 OPEN acknowledges original creation, not current ownership or status. See
 [ADR 0037](../../../docs/decisions/0037-confirm-exhausted-run-escalation-and-fresh-follow-up-access.md).
 
+## Untouched-run cancellation
+
+`getCancellationReview`, `cancelRun`, `useRunCancellationReview` and
+`useCancelUntouchedRunMutation` consume Ergon PR #170. Validate supported/reason/
+eligibility parity, version zero, safe revisions and every receipt coordinate;
+strip extras. One non-retried deadline covers invocation-local CSRF and POST.
+Every outcome invalidates private observations, including uncertain failures.
+Exact historical replay may first apply an absent original command, never grant
+access. CANCELLED/RUN_CANCELLED is terminal without an execution receipt, proof
+or case closure. See [ADR 0038](../../../docs/decisions/0038-confirm-untouched-run-cancellation.md).
+
 ## Verification
 
 ```powershell

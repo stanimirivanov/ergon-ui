@@ -19,6 +19,8 @@ import { createRunRetryClient } from './create-run-retry-client';
 import type { RunRetryClient } from './retry-contracts';
 import type { RunEscalationClient } from './escalation-contracts';
 import { createRunEscalationClient } from './create-run-escalation-client';
+import type { RunCancellationClient } from './cancellation-contracts';
+import { createRunCancellationClient } from './create-run-cancellation-client';
 import {
   decodeAssignedRunConsole,
   decodeAssignedRunPage,
@@ -35,7 +37,7 @@ export interface RunSupervisionClientOptions {
 
 /**
  * Creates same-origin reads and confirmed supervision, approval, proof, execution,
- * fresh-run retry and exhausted-run escalation commands.
+ * fresh-run retry, exhausted-run escalation and untouched-run cancellation commands.
  *
  * Each attempt includes body decoding in its deadline. Transport, timeout, and
  * generic 5xx failures retry once; disabled authentication and permanent failures
@@ -59,7 +61,8 @@ export function createRunSupervisionClient({
   RunProofFinalizationClient &
   RunExecutionClient &
   RunRetryClient &
-  RunEscalationClient {
+  RunEscalationClient &
+  RunCancellationClient {
   if (!Number.isFinite(requestTimeoutMs) || requestTimeoutMs <= 0) {
     throw new RangeError('Run supervision timeout must be positive and finite');
   }
@@ -70,6 +73,7 @@ export function createRunSupervisionClient({
     ...createRunExecutionClient({ fetch, requestTimeoutMs }),
     ...createRunRetryClient({ fetch, requestTimeoutMs }),
     ...createRunEscalationClient({ fetch, requestTimeoutMs }),
+    ...createRunCancellationClient({ fetch, requestTimeoutMs }),
     listAssigned: async (query, signal): Promise<AssignedRunListResult> => {
       if (!isValidListQuery(query))
         return { ok: false, error: { kind: 'invalid-page' } };

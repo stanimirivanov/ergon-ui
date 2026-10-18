@@ -269,6 +269,20 @@ cover placement, long labels, replacement and cleanup without video recording.
 Denial checkpoints highlight the complete message so the caption does not cover
 its non-disclosure explanation. This affects test-owned guide overlays only.
 
+## Untouched-run cancellation walkthrough
+
+The seventeenth chapter records fifteen assertion-backed checkpoints: disabled
+rollout, fresh eligibility, acknowledgement, dismissal, keyboard/320-pixel
+reflow, epoch conflict, hidden-before-POST context, lost committed response,
+unchanged replay, fresh CANCELLED detail outside discovery, and held/denied then
+restored access. Separate checks reject unsupported, denied, stale and durable-
+authorization review and prove replay can first apply absent original intent.
+The guide distinguishes run termination from provider cancellation and accepted
+proof/case closure. Read its code-first migration rollout warning before enabling
+the backend flag; old writers cannot resume after trigger installation even
+with commands disabled. Synthetic facts are not actual authority/durability
+verification. No generated media is committed.
+
 ## Failure handling
 
 A failed browser scenario removes its incomplete chapter directory and retains

@@ -282,6 +282,15 @@ Redux, a URL, or persistent browser storage.
 
 ## API and trust boundary
 
+Untouched-run cancellation stays in the existing supervision data-access and
+feature owners. Fresh advisory review, acknowledged intent and exact receipt
+decoding use the committed command barrier; no automatic POST retry or new
+state owner is added. CANCELLED/RUN_CANCELLED is a terminal path without a
+capability receipt. Success reacquires independently authorized terminal detail
+even outside active discovery. History grants neither access nor outcome proof;
+provider work and case closure are not cancellation semantics. See
+[ADR 0038](decisions/0038-confirm-untouched-run-cancellation.md).
+
 OpenAPI and RFC 9457 problem responses are wire contracts. Static TypeScript
 types do not validate remote data; each consumed payload must be decoded before
 entering application state. Tagged UI errors distinguish authentication,

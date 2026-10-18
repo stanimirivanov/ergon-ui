@@ -12,6 +12,7 @@ import { RunProofFinalizationControl } from './run-proof-finalization-control';
 import { RunCapabilityExecutionControl } from './run-capability-execution-control';
 import { RunRetryControl } from './run-retry-control';
 import { RunEscalationControl } from './run-escalation-control';
+import { RunCancellationControl } from './run-cancellation-control';
 import {
   assignedRunCommandFeedback,
   assignedRunCommandStatus,
@@ -153,6 +154,17 @@ function TenantAssignedRunWorkspace({
                   run={detail.data}
                   onConfirm={workflow.escalation.submit}
                   onAccessFailure={workflow.escalation.rejectReview}
+                />
+              ) : undefined
+            }
+            cancellationControl={
+              detail.phase === 'ready' ? (
+                <RunCancellationControl
+                  key={`${detail.data.runId}:${detail.data.supervisionRevision}:${detail.data.stateVersion}`}
+                  tenantId={tenantId}
+                  run={detail.data}
+                  onConfirm={workflow.cancellation.submit}
+                  onAccessFailure={workflow.cancellation.rejectReview}
                 />
               ) : undefined
             }

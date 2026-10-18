@@ -23,6 +23,7 @@ export function AssignedRunExecutionPane({
   executionControl,
   retryControl,
   escalationControl,
+  cancellationControl,
   onInspectPredecessor,
   onReturnToAttempt,
 }: {
@@ -36,6 +37,7 @@ export function AssignedRunExecutionPane({
   readonly executionControl?: ReactNode;
   readonly retryControl?: ReactNode;
   readonly escalationControl?: ReactNode;
+  readonly cancellationControl?: ReactNode;
   readonly onInspectPredecessor: () => void;
   readonly onReturnToAttempt?: () => void;
 }): ReactElement {
@@ -112,6 +114,7 @@ export function AssignedRunExecutionPane({
           <div className="mt-5">{executionControl}</div>
           <div className="mt-5">{retryControl}</div>
           <div className="mt-5">{escalationControl}</div>
+          <div className="mt-5">{cancellationControl}</div>
           <AssignedRunExecutionRecords run={detail.data} />
         </>
       ) : !isBlockingDisclosure ? (
