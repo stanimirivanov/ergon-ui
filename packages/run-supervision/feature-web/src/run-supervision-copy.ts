@@ -32,6 +32,7 @@ export const runStateLabels: Readonly<
   VERIFIED_RESOLVED: 'Recorded resolved',
   SUPERSEDED: 'Superseded',
   ESCALATED: 'Escalated',
+  CANCELLED: 'Cancelled',
 };
 
 interface RunSupervisionFailureCopy {
@@ -122,7 +123,8 @@ export function isTerminalState(state: AssignedRunConsole['state']): boolean {
   return (
     state === 'VERIFIED_RESOLVED' ||
     state === 'SUPERSEDED' ||
-    state === 'ESCALATED'
+    state === 'ESCALATED' ||
+    state === 'CANCELLED'
   );
 }
 

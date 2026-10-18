@@ -62,6 +62,13 @@ function AssignedRunOutcomeRecords({
         <h3 id="run-state-heading" className="font-bold">
           Recorded run state
         </h3>
+        {run.state === 'CANCELLED' ? (
+          <p className="mt-3 text-sm leading-6 text-ink-muted">
+            This untouched run ended before authorization or execution.
+            Cancellation does not stop provider work, accept outcome proof or
+            close the case.
+          </p>
+        ) : null}
         <dl className="mt-4 grid gap-4 text-sm">
           <AssignedRunFact label="State">
             {runStateLabels[run.state]}

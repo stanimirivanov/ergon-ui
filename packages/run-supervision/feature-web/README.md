@@ -225,6 +225,18 @@ the return target. The persistent execution heading receives focus before the
 invoking control disappears. Shell, route, primitive and data-access contracts
 are unchanged; no new cache, backend policy, package or dependency is needed.
 
+## Untouched-run cancellation
+
+The dedicated control reacquires current eligible version-zero review and uses
+RHF acknowledgement plus the existing committed disclosure barrier. Local intent
+is immutable; explicit uncertain replay preserves the UUID and fences and may
+first apply absent intent. Failed/stale review creates no command and withdraws
+earlier private context. Success retains identity/history only and reacquires
+fresh terminal access independently of active discovery. CANCELLED is not
+provider termination, accepted proof, case closure, follow-up or a refunded retry.
+Modal/focus and resource owners remain unchanged. See
+[ADR 0038](../../../docs/decisions/0038-confirm-untouched-run-cancellation.md).
+
 ## Verification
 
 ```powershell

@@ -23,6 +23,17 @@ requester app, or native app.
 
 ## Implemented
 
+The assigned-run Console also confirms untouched-run cancellation through Ergon
+PR #170's separately enabled browser contract. Fresh review checks version-zero
+eligibility; explicit acknowledgement binds exact epoch/intent. Uncertainty
+permits unchanged replay only, including possible first application. CANCELLED
+detail and RUN_CANCELLED history are decoded without an execution receipt and
+reacquired through fresh independent gates after active discovery empties.
+This does not stop provider work, accept proof or close the case. See
+[ADR 0038](../decisions/0038-confirm-untouched-run-cancellation.md). The seventeenth
+simulated chapter records fifteen useful operator checkpoints; backend tests own
+real authority, fencing and durability evidence.
+
 - pnpm workspace managed by Nx 23;
 - Node 24 and React 19.3 version contract;
 - Vite-built workbench with React Router Data Mode;

@@ -14,7 +14,7 @@ section order in the template. Supported statuses are `Proposed`, `Accepted`,
 
 A replacement adds `- Supersedes:` with exact links to every decision it
 replaces; each older record points back through its status. The published ADR
-high-water mark is `0037`. It may advance with the next decision but must never
+high-water mark is `0038`. It may advance with the next decision but must never
 decrease, even when the newest record is later superseded or deprecated.
 
 ## Index
@@ -58,6 +58,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0035](0035-confirm-capability-execution-and-recovery.md)                   | Accepted   | Confirm execution, status-only replay and explicit recovery    |
 | [0036](0036-confirm-failed-run-retry-and-fresh-successor-access.md)         | Accepted   | Confirm failed-run retry and fresh successor access            |
 | [0037](0037-confirm-exhausted-run-escalation-and-fresh-follow-up-access.md) | Accepted   | Confirm exhausted escalation and independent fresh access      |
+| [0038](0038-confirm-untouched-run-cancellation.md)                          | Accepted   | Confirm untouched-run cancellation with exact recovery         |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

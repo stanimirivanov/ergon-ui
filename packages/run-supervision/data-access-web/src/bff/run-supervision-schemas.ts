@@ -96,7 +96,7 @@ const consoleSnapshot = Schema.Struct({
   startedRecordedAt: instant,
   state: Schema.Union(
     activeState,
-    Schema.Literal('VERIFIED_RESOLVED', 'SUPERSEDED', 'ESCALATED'),
+    Schema.Literal('VERIFIED_RESOLVED', 'SUPERSEDED', 'ESCALATED', 'CANCELLED'),
   ),
   stateVersion: nonNegativeInteger,
   stateUpdatedAt: instant,
@@ -122,14 +122,25 @@ const consoleSnapshot = Schema.Struct({
           'OUTCOME_PROOF_ACCEPTED',
           'RETRY_STARTED',
           'ESCALATION_REQUESTED',
+          'RUN_CANCELLED',
         ),
         fromState: Schema.Union(
           activeState,
-          Schema.Literal('VERIFIED_RESOLVED', 'SUPERSEDED', 'ESCALATED'),
+          Schema.Literal(
+            'VERIFIED_RESOLVED',
+            'SUPERSEDED',
+            'ESCALATED',
+            'CANCELLED',
+          ),
         ),
         toState: Schema.Union(
           activeState,
-          Schema.Literal('VERIFIED_RESOLVED', 'SUPERSEDED', 'ESCALATED'),
+          Schema.Literal(
+            'VERIFIED_RESOLVED',
+            'SUPERSEDED',
+            'ESCALATED',
+            'CANCELLED',
+          ),
         ),
         occurredAt: instant,
         recordedAt: instant,
@@ -207,7 +218,9 @@ export function decodeAssignedRunConsole(
     return undefined;
   if (
     value.handoverSupported === true &&
-    ['VERIFIED_RESOLVED', 'SUPERSEDED', 'ESCALATED'].includes(value.state)
+    ['VERIFIED_RESOLVED', 'SUPERSEDED', 'ESCALATED', 'CANCELLED'].includes(
+      value.state,
+    )
   )
     return undefined;
   if (value.effectiveRisk === 'HIGH' && value.requiredApproval === 'NONE')

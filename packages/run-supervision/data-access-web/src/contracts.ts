@@ -2,7 +2,7 @@ import type { RunApprovalReview } from './approval-contracts';
 import type { PinnedRunEvidence } from './evidence-contracts';
 import type { RunOutcomeVerification } from './verification-contracts';
 
-/** Active discovery excludes completed, superseded, and escalated runs. */
+/** Active discovery excludes all terminal runs, including cancellation. */
 export type ActiveRunState =
   | 'WAITING_FOR_APPROVAL'
   | 'READY_FOR_AUTHORIZATION'
@@ -11,7 +11,11 @@ export type ActiveRunState =
 
 /** Recorded current state; a terminal state is not a browser proof payload. */
 export type AssignedRunState =
-  ActiveRunState | 'VERIFIED_RESOLVED' | 'SUPERSEDED' | 'ESCALATED';
+  | ActiveRunState
+  | 'VERIFIED_RESOLVED'
+  | 'SUPERSEDED'
+  | 'ESCALATED'
+  | 'CANCELLED';
 
 /**
  * A durable assignment visible to the verified actor, not a timed control lease.
@@ -83,7 +87,8 @@ export interface AssignedRunTransition {
     | 'CAPABILITY_FAILED'
     | 'OUTCOME_PROOF_ACCEPTED'
     | 'RETRY_STARTED'
-    | 'ESCALATION_REQUESTED';
+    | 'ESCALATION_REQUESTED'
+    | 'RUN_CANCELLED';
   readonly fromState: AssignedRunState;
   readonly toState: AssignedRunState;
   readonly occurredAt: string;

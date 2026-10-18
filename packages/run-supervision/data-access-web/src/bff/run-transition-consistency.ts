@@ -5,6 +5,7 @@ import type {
 } from '../contracts';
 
 const shapes = {
+  RUN_CANCELLED: { sequence: 1, toState: 'CANCELLED', fromState: null },
   CAPABILITY_SUCCEEDED: { sequence: 1, toState: 'VERIFYING', fromState: null },
   CAPABILITY_FAILED: { sequence: 1, toState: 'ACTION_FAILED', fromState: null },
   OUTCOME_PROOF_ACCEPTED: {
@@ -33,6 +34,13 @@ const shapes = {
 
 /** Validate the complete state-bounded prefix, never sort or repair an untrusted history. */
 export function isConsistentRunHistory(run: AssignedRunConsole): boolean {
+  // Cancellation is the only terminal path without a capability receipt. Even
+  // an older server omitting history cannot make a mixed projection valid.
+  if (
+    run.state === 'CANCELLED' &&
+    (run.stateVersion !== 1 || run.execution != null)
+  )
+    return false;
   const events = run.transitions;
   if (events === undefined) return true;
   if (events.length !== run.stateVersion) return false;
@@ -58,6 +66,10 @@ export function isConsistentRunHistory(run: AssignedRunConsole): boolean {
     return false;
   const first = events[0];
   if (first === undefined) return true;
+  if (first.type === 'RUN_CANCELLED')
+    return (
+      run.state === 'CANCELLED' && events.length === 1 && run.execution == null
+    );
   return (
     run.execution != null &&
     first.type === `CAPABILITY_${run.execution.outcome}` &&
