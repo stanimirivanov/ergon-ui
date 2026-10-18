@@ -189,9 +189,25 @@ committed disclosure barrier. Only explicit unchanged replay is offered for
 uncertainty; conflicts require fresh review. Acknowledgement selects just the
 successor identity before fresh discovery/detail gates. No predecessor approval,
 receipt or proof is copied, and historical feedback grants no access after
-handover. Exhaustion offers neither a third attempt nor browser escalation.
+handover. Exhaustion offers no third attempt; escalation is a separate control.
 Modal/focus ownership and shell composition are unchanged. See
 [ADR 0036](../../../docs/decisions/0036-confirm-failed-run-retry-and-fresh-successor-access.md).
+
+## Exhausted-run escalation
+
+The dedicated escalation control reacquires private eligibility on each opening
+and confirms the exact exhausted budget in an acknowledged RHF modal. Failed or
+stale review withdraws earlier context without creating intent. The shared
+committed barrier removes private resources before command acquisition and keeps
+only immutable local intent for explicit uncertain replay. Conflicts need fresh
+facts; callbacks retire on navigation. No resource snapshot or new layer exists.
+
+Success reacquires selected terminal detail independently of active discovery.
+Creation feedback labels OPEN as historical, not current status/ownership. The
+existing app-owned Back to follow-ups navigation leads to independently gated
+queue discovery and a separate claim decision; no work ID grants private access.
+No third attempt, connector, notification, claim, proof or case closure follows.
+See [ADR 0037](../../../docs/decisions/0037-confirm-exhausted-run-escalation-and-fresh-follow-up-access.md).
 
 ## Verification
 

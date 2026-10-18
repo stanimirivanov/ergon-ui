@@ -15,7 +15,8 @@ three-pane Console with confirmed current-supervisor handover, exact human
 approval prerequisites, pinned binding/source inspection and confirmed exact proof
 acceptance with verified case closure, and approved pinned-capability execution
 with explicit same-reservation recovery, plus confirmed failed-run successors
-with fresh access and independently evaluated safeguards. React Hook Form owns confirmation fields.
+with fresh access and independently evaluated safeguards, plus explicit exhausted-run
+escalation into unassigned work with independent fresh access. React Hook Form owns confirmation fields.
 It has no general steering,
 live trace, lease, logout flow, Motion animation,
 requester app, or native app.
@@ -208,13 +209,32 @@ a connector nor inherits approval, grant, receipt or provider key. Uncertainty
 retains the exact command and plan for explicit replay, which may first commit
 the original intent if absent. Success selects only an identity and reacquires
 fresh discovery/detail; a historical acknowledgement cannot restore access after
-handover. Exhaustion offers no third attempt or browser escalation. See
+handover. Exhaustion offers no third attempt; explicit escalation is separate. See
 [ADR 0036](../decisions/0036-confirm-failed-run-retry-and-fresh-successor-access.md).
 
 The backend defaults off under ERGON_RUN_SUPERVISOR_RETRY_ENABLED. Every nullable-
 provenance assignment reader must be upgraded before enabling. After first use,
 disable commands and recover forward, preserving audit. Guide recording remains
 synthetic, not real IdP/provider/database-backed browser verification.
+
+## Exhausted-run escalation
+
+The fifteenth simulated guide records seventeen steps for merged Ergon PR #168.
+Fresh review confirms the exact supervisor/run/attempt and runtime exhaustion
+policy. RHF acknowledgement creates immutable intent; the existing barrier hides
+all private resources before one bounded CSRF/POST. Conflicts need fresh facts;
+uncertainty offers unchanged explicit replay, potentially first committing absent
+intent. Success reacquires authorized terminal detail even outside active
+discovery. Historical OPEN is original unassigned creation, not current ownership.
+Existing Back to follow-ups navigation reopens independently authorized discovery;
+there is no automatic claim, third attempt, execution, proof or case closure.
+
+Deploy backend schema/code before enabling
+ERGON_RUN_SUPERVISOR_ESCALATION_ENABLED (default false). Disabling preserves
+history; recover forward. Protocol, cache, feature and Chromium regressions plus
+the recorded guide cover browser behavior, not real IdP/provider/database-backed
+browser certification. See
+[ADR 0037](../decisions/0037-confirm-exhausted-run-escalation-and-fresh-follow-up-access.md).
 
 ## Deliberate limits
 

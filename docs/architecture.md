@@ -104,6 +104,16 @@ because this slice has no separate platform-neutral client policy.
 
 ## State ownership
 
+Exhausted-run escalation uses a separate fresh private RTK review and the same
+confirmed-command barrier. Data access owns exact exhaustion/receipt validation,
+session-CSRF execution and safe outcomes. Feature owns acknowledged confirmation,
+immutable replay intent and historical creation feedback. Success retains only
+run selection identity before fresh discovery/detail, not a resource snapshot.
+OPEN means original work creation, never current status or ownership. Existing
+app navigation opens independent follow-up discovery; no receipt-based claim or
+private case access is added. No project or dependency edge changes. See
+[ADR 0037](decisions/0037-confirm-exhausted-run-escalation-and-fresh-follow-up-access.md).
+
 Failed-run retry uses a fresh private RTK review and the existing committed
 command barrier. Data access validates exact plan/budget/receipt coordinates;
 the feature owns acknowledged confirmation, immutable intent and historical

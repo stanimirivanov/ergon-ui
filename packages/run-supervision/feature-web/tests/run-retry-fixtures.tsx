@@ -154,9 +154,9 @@ function buildStore(client: RunSupervisionClient & RunRetryClient) {
       ),
   });
 }
-export function renderRetryWorkspace(
-  client: RunSupervisionClient & RunRetryClient,
-): RenderResult {
+export function renderRetryWorkspace<
+  Client extends RunSupervisionClient & RunRetryClient,
+>(client: Client): RenderResult {
   const store = buildStore(client);
   stores.push(store);
   return render(

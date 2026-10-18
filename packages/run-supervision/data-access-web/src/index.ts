@@ -109,3 +109,20 @@ export type {
 export { normalizeRunRetryFailure } from './bff/run-retry-http';
 export { runRetryApi, useRetryFailedRunMutation } from './cache/run-retry-api';
 export { useRunRetryReview } from './cache/use-run-retry-review';
+export type {
+  RunEscalationReviewQuery,
+  RunEscalationReviewReason,
+  RunEscalationReview,
+  RunEscalationCommand,
+  RunEscalationReceipt,
+  RunEscalationFailure,
+  RunEscalationReviewResult,
+  RunEscalationCommandResult,
+  RunEscalationClient,
+} from './escalation-contracts';
+export { normalizeRunEscalationFailure } from './bff/run-escalation-http';
+export {
+  runEscalationApi,
+  useEscalateExhaustedRunMutation,
+} from './cache/run-escalation-api';
+export { useRunEscalationReview } from './cache/use-run-escalation-review';

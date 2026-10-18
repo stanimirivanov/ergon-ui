@@ -186,6 +186,19 @@ including uncertain acknowledgements. Historical replay may first commit absent
 original intent and never restores successor access. See
 [ADR 0036](../../../docs/decisions/0036-confirm-failed-run-retry-and-fresh-successor-access.md).
 
+## Exhausted-run escalation
+
+`getEscalationReview`, `escalateRun`, `useRunEscalationReview` and
+`useEscalateExhaustedRunMutation` consume the separately enabled browser contract
+from Ergon PR #168. Review is a fresh private RTK observation with exact epoch,
+failed revision, attempt and runtime ceiling, never authority. Decode eligibility
+parity, safe coordinates, fixed queue and every acknowledged fence; strip extras.
+One non-retried deadline covers invocation-local CSRF, POST and receipt decoding.
+Every result invalidates run observations because a lost response can follow a
+commit. Cause-free failures/defects stay behind the cache boundary. Historical
+OPEN acknowledges original creation, not current ownership or status. See
+[ADR 0037](../../../docs/decisions/0037-confirm-exhausted-run-escalation-and-fresh-follow-up-access.md).
+
 ## Verification
 
 ```powershell
