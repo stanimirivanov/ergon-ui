@@ -8,6 +8,26 @@ interface HandoverFailurePresentation {
 const failures: Readonly<
   Record<RunSupervisorHandoverFailure['kind'], HandoverFailurePresentation>
 > = {
+  'control-required': {
+    message:
+      'Current browser control is required. Recheck status and explicitly acquire control before a new reviewed command.',
+    recovery: 'recheck',
+  },
+  'control-conflict': {
+    message:
+      'The original browser fence is expired or no longer current. Recheck run and control; never silently replace an uncertain intent with a new fence.',
+    recovery: 'recheck',
+  },
+  'control-disabled': {
+    message:
+      'Browser control enforcement is disabled. Recheck before a new reviewed command; disabling does not undo prior effects.',
+    recovery: 'recheck',
+  },
+  'control-unavailable': {
+    message:
+      'Control acknowledgement is unavailable. The original intent may already have committed; preserve its UUID and fence for explicit replay.',
+    recovery: 'replay',
+  },
   'authentication-required': {
     message:
       'Sign in again. The transfer result cannot be confirmed from this session.',

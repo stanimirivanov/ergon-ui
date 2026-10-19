@@ -38,6 +38,17 @@ hide prior data during revalidation/failure and request a fresh read on reopenin
 Cleanup only unsubscribes: pinned RTK's zero-grace eviction cancels a pending
 request only after its last subscriber leaves, without aborting another reader.
 
+## Browser control
+
+Fresh tenant/run/epoch status, explicit lifecycle commands and optional validated
+command fences consume Ergon PR #172. Only THIS_SESSION supplies a usable fence;
+explicit DISABLED preserves rollout off. HTTP, cancellation, typed failures and
+cause-free defects retain their current owners. Lifecycle receipts are history,
+not current ownership; observe status again. All command families preserve the
+original fence on exact replay. No automatic mutation retry or persistent
+session binding is introduced. See
+[ADR 0039](../../../docs/decisions/0039-coordinate-explicit-fenced-browser-control.md).
+
 ## Does not own
 
 - Run assignment, runtime control, backend approval policy, or application workflows.

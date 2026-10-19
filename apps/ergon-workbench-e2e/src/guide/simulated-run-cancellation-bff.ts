@@ -1,3 +1,4 @@
+import { installDisabledRunControl } from './simulated-disabled-run-control';
 import { expect, type Page } from '@playwright/test';
 import { fulfillSimulatedBff } from './simulated-bff-response';
 import {
@@ -18,6 +19,7 @@ type ReviewMode =
 type CommandMode =
   'success' | 'conflict' | 'lost-committed' | 'lost-uncommitted';
 interface CancellationIntent {
+  readonly control?: { readonly leaseId: string; readonly revision: number };
   readonly commandId: string;
   readonly expectedSupervisionRevision: number;
   readonly expectedRunVersion: number;
@@ -42,6 +44,7 @@ export async function installSimulatedRunCancellationBff(page: Page): Promise<{
   let canRead = true;
   let cancelled = false;
   let epoch = 0;
+  await installDisabledRunControl(page, () => epoch);
   let cancellations = 0;
   let reviews = 0;
   const intents: CancellationIntent[] = [];
@@ -179,6 +182,14 @@ export async function installSimulatedRunCancellationBff(page: Page): Promise<{
         return fulfillSimulatedBff(route, recorded.receipt);
       }
       expect(intent).toEqual({
+        ...(intent.control === undefined
+          ? {}
+          : {
+              control: {
+                leaseId: expect.stringMatching(/^[0-9a-f-]{36}$/i),
+                revision: expect.any(Number),
+              },
+            }),
         commandId: expect.stringMatching(/^[0-9a-f-]{36}$/i),
         expectedSupervisionRevision: epoch,
         expectedRunVersion: 0,

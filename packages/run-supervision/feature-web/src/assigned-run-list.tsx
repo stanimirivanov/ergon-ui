@@ -158,9 +158,9 @@ export function AssignedRunList({
         </Button>
       </div>
       <p className="mt-4 text-xs leading-5 text-ink-muted">
-        Assignment is not an exclusive control lease. Handover is offered only
-        from a current, enabled run snapshot; no browser self-assignment, timer,
-        or execution command is available here.
+        Assignment is not an exclusive control lease. Discovery never acquires
+        browser control or authorizes execution. Commands require the selected
+        run’s separate control and confirmation gates.
       </p>
     </section>
   );

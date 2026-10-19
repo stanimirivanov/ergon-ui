@@ -314,6 +314,15 @@ twelfth guide cover the behavior; the guide's backend facts remain synthetic.
 Ergon's `ERGON_RUN_PROOF_FINALIZATION_ENABLED` defaults off until additive schema
 and backend deployment. This grants neither arbitrary steering nor forced closure.
 
+Explicit session-bound browser control now consumes Ergon PR #172: fresh status,
+acquire/renew/release, an advisory countdown and original fences across all seven
+browser command families. Exact replay retains its original fence and never
+renews. Terminal work takes no new lease; control loss does not stop admitted
+execution. The eighteenth simulated guide explains lifecycle and business
+recovery. Missing status fails closed; explicit DISABLED preserves rollout off.
+No real cross-repository session deployment is certified by the guide. See
+[ADR 0039](../decisions/0039-coordinate-explicit-fenced-browser-control.md).
+
 Future resolver slices must use reviewed browser contracts for priority,
 reassignment, completion, or resolution. Existing `/internal/v1` routes remain
 ineligible for production UI use.

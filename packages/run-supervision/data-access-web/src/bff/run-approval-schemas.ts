@@ -1,3 +1,4 @@
+import { optionalRunControl } from './run-control-schemas';
 import { Either, Schema } from 'effect';
 import type { AssignedRunConsole } from '../contracts';
 import { isUtcInstant } from './run-wire-instant';
@@ -50,6 +51,7 @@ export const approvalReviewSchema = Schema.Struct({
   ),
 });
 const commandSchema = Schema.Struct({
+  control: optionalRunControl,
   tenantId: uuid,
   runId: uuid,
   requestId: uuid,

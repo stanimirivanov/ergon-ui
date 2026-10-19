@@ -53,7 +53,7 @@ it is neither a client application core nor a general steering surface.
 - App branding, global navigation, standard/focused shell, theme scope or
   viewport allocation. Presence can wrap without an assumed header height;
   panels never subtract fixed chrome dimensions from the viewport.
-- Lease ownership, timers, grants, backend approval policy, steering,
+- Server lease authority, grants, backend approval policy, steering,
   multi-step execution events, tool spans, billing or evidence compilation.
   Their absence is explicit rather than filled with synthetic data.
 - Shared domain-agnostic primitives or an interface-only application layer.
@@ -236,6 +236,18 @@ fresh terminal access independently of active discovery. CANCELLED is not
 provider termination, accepted proof, case closure, follow-up or a refunded retry.
 Modal/focus and resource owners remain unchanged. See
 [ADR 0038](../../../docs/decisions/0038-confirm-untouched-run-cancellation.md).
+
+## Explicit browser control
+
+The presence bar renders fresh server status and explicit acquire/renew/release.
+Its monotonic countdown is advisory and retires with the selected run. Only
+current control or an explicit DISABLED rollout permits a new confirmation;
+unavailable status never bypasses enforcement. Expiry retires open confirmations.
+The workflow captures the original fence with every command and retains it
+unchanged on uncertain replay. Lifecycle commands reuse the private committed
+barrier and fresh status, not receipt-derived ownership. Closing does not release
+or stop admitted work. See
+[ADR 0039](../../../docs/decisions/0039-coordinate-explicit-fenced-browser-control.md).
 
 ## Verification
 

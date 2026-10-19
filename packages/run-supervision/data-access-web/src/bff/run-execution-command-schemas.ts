@@ -1,3 +1,4 @@
+import { optionalRunControl } from './run-control-schemas';
 import { Either, Schema } from 'effect';
 import type {
   RunExecutionCommand,
@@ -22,6 +23,7 @@ const revision = Schema.Number.pipe(
 );
 const instant = Schema.String.pipe(Schema.filter(isUtcInstant));
 const coordinates = {
+  control: optionalRunControl,
   tenantId: uuid,
   runId: uuid,
   commandId: uuid,

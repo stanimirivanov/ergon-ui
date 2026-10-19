@@ -1,3 +1,4 @@
+import { installDisabledRunControl } from './simulated-disabled-run-control';
 import { expect, type Page, type Route } from '@playwright/test';
 import { fulfillSimulatedBff } from './simulated-bff-response';
 import {
@@ -43,6 +44,7 @@ export async function installSimulatedRunExecutionBff(page: Page): Promise<{
   let enabled = false;
   let supported = true;
   let epoch = 0;
+  await installDisabledRunControl(page, () => epoch);
   let stage: Stage = 'none';
   let denied = false;
   let reviewDenied = false;

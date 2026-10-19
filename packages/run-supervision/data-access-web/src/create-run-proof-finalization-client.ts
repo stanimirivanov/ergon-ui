@@ -1,3 +1,4 @@
+import { runControlWireFields } from './bff/run-control-schemas';
 import { Effect } from 'effect';
 import type { RunSupervisionClientOptions } from './create-run-supervision-client';
 import type {
@@ -21,7 +22,17 @@ export function createRunProofFinalizationClient(
     async finalizeProof(command, signal): Promise<RunProofFinalizationResult> {
       if (!isValidProofCommand(command))
         return { ok: false, error: { kind: 'invalid-proof-finalization' } };
-      const { tenantId, runId, ...body } = command;
+      const { tenantId, runId } = command;
+      // Caller extras are not part of the reviewed browser contract.
+      const body = {
+        commandId: command.commandId,
+        expectedSupervisionRevision: command.expectedSupervisionRevision,
+        expectedRunVersion: command.expectedRunVersion,
+        expectedCaseVersion: command.expectedCaseVersion,
+        factId: command.factId,
+        observationId: command.observationId,
+        ...runControlWireFields(command),
+      };
       const program = request(
         '/bff/v1/csrf',
         { method: 'GET' },

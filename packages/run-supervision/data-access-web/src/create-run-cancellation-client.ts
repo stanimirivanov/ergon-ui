@@ -47,6 +47,9 @@ export function createRunCancellationClient(
       if (validated === undefined)
         return { ok: false, error: { kind: 'invalid-cancellation' } };
       const body = JSON.stringify({
+        ...(validated.control === undefined
+          ? {}
+          : { control: validated.control }),
         commandId: validated.commandId,
         expectedSupervisionRevision: validated.expectedSupervisionRevision,
         expectedRunVersion: validated.expectedRunVersion,

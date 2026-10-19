@@ -1,3 +1,4 @@
+import { runControlWireFields } from './bff/run-control-schemas';
 import { Effect } from 'effect';
 import type { RunSupervisionClientOptions } from './create-run-supervision-client';
 import type {
@@ -40,6 +41,7 @@ export function createRunApprovalClient(
                 [csrf.headerName]: csrf.token,
               },
               body: JSON.stringify({
+                ...runControlWireFields(command),
                 commandId: command.commandId,
                 expectedSupervisionRevision:
                   command.expectedSupervisionRevision,

@@ -21,6 +21,10 @@ const recovery: Record<RunProofFinalizationFailure['kind'], Recovery> = {
   timeout: 'replay',
   'request-cancelled': 'replay',
   'unexpected-defect': 'replay',
+  'control-required': 'recheck',
+  'control-conflict': 'recheck',
+  'control-disabled': 'recheck',
+  'control-unavailable': 'replay',
   'service-unavailable': 'replay',
   'unexpected-http-status': 'replay',
 };

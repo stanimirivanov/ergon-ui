@@ -8,6 +8,7 @@ export function AssignedRunPresence({
   onRecheck,
   onClose,
   handoverControl,
+  controlPanel,
   isCommandPending,
 }: {
   readonly presence: ReactNode;
@@ -16,6 +17,7 @@ export function AssignedRunPresence({
   readonly onRecheck: () => void;
   readonly onClose: () => void;
   readonly handoverControl?: ReactNode;
+  readonly controlPanel?: ReactNode;
   readonly isCommandPending: boolean;
 }): ReactElement {
   return (
@@ -29,7 +31,8 @@ export function AssignedRunPresence({
         </p>
         <p className="mt-1 text-sm text-ink-muted">
           Assignment and current resolver authority are checked by the control
-          plane. This is a snapshot, not a control lease.
+          plane. Browser control is separately observed below; neither display
+          is execution authority.
         </p>
       </div>
       {presence}
@@ -56,6 +59,7 @@ export function AssignedRunPresence({
           </Button>
         ) : null}
       </div>
+      <div className="basis-full">{controlPanel}</div>
     </section>
   );
 }

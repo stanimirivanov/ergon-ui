@@ -1,3 +1,4 @@
+import type { FencedRunCommand } from './control-contracts';
 import type { RunSupervisionFailure } from './contracts';
 
 /** Human prerequisite only. Neither outcome grants, invokes, resumes or verifies a capability. */
@@ -36,7 +37,7 @@ export interface RunApprovalReview {
 }
 
 /** Retain this complete tuple for explicit uncertain-result replay; never replace its ID, outcome or epoch. */
-export interface RunApprovalCommand {
+export interface RunApprovalCommand extends FencedRunCommand {
   readonly tenantId: string;
   readonly runId: string;
   readonly requestId: string;

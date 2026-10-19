@@ -41,6 +41,26 @@ interface RunSupervisionFailureCopy {
 }
 
 const failureCopy = {
+  'control-required': {
+    description:
+      'Current browser control is required. Recheck status and explicitly acquire control before a new reviewed command.',
+    recovery: 'retry-read',
+  },
+  'control-conflict': {
+    description:
+      'The original browser fence is expired or no longer current. Recheck run and control; never silently replace an uncertain intent with a new fence.',
+    recovery: 'retry-read',
+  },
+  'control-disabled': {
+    description:
+      'Browser control enforcement is disabled. Recheck before a new reviewed command; disabling does not undo prior effects.',
+    recovery: 'retry-read',
+  },
+  'control-unavailable': {
+    description:
+      'Control acknowledgement is unavailable. The original intent may already have committed; preserve its UUID and fence for explicit replay.',
+    recovery: 'retry-read',
+  },
   'authentication-required': {
     description:
       'Your browser session needs sign-in before assigned work can be read.',

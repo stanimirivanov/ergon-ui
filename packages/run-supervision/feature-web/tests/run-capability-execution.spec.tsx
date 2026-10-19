@@ -1,3 +1,4 @@
+import { withDisabledRunControl } from './disabled-run-control';
 import { configureStore } from '@reduxjs/toolkit';
 import {
   runSupervisionApi,
@@ -392,6 +393,7 @@ async function select(): Promise<void> {
     await screen.findByRole('button', { name: `Inspect run ${RUN_ID}` }),
   );
   await screen.findByText('PRIVATE_EXECUTION_POLICY');
+  await screen.findByText('Browser control enforcement disabled');
 }
 async function openReview(
   title = 'Confirm pinned capability execution',
@@ -464,9 +466,11 @@ function buildStore(client: RunSupervisionClient & RunExecutionClient) {
   return configureStore({
     reducer: { [runSupervisionApi.reducerPath]: runSupervisionApi.reducer },
     middleware: (get) =>
-      get({ thunk: { extraArgument: { runSupervision: client } } }).concat(
-        runSupervisionApi.middleware,
-      ),
+      get({
+        thunk: {
+          extraArgument: { runSupervision: withDisabledRunControl(client) },
+        },
+      }).concat(runSupervisionApi.middleware),
   });
 }
 function renderWorkspace(client: RunSupervisionClient & RunExecutionClient) {

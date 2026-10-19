@@ -211,6 +211,16 @@ orders the remaining work while retaining current safety regressions.
 It defers unrelated landing/session/inbox decomposition until those pages are
 redesigned. Do not turn a deferred finding into a broad suppression.
 
+## Browser-control regression evidence
+
+Changes to session control must prove explicit lifecycle-only writes, fresh
+status after historical acknowledgement, exclusive advisory expiry, retirement
+of an open confirmation and unchanged fences across uncertain business replay.
+A missing route is never simulated as DISABLED by production code. Existing
+guide chapters explicitly model rollout off; the control chapter exercises
+fenced rollout-on behavior. Real PostgreSQL/session authorization remains the
+backend gate; simulated browser evidence must not claim it.
+
 ## Steering loop
 
 When a review finding or escaped defect recurs, close the earliest reliable

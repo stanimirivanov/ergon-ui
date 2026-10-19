@@ -1,3 +1,5 @@
+import type { RunControlClient } from './control-contracts';
+import { createRunControlClient } from './create-run-control-client';
 import { Cause, Effect, Either, Exit } from 'effect';
 
 import type {
@@ -62,11 +64,13 @@ export function createRunSupervisionClient({
   RunExecutionClient &
   RunRetryClient &
   RunEscalationClient &
-  RunCancellationClient {
+  RunCancellationClient &
+  RunControlClient {
   if (!Number.isFinite(requestTimeoutMs) || requestTimeoutMs <= 0) {
     throw new RangeError('Run supervision timeout must be positive and finite');
   }
   return {
+    ...createRunControlClient({ fetch, requestTimeoutMs }),
     ...createRunHandoverClient({ fetch, requestTimeoutMs }),
     ...createRunApprovalClient({ fetch, requestTimeoutMs }),
     ...createRunProofFinalizationClient({ fetch, requestTimeoutMs }),

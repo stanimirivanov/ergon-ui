@@ -13,6 +13,10 @@ type ProblemFailureKind = Exclude<
 >;
 
 const problemFailures: ReadonlyMap<string, ProblemFailureKind> = new Map([
+  ['409:urn:ergon:problem:run-control-required', 'control-required'],
+  ['409:urn:ergon:problem:run-control-conflict', 'control-conflict'],
+  ['503:urn:ergon:problem:run-control-disabled', 'control-disabled'],
+  ['503:urn:ergon:problem:run-control-unavailable', 'control-unavailable'],
   ['403:urn:ergon:problem:human-actor-not-registered', 'actor-not-registered'],
   [
     '403:urn:ergon:problem:untrusted-human-identity-issuer',

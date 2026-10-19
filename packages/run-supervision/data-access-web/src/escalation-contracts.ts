@@ -1,3 +1,4 @@
+import type { FencedRunCommand } from './control-contracts';
 import type { RunSupervisionFailure } from './contracts';
 
 /** Private review identity; expected versions bind the observation, never supply authority. */
@@ -45,7 +46,8 @@ export type RunEscalationReview = EscalationReviewCoordinates &
   );
 
 /** Immutable confirmed exhaustion. Uncertain replay preserves every field and may first commit this original intent if it is absent. */
-export interface RunEscalationCommand extends RunEscalationReviewQuery {
+export interface RunEscalationCommand
+  extends RunEscalationReviewQuery, FencedRunCommand {
   readonly commandId: string;
   readonly sourceAttemptNumber: number;
   readonly retryPolicyRevision: string;

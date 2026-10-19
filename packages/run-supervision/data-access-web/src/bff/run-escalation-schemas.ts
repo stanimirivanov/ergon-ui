@@ -1,3 +1,4 @@
+import { optionalRunControl } from './run-control-schemas';
 import { Either, Schema } from 'effect';
 import type {
   RunEscalationCommand,
@@ -31,6 +32,7 @@ const querySchema = Schema.Struct({
   expectedRunVersion: Schema.Literal(1),
 });
 const commandSchema = Schema.Struct({
+  control: optionalRunControl,
   ...querySchema.fields,
   commandId: uuid,
   sourceAttemptNumber: positiveInt,

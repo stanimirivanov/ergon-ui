@@ -1,3 +1,4 @@
+import { withDisabledRunControl } from './disabled-run-control';
 import { configureStore } from '@reduxjs/toolkit';
 import {
   runSupervisionApi,
@@ -858,7 +859,9 @@ function createStore(client: RunSupervisionClient) {
     reducer: { [runSupervisionApi.reducerPath]: runSupervisionApi.reducer },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
-        thunk: { extraArgument: { runSupervision: client } },
+        thunk: {
+          extraArgument: { runSupervision: withDisabledRunControl(client) },
+        },
       }).concat(runSupervisionApi.middleware),
   });
 }

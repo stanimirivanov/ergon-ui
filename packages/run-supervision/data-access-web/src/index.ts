@@ -143,3 +143,19 @@ export {
   useCancelUntouchedRunMutation,
 } from './cache/run-cancellation-api';
 export { useRunCancellationReview } from './cache/use-run-cancellation-review';
+
+export type {
+  RunControlClient,
+  RunControlQuery,
+  RunControlFence,
+  FencedRunCommand,
+  RunControlView,
+  RunControlCommand,
+  RunControlReceipt,
+  RunControlResult,
+} from './control-contracts';
+export {
+  runControlApi,
+  useChangeRunControlMutation,
+} from './cache/run-control-api';
+export { useRunControlRead } from './cache/use-run-control-read';

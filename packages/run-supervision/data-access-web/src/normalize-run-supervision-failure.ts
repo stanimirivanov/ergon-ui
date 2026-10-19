@@ -18,6 +18,10 @@ const STATELESS_FAILURE_KINDS = {
   timeout: true,
   'request-cancelled': true,
   'unexpected-defect': true,
+  'control-required': true,
+  'control-conflict': true,
+  'control-disabled': true,
+  'control-unavailable': true,
 } satisfies Readonly<Record<StatelessFailureKind, true>>;
 
 /**

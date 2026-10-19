@@ -1,3 +1,4 @@
+import { RunControlPanel } from './run-control-panel';
 import { ThreePaneLayout, type WorkspaceRenderer } from '@ergon/ui-web';
 import type { ReactElement, ReactNode } from 'react';
 
@@ -88,8 +89,28 @@ function TenantAssignedRunWorkspace({
         onRecheck={handleAssignedRecheck}
         onClose={workflow.closeRun}
         isCommandPending={isRunCommandPending(workflow)}
+        controlPanel={
+          <RunControlPanel
+            control={workflow.control}
+            command={workflow.controlCommand}
+            query={
+              detail.phase === 'ready' &&
+              detail.data.supervisionRevision !== undefined
+                ? {
+                    tenantId,
+                    runId: detail.data.runId,
+                    expectedSupervisionRevision:
+                      detail.data.supervisionRevision,
+                  }
+                : null
+            }
+            heading={workflow.heading}
+            onRecover={workflow.recoverControl}
+            signInHref={signInHref}
+          />
+        }
         handoverControl={
-          detail.phase === 'ready' ? (
+          detail.phase === 'ready' && workflow.control.canCommand ? (
             <RunSupervisorHandover
               key={`${detail.data.runId}:${detail.data.supervisionRevision ?? 'unsupported'}`}
               tenantId={tenantId}
@@ -136,7 +157,7 @@ function TenantAssignedRunWorkspace({
             commandFeedback={assignedRunCommandFeedback(workflow, signInHref)}
             isBlockingDisclosure={workflow.isBlockingDisclosure}
             retryControl={
-              detail.phase === 'ready' ? (
+              detail.phase === 'ready' && workflow.control.canCommand ? (
                 <RunRetryControl
                   key={`${detail.data.runId}:${detail.data.supervisionRevision}:${detail.data.stateVersion}`}
                   tenantId={tenantId}
@@ -147,7 +168,7 @@ function TenantAssignedRunWorkspace({
               ) : undefined
             }
             escalationControl={
-              detail.phase === 'ready' ? (
+              detail.phase === 'ready' && workflow.control.canCommand ? (
                 <RunEscalationControl
                   key={`${detail.data.runId}:${detail.data.supervisionRevision}:${detail.data.stateVersion}`}
                   tenantId={tenantId}
@@ -158,7 +179,7 @@ function TenantAssignedRunWorkspace({
               ) : undefined
             }
             cancellationControl={
-              detail.phase === 'ready' ? (
+              detail.phase === 'ready' && workflow.control.canCommand ? (
                 <RunCancellationControl
                   key={`${detail.data.runId}:${detail.data.supervisionRevision}:${detail.data.stateVersion}`}
                   tenantId={tenantId}
@@ -169,7 +190,7 @@ function TenantAssignedRunWorkspace({
               ) : undefined
             }
             executionControl={
-              detail.phase === 'ready' ? (
+              detail.phase === 'ready' && workflow.control.canCommand ? (
                 <RunCapabilityExecutionControl
                   key={`${detail.data.runId}:${detail.data.supervisionRevision}:${detail.data.stateVersion}:${detail.data.approvalReview?.decision?.decisionId}`}
                   tenantId={tenantId}
@@ -180,7 +201,7 @@ function TenantAssignedRunWorkspace({
               ) : undefined
             }
             approvalControl={
-              detail.phase === 'ready' ? (
+              detail.phase === 'ready' && workflow.control.canCommand ? (
                 <RunApprovalCard
                   key={`${detail.data.runId}:${detail.data.supervisionRevision}:${detail.data.approvalReview?.request?.requestId ?? 'none'}`}
                   tenantId={tenantId}
@@ -195,7 +216,7 @@ function TenantAssignedRunWorkspace({
           <AssignedRunOutcomePane
             run={detail.phase === 'ready' ? detail.data : undefined}
             proofFinalizationControl={
-              detail.phase === 'ready' ? (
+              detail.phase === 'ready' && workflow.control.canCommand ? (
                 <RunProofFinalizationControl
                   key={`${detail.data.runId}:${detail.data.supervisionRevision}:${detail.data.stateVersion}:${detail.data.outcomeVerification?.caseStreamVersion}:${detail.data.outcomeVerification?.evidence?.factId}`}
                   tenantId={tenantId}

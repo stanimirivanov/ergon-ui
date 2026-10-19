@@ -1,3 +1,4 @@
+import { optionalRunControl } from './run-control-schemas';
 import { Either, Schema } from 'effect';
 import type {
   RunProofFinalizationCommand,
@@ -20,6 +21,7 @@ const revision = Schema.Number.pipe(
 );
 const caseVersion = revision.pipe(Schema.filter((value) => value > 0));
 const commandSchema = Schema.Struct({
+  control: optionalRunControl,
   tenantId: uuid,
   runId: uuid,
   commandId: uuid,

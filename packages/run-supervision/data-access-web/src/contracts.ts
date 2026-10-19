@@ -177,7 +177,11 @@ export type RunSupervisionFailure =
         | 'transport'
         | 'timeout'
         | 'request-cancelled'
-        | 'unexpected-defect';
+        | 'unexpected-defect'
+        | 'control-required'
+        | 'control-conflict'
+        | 'control-disabled'
+        | 'control-unavailable';
     }
   | {
       readonly kind: 'service-unavailable' | 'unexpected-http-status';

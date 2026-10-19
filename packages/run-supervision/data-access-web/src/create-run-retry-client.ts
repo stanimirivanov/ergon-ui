@@ -44,6 +44,9 @@ export function createRunRetryClient(
       // Construct the wire intent explicitly: local attribution coordinates and
       // caller extras must not become server-selected authority or payload.
       const body = {
+        ...(validated.control === undefined
+          ? {}
+          : { control: validated.control }),
         commandId: validated.commandId,
         expectedSupervisionRevision: validated.expectedSupervisionRevision,
         expectedRunVersion: validated.expectedRunVersion,
