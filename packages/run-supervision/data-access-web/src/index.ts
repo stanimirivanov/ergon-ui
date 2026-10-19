@@ -159,3 +159,13 @@ export {
   useChangeRunControlMutation,
 } from './cache/run-control-api';
 export { useRunControlRead } from './cache/use-run-control-read';
+export type {
+  RunExecutionAdmission,
+  RunExecutionHistory,
+  RunExecutionHistoryQuery,
+  RunExecutionHistoryResult,
+  RunExecutionHistoryClient,
+  RunExecutionHistoryFailure,
+} from './execution-history-contracts';
+export { runExecutionHistoryApi } from './cache/run-execution-history-api';
+export { useRunExecutionHistory } from './cache/use-run-execution-history';

@@ -326,3 +326,11 @@ No real cross-repository session deployment is certified by the guide. See
 Future resolver slices must use reviewed browser contracts for priority,
 reassignment, completion, or resolution. Existing `/internal/v1` routes remain
 ineligible for production UI use.
+
+The Console now inspects Ergon PR #174's sanitized browser execution admissions
+on demand, without a control lease. Fresh tenant/run/epoch reads distinguish
+supported absence, neutral denial, unsupported servers and capped histories.
+Returned recording order is not causal execution order; admission rows carry no
+provider-call count, result, cost or duration. The nineteenth simulated guide
+records privacy retirement, failure recovery, terminal inspection and accessible
+320-pixel reflow. See [ADR 0040](../decisions/0040-inspect-recorded-execution-admissions.md).

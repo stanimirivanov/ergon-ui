@@ -1,4 +1,6 @@
 import type { RunControlClient } from './control-contracts';
+import type { RunExecutionHistoryClient } from './execution-history-contracts';
+import { createRunExecutionHistoryClient } from './create-run-execution-history-client';
 import { createRunControlClient } from './create-run-control-client';
 import { Cause, Effect, Either, Exit } from 'effect';
 
@@ -45,7 +47,7 @@ export interface RunSupervisionClientOptions {
  * generic 5xx failures retry once; disabled authentication and permanent failures
  * do not. Caller cancellation interrupts fetch/body work and returns cancellation.
  * Raw causes never enter Redux; unexpected Effect defects still reject.
- * Candidate and execution-review reads use the same bounded retry policy. Commands acquire
+ * Candidate, execution-review and admission-history reads use the same bounded retry policy. Commands acquire
  * fresh session CSRF and never retry automatically; explicit replay retains the
  * exact tuple and acknowledges historical feedback, not present ownership,
  * current execution authority or a second human response. An admitted execution
@@ -65,11 +67,13 @@ export function createRunSupervisionClient({
   RunRetryClient &
   RunEscalationClient &
   RunCancellationClient &
-  RunControlClient {
+  RunControlClient &
+  RunExecutionHistoryClient {
   if (!Number.isFinite(requestTimeoutMs) || requestTimeoutMs <= 0) {
     throw new RangeError('Run supervision timeout must be positive and finite');
   }
   return {
+    ...createRunExecutionHistoryClient({ fetch, requestTimeoutMs }),
     ...createRunControlClient({ fetch, requestTimeoutMs }),
     ...createRunHandoverClient({ fetch, requestTimeoutMs }),
     ...createRunApprovalClient({ fetch, requestTimeoutMs }),

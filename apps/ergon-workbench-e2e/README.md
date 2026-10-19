@@ -5,10 +5,10 @@
 The tagged access-state, inbox-navigation, follow-up, owned-context,
 claim-recovery, release-recovery, run-supervision, handover, approval,
 pinned-evidence, outcome-verification, proof-finalization, execution/recovery,
-failed-run retry, exhausted-run escalation and predecessor-inspection scenarios
+failed-run retry, exhausted-run escalation, predecessor-inspection and admission-history scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all eighteen with
-annotations, screenshots, and video, then assembles a local eighteen-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all nineteen with
+annotations, screenshots, and video, then assembles a local nineteen-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -298,6 +298,17 @@ writers/readers/UI before quiesced control enablement. No generated media is
 committed.
 
 ## Failure handling
+
+The nineteenth chapter inspects sanitized browser execution admissions in fourteen
+assertion-backed checkpoints: lazy access, supported absence, historical epochs,
+recording-order ties and admission backsteps, keyboard/320-pixel reflow,
+pending/denied withdrawal, fresh recovery, unsupported/malformed responses,
+100-entry truncation, parent-gate retirement and terminal detail outside active
+discovery. It sends no command and requires no control lease. A separate browser
+regression retires a held late history response. Protocol/cache/feature tests own
+strict validation, shared-reader isolation and private modal retirement. These
+fixtures are not live audit, authorization, provider-call or exactly-once proof.
+Deploy Ergon PR #174 first; no generated media is committed.
 
 A failed browser scenario removes its incomplete chapter directory and retains
 the normal Playwright failure artifacts. CI uploads them from the config-relative

@@ -10,6 +10,16 @@ it is neither a client application core nor a general steering surface.
 
 ## Owns
 
+- On-demand admission-history inspector under the fresh Console gate. React
+  owns only opening intent; RTK owns remote history. Pending/failed history
+  checks hide prior rows; failed access retires the entire earlier workspace
+  disclosure before paint and explicit recovery reopens fresh authority gates.
+  Parent withdrawal also retires the entire modal before
+  revalidation/commands. No control lease is required. Recording order, exact
+  admission/recording timestamps, earlier epochs and explicit truncation are
+  facts, never causal spans, provider-call counts, per-row outcomes or grants.
+  See [ADR 0040](../../../docs/decisions/0040-inspect-recorded-execution-admissions.md).
+
 - A tenant-scoped workflow controller for local run selection, paired
   assignment-cursor traversal and heading-focus intent, with no run or case
   identity in URL or persistent storage.

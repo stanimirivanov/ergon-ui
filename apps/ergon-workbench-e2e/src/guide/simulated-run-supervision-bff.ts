@@ -66,7 +66,10 @@ function executionProjection(mode: ExecutionMode): object {
  * Release it deliberately before finishing a scenario. Failure mode persists
  * across the client's bounded automatic read retries until explicitly changed.
  */
-export async function installSimulatedRunSupervisionBff(page: Page): Promise<{
+export async function installSimulatedRunSupervisionBff(
+  page: Page,
+  options?: { readonly supervisionRevision: number },
+): Promise<{
   assignedReads: () => number;
   consoleReads: () => number;
   commands: () => number;
@@ -82,7 +85,19 @@ export async function installSimulatedRunSupervisionBff(page: Page): Promise<{
   holdNextRunRead: () => void;
   releaseHeldRunRead: (mode: RunReadMode) => void;
 }> {
-  await installDisabledRunControl(page);
+  const snapshot = {
+    ...simulatedRunSupervisionSnapshot,
+    ...(options === undefined
+      ? {}
+      : {
+          supervisionRevision: options.supervisionRevision,
+          handoverSupported: false,
+        }),
+  };
+  await installDisabledRunControl(
+    page,
+    () => options?.supervisionRevision ?? 0,
+  );
   let assignedReads = 0;
   let consoleReads = 0;
   let commands = 0;
