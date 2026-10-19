@@ -1,3 +1,4 @@
+import type { FencedRunCommand } from './control-contracts';
 import type {
   AssignedRunConsoleQuery,
   RunSupervisionFailure,
@@ -22,7 +23,8 @@ export interface RunSupervisorCandidatePage {
  * replay; never mint a new command ID or silently change the recipient/revision.
  * The server resolves the outgoing actor and rechecks both parties' authority.
  */
-export interface RunSupervisorHandoverCommand extends AssignedRunConsoleQuery {
+export interface RunSupervisorHandoverCommand
+  extends AssignedRunConsoleQuery, FencedRunCommand {
   readonly commandId: string;
   readonly expectedSupervisionRevision: number;
   readonly supervisorActorId: string;

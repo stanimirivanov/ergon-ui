@@ -1,4 +1,8 @@
 import {
+  useRunControlCommands,
+  useRunControlAvailability,
+} from './use-run-control';
+import {
   useAssignedRunDiscovery,
   useAssignedRunDisclosure,
   type AssignedRunConsole,
@@ -10,6 +14,7 @@ import {
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type RefObject,
@@ -23,6 +28,9 @@ import { useRunEscalation } from './use-run-escalation';
 import { useRunCancellation } from './use-run-cancellation';
 
 export interface AssignedRunWorkflow {
+  readonly control: ReturnType<typeof useRunControlAvailability>;
+  readonly controlCommand: ReturnType<typeof useRunControlCommands>;
+  readonly recoverControl: () => void;
   readonly cancellation: ReturnType<typeof useRunCancellation>;
   readonly recoverCancellation: () => void;
   readonly escalation: ReturnType<typeof useRunEscalation>;
@@ -111,7 +119,12 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     heading,
     onSuccess: afterProofFinalization,
   });
+  const controlCommand = useRunControlCommands({
+    heading,
+    onSuccess: afterProofFinalization,
+  });
   const isBlockingDisclosure =
+    controlCommand.isBlockingDisclosure ||
     cancellation.isBlockingDisclosure ||
     escalation.isBlockingDisclosure ||
     retryRun.isBlockingDisclosure ||
@@ -136,6 +149,24 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
       : null,
   );
 
+  const control = useRunControlAvailability(
+    detail.phase === 'ready' && detail.data.supervisionRevision !== undefined
+      ? {
+          tenantId,
+          runId: detail.data.runId,
+          expectedSupervisionRevision: detail.data.supervisionRevision,
+        }
+      : null,
+  );
+
+  const hadControl = useRef(false);
+  useLayoutEffect(() => {
+    // A status recheck or expiry can retire a modal and its trigger together.
+    // Return focus to a persistent target, not a disconnected command button.
+    if (hadControl.current && !control.canCommand) heading.current?.focus();
+    hadControl.current = control.canCommand;
+  }, [control.canCommand]);
+
   useEffect(() => {
     if (selectedRunId === null || detail.phase === 'ready') {
       heading.current?.focus();
@@ -144,6 +175,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
 
   function selectRun(runId: string | null): void {
     heading.current?.focus();
+    controlCommand.clear();
     cancellation.clear();
     escalation.clear();
     retryRun.clear();
@@ -156,6 +188,13 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   }
 
   return {
+    control,
+    controlCommand,
+    recoverControl: () => {
+      heading.current?.focus();
+      controlCommand.clear();
+      detail.recheck();
+    },
     cancellation: {
       ...cancellation,
       submit: (intent) => {
@@ -165,7 +204,8 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
         proofFinalization.clear();
         approval.clear();
         handover.clear();
-        cancellation.submit(intent);
+        const fenced = control.bind(intent);
+        if (fenced !== undefined) cancellation.submit(fenced);
       },
     },
     recoverCancellation: () => {
@@ -182,7 +222,8 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
         proofFinalization.clear();
         approval.clear();
         handover.clear();
-        escalation.submit(intent);
+        const fenced = control.bind(intent);
+        if (fenced !== undefined) escalation.submit(fenced);
       },
     },
     recoverEscalation: () => {
@@ -199,7 +240,8 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
         proofFinalization.clear();
         approval.clear();
         handover.clear();
-        retryRun.submit(intent);
+        const fenced = control.bind(intent);
+        if (fenced !== undefined) retryRun.submit(fenced);
       },
     },
     recoverRetry: () => {
@@ -216,7 +258,8 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
         handover.clear();
         approval.clear();
         proofFinalization.clear();
-        execution.submit(intent);
+        const fenced = control.bind(intent);
+        if (fenced !== undefined) execution.submit(fenced);
       },
     },
     recoverExecution: () => {
@@ -233,7 +276,8 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
         execution.clear();
         approval.clear();
         handover.clear();
-        proofFinalization.submit(intent);
+        const fenced = control.bind(intent);
+        if (fenced !== undefined) proofFinalization.submit(fenced);
       },
     },
     recoverProofFinalization: () => {
@@ -250,7 +294,8 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
         execution.clear();
         proofFinalization.clear();
         handover.clear();
-        approval.submit(intent);
+        const fenced = control.bind(intent);
+        if (fenced !== undefined) approval.submit(fenced);
       },
     },
     isBlockingDisclosure,
@@ -268,7 +313,8 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
         execution.clear();
         proofFinalization.clear();
         approval.clear();
-        handover.submit(intent);
+        const fenced = control.bind(intent);
+        if (fenced !== undefined) handover.submit(fenced);
       },
     },
     recoverHandover: () => {
@@ -289,7 +335,20 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
       if (returnRunId !== null && !isBlockingDisclosure) selectRun(returnRunId);
     },
     assigned,
-    detail,
+    detail:
+      control.read.phase === 'failed'
+        ? {
+            phase: 'failed',
+            error: control.read.error,
+            recheck: detail.recheck,
+          }
+        : control.read.phase === 'pending'
+          ? {
+              phase: 'pending',
+              hasRetainedData: control.read.hasRetainedData,
+              recheck: detail.recheck,
+            }
+          : detail,
     heading,
     hasPrevious: cursors.length > 0,
     selectRun,

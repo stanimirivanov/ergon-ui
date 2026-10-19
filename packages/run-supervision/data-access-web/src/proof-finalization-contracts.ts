@@ -1,7 +1,8 @@
+import type { FencedRunCommand } from './control-contracts';
 import type { RunSupervisionFailure } from './contracts';
 
 /** Exact reviewed intent; reuse every coordinate on uncertain replay. Actor and acceptance time are session/server-owned. */
-export interface RunProofFinalizationCommand {
+export interface RunProofFinalizationCommand extends FencedRunCommand {
   readonly tenantId: string;
   readonly runId: string;
   readonly commandId: string;

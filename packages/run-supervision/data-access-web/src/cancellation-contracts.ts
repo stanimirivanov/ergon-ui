@@ -1,3 +1,4 @@
+import type { FencedRunCommand } from './control-contracts';
 import type { RunSupervisionFailure } from './contracts';
 
 /** Expected coordinates bind a fresh observation; they never confer authority. */
@@ -39,7 +40,8 @@ export type RunCancellationReview = {
 );
 
 /** Immutable intent retained only for explicit unchanged replay, which may first apply an absent command. */
-export interface RunCancellationCommand extends RunCancellationReviewQuery {
+export interface RunCancellationCommand
+  extends RunCancellationReviewQuery, FencedRunCommand {
   readonly commandId: string;
 }
 

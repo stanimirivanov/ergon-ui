@@ -1,3 +1,4 @@
+import { runControlWireFields } from './bff/run-control-schemas';
 import { Effect } from 'effect';
 import type { RunSupervisionClientOptions } from './create-run-supervision-client';
 import type {
@@ -48,6 +49,7 @@ export function createRunExecutionClient(
           ? base
           : `${base}/${command.commandId}/attempts`;
       const revisions = {
+        ...runControlWireFields(command),
         expectedSupervisionRevision: command.expectedSupervisionRevision,
         expectedRunVersion: command.expectedRunVersion,
       };

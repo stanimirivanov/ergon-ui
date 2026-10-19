@@ -48,6 +48,9 @@ export function createRunEscalationClient(
         return { ok: false, error: { kind: 'invalid-escalation' } };
       // Queue, actor and time are server-owned; caller extras cannot cross this boundary.
       const body = JSON.stringify({
+        ...(validated.control === undefined
+          ? {}
+          : { control: validated.control }),
         commandId: validated.commandId,
         expectedSupervisionRevision: validated.expectedSupervisionRevision,
         expectedRunVersion: validated.expectedRunVersion,

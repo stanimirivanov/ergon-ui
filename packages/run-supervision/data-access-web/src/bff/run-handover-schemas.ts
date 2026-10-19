@@ -1,3 +1,4 @@
+import { optionalRunControl } from './run-control-schemas';
 import { Either, Schema } from 'effect';
 import type {
   RunSupervisorCandidatePage,
@@ -35,6 +36,7 @@ const querySchema = Schema.Struct({
   afterActorId: Schema.optional(uuid),
 });
 const commandSchema = Schema.Struct({
+  control: optionalRunControl,
   tenantId: uuid,
   runId: uuid,
   commandId: uuid,

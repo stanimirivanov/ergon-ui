@@ -79,6 +79,7 @@ async function select(): Promise<void> {
     await screen.findByRole('button', { name: `Inspect run ${RUN_ID}` }),
   );
   await screen.findByText('PRIVATE_UNTOUCHED_POLICY');
+  await screen.findByText('Browser control enforcement disabled');
 }
 async function open(): Promise<void> {
   fireEvent.click(

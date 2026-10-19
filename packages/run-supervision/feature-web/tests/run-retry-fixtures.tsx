@@ -1,3 +1,4 @@
+import { withDisabledRunControl } from './disabled-run-control';
 import { configureStore } from '@reduxjs/toolkit';
 import {
   runSupervisionApi,
@@ -149,9 +150,11 @@ function buildStore(client: RunSupervisionClient & RunRetryClient) {
   return configureStore({
     reducer: { [runSupervisionApi.reducerPath]: runSupervisionApi.reducer },
     middleware: (get) =>
-      get({ thunk: { extraArgument: { runSupervision: client } } }).concat(
-        runSupervisionApi.middleware,
-      ),
+      get({
+        thunk: {
+          extraArgument: { runSupervision: withDisabledRunControl(client) },
+        },
+      }).concat(runSupervisionApi.middleware),
   });
 }
 export function renderRetryWorkspace<

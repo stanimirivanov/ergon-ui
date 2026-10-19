@@ -1,5 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 import { fulfillSimulatedBff } from './simulated-bff-response';
+import { installDisabledRunControl } from './simulated-disabled-run-control';
 import {
   assignedRunId,
   simulatedRunSupervisionSnapshot,
@@ -51,6 +52,7 @@ export async function installSimulatedRunEscalationBff(page: Page): Promise<{
   let canRead = true;
   let escalated = false;
   let supervisionRevision = 0;
+  await installDisabledRunControl(page, () => supervisionRevision);
   let creations = 0;
   let reviews = 0;
   const intents: EscalationIntent[] = [];

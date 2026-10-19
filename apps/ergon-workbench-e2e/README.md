@@ -7,8 +7,8 @@ claim-recovery, release-recovery, run-supervision, handover, approval,
 pinned-evidence, outcome-verification, proof-finalization, execution/recovery,
 failed-run retry, exhausted-run escalation and predecessor-inspection scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all sixteen with
-annotations, screenshots, and video, then assembles a local sixteen-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all eighteen with
+annotations, screenshots, and video, then assembles a local eighteen-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -282,6 +282,20 @@ proof/case closure. Read its code-first migration rollout warning before enablin
 the backend flag; old writers cannot resume after trigger installation even
 with commands disabled. Synthetic facts are not actual authority/durability
 verification. No generated media is committed.
+
+## Browser-control walkthrough
+
+The eighteenth chapter records fifteen assertion-backed checkpoints covering
+explicit acquisition/renewal/release, lost lifecycle acknowledgement, identical
+replay, another session, expiry, monotonic reacquisition, keyboard/320-pixel
+reflow, separately acknowledged fenced cancellation, hidden-before-POST context,
+unchanged business replay, terminal status and neutral denial. A separate browser
+regression advances its controlled clock to retire an open confirmation at
+advisory expiry. Existing chapters explicitly simulate enforcement off; a missing
+production endpoint is not a fallback. The guide does not verify real sessions,
+PostgreSQL races or provider behavior. Deploy Ergon PR #172 and all compatible
+writers/readers/UI before quiesced control enablement. No generated media is
+committed.
 
 ## Failure handling
 

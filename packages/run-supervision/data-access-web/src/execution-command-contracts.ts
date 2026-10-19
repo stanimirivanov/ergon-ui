@@ -1,3 +1,4 @@
+import type { FencedRunCommand } from './control-contracts';
 import type { RunSupervisionFailure } from './contracts';
 
 /** Private initial-step review identity (run version zero). Expected revisions bind the observation to the disclosed Console, not HTTP authority. */
@@ -21,7 +22,7 @@ export interface RunExecutionReview {
   readonly canResume: boolean;
 }
 
-interface ExecutionCoordinates {
+interface ExecutionCoordinates extends FencedRunCommand {
   readonly tenantId: string;
   readonly runId: string;
   readonly commandId: string;

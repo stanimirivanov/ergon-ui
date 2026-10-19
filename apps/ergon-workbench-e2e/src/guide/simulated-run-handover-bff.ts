@@ -1,3 +1,4 @@
+import { installDisabledRunControl } from './simulated-disabled-run-control';
 import { expect, type Page } from '@playwright/test';
 import { fulfillSimulatedBff } from './simulated-bff-response';
 
@@ -61,6 +62,7 @@ export async function installSimulatedRunHandoverBff(page: Page): Promise<{
 }> {
   let enabled = false;
   let revision = 0;
+  await installDisabledRunControl(page, () => revision);
   let supervisor = outgoingSupervisorId;
   let actor = outgoingSupervisorId;
   let candidateReads = 0;

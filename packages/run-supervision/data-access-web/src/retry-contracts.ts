@@ -1,3 +1,4 @@
+import type { FencedRunCommand } from './control-contracts';
 import type { RunSupervisionFailure } from './contracts';
 
 /** Narrow current planning coordinates; no evidence content or execution authority. Every field is an exact confirmation fence. */
@@ -66,7 +67,7 @@ export type RunRetryReview = RetryReviewCoordinates &
  * expectedAttemptNumber is local receipt attribution; the server derives it from
  * the immutable predecessor and does not accept it in the POST body.
  */
-export interface RunRetryCommand extends RunRetryReviewQuery {
+export interface RunRetryCommand extends RunRetryReviewQuery, FencedRunCommand {
   readonly commandId: string;
   readonly expectedAttemptNumber: number;
   readonly retryPolicyRevision: string;

@@ -1,3 +1,4 @@
+import { optionalRunControl } from './run-control-schemas';
 import { Either, Schema } from 'effect';
 import type {
   RunCancellationCommand,
@@ -24,7 +25,11 @@ const querySchema = Schema.Struct({
   expectedSupervisionRevision: revision,
   expectedRunVersion: Schema.Literal(0),
 });
-const commandSchema = Schema.Struct({ ...querySchema.fields, commandId: uuid });
+const commandSchema = Schema.Struct({
+  control: optionalRunControl,
+  ...querySchema.fields,
+  commandId: uuid,
+});
 const coordinates = {
   observedAt: instant,
   supervisionRevision: revision,

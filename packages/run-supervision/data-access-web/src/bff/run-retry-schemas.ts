@@ -1,3 +1,4 @@
+import { optionalRunControl } from './run-control-schemas';
 import { Either, Schema } from 'effect';
 import type {
   RunRetryCommand,
@@ -51,6 +52,7 @@ const planSchema = Schema.Struct({
   ),
 );
 const commandSchema = Schema.Struct({
+  control: optionalRunControl,
   ...querySchema.fields,
   commandId: uuid,
   expectedAttemptNumber: positiveInt,

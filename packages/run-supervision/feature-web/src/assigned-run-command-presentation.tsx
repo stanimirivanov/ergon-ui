@@ -123,6 +123,8 @@ export function assignedRunCommandFeedback(
 }
 
 const statusLabels: ReadonlyMap<string, string> = new Map([
+  ['control:submitting', 'Browser control command pending'],
+  ['control:failed', 'Browser control acknowledgement unavailable'],
   ['cancellation:submitting', 'Untouched-run cancellation pending'],
   ['cancellation:failed', 'Cancellation acknowledgement unavailable'],
   ['cancellation:review-failed', 'Cancellation review unavailable'],
@@ -151,6 +153,7 @@ export function assignedRunCommandStatus(
   workflow: AssignedRunWorkflow,
 ): string {
   const phases = [
+    `control:${workflow.controlCommand.state.phase}`,
     `cancellation:${workflow.cancellation.state.phase}`,
     `escalation:${workflow.escalation.state.phase}`,
     `retry:${workflow.retryRun.state.phase}`,
@@ -171,6 +174,7 @@ export function assignedRunCommandStatus(
 
 export function isRunCommandPending(workflow: AssignedRunWorkflow): boolean {
   return [
+    workflow.controlCommand.state.phase,
     workflow.cancellation.state.phase,
     workflow.escalation.state.phase,
     workflow.retryRun.state.phase,

@@ -104,6 +104,14 @@ because this slice has no separate platform-neutral client policy.
 
 ## State ownership
 
+Browser control now uses fresh private status and explicit lifecycle commands in
+existing supervision data access. Feature owns advisory monotonic countdown and
+immutable confirmation/replay fences, not another remote cache. Every existing
+browser command captures its fence once; exact replay never acquires or renews.
+Only explicit DISABLED preserves rollout-off behavior. Missing/failed status
+blocks new commands and denial withdraws detail. The app and ui-web retain shell
+and modal ownership. See [ADR 0039](decisions/0039-coordinate-explicit-fenced-browser-control.md).
+
 Exhausted-run escalation uses a separate fresh private RTK review and the same
 confirmed-command barrier. Data access owns exact exhaustion/receipt validation,
 session-CSRF execution and safe outcomes. Feature owns acknowledged confirmation,
@@ -221,8 +229,8 @@ modal owns focus/inertness and placement. Effect owns invocation-local CSRF,
 the bounded POST and receipt decoding; no transfer retries automatically.
 A failed candidate read withdraws the earlier private run snapshot and dialog.
 Fresh recovery is required; no command was created or offered for replay.
-Historical receipts do not substitute for current supervision, and no browser
-self-assignment, lease, execution permission or persistent directory is added.
+Historical receipts do not substitute for current supervision. Handover itself
+adds no self-assignment, lease transfer, execution permission or persistent directory.
 See [ADR 0030](decisions/0030-confirm-revisioned-supervisor-handover.md).
 
 Both Consoles use one app-owned standard/focused shell composed directly from
