@@ -6,6 +6,22 @@ Own the confidential Console's reads, confirmed handover/approval/execution prot
 RTK cache lifecycle. The backend owns current authority; a human decision is
 not a capability grant. Private resources never acquire a second cache.
 
+## Execution admission history
+
+`getExecutionHistory` and `useRunExecutionHistory` consume Ergon PR #174's
+read-only sanitized audit. Requests are lazy, no-store and bounded by the existing
+read timeout/retry/cancellation policy; no CSRF or lease is acquired. Exact
+tenant/run/expected epoch keys and the shared fresh-read gate prevent retained
+or pre-retirement pending data from becoming fresh disclosure. Every parent
+mutation invalidates the same RunDetail tag. Failures and defects remain
+cause-free before RTK serialization.
+
+Decode command/empty parity, the 100-entry cap and truncation, safe revisions,
+UTC precision and returned recording order; strip all unused fields. Do not
+require causal timestamp order, INITIAL first, row epochs bounded by the earlier
+authorization observation, or provider outcomes per row. The request's expected
+epoch stays local. See [ADR 0040](../../../docs/decisions/0040-inspect-recorded-execution-admissions.md).
+
 ## Purpose
 
 Own confidential-browser reads and remote-cache integration for resolution runs

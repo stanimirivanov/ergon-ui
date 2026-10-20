@@ -19,48 +19,48 @@ decrease, even when the newest record is later superseded or deprecated.
 
 ## Index
 
-| ADR                                                                         | Status     | Decision                                                       |
-| :-------------------------------------------------------------------------- | :--------- | :------------------------------------------------------------- |
-| [0001](0001-adopt-nx-and-separate-browser-trust-boundaries.md)              | Accepted   | Adopt Nx and separate workbench/requester browser deployables  |
-| [0002](0002-resolve-browser-sessions-with-rtk-query-and-effect.md)          | Superseded | Resolve actor sessions through RTK Query and Effect            |
-| [0003](0003-consume-confidential-bff-sessions.md)                           | Accepted   | Consume confidential same-origin BFF sessions                  |
-| [0004](0004-consume-read-only-resolver-inbox.md)                            | Accepted   | Consume the read-only resolver follow-up inbox                 |
-| [0005](0005-claim-follow-up-with-ephemeral-csrf-tokens.md)                  | Superseded | Claim follow-up work with ephemeral CSRF tokens                |
-| [0006](0006-recover-resolver-owned-follow-up-work.md)                       | Accepted   | Recover active claims from the confidential BFF                |
-| [0007](0007-render-owned-follow-up-case-context.md)                         | Superseded | Render server-authorized context inside owned follow-ups       |
-| [0008](0008-render-failed-execution-and-retry-handoff.md)                   | Accepted   | Explain failed execution and exhausted retry handoff           |
-| [0009](0009-enforce-capability-and-dependency-boundaries.md)                | Superseded | Enforce capability-specific ports and inward dependencies      |
-| [0010](0010-extract-capability-react-adapters.md)                           | Superseded | Extract capability React code as inbound adapters              |
-| [0011](0011-adopt-capability-first-frontend-boundaries.md)                  | Accepted   | Adopt capability-first roles and selective application cores   |
-| [0012](0012-enforce-repository-documentation-policy.md)                     | Accepted   | Enforce repository documentation policy                        |
-| [0013](0013-name-follow-up-feature-by-capability-and-role.md)               | Accepted   | Name the follow-up feature by capability and role              |
-| [0014](0014-name-follow-up-data-access-by-capability-and-role.md)           | Accepted   | Name follow-up data access by capability and role              |
-| [0015](0015-name-follow-up-model-by-capability-and-role.md)                 | Accepted   | Name the follow-up model by capability and role                |
-| [0016](0016-name-session-data-access-by-capability-and-role.md)             | Accepted   | Name session data access by capability and role                |
-| [0017](0017-name-session-model-by-capability-and-role.md)                   | Accepted   | Name the session model by capability and role                  |
-| [0018](0018-bind-case-context-cache-to-full-request-identity.md)            | Accepted   | Bind case-context cache to the validated request tuple         |
-| [0019](0019-revalidate-case-context-after-disclosure-closes.md)             | Accepted   | Recheck case context after disclosure closes                   |
-| [0020](0020-use-revision-checked-browser-claim-commands.md)                 | Accepted   | Use revision-checked browser claim commands                    |
-| [0021](0021-release-owned-follow-up-through-the-browser-bff.md)             | Accepted   | Release owned follow-up through the browser BFF                |
-| [0022](0022-publish-simulated-user-guide-from-main.md)                      | Accepted   | Publish the simulated user guide from main                     |
-| [0023](0023-consume-assigned-run-console-snapshots.md)                      | Accepted   | Consume assigned-only active-run Console snapshots             |
-| [0024](0024-contain-client-defects-at-cache-boundaries.md)                  | Accepted   | Contain client defects before cache serialization and logging  |
-| [0025](0025-own-private-console-disclosure-workflows.md)                    | Accepted   | Own private Console gates and committed feature workflows      |
-| [0026](0026-compose-console-shell-and-named-panes.md)                       | Accepted   | Compose app chrome and capability panes through explicit slots |
-| [0027](0027-own-inspection-modal-lifecycle-in-ui-primitives.md)             | Accepted   | Own inspection modal lifecycle and source-selection retirement |
-| [0028](0028-render-attributed-capability-execution.md)                      | Proposed   | Render exact attributed execution with compatibility absence   |
-| [0029](0029-display-sequence-aligned-run-transitions.md)                    | Proposed   | Display state-aligned immutable transition prefixes            |
-| [0030](0030-confirm-revisioned-supervisor-handover.md)                      | Proposed   | Confirm handover with exact replay and committed disclosure    |
-| [0031](0031-confirm-human-approval-prerequisites.md)                        | Proposed   | Confirm exact human prerequisites without granting execution   |
-| [0032](0032-inspect-supervisor-scoped-pinned-evidence.md)                   | Proposed   | Inspect pinned bindings and only their linked sources          |
-| [0033](0033-inspect-outcome-verification-and-accepted-proof.md)             | Proposed   | Distinguish mutable matching from durable proof acceptance     |
-| [0034](0034-confirm-exact-outcome-proof.md)                                 | Proposed   | Confirm exact reviewed proof with replay-safe case closure     |
-| [0035](0035-confirm-capability-execution-and-recovery.md)                   | Accepted   | Confirm execution, status-only replay and explicit recovery    |
-| [0036](0036-confirm-failed-run-retry-and-fresh-successor-access.md)         | Accepted   | Confirm failed-run retry and fresh successor access            |
-| [0037](0037-confirm-exhausted-run-escalation-and-fresh-follow-up-access.md) | Accepted   | Confirm exhausted escalation and independent fresh access      |
-| [0038](0038-confirm-untouched-run-cancellation.md)                          | Accepted   | Confirm untouched-run cancellation with exact recovery         |
-
-| [0039](0039-coordinate-explicit-fenced-browser-control.md) | Accepted | Coordinate explicit session control and original command fences |
+| ADR                                                                         | Status     | Decision                                                        |
+| :-------------------------------------------------------------------------- | :--------- | :-------------------------------------------------------------- |
+| [0001](0001-adopt-nx-and-separate-browser-trust-boundaries.md)              | Accepted   | Adopt Nx and separate workbench/requester browser deployables   |
+| [0002](0002-resolve-browser-sessions-with-rtk-query-and-effect.md)          | Superseded | Resolve actor sessions through RTK Query and Effect             |
+| [0003](0003-consume-confidential-bff-sessions.md)                           | Accepted   | Consume confidential same-origin BFF sessions                   |
+| [0004](0004-consume-read-only-resolver-inbox.md)                            | Accepted   | Consume the read-only resolver follow-up inbox                  |
+| [0005](0005-claim-follow-up-with-ephemeral-csrf-tokens.md)                  | Superseded | Claim follow-up work with ephemeral CSRF tokens                 |
+| [0006](0006-recover-resolver-owned-follow-up-work.md)                       | Accepted   | Recover active claims from the confidential BFF                 |
+| [0007](0007-render-owned-follow-up-case-context.md)                         | Superseded | Render server-authorized context inside owned follow-ups        |
+| [0008](0008-render-failed-execution-and-retry-handoff.md)                   | Accepted   | Explain failed execution and exhausted retry handoff            |
+| [0009](0009-enforce-capability-and-dependency-boundaries.md)                | Superseded | Enforce capability-specific ports and inward dependencies       |
+| [0010](0010-extract-capability-react-adapters.md)                           | Superseded | Extract capability React code as inbound adapters               |
+| [0011](0011-adopt-capability-first-frontend-boundaries.md)                  | Accepted   | Adopt capability-first roles and selective application cores    |
+| [0012](0012-enforce-repository-documentation-policy.md)                     | Accepted   | Enforce repository documentation policy                         |
+| [0013](0013-name-follow-up-feature-by-capability-and-role.md)               | Accepted   | Name the follow-up feature by capability and role               |
+| [0014](0014-name-follow-up-data-access-by-capability-and-role.md)           | Accepted   | Name follow-up data access by capability and role               |
+| [0015](0015-name-follow-up-model-by-capability-and-role.md)                 | Accepted   | Name the follow-up model by capability and role                 |
+| [0016](0016-name-session-data-access-by-capability-and-role.md)             | Accepted   | Name session data access by capability and role                 |
+| [0017](0017-name-session-model-by-capability-and-role.md)                   | Accepted   | Name the session model by capability and role                   |
+| [0018](0018-bind-case-context-cache-to-full-request-identity.md)            | Accepted   | Bind case-context cache to the validated request tuple          |
+| [0019](0019-revalidate-case-context-after-disclosure-closes.md)             | Accepted   | Recheck case context after disclosure closes                    |
+| [0020](0020-use-revision-checked-browser-claim-commands.md)                 | Accepted   | Use revision-checked browser claim commands                     |
+| [0021](0021-release-owned-follow-up-through-the-browser-bff.md)             | Accepted   | Release owned follow-up through the browser BFF                 |
+| [0022](0022-publish-simulated-user-guide-from-main.md)                      | Accepted   | Publish the simulated user guide from main                      |
+| [0023](0023-consume-assigned-run-console-snapshots.md)                      | Accepted   | Consume assigned-only active-run Console snapshots              |
+| [0024](0024-contain-client-defects-at-cache-boundaries.md)                  | Accepted   | Contain client defects before cache serialization and logging   |
+| [0025](0025-own-private-console-disclosure-workflows.md)                    | Accepted   | Own private Console gates and committed feature workflows       |
+| [0026](0026-compose-console-shell-and-named-panes.md)                       | Accepted   | Compose app chrome and capability panes through explicit slots  |
+| [0027](0027-own-inspection-modal-lifecycle-in-ui-primitives.md)             | Accepted   | Own inspection modal lifecycle and source-selection retirement  |
+| [0028](0028-render-attributed-capability-execution.md)                      | Proposed   | Render exact attributed execution with compatibility absence    |
+| [0029](0029-display-sequence-aligned-run-transitions.md)                    | Proposed   | Display state-aligned immutable transition prefixes             |
+| [0030](0030-confirm-revisioned-supervisor-handover.md)                      | Proposed   | Confirm handover with exact replay and committed disclosure     |
+| [0031](0031-confirm-human-approval-prerequisites.md)                        | Proposed   | Confirm exact human prerequisites without granting execution    |
+| [0032](0032-inspect-supervisor-scoped-pinned-evidence.md)                   | Proposed   | Inspect pinned bindings and only their linked sources           |
+| [0033](0033-inspect-outcome-verification-and-accepted-proof.md)             | Proposed   | Distinguish mutable matching from durable proof acceptance      |
+| [0034](0034-confirm-exact-outcome-proof.md)                                 | Proposed   | Confirm exact reviewed proof with replay-safe case closure      |
+| [0035](0035-confirm-capability-execution-and-recovery.md)                   | Accepted   | Confirm execution, status-only replay and explicit recovery     |
+| [0036](0036-confirm-failed-run-retry-and-fresh-successor-access.md)         | Accepted   | Confirm failed-run retry and fresh successor access             |
+| [0037](0037-confirm-exhausted-run-escalation-and-fresh-follow-up-access.md) | Accepted   | Confirm exhausted escalation and independent fresh access       |
+| [0038](0038-confirm-untouched-run-cancellation.md)                          | Accepted   | Confirm untouched-run cancellation with exact recovery          |
+| [0039](0039-coordinate-explicit-fenced-browser-control.md)                  | Accepted   | Coordinate explicit session control and original command fences |
+| [0040](0040-inspect-recorded-execution-admissions.md)                       | Accepted   | Inspect sanitized admissions without inventing provider traces  |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

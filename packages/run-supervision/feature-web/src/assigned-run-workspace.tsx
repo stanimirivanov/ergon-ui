@@ -14,6 +14,7 @@ import { RunCapabilityExecutionControl } from './run-capability-execution-contro
 import { RunRetryControl } from './run-retry-control';
 import { RunEscalationControl } from './run-escalation-control';
 import { RunCancellationControl } from './run-cancellation-control';
+import { RunExecutionHistoryInspector } from './run-execution-history-inspector';
 import {
   assignedRunCommandFeedback,
   assignedRunCommandStatus,
@@ -156,6 +157,16 @@ function TenantAssignedRunWorkspace({
             heading={workflow.heading}
             commandFeedback={assignedRunCommandFeedback(workflow, signInHref)}
             isBlockingDisclosure={workflow.isBlockingDisclosure}
+            executionHistory={
+              detail.phase === 'ready' ? (
+                <RunExecutionHistoryInspector
+                  key={`${tenantId}:${detail.data.runId}:${detail.data.supervisionRevision}`}
+                  tenantId={tenantId}
+                  run={detail.data}
+                  onAccessFailure={workflow.historyAccess.rejectRead}
+                />
+              ) : undefined
+            }
             retryControl={
               detail.phase === 'ready' && workflow.control.canCommand ? (
                 <RunRetryControl

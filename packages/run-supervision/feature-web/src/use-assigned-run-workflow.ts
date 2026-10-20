@@ -26,8 +26,11 @@ import { useRunCapabilityExecution } from './use-run-capability-execution';
 import { useRunRetry } from './use-run-retry';
 import { useRunEscalation } from './use-run-escalation';
 import { useRunCancellation } from './use-run-cancellation';
+import { useRunHistoryAccess } from './use-run-history-access';
 
 export interface AssignedRunWorkflow {
+  readonly historyAccess: ReturnType<typeof useRunHistoryAccess>;
+  readonly recoverHistoryAccess: () => void;
   readonly control: ReturnType<typeof useRunControlAvailability>;
   readonly controlCommand: ReturnType<typeof useRunControlCommands>;
   readonly recoverControl: () => void;
@@ -77,6 +80,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   const [returnRunId, setReturnRunId] = useState<string | null>(null);
   const [cursors, setCursors] = useState<readonly AssignedRunCursor[]>([]);
   const heading = useRef<HTMLHeadingElement>(null);
+  const historyAccess = useRunHistoryAccess(heading);
   const afterHandover = useCallback(() => {
     setReturnRunId(null);
     setSelectedRunId(null);
@@ -124,6 +128,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     onSuccess: afterProofFinalization,
   });
   const isBlockingDisclosure =
+    historyAccess.error !== null ||
     controlCommand.isBlockingDisclosure ||
     cancellation.isBlockingDisclosure ||
     escalation.isBlockingDisclosure ||
@@ -174,6 +179,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   }, [selectedRunId, detail.phase]);
 
   function selectRun(runId: string | null): void {
+    historyAccess.clear();
     heading.current?.focus();
     controlCommand.clear();
     cancellation.clear();
@@ -188,6 +194,11 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   }
 
   return {
+    historyAccess,
+    recoverHistoryAccess: () => {
+      heading.current?.focus();
+      historyAccess.clear();
+    },
     control,
     controlCommand,
     recoverControl: () => {
