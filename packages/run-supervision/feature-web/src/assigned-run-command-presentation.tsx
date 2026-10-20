@@ -8,19 +8,19 @@ import { assignedRunSnapshotStatus } from './run-supervision-copy';
 import { RunRetryFeedback } from './run-retry-feedback';
 import { RunEscalationFeedback } from './run-escalation-feedback';
 import { RunCancellationFeedback } from './run-cancellation-feedback';
-import { RunHistoryAccessFeedback } from './run-history-access-feedback';
+import { RunInspectionAccessFeedback } from './run-inspection-access-feedback';
 
 /** Active barriers outrank every historical receipt, including read failures that have no submitted command. No new state owner is introduced. */
 export function assignedRunCommandFeedback(
   workflow: AssignedRunWorkflow,
   signInHref: string,
 ): ReactElement | undefined {
-  if (workflow.historyAccess.error !== null)
+  if (workflow.inspectionAccess.failure !== null)
     return (
-      <RunHistoryAccessFeedback
-        error={workflow.historyAccess.error}
+      <RunInspectionAccessFeedback
+        failure={workflow.inspectionAccess.failure}
         signInHref={signInHref}
-        onRecheck={workflow.recoverHistoryAccess}
+        onRecheck={workflow.recoverInspectionAccess}
       />
     );
   const {
@@ -161,8 +161,10 @@ const statusLabels: ReadonlyMap<string, string> = new Map([
 export function assignedRunCommandStatus(
   workflow: AssignedRunWorkflow,
 ): string {
-  if (workflow.historyAccess.error !== null)
-    return 'Admission history access unavailable';
+  if (workflow.inspectionAccess.failure !== null)
+    return workflow.inspectionAccess.failure.resource === 'history'
+      ? 'Admission history access unavailable'
+      : 'Successor access unavailable';
   const phases = [
     `control:${workflow.controlCommand.state.phase}`,
     `cancellation:${workflow.cancellation.state.phase}`,

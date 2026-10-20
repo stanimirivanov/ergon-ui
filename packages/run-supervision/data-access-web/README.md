@@ -6,6 +6,17 @@ Own the confidential Console's reads, confirmed handover/approval/execution prot
 RTK cache lifecycle. The backend owns current authority; a human decision is
 not a capability grant. Private resources never acquire a second cache.
 
+## Retry successor lookup
+
+`getRetrySuccessor` and `useRunRetrySuccessor` consume Ergon PR #176's protected
+direct relationship. Exact tenant/source/expected epoch keys use the existing
+fresh RTK lifecycle, no-store GET and bounded read retry/cancellation. Validate
+UTC precision, UUIDs, safe source/target epochs, source match and no self-link;
+strip extras. Null means no currently visible successor, not no retry. Unknown
+missing routes are unsupported; recognized private denial is not null. No lease,
+CSRF, target preload, command or second cache is added. See
+[ADR 0041](../../../docs/decisions/0041-recover-independently-visible-retry-successors.md).
+
 ## Execution admission history
 
 `getExecutionHistory` and `useRunExecutionHistory` consume Ergon PR #174's

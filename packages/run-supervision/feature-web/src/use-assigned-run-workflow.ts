@@ -26,11 +26,11 @@ import { useRunCapabilityExecution } from './use-run-capability-execution';
 import { useRunRetry } from './use-run-retry';
 import { useRunEscalation } from './use-run-escalation';
 import { useRunCancellation } from './use-run-cancellation';
-import { useRunHistoryAccess } from './use-run-history-access';
+import { useRunInspectionAccess } from './use-run-inspection-access';
 
 export interface AssignedRunWorkflow {
-  readonly historyAccess: ReturnType<typeof useRunHistoryAccess>;
-  readonly recoverHistoryAccess: () => void;
+  readonly inspectionAccess: ReturnType<typeof useRunInspectionAccess>;
+  readonly recoverInspectionAccess: () => void;
   readonly control: ReturnType<typeof useRunControlAvailability>;
   readonly controlCommand: ReturnType<typeof useRunControlCommands>;
   readonly recoverControl: () => void;
@@ -52,6 +52,8 @@ export interface AssignedRunWorkflow {
   readonly selectedRunId: string | null;
   readonly canReturnToAttempt: boolean;
   readonly inspectPredecessor: () => void;
+  /** Select only a validated relationship identity, then reacquire exact target access; no target facts are copied. */
+  readonly inspectSuccessor: (runId: string) => void;
   readonly returnToAttempt: () => void;
   readonly assigned: AssignedRunRead<AssignedRunPage>;
   readonly detail: AssignedRunRead<AssignedRunConsole>;
@@ -80,7 +82,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   const [returnRunId, setReturnRunId] = useState<string | null>(null);
   const [cursors, setCursors] = useState<readonly AssignedRunCursor[]>([]);
   const heading = useRef<HTMLHeadingElement>(null);
-  const historyAccess = useRunHistoryAccess(heading);
+  const inspectionAccess = useRunInspectionAccess(heading);
   const afterHandover = useCallback(() => {
     setReturnRunId(null);
     setSelectedRunId(null);
@@ -128,7 +130,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     onSuccess: afterProofFinalization,
   });
   const isBlockingDisclosure =
-    historyAccess.error !== null ||
+    inspectionAccess.failure !== null ||
     controlCommand.isBlockingDisclosure ||
     cancellation.isBlockingDisclosure ||
     escalation.isBlockingDisclosure ||
@@ -179,7 +181,7 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   }, [selectedRunId, detail.phase]);
 
   function selectRun(runId: string | null): void {
-    historyAccess.clear();
+    inspectionAccess.clear();
     heading.current?.focus();
     controlCommand.clear();
     cancellation.clear();
@@ -194,10 +196,10 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
   }
 
   return {
-    historyAccess,
-    recoverHistoryAccess: () => {
+    inspectionAccess,
+    recoverInspectionAccess: () => {
       heading.current?.focus();
-      historyAccess.clear();
+      inspectionAccess.clear();
     },
     control,
     controlCommand,
@@ -340,6 +342,12 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
         return;
       const origin = detail.data.runId;
       selectRun(detail.data.predecessorRunId);
+      setReturnRunId(origin);
+    },
+    inspectSuccessor: (runId) => {
+      if (detail.phase !== 'ready' || detail.data.runId === runId) return;
+      const origin = detail.data.runId;
+      selectRun(runId);
       setReturnRunId(origin);
     },
     returnToAttempt: () => {

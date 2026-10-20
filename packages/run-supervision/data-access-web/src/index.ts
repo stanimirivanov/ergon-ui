@@ -20,6 +20,15 @@ export {
   type RunSupervisionClientOptions,
 } from './create-run-supervision-client';
 export { normalizeRunSupervisionFailure } from './normalize-run-supervision-failure';
+export type {
+  RunRetrySuccessorQuery,
+  RunRetrySuccessor,
+  RunRetrySuccessorClient,
+  RunRetrySuccessorResult,
+  RunRetrySuccessorFailure,
+} from './retry-successor-contracts';
+export { useRunRetrySuccessor } from './cache/use-run-retry-successor';
+export { runRetrySuccessorApi } from './cache/run-retry-successor-api';
 export { normalizeRunHandoverFailure } from './normalize-run-handover-failure';
 export { normalizeRunApprovalFailure } from './bff/run-approval-http';
 export type {

@@ -1,14 +1,16 @@
 import type { AssignedRunConsole } from '@ergon/run-supervision-data-access-web';
 import { Button } from '@ergon/ui-web';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 /** Relationship facts come only from the currently disclosed run, not discovery or command history. */
 export function AssignedRunAttemptContext({
   run,
   onInspectPredecessor,
+  successorLookup,
 }: {
   readonly run: AssignedRunConsole;
   readonly onInspectPredecessor: () => void;
+  readonly successorLookup?: ReactNode;
 }): ReactElement {
   return (
     <section
@@ -53,6 +55,7 @@ export function AssignedRunAttemptContext({
         Attempt numbering is recorded history, not remaining retry budget or a
         complete retry tree. Each inspection requires a fresh authorized read.
       </p>
+      <div className="mt-4">{successorLookup}</div>
     </section>
   );
 }
