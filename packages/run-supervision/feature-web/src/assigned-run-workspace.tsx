@@ -15,6 +15,7 @@ import { RunRetryControl } from './run-retry-control';
 import { RunEscalationControl } from './run-escalation-control';
 import { RunCancellationControl } from './run-cancellation-control';
 import { RunExecutionHistoryInspector } from './run-execution-history-inspector';
+import { RunRetrySuccessorLookup } from './run-retry-successor-lookup';
 import {
   assignedRunCommandFeedback,
   assignedRunCommandStatus,
@@ -163,7 +164,20 @@ function TenantAssignedRunWorkspace({
                   key={`${tenantId}:${detail.data.runId}:${detail.data.supervisionRevision}`}
                   tenantId={tenantId}
                   run={detail.data}
-                  onAccessFailure={workflow.historyAccess.rejectRead}
+                  onAccessFailure={workflow.inspectionAccess.rejectHistoryRead}
+                />
+              ) : undefined
+            }
+            retrySuccessor={
+              detail.phase === 'ready' ? (
+                <RunRetrySuccessorLookup
+                  key={`${tenantId}:${detail.data.runId}:${detail.data.supervisionRevision}`}
+                  tenantId={tenantId}
+                  run={detail.data}
+                  onInspect={workflow.inspectSuccessor}
+                  onAccessFailure={
+                    workflow.inspectionAccess.rejectSuccessorRead
+                  }
                 />
               ) : undefined
             }

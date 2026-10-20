@@ -220,6 +220,15 @@ the exact BFF gate succeeds. Discovery membership does not replace that gate.
 
 ## Routing and rendering
 
+Direct retry-successor lookup is an explicit private RTK observation under the
+ready source Console. Data access validates source/target coordinates; feature
+owns opening and identity-only navigation. Null never proves absent retry.
+Following and returning each acquire fresh exact access, including terminal
+work outside discovery. Admission history and successor lookup share the same
+failed-inspection disclosure barrier and persistent recovery focus target.
+Neither observation is retained as authority. See
+[ADR 0041](decisions/0041-recover-independently-visible-retry-successors.md).
+
 Run supervision also owns current-epoch recipient reads and confirmed browser
 handover. RTK remains the resource owner; React Hook Form owns the transient
 recipient and acknowledgement fields. A feature-owned submitting phase retires

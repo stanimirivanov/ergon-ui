@@ -221,6 +221,17 @@ See [ADR 0037](../../../docs/decisions/0037-confirm-exhausted-run-escalation-and
 
 ## Attempt navigation
 
+The inline successor lookup consumes a fresh protected relationship explicitly,
+without a control lease. RTK owns the observation; React owns opening/navigation
+intent only. Pending lookup hides earlier coordinates; failed access withdraws
+the workspace through the inspection barrier shared with admission history.
+Unsupported stays compatibility feedback, never absent retry. Following and
+returning each reacquire exact detail, even outside active discovery; target
+epochs may change before navigation. Only identities survive, never policies,
+proof or command authority. Close and parent/tenant/epoch changes retire reads
+and focus safely. See
+[ADR 0041](../../../docs/decisions/0041-recover-independently-visible-retry-successors.md).
+
 The execution pane's dedicated attempt-context section derives the attempt
 number and immediate predecessor identity from the current gated response.
 Inspection is explicit, never a speculative preload or inferred full retry tree.

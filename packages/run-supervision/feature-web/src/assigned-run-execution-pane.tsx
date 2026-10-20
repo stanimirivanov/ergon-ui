@@ -25,6 +25,7 @@ export function AssignedRunExecutionPane({
   escalationControl,
   cancellationControl,
   executionHistory,
+  retrySuccessor,
   onInspectPredecessor,
   onReturnToAttempt,
 }: {
@@ -40,6 +41,7 @@ export function AssignedRunExecutionPane({
   readonly escalationControl?: ReactNode;
   readonly cancellationControl?: ReactNode;
   readonly executionHistory?: ReactNode;
+  readonly retrySuccessor?: ReactNode;
   readonly onInspectPredecessor: () => void;
   readonly onReturnToAttempt?: () => void;
 }): ReactElement {
@@ -110,6 +112,7 @@ export function AssignedRunExecutionPane({
             <AssignedRunAttemptContext
               run={detail.data}
               onInspectPredecessor={onInspectPredecessor}
+              successorLookup={retrySuccessor}
             />
           </div>
           <div className="mt-5">{approvalControl}</div>

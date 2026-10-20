@@ -7,8 +7,8 @@ claim-recovery, release-recovery, run-supervision, handover, approval,
 pinned-evidence, outcome-verification, proof-finalization, execution/recovery,
 failed-run retry, exhausted-run escalation, predecessor-inspection and admission-history scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all nineteen with
-annotations, screenshots, and video, then assembles a local nineteen-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty with
+annotations, screenshots, and video, then assembles a local twenty-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
@@ -253,6 +253,16 @@ snapshots are synthetic comparisons; actual evaluator/acceptance/authorization
 evidence belongs to Ergon's PostgreSQL tests.
 
 ## Attempt navigation walkthrough
+
+The twentieth chapter complements predecessor inspection with sixteen protected
+successor checkpoints: lazy lookup, neutral null, terminal source outside
+discovery, independently visible coordinates, keyboard/320-pixel operation,
+held/denied revalidation, fresh recovery, unsupported/malformed data, held exact
+target access under a changed epoch, and neutral target/return denial. It sends
+zero commands and needs no control lease. A separate browser test retires a held
+lookup with its source context. These producer-owned fixtures are simulated,
+not real retries, authority, database or provider verification. Deploy Ergon
+PR #176 first; full retry graphs and arbitrary terminal discovery are excluded.
 
 The sixteenth chapter has thirteen read-only steps: immediate predecessor
 inspection, keyboard/320-pixel reflow, fresh terminal access after discovery

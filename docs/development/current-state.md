@@ -334,3 +334,13 @@ Returned recording order is not causal execution order; admission rows carry no
 provider-call count, result, cost or duration. The nineteenth simulated guide
 records privacy retirement, failure recovery, terminal inspection and accessible
 320-pixel reflow. See [ADR 0040](../decisions/0040-inspect-recorded-execution-admissions.md).
+
+The Console now recovers Ergon PR #176's independently visible direct retry
+successor on demand. Strict data-access decoding and fresh RTK gates preserve
+null/unsupported/denied distinctions and independent source/target epochs.
+The feature reuses the inspection failure barrier and existing identity-only
+related selection; opening and returning never restore snapshots or authority.
+The twentieth simulated guide records sixteen checkpoints including terminal
+access outside discovery, changed target epoch, pending/denied retirement,
+keyboard/320-pixel reflow and zero commands. See
+[ADR 0041](../decisions/0041-recover-independently-visible-retry-successors.md).

@@ -1,28 +1,32 @@
-import type { RunSupervisionFailure } from '@ergon/run-supervision-data-access-web';
+import type { RunInspectionFailure } from './use-run-inspection-access';
 import { Button } from '@ergon/ui-web';
 import type { ReactElement } from 'react';
 import { AssignedRunMessage } from './assigned-run-message';
 
 /** Safe feedback survives private-context retirement; recovery reopens authority gates, never restores a snapshot. */
-export function RunHistoryAccessFeedback({
-  error,
+export function RunInspectionAccessFeedback({
+  failure,
   signInHref,
   onRecheck,
 }: {
-  readonly error: RunSupervisionFailure;
+  readonly failure: RunInspectionFailure;
   readonly signInHref: string;
   readonly onRecheck: () => void;
 }): ReactElement {
   return (
     <div className="space-y-3">
       <AssignedRunMessage
-        title="Admission history unavailable"
-        error={error}
+        title={
+          failure.resource === 'history'
+            ? 'Admission history unavailable'
+            : 'Successor lookup unavailable'
+        }
+        error={failure.error}
         signInHref={signInHref}
       />
       <p className="text-sm leading-6 text-ink-muted">
         Earlier run context has been withdrawn. Recheck current run access
-        before opening a new history observation.
+        before requesting a new protected observation.
       </p>
       <Button variant="quiet" onClick={onRecheck}>
         Recheck run access
