@@ -6,6 +6,19 @@ Own the confidential Console's reads, confirmed handover/approval/execution prot
 RTK cache lifecycle. The backend owns current authority; a human decision is
 not a capability grant. Private resources never acquire a second cache.
 
+## Gateway-attempt history
+
+`getInvocationHistory` and `useRunInvocationHistory` consume merged Ergon PR
+#178. Exact tenant/run/expected epoch keys use the existing fresh RTK lifecycle,
+bounded GET retry/cancellation and shared command invalidation. No lease, CSRF,
+polling or internal fallback is introduced. Decode at most 100 preparations,
+explicit null completion, SUCCEEDED/FAILED/UNKNOWN and non-null exact signed-Long
+timing; strip extras. Preserve returned order and UTC backsteps without causal
+inference. Empty coverage is not no calls; null is not running; UNKNOWN is not
+terminal failure or retry authority. Shared audit-failure mapping distinguishes
+unsupported from neutral denial. See
+[ADR 0042](../../../docs/decisions/0042-inspect-recorded-gateway-attempts.md).
+
 ## Retry successor lookup
 
 `getRetrySuccessor` and `useRunRetrySuccessor` consume Ergon PR #176's protected

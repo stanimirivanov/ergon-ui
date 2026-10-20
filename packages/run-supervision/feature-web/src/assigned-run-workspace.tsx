@@ -15,6 +15,7 @@ import { RunRetryControl } from './run-retry-control';
 import { RunEscalationControl } from './run-escalation-control';
 import { RunCancellationControl } from './run-cancellation-control';
 import { RunExecutionHistoryInspector } from './run-execution-history-inspector';
+import { RunInvocationHistoryInspector } from './run-invocation-history-inspector';
 import { RunRetrySuccessorLookup } from './run-retry-successor-lookup';
 import {
   assignedRunCommandFeedback,
@@ -165,6 +166,18 @@ function TenantAssignedRunWorkspace({
                   tenantId={tenantId}
                   run={detail.data}
                   onAccessFailure={workflow.inspectionAccess.rejectHistoryRead}
+                />
+              ) : undefined
+            }
+            invocationHistory={
+              detail.phase === 'ready' ? (
+                <RunInvocationHistoryInspector
+                  key={`${tenantId}:${detail.data.runId}:${detail.data.supervisionRevision}`}
+                  tenantId={tenantId}
+                  run={detail.data}
+                  onAccessFailure={
+                    workflow.inspectionAccess.rejectInvocationRead
+                  }
                 />
               ) : undefined
             }

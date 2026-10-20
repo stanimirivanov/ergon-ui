@@ -1,4 +1,6 @@
 import type { RunControlClient } from './control-contracts';
+import type { RunInvocationHistoryClient } from './invocation-history-contracts';
+import { createRunInvocationHistoryClient } from './create-run-invocation-history-client';
 import type { RunExecutionHistoryClient } from './execution-history-contracts';
 import type { RunRetrySuccessorClient } from './retry-successor-contracts';
 import { createRunRetrySuccessorClient } from './create-run-retry-successor-client';
@@ -71,11 +73,13 @@ export function createRunSupervisionClient({
   RunCancellationClient &
   RunControlClient &
   RunExecutionHistoryClient &
+  RunInvocationHistoryClient &
   RunRetrySuccessorClient {
   if (!Number.isFinite(requestTimeoutMs) || requestTimeoutMs <= 0) {
     throw new RangeError('Run supervision timeout must be positive and finite');
   }
   return {
+    ...createRunInvocationHistoryClient({ fetch, requestTimeoutMs }),
     ...createRunRetrySuccessorClient({ fetch, requestTimeoutMs }),
     ...createRunExecutionHistoryClient({ fetch, requestTimeoutMs }),
     ...createRunControlClient({ fetch, requestTimeoutMs }),

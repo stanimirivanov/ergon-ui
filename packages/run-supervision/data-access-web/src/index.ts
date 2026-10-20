@@ -178,3 +178,14 @@ export type {
 } from './execution-history-contracts';
 export { runExecutionHistoryApi } from './cache/run-execution-history-api';
 export { useRunExecutionHistory } from './cache/use-run-execution-history';
+export type {
+  RunInvocationHistory,
+  RunInvocationPreparation,
+  RunInvocationCompletion,
+  RunInvocationHistoryQuery,
+  RunInvocationHistoryResult,
+  RunInvocationHistoryClient,
+  RunInvocationHistoryFailure,
+} from './invocation-history-contracts';
+export { useRunInvocationHistory } from './cache/use-run-invocation-history';
+export { runInvocationHistoryApi } from './cache/run-invocation-history-api';

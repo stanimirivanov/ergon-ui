@@ -62,6 +62,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0039](0039-coordinate-explicit-fenced-browser-control.md)                  | Accepted   | Coordinate explicit session control and original command fences |
 | [0040](0040-inspect-recorded-execution-admissions.md)                       | Accepted   | Inspect sanitized admissions without inventing provider traces  |
 | [0041](0041-recover-independently-visible-retry-successors.md)              | Accepted   | Recover direct successors through independently fresh access    |
+| [0042](0042-inspect-recorded-gateway-attempts.md)                           | Accepted   | Inspect partial gateway facts without causal or proof inference |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple
