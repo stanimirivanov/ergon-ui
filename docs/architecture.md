@@ -220,6 +220,15 @@ the exact BFF gate succeeds. Discovery membership does not replace that gate.
 
 ## Routing and rendering
 
+Gateway-attempt history uses existing supervision data access for strict bounded
+decoding, Effect execution and fresh RTK observations. Feature owns explicit
+inspection and uncertainty copy; the shared inspection barrier retires prior
+private workspace on failed protected access. App/ui-web retain shell and modal
+ownership. No new package, dependency edge or state cache is added. Exact timing
+and partial recorded coverage do not establish dispatch, live status, causal
+admission links or outcome proof. See
+[ADR 0042](decisions/0042-inspect-recorded-gateway-attempts.md).
+
 Direct retry-successor lookup is an explicit private RTK observation under the
 ready source Console. Data access validates source/target coordinates; feature
 owns opening and identity-only navigation. Null never proves absent retry.

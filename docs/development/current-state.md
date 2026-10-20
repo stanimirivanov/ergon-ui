@@ -2,6 +2,15 @@
 
 ## TL;DR
 
+The assigned Console now explicitly inspects merged Ergon PR #178's protected
+gateway-attempt history: preparation, no recorded completion, measured gateway
+success/failure and UNKNOWN effects. Exact nanoseconds, partial coverage and
+explicit truncation remain distinct from admissions, receipts, state and proof.
+Fresh rechecks/retirement and shared failed-access withdrawal use existing owners.
+The twenty-first simulated guide demonstrates keyboard/narrow inspection and
+safe recovery without business writes. No live trace, cost or new retry policy
+is implemented.
+
 The repository contains a verified resolver-workbench shell, a fail-closed
 confidential-BFF session boundary, a shared resolver inbox, and a web-only UI
 package. Resolvers can claim visible work with an ephemeral session-bound CSRF

@@ -56,6 +56,20 @@ it is neither a client application core nor a general steering surface.
   Unexpected defects are distinct from malformed responses and never trigger an
   automatic retry.
 
+## Gateway-attempt inspection
+
+The explicit inspector lives beneath fresh tenant/run/epoch Console disclosure.
+RTK owns facts; React owns opening only. Parent withdrawal retires its modal and
+subscription. Pending rechecks hide old rows; protected failures use the shared
+inspection barrier and fresh parent recovery. Unsupported stays compatibility
+feedback. Existing ui-web modality owns focus, Escape and narrow allocation.
+
+Preserve server order, exact per-call timing and partial-coverage warnings.
+Preparation is not dispatch; no completion is not live status; UNKNOWN leaves
+effects unresolved. Gateway reports, the winning receipt, state and proof remain
+separate. Never infer causal links, cost, totals or retry rights. See
+[ADR 0042](../../../docs/decisions/0042-inspect-recorded-gateway-attempts.md).
+
 ## Does not own
 
 - Protocol decoding, Effect execution, cache policy, authentication, authority,

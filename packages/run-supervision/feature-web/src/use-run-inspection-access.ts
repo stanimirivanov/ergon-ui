@@ -13,6 +13,7 @@ export function useRunInspectionAccess(
   readonly failure: RunInspectionFailure | null;
   readonly rejectHistoryRead: (error: RunSupervisionFailure) => void;
   readonly rejectSuccessorRead: (error: RunSupervisionFailure) => void;
+  readonly rejectInvocationRead: (error: RunSupervisionFailure) => void;
   readonly clear: () => void;
 } {
   const [failure, setFailure] = useState<RunInspectionFailure | null>(null);
@@ -27,13 +28,24 @@ export function useRunInspectionAccess(
     [],
   );
   const clear = useCallback((): void => setFailure(null), []);
+  const rejectInvocationRead = useCallback(
+    (error: RunSupervisionFailure): void =>
+      setFailure({ resource: 'invocation', error }),
+    [],
+  );
   useLayoutEffect(() => {
     if (failure !== null) heading.current?.focus();
   }, [failure, heading]);
-  return { failure, rejectHistoryRead, rejectSuccessorRead, clear };
+  return {
+    failure,
+    rejectHistoryRead,
+    rejectSuccessorRead,
+    rejectInvocationRead,
+    clear,
+  };
 }
 
 export interface RunInspectionFailure {
-  readonly resource: 'history' | 'successor';
+  readonly resource: 'history' | 'successor' | 'invocation';
   readonly error: RunSupervisionFailure;
 }

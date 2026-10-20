@@ -162,9 +162,11 @@ export function assignedRunCommandStatus(
   workflow: AssignedRunWorkflow,
 ): string {
   if (workflow.inspectionAccess.failure !== null)
-    return workflow.inspectionAccess.failure.resource === 'history'
-      ? 'Admission history access unavailable'
-      : 'Successor access unavailable';
+    return {
+      history: 'Admission history access unavailable',
+      successor: 'Successor access unavailable',
+      invocation: 'Gateway history access unavailable',
+    }[workflow.inspectionAccess.failure.resource];
   const phases = [
     `control:${workflow.controlCommand.state.phase}`,
     `cancellation:${workflow.cancellation.state.phase}`,

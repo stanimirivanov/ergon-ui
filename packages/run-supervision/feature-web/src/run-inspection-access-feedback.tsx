@@ -16,11 +16,7 @@ export function RunInspectionAccessFeedback({
   return (
     <div className="space-y-3">
       <AssignedRunMessage
-        title={
-          failure.resource === 'history'
-            ? 'Admission history unavailable'
-            : 'Successor lookup unavailable'
-        }
+        title={inspectionFailureTitles[failure.resource]}
         error={failure.error}
         signInHref={signInHref}
       />
@@ -34,3 +30,9 @@ export function RunInspectionAccessFeedback({
     </div>
   );
 }
+
+const inspectionFailureTitles = {
+  history: 'Admission history unavailable',
+  successor: 'Successor lookup unavailable',
+  invocation: 'Gateway history unavailable',
+} as const;
