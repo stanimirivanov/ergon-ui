@@ -3,7 +3,7 @@ import type {
   RunSupervisionFailure,
 } from '@ergon/run-supervision-data-access-web';
 import { Button } from '@ergon/ui-web';
-import type { ReactElement } from 'react';
+import type { ReactElement, Ref } from 'react';
 
 import { AssignedRunMessage } from './assigned-run-message';
 import { formatRecordedAt, runStateLabels } from './run-supervision-copy';
@@ -22,6 +22,7 @@ export function AssignedRunList({
   onResetPage,
   onPrevious,
   onNext,
+  headingRef,
 }: {
   readonly page: AssignedRunPage | undefined;
   readonly selectedRunId: string | null;
@@ -36,6 +37,7 @@ export function AssignedRunList({
   readonly onResetPage: () => void;
   readonly onPrevious: () => void;
   readonly onNext: () => void;
+  readonly headingRef?: Ref<HTMLHeadingElement>;
 }): ReactElement {
   return (
     <section
@@ -47,8 +49,10 @@ export function AssignedRunList({
         Your supervision work
       </p>
       <h2
+        ref={headingRef}
+        tabIndex={-1}
         id="assigned-runs-heading"
-        className="mt-2 text-xl font-extrabold tracking-tight"
+        className="mt-2 scroll-mt-4 text-xl font-extrabold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong"
       >
         Assigned runs
       </h2>

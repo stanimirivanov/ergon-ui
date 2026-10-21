@@ -51,6 +51,20 @@ export const runSupervisionGuide: GuideChapter = {
         'Contract access-restoration, the verify-account-owner step, and the recorded waiting state are visible.',
     },
     {
+      id: 'navigate-console-sections',
+      title: 'Move between panes without changing context',
+      body: 'Use the Console section jumps in the supervisor toolbar. Focus Jump to assigned runs, Jump to execution or Jump to outcome proof and press Enter or Space. Each control focuses its persistent pane heading and the browser brings that heading into view, including when panes stack on a narrow screen. This is local keyboard navigation, not a tab switch: all panes stay mounted in their normal reading order. No URL fragment, selected run, lease, approval or remote resource changes. The controls remain usable when detail is pending or withheld; a heading destination never permits access to hidden evidence.',
+      expected:
+        'Keyboard focus reaches each named pane without another read, command or URL change. Failed revalidation does not schedule focus that overrides a later deliberate section jump.',
+    },
+    {
+      id: 'inspect-section-destination',
+      title: 'Confirm the destination is navigation, not authority',
+      body: 'The Outcome proof heading now has keyboard focus. Compare the unchanged tenant URL and the still-selected run: navigation has not performed another protected read, acquired control or issued a business command. At narrow widths the browser scrolls the destination into view rather than hiding the other panes. If a recheck later withholds private context, the same heading remains a valid navigation target, but its placeholder cannot reveal retained case evidence. A successful or failed delayed read must not override a later deliberate section jump.',
+      expected:
+        'The outcome heading is focused, the URL and selected run are unchanged, and request and command counts have not increased.',
+    },
+    {
       id: 'open-recorded-policy',
       title: 'Inspect the recorded execution policy',
       body: 'Open Inspect recorded execution policy. Its native disclosure can be operated with Enter or Space and reveals already returned data; it does not perform another request. Read capability, effective risk, required approval, and policy revision together. HIGH and RESOLVER are the policy inputs pinned to this run. They do not assert that someone approved it, that authorization was consumed, or that a write executed.',

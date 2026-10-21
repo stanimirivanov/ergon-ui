@@ -72,6 +72,34 @@ test(
         expect(page.url()).not.toContain(assignedRunId);
         await guide.result('inspect-run-snapshot', resolution);
 
+        const locationBeforeJumps = page.url();
+        const sectionJumps = page.getByRole('group', {
+          name: 'Console section jumps',
+        });
+        await guide.action(
+          'navigate-console-sections',
+          sectionJumps.getByRole('button', { name: 'Jump to outcome proof' }),
+          async () => {
+            for (const [button, heading] of [
+              ['Jump to assigned runs', 'Assigned runs'],
+              ['Jump to execution', 'Resolution run'],
+              ['Jump to outcome proof', 'Outcome proof'],
+            ] as const) {
+              await sectionJumps
+                .getByRole('button', { name: button, exact: true })
+                .focus();
+              await page.keyboard.press('Enter');
+              await expect(
+                page.getByRole('heading', { name: heading, exact: true }),
+              ).toBeFocused();
+            }
+          },
+        );
+        expect(page.url()).toBe(locationBeforeJumps);
+        expect(bff.consoleReads()).toBe(1);
+        expect(bff.commands()).toBe(0);
+        await guide.result('inspect-section-destination', outcome);
+
         const policy = resolution.locator('summary', {
           hasText: 'Inspect recorded execution policy',
         });
@@ -567,6 +595,22 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
   ).toBeVisible();
   await page.setViewportSize({ width: 320, height: 812 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const [button, heading] of [
+    ['Jump to assigned runs', 'Assigned runs'],
+    ['Jump to execution', 'Resolution run'],
+    ['Jump to outcome proof', 'Outcome proof'],
+  ] as const) {
+    const jump = page.getByRole('button', { name: button, exact: true });
+    await jump.scrollIntoViewIfNeeded();
+    await jump.focus();
+    await page.keyboard.press('Space');
+    const destination = page.getByRole('heading', {
+      name: heading,
+      exact: true,
+    });
+    await expect(destination).toBeFocused();
+    await expect(destination).toBeInViewport();
+  }
   const narrowAssigned = await assigned.boundingBox();
   const narrowResolution = await resolution.boundingBox();
   const narrowOutcome = await outcome.boundingBox();

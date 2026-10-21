@@ -1,5 +1,5 @@
 import type { AssignedRunConsole } from '@ergon/run-supervision-data-access-web';
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode, Ref } from 'react';
 
 import { AssignedRunFact } from './assigned-run-fact';
 import { AssignedRunEvidence } from './assigned-run-evidence';
@@ -9,9 +9,11 @@ import { formatRecordedAt, runStateLabels } from './run-supervision-copy';
 export function AssignedRunOutcomePane({
   run,
   proofFinalizationControl,
+  headingRef,
 }: {
   readonly run: AssignedRunConsole | undefined;
   readonly proofFinalizationControl?: ReactNode;
+  readonly headingRef?: Ref<HTMLHeadingElement>;
 }): ReactElement {
   return (
     <section
@@ -22,8 +24,10 @@ export function AssignedRunOutcomePane({
         Outcome visibility
       </p>
       <h2
+        ref={headingRef}
+        tabIndex={-1}
         id="outcome-proof-heading"
-        className="mt-2 text-xl font-extrabold tracking-tight"
+        className="mt-2 scroll-mt-4 text-xl font-extrabold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong"
       >
         Outcome proof
       </h2>

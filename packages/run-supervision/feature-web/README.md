@@ -28,6 +28,12 @@ it is neither a client application core nor a general steering surface.
 - Cohesive supervisor presence/inspection toolbar, discovery, execution and
   outcome sections. Explicit named pane slots preserve the complete layout
   across selection, pending, failed and successful reads.
+- Persistent section jumps synchronously focus the assigned-work, execution or
+  outcome heading. Composition owns heading refs; the dedicated navigation
+  component owns presentation only. Jumps retain selection and URL, trigger no
+  reads or commands and remain usable while private content is withheld.
+  Headings retain keyboard-visible focus and native scroll behavior at narrow
+  widths. No background response schedules navigation focus.
 - Explicit selected-run rechecks and recovery move focus to the persistent
   execution heading before their button is withdrawn; pending and failed reads keep that target
   while private records remain hidden.
