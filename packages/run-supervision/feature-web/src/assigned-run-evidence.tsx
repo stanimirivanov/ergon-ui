@@ -131,7 +131,8 @@ function PinnedBinding({
   );
 }
 
-function PinnedBindingSource({
+/** Shared inert citation content for history and selected readiness, without modal or request ownership. */
+export function PinnedBindingSource({
   fact,
 }: {
   readonly fact: PinnedEvidenceFact;

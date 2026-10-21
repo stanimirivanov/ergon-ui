@@ -200,3 +200,12 @@ export type {
 } from './invocation-history-contracts';
 export { useRunInvocationHistory } from './cache/use-run-invocation-history';
 export { runInvocationHistoryApi } from './cache/run-invocation-history-api';
+export type {
+  RunPinnedReadiness,
+  RunPinnedReadinessQuery,
+  RunPinnedReadinessClient,
+  RunPinnedReadinessResult,
+  RunPinnedReadinessFailure,
+} from './pinned-readiness-contracts';
+export { useRunPinnedReadiness } from './cache/use-run-pinned-readiness';
+export { runPinnedReadinessApi } from './cache/run-pinned-readiness-api';

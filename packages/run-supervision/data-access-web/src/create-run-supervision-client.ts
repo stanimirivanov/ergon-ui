@@ -1,4 +1,6 @@
 import type { RunControlClient } from './control-contracts';
+import type { RunPinnedReadinessClient } from './pinned-readiness-contracts';
+import { createRunPinnedReadinessClient } from './create-run-pinned-readiness-client';
 import type { RunPinnedContractClient } from './pinned-contract-contracts';
 import { createRunPinnedContractClient } from './create-run-pinned-contract-client';
 import type { RunInvocationHistoryClient } from './invocation-history-contracts';
@@ -74,6 +76,7 @@ export function createRunSupervisionClient({
   RunEscalationClient &
   RunCancellationClient &
   RunControlClient &
+  RunPinnedReadinessClient &
   RunPinnedContractClient &
   RunExecutionHistoryClient &
   RunInvocationHistoryClient &
@@ -82,6 +85,7 @@ export function createRunSupervisionClient({
     throw new RangeError('Run supervision timeout must be positive and finite');
   }
   return {
+    ...createRunPinnedReadinessClient({ fetch, requestTimeoutMs }),
     ...createRunPinnedContractClient({ fetch, requestTimeoutMs }),
     ...createRunInvocationHistoryClient({ fetch, requestTimeoutMs }),
     ...createRunRetrySuccessorClient({ fetch, requestTimeoutMs }),

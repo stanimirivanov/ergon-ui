@@ -2,6 +2,13 @@
 
 ## TL;DR
 
+The assigned Console now explicitly inspects readiness at the run's immutable
+case/contract pin through merged Ergon PR #182. Missing requirements, exact
+applicability and the selected citation (even beyond first-100 history) remain
+distinct from historical planning, current-case readiness, execution and proof.
+The twenty-third simulated guide covers fresh access, privacy and reflow. See
+[ADR 0044](../decisions/0044-inspect-pinned-readiness-and-selected-evidence.md).
+
 The assigned Console now explicitly inspects the exact normalized contract
 revision pinned by its current run, using merged Ergon PR #180. Applicability,
 required evidence, ordered declarations, pinned-step identification and outcome

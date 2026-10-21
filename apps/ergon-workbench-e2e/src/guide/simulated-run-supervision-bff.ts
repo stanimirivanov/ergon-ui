@@ -1,5 +1,6 @@
 import { installDisabledRunControl } from './simulated-disabled-run-control';
 import { expect, type Page } from '@playwright/test';
+import type { PinnedRunEvidence } from '@ergon/run-supervision-data-access-web';
 
 import { fulfillSimulatedBff } from './simulated-bff-response';
 
@@ -68,7 +69,10 @@ function executionProjection(mode: ExecutionMode): object {
  */
 export async function installSimulatedRunSupervisionBff(
   page: Page,
-  options?: { readonly supervisionRevision: number },
+  options?: {
+    readonly supervisionRevision: number;
+    readonly pinnedEvidence?: PinnedRunEvidence;
+  },
 ): Promise<{
   assignedReads: () => number;
   consoleReads: () => number;
@@ -87,6 +91,12 @@ export async function installSimulatedRunSupervisionBff(
 }> {
   const snapshot = {
     ...simulatedRunSupervisionSnapshot,
+    ...(options?.pinnedEvidence === undefined
+      ? {}
+      : {
+          caseEvidenceStreamVersion: options.pinnedEvidence.caseStreamVersion,
+          pinnedEvidence: options.pinnedEvidence,
+        }),
     ...(options === undefined
       ? {}
       : {

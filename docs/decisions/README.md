@@ -14,7 +14,7 @@ section order in the template. Supported statuses are `Proposed`, `Accepted`,
 
 A replacement adds `- Supersedes:` with exact links to every decision it
 replaces; each older record points back through its status. The published ADR
-high-water mark is `0039`. It may advance with the next decision but must never
+high-water mark is `0044`. It may advance with the next decision but must never
 decrease, even when the newest record is later superseded or deprecated.
 
 ## Index
@@ -64,6 +64,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0041](0041-recover-independently-visible-retry-successors.md)              | Accepted   | Recover direct successors through independently fresh access     |
 | [0042](0042-inspect-recorded-gateway-attempts.md)                           | Accepted   | Inspect partial gateway facts without causal or proof inference  |
 | [0043](0043-inspect-exact-pinned-contract-declarations.md)                  | Accepted   | Inspect exact immutable declarations without execution inference |
+| [0044](0044-inspect-pinned-readiness-and-selected-evidence.md)              | Accepted   | Inspect pinned readiness without planning or authority inference |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

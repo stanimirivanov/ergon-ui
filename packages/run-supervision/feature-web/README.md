@@ -56,6 +56,21 @@ it is neither a client application core nor a general steering surface.
   Unexpected defects are distinct from malformed responses and never trigger an
   automatic retry.
 
+## Pinned readiness inspection
+
+The dedicated inspector owns opening intent only, under fresh exact tenant/run/
+epoch and case/contract-pin context. RTK owns the observation; ui-web owns modal
+focus, Escape, scrolling and reflow. Pending checks hide prior sources; protected
+failure withdraws earlier workspace disclosure through the existing inspection
+barrier. Unsupported stays local compatibility feedback, never missing evidence.
+
+Presentation distinguishes ordered missing requirements, exact applicability
+and the selected required citation beyond first-100 history. Source content
+reuses the existing inert attribution display. The explicit evaluator re-evaluates
+fixed inputs; READY is neither historical reasoning, current-case readiness,
+connector availability, authority nor outcome proof. No lease or command is
+required. See [ADR 0044](../../../docs/decisions/0044-inspect-pinned-readiness-and-selected-evidence.md).
+
 ## Pinned contract inspection
 
 The exact-run inspector owns opening intent only, under fresh tenant/run/epoch
