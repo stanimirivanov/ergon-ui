@@ -26,6 +26,7 @@ export function AssignedRunExecutionPane({
   cancellationControl,
   executionHistory,
   invocationHistory,
+  pinnedContract,
   retrySuccessor,
   onInspectPredecessor,
   onReturnToAttempt,
@@ -43,6 +44,7 @@ export function AssignedRunExecutionPane({
   readonly cancellationControl?: ReactNode;
   readonly executionHistory?: ReactNode;
   readonly invocationHistory?: ReactNode;
+  readonly pinnedContract?: ReactNode;
   readonly retrySuccessor?: ReactNode;
   readonly onInspectPredecessor: () => void;
   readonly onReturnToAttempt?: () => void;
@@ -123,6 +125,7 @@ export function AssignedRunExecutionPane({
           <div className="mt-5">{escalationControl}</div>
           <div className="mt-5">{cancellationControl}</div>
           <AssignedRunExecutionRecords run={detail.data} />
+          <div className="mt-5">{pinnedContract}</div>
           <div className="mt-5">{executionHistory}</div>
           <div className="mt-5">{invocationHistory}</div>
         </>

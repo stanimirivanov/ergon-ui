@@ -14,6 +14,7 @@ export function useRunInspectionAccess(
   readonly rejectHistoryRead: (error: RunSupervisionFailure) => void;
   readonly rejectSuccessorRead: (error: RunSupervisionFailure) => void;
   readonly rejectInvocationRead: (error: RunSupervisionFailure) => void;
+  readonly rejectContractRead: (error: RunSupervisionFailure) => void;
   readonly clear: () => void;
 } {
   const [failure, setFailure] = useState<RunInspectionFailure | null>(null);
@@ -28,6 +29,11 @@ export function useRunInspectionAccess(
     [],
   );
   const clear = useCallback((): void => setFailure(null), []);
+  const rejectContractRead = useCallback(
+    (error: RunSupervisionFailure): void =>
+      setFailure({ resource: 'contract', error }),
+    [],
+  );
   const rejectInvocationRead = useCallback(
     (error: RunSupervisionFailure): void =>
       setFailure({ resource: 'invocation', error }),
@@ -41,11 +47,12 @@ export function useRunInspectionAccess(
     rejectHistoryRead,
     rejectSuccessorRead,
     rejectInvocationRead,
+    rejectContractRead,
     clear,
   };
 }
 
 export interface RunInspectionFailure {
-  readonly resource: 'history' | 'successor' | 'invocation';
+  readonly resource: 'history' | 'successor' | 'invocation' | 'contract';
   readonly error: RunSupervisionFailure;
 }

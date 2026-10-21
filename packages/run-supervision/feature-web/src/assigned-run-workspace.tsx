@@ -16,6 +16,7 @@ import { RunEscalationControl } from './run-escalation-control';
 import { RunCancellationControl } from './run-cancellation-control';
 import { RunExecutionHistoryInspector } from './run-execution-history-inspector';
 import { RunInvocationHistoryInspector } from './run-invocation-history-inspector';
+import { RunPinnedContractInspector } from './run-pinned-contract-inspector';
 import { RunRetrySuccessorLookup } from './run-retry-successor-lookup';
 import {
   assignedRunCommandFeedback,
@@ -178,6 +179,16 @@ function TenantAssignedRunWorkspace({
                   onAccessFailure={
                     workflow.inspectionAccess.rejectInvocationRead
                   }
+                />
+              ) : undefined
+            }
+            pinnedContract={
+              detail.phase === 'ready' ? (
+                <RunPinnedContractInspector
+                  key={`${tenantId}:${detail.data.runId}:${detail.data.supervisionRevision}:${detail.data.contractKey}:${detail.data.contractRevision}:${detail.data.stepId}:${detail.data.capability}`}
+                  tenantId={tenantId}
+                  run={detail.data}
+                  onAccessFailure={workflow.inspectionAccess.rejectContractRead}
                 />
               ) : undefined
             }

@@ -7,11 +7,22 @@ claim-recovery, release-recovery, run-supervision, handover, approval,
 pinned-evidence, outcome-verification, proof-finalization, execution/recovery,
 failed-run retry, exhausted-run escalation, predecessor-inspection and admission-history scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-one with
-annotations, screenshots, and video, then assembles a local twenty-one-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-two with
+annotations, screenshots, and video, then assembles a local twenty-two-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
+
+## Pinned-contract walkthrough
+
+The twenty-second chapter has fifteen assertion-backed checkpoints: lazy exact
+inspection, immutable revision/metadata, inert equality text, declared order,
+stronger runtime safeguards, outcome-versus-proof distinction, keyboard and
+320-pixel reflow, held/denied withdrawal, fresh recovery, unsupported/mismatched
+responses, fifty-step scrolling, terminal access and zero business commands.
+A separate regression retires a held obsolete response. Producer-owned marked
+fixtures verify browser behavior, not real identity, authority, PostgreSQL or
+provider execution. Deploy Ergon PR #180 first. Generated media is not committed.
 
 ## Gateway-attempt walkthrough
 

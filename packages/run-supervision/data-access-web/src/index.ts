@@ -1,4 +1,15 @@
 export type {
+  RunPinnedContract,
+  RunPinnedContractQuery,
+  RunPinnedContractClient,
+  RunPinnedContractResult,
+  RunPinnedContractFailure,
+  ContractCondition,
+  ContractStep,
+} from './pinned-contract-contracts';
+export { useRunPinnedContract } from './cache/use-run-pinned-contract';
+export { runPinnedContractApi } from './cache/run-pinned-contract-api';
+export type {
   ActiveRunState,
   AssignedRunState,
   AssignedRunOverview,
