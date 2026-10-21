@@ -220,6 +220,15 @@ the exact BFF gate succeeds. Discovery membership does not replace that gate.
 
 ## Routing and rendering
 
+Pinned-readiness inspection adds an exact-pin private RTK observation in existing
+supervision data access, with feature-owned opening/presentation and existing
+parent withdrawal, shell and modal owners. Selected provenance reuses the
+attributed fact schema and inert source display; no package, dependency edge,
+application core or second resource cache is added. The supported evaluator is
+explicitly versioned, and fixed-input re-evaluation is not historical planning,
+current-case readiness, execution authority or outcome proof. See
+[ADR 0044](decisions/0044-inspect-pinned-readiness-and-selected-evidence.md).
+
 Pinned-contract inspection uses existing run-supervision data access for exact
 run/epoch/pin decoding, bounded Effect reads and fresh RTK observations. Feature
 owns opening intent and declaration presentation; app and ui-web retain shell

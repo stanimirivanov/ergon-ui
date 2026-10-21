@@ -6,6 +6,19 @@ Own the confidential Console's reads, confirmed handover/approval/execution prot
 RTK cache lifecycle. The backend owns current authority; a human decision is
 not a capability grant. Private resources never acquire a second cache.
 
+## Pinned readiness
+
+`getPinnedReadiness` and `useRunPinnedReadiness` consume merged Ergon PR #182.
+Exact tenant/run/epoch, case/prefix and contract coordinates key and validate the
+fresh RTK read. Decode supported evaluator/status parity, bounded unique missing
+names, exact equality and at most one required supported binding/source. Preserve
+stream selection and UTC backsteps; strip extras. Selected evidence can lie
+beyond the first-100 history. Pending/failed reads withhold retained data;
+reopening waits for old exact-key work before a distinct protected observation.
+Existing command invalidation applies. No CSRF, lease, polling or internal/latest
+fallback exists. Re-evaluation is not historical planning, execution eligibility
+or proof. See [ADR 0044](../../../docs/decisions/0044-inspect-pinned-readiness-and-selected-evidence.md).
+
 ## Pinned contract
 
 `getPinnedContract` and `useRunPinnedContract` consume merged Ergon PR #180.

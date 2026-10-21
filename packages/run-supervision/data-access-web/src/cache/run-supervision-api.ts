@@ -19,6 +19,7 @@ import type { RunCancellationFailure } from '../cancellation-contracts';
 import type { RunExecutionHistoryFailure } from '../execution-history-contracts';
 import type { RunRetrySuccessorFailure } from '../retry-successor-contracts';
 import type { RunPinnedContractFailure } from '../pinned-contract-contracts';
+import type { RunPinnedReadinessFailure } from '../pinned-readiness-contracts';
 import type {
   RunProofFinalizationClient,
   RunProofFinalizationCommand,
@@ -70,6 +71,7 @@ export const runSupervisionApi = createApi({
     | RunExecutionHistoryFailure
     | RunRetrySuccessorFailure
     | RunPinnedContractFailure
+    | RunPinnedReadinessFailure
   >(),
   tagTypes: ['AssignedRuns', 'RunDetail', 'RunCandidates'],
   endpoints: (build) => ({

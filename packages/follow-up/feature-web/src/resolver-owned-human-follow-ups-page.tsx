@@ -1,6 +1,6 @@
 import { normalizeHumanFollowUpFailure } from '@ergon/follow-up-data-access-web';
 import { Button } from '@ergon/ui-web';
-import { useEffect, useRef, type ReactElement } from 'react';
+import { useLayoutEffect, useRef, type ReactElement } from 'react';
 
 import { FollowUpMessage } from './follow-up-message';
 import { ResolverFollowUpConsole } from './resolver-follow-up-console';
@@ -26,7 +26,9 @@ export function ResolverOwnedHumanFollowUpsPage({
 }): ReactElement {
   const { ownedWork, isConsoleOpen, currentSelection } = workflow;
   const readFailureHeading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
+  // Commit failure focus before recovery can move it to the persistent toolbar.
+  // A delayed passive effect can otherwise steal focus into the retiring body.
+  useLayoutEffect(() => {
     if (ownedWork.isError) {
       if (isConsoleOpen) readFailureHeading.current?.focus();
       else if (workflow.returnFocusToWorkItemId !== null)

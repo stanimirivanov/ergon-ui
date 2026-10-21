@@ -18,32 +18,35 @@ const text = (maximum: number): Schema.Schema<string> =>
     ),
   );
 
+/** Shared history/selection wire attribution; cross-record boundary checks remain with each consuming projection. */
+export const pinnedEvidenceFactSchema = Schema.Struct({
+  factId: uuid,
+  streamVersion: version,
+  property: Schema.Literal('account.access.state'),
+  accountReference: text(500),
+  value: Schema.Literal('ACTIVE', 'LOCKED'),
+  boundAt: instant,
+  recordedAt: instant,
+  source: Schema.Struct({
+    observationId: uuid,
+    streamVersion: version,
+    originType: Schema.Literal('CONNECTOR'),
+    provider: text(100).pipe(Schema.pattern(/^[a-z0-9][a-z0-9._-]*$/)),
+    reference: text(500),
+    content: text(8000),
+    observedAt: instant,
+    recordedAt: instant,
+  }),
+});
+
 /** Shape and bounded text limits precede cross-record validation; unknown/private fields are discarded. */
 export const pinnedRunEvidenceSchema = Schema.Struct({
   caseId: uuid,
   caseStreamVersion: version,
   truncated: Schema.Boolean,
-  facts: Schema.Array(
-    Schema.Struct({
-      factId: uuid,
-      streamVersion: version,
-      property: Schema.Literal('account.access.state'),
-      accountReference: text(500),
-      value: Schema.Literal('ACTIVE', 'LOCKED'),
-      boundAt: instant,
-      recordedAt: instant,
-      source: Schema.Struct({
-        observationId: uuid,
-        streamVersion: version,
-        originType: Schema.Literal('CONNECTOR'),
-        provider: text(100).pipe(Schema.pattern(/^[a-z0-9][a-z0-9._-]*$/)),
-        reference: text(500),
-        content: text(8000),
-        observedAt: instant,
-        recordedAt: instant,
-      }),
-    }),
-  ).pipe(Schema.filter((facts) => facts.length <= 100)),
+  facts: Schema.Array(pinnedEvidenceFactSchema).pipe(
+    Schema.filter((facts) => facts.length <= 100),
+  ),
 });
 
 /** Attribution follows stream positions, not wall-clock ordering. Omission is unsupported; explicit null is invalid. */

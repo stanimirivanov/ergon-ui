@@ -75,6 +75,8 @@ out of the deployable app and domain-agnostic UI primitives.
   control before retiring their controls; failed ownership rechecks retain the
   existing failure-heading focus. Successful recovery does not lose focus when
   the withheld body is replaced by fresh context.
+  Failure-heading focus runs at the layout commit, before a later toolbar focus
+  intent; no passive effect can focus a retiring failure body during recovery.
   No response callback schedules focus work or replays an action.
 - Translation of data-access-normalized follow-up failures into resolver-facing
   copy. Unexpected read defects hide retained case context and offer only an

@@ -7,11 +7,26 @@ claim-recovery, release-recovery, run-supervision, handover, approval,
 pinned-evidence, outcome-verification, proof-finalization, execution/recovery,
 failed-run retry, exhausted-run escalation, predecessor-inspection and admission-history scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-two with
-annotations, screenshots, and video, then assembles a local twenty-two-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-three with
+annotations, screenshots, and video, then assembles a local twenty-three-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
+
+## Pinned-readiness walkthrough
+
+The twenty-third chapter has seventeen assertion-backed checkpoints: lazy access,
+exact pin/evaluator identity, selected binding beyond first-100 history, inert
+long source text, keyboard and 320-pixel reflow, missing precedence and declaration
+order, exact mismatch, held/denied withdrawal, fresh recovery, unsupported and
+malformed observations, fifty-name scrolling, parent retirement, terminal access
+and zero writes. A separate regression retires a held obsolete denial.
+
+Prepared status comparisons are not a production timeline that mutates immutable
+run inputs. READY is fixed-input re-evaluation, not historical planning, latest-case
+readiness, execution authority or accepted proof. Deploy merged Ergon PR #182 first.
+Producer-owned marked fixtures verify browser behavior, not live OIDC, PostgreSQL
+selection/authority, provider work or performance. Generated media is not committed.
 
 ## Pinned-contract walkthrough
 

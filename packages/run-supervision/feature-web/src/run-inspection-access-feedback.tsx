@@ -32,6 +32,7 @@ export function RunInspectionAccessFeedback({
 }
 
 const inspectionFailureTitles = {
+  readiness: 'Pinned readiness unavailable',
   contract: 'Pinned contract unavailable',
   history: 'Admission history unavailable',
   successor: 'Successor lookup unavailable',

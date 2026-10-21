@@ -167,6 +167,7 @@ export function assignedRunCommandStatus(
       successor: 'Successor access unavailable',
       invocation: 'Gateway history access unavailable',
       contract: 'Pinned contract access unavailable',
+      readiness: 'Pinned readiness access unavailable',
     }[workflow.inspectionAccess.failure.resource];
   const phases = [
     `control:${workflow.controlCommand.state.phase}`,
