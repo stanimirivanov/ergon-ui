@@ -13,6 +13,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { Provider } from 'react-redux';
@@ -230,6 +231,32 @@ describe('pinned evidence inspection', () => {
       fireEvent.click(
         await screen.findByRole('button', { name: `Inspect run ${RUN_ID}` }),
       );
+      const caseEvidence = await screen.findByRole('region', {
+        name: 'Case evidence',
+      });
+      await within(caseEvidence).findByRole('button', {
+        name: 'Inspect source for binding 3',
+      });
+      expect(
+        caseEvidence
+          .closest('[data-pane-slot]')
+          ?.getAttribute('data-pane-slot'),
+      ).toBe('leading');
+      expect(
+        within(caseEvidence).getByRole('region', {
+          name: 'Pinned case evidence',
+        }),
+      ).toBeTruthy();
+      const proof = screen.getByRole('region', { name: 'Outcome proof' });
+      expect(
+        within(proof).queryByRole('region', { name: 'Pinned case evidence' }),
+      ).toBeNull();
+      expect(
+        within(proof).queryByRole('region', { name: 'Case context' }),
+      ).toBeNull();
+      const evidenceHeading = within(caseEvidence).getByRole('heading', {
+        name: 'Case evidence',
+      });
       fireEvent.click(
         await screen.findByRole('button', {
           name:
@@ -254,6 +281,17 @@ describe('pinned evidence inspection', () => {
       // Background invalidation starts in RTK; assert withdrawal in its committed
       // render, not synchronous hide-before-I/O promised only by explicit workflows.
       await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(screen.getByRole('heading', { name: 'Case evidence' })).toBe(
+        evidenceHeading,
+      );
+      expect(
+        within(caseEvidence).queryByRole('region', { name: 'Case context' }),
+      ).toBeNull();
+      expect(
+        within(caseEvidence).getByText(
+          /withheld until a successful current run read/,
+        ),
+      ).toBeTruthy();
       expect(screen.queryByText(/PRIVATE_PROOF_SOURCE/)).toBeNull();
       expect(
         screen.queryByText(evidence.facts[0]?.source.content ?? ''),

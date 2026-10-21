@@ -2,7 +2,13 @@
 
 ## TL;DR
 
-Assigned supervisors can now jump directly to the three persistent Console
+Pinned case coordinates, bindings and source inspection now occupy a dedicated
+Case evidence section in the leading investigation column beside discovery.
+The trailing pane separates verification, accepted proof and recorded run state
+from those inputs. Both views share the existing private disclosure gate;
+the Evidence jump performs no read or authority change.
+
+Assigned supervisors can now jump directly to the persistent Console section
 headings from the toolbar, including during withheld or failed reads. This
 focus-only navigation changes no selection, URL, authority, cache or command.
 The assigned-run executable guide covers keyboard use and 320-pixel reflow.

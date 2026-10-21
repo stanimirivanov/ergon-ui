@@ -28,7 +28,7 @@ it is neither a client application core nor a general steering surface.
 - Cohesive supervisor presence/inspection toolbar, discovery, execution and
   outcome sections. Explicit named pane slots preserve the complete layout
   across selection, pending, failed and successful reads.
-- Persistent section jumps synchronously focus the assigned-work, execution or
+- Persistent section jumps synchronously focus the assigned-work, case-evidence, execution or
   outcome heading. Composition owns heading refs; the dedicated navigation
   component owns presentation only. Jumps retain selection and URL, trigger no
   reads or commands and remain usable while private content is withheld.
@@ -190,9 +190,12 @@ No state enters URLs or persistent storage. See
 
 ## Pinned evidence
 
-The trailing case/outcome pane also owns pinned binding history and exact linked
-source inspection. Each keyed binding owns only modal visibility; all facts stay
-in the current RTK projection. The ui-web modal owns keyboard/focus behavior, and
+The leading investigation column composes assigned discovery and a dedicated
+Case evidence section with case coordinates, pinned binding history and exact
+linked source inspection. The trailing pane owns verification and recorded state,
+not these input facts. Each keyed binding owns only modal visibility; all facts stay
+in the current RTK projection. The evidence heading persists during withheld reads
+and is a fourth focus-only toolbar destination. The ui-web modal owns keyboard/focus behavior, and
 the private gate withdraws source content during revalidation, denial, mutations
 or navigation. Source text/references are inert plain text. Unsupported, empty and
 truncated history have different copy; no confidence, contradiction, latest-value

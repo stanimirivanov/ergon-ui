@@ -32,7 +32,7 @@ export const runEvidenceGuide: GuideChapter = {
     {
       id: 'open-legacy',
       title: 'Inspect an older server response',
-      body: 'Open the offered run and locate Pinned case evidence in the trailing case/outcome pane. The existing run metadata remains readable. A missing evidence member is an explicit compatibility limitation, not permission to query an internal endpoint or reconstruct a transcript from another resource.',
+      body: 'Open the offered run and use the Evidence section jump to reach Case evidence in the leading investigation column, below assigned discovery. Pinned case evidence and case coordinates are inputs, not outcome proof; the trailing pane remains dedicated to verification and recorded state. The jump focuses a persistent heading without another read, URL change or command, even while private context is pending. The existing run metadata remains readable. A missing evidence member is an explicit compatibility limitation, not permission to query an internal endpoint or reconstruct a transcript from another resource.',
       expected:
         'The Console opens and explains that pinned evidence is unsupported.',
     },

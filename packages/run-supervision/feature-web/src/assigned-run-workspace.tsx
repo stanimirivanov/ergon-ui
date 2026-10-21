@@ -2,6 +2,7 @@ import { RunControlPanel } from './run-control-panel';
 import { ThreePaneLayout, type WorkspaceRenderer } from '@ergon/ui-web';
 import { useRef, type ReactElement, type ReactNode } from 'react';
 import { AssignedRunSectionJumps } from './assigned-run-section-jumps';
+import { AssignedRunCaseEvidence } from './assigned-run-case-evidence';
 
 import { AssignedRunExecutionPane } from './assigned-run-execution-pane';
 import { AssignedRunList } from './assigned-run-list';
@@ -67,6 +68,7 @@ function TenantAssignedRunWorkspace({
 }: AssignedRunWorkspaceProps): ReactElement {
   const workflow = useAssignedRunWorkflow(tenantId);
   const assignedHeading = useRef<HTMLHeadingElement>(null);
+  const evidenceHeading = useRef<HTMLHeadingElement>(null);
   const outcomeHeading = useRef<HTMLHeadingElement>(null);
   const { assigned, detail, selectedRunId } = workflow;
   const isReadingAssigned =
@@ -94,6 +96,7 @@ function TenantAssignedRunWorkspace({
         sectionNavigation={
           <AssignedRunSectionJumps
             onAssigned={() => assignedHeading.current?.focus()}
+            onEvidence={() => evidenceHeading.current?.focus()}
             onExecution={() => workflow.heading.current?.focus()}
             onOutcome={() => outcomeHeading.current?.focus()}
           />
@@ -139,26 +142,34 @@ function TenantAssignedRunWorkspace({
     ),
     content: (
       <ThreePaneLayout
-        leadingLabel="Assigned run discovery"
+        leadingLabel="Assigned work and case evidence"
         primaryLabel="Run execution"
         trailingLabel="Run outcome"
         leading={
-          <AssignedRunList
-            headingRef={assignedHeading}
-            page={assigned.phase === 'ready' ? assigned.data : undefined}
-            selectedRunId={selectedRunId}
-            isFetching={isReadingAssigned}
-            isWithheld={workflow.isBlockingDisclosure}
-            isRecheck={assigned.phase === 'pending' && assigned.hasRetainedData}
-            error={assigned.phase === 'failed' ? assigned.error : undefined}
-            signInHref={signInHref}
-            hasPrevious={workflow.hasPrevious}
-            onSelect={workflow.selectRun}
-            onRetry={handleAssignedRecheck}
-            onResetPage={handleAssignedReset}
-            onPrevious={workflow.previousPage}
-            onNext={workflow.nextPage}
-          />
+          <div className="flex min-w-0 flex-col gap-3">
+            <AssignedRunList
+              headingRef={assignedHeading}
+              page={assigned.phase === 'ready' ? assigned.data : undefined}
+              selectedRunId={selectedRunId}
+              isFetching={isReadingAssigned}
+              isWithheld={workflow.isBlockingDisclosure}
+              isRecheck={
+                assigned.phase === 'pending' && assigned.hasRetainedData
+              }
+              error={assigned.phase === 'failed' ? assigned.error : undefined}
+              signInHref={signInHref}
+              hasPrevious={workflow.hasPrevious}
+              onSelect={workflow.selectRun}
+              onRetry={handleAssignedRecheck}
+              onResetPage={handleAssignedReset}
+              onPrevious={workflow.previousPage}
+              onNext={workflow.nextPage}
+            />
+            <AssignedRunCaseEvidence
+              run={detail.phase === 'ready' ? detail.data : undefined}
+              headingRef={evidenceHeading}
+            />
+          </div>
         }
         primary={
           <AssignedRunExecutionPane
