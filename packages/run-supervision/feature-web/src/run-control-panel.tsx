@@ -22,7 +22,11 @@ const uncertain = new Set<RunSupervisionFailure['kind']>([
   'control-unavailable',
 ]);
 
-/** Presence coordinates one server browser session, not one tab or provider execution. Historical receipts never establish current ownership. */
+/**
+ * Keeps operational status, advisory time, failures and explicit actions visible.
+ * Only static control guidance is collapsed. Presence coordinates one server
+ * browser session, not one tab or provider execution; receipts are historical.
+ */
 export function RunControlPanel({
   control,
   command,
@@ -119,8 +123,11 @@ export function RunControlPanel({
       ((view.status === 'THIS_SESSION' || view.status === 'ANOTHER_SESSION') &&
         remainingSeconds === 0);
     content = (
-      <div className="space-y-2">
-        <p role="status" className="font-bold">
+      <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+        <p
+          role="status"
+          className="rounded border border-border px-2 py-1 text-xs font-bold"
+        >
           {expired
             ? 'Browser control expired'
             : {
@@ -135,10 +142,12 @@ export function RunControlPanel({
         {(view.status === 'THIS_SESSION' ||
           view.status === 'ANOTHER_SESSION') &&
         !expired ? (
-          <p>
+          <p className="text-xs text-ink-muted">
             Advisory time remaining:{' '}
-            <span className="font-mono">{remainingSeconds}s</span>. The server
-            checks again on every command.
+            <span className="font-mono font-bold text-ink tabular-nums">
+              {remainingSeconds}s
+            </span>
+            . The server checks again on every command.
           </p>
         ) : null}
         <div className="flex flex-wrap gap-2">
@@ -166,7 +175,7 @@ export function RunControlPanel({
           </Button>
         </div>
         {view.status === 'ANOTHER_SESSION' || expired ? (
-          <p>
+          <p className="basis-full text-xs text-ink-muted">
             No forced takeover or automatic reacquisition. Recheck status before
             acquiring anew.
           </p>
@@ -177,20 +186,25 @@ export function RunControlPanel({
   return (
     <section
       aria-label="Browser control"
-      className="min-w-0 space-y-2 rounded-md border border-border bg-surface p-3 text-sm"
+      className="min-w-0 space-y-2 rounded-md border border-border bg-canvas/60 p-3 text-sm"
     >
       {command.state.phase === 'succeeded' ? (
-        <p role="status">
+        <p role="status" className="text-xs text-ink-muted">
           Control {command.state.receipt.action.toLowerCase()} acknowledged
           historically. Current ownership requires the fresh status below.
         </p>
       ) : null}
       {content}
-      <p className="text-xs text-ink-muted">
-        Control is not tool authorization. Loss or release does not stop
-        admitted work. Tabs sharing a server session share its control; closing
-        this view does not release it.
-      </p>
+      <details className="min-w-0 text-xs text-ink-muted">
+        <summary className="cursor-pointer rounded py-1 font-bold text-accent-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong">
+          Browser control boundaries
+        </summary>
+        <p className="mt-2 leading-5">
+          Control is not tool authorization. Loss or release does not stop
+          admitted work. Tabs sharing a server session share its control;
+          closing this view does not release it.
+        </p>
+      </details>
     </section>
   );
 }

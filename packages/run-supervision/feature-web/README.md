@@ -10,6 +10,13 @@ it is neither a client application core nor a general steering surface.
 
 ## Owns
 
+- Compact supervision and control rows with directly visible identity, status,
+  advisory countdown, eligible actions and failures/recovery. Native disclosures
+  hide only static authority/control guidance and issue no request or command.
+  Their expansion reflows app-owned allocation rather than overlaying panes.
+  Countdown locality, exact intent, private gates and slot reconciliation scopes
+  retain their existing owners and behavior.
+
 - Execution-first central reading order: Recorded execution, Run actions,
   Supporting inspection, then Attempt context. A dedicated presentation component
   renders start/policy, receipt/measurement and transitions; the pane composes

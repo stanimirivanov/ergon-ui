@@ -2,6 +2,12 @@
 
 ## TL;DR
 
+The assigned Console's compact supervision bar keeps identity, current control,
+advisory countdown and explicit actions visible. Static authority/control prose
+is available through native keyboard disclosures; failures, uncertainty and
+recovery are never collapsed. Expanding guidance reflows the shell without
+requests or authority changes. Supervision and control guides cover this layout.
+
 The central Console is execution-first: recorded start/policy, receipt/measurement
 and transitions precede Run actions, Supporting inspection and Attempt context.
 All existing entry points remain directly available under their original fresh

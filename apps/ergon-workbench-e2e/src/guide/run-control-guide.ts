@@ -31,6 +31,20 @@ export const runControlGuide: GuideChapter = {
         'Available status appears, cancellation confirmation is absent, and lifecycle command count is zero.',
     },
     {
+      id: 'open-authority-guidance',
+      title: 'Inspect the compact bar’s authority boundaries with the keyboard',
+      body: 'Current ownership, advisory countdown and eligible actions remain directly visible in the compact bar. Only static explanations are collapsed. Focus Browser control boundaries and press Space, then focus Supervision and authority boundaries and press Enter. Opening these native disclosures changes neither the selected run nor the URL and performs no protected read, acquisition, renewal, release or business command. Operational failures and exact recovery actions are never hidden inside these explanations.',
+      expected:
+        'Both explanations open with the keyboard, with unchanged protected-read and command counts.',
+    },
+    {
+      id: 'interpret-authority-guidance',
+      title: 'Distinguish presence, control and capability authority',
+      body: 'The expanded guidance explains that assignment and resolver authority are checked by the server, control coordinates an authenticated session rather than a tab, and neither display grants tool authorization. Losing or releasing control does not stop admitted work. Close the explanations with Enter or Space to recover pane space: ownership, countdown, lifecycle actions and any uncertainty remain visible. This is local explanatory disclosure, not an authority toggle. At narrow width both collapsed and expanded states wrap in reading order instead of covering the execution panes.',
+      expected:
+        'Available control and acquisition stay visible while the explanations expand; closing them hides only static prose.',
+    },
+    {
       id: 'lost',
       title: 'Treat a lost acquisition response as uncertain',
       body: 'Acquire browser control once. The fixture commits acquisition but loses its response. Private context is withdrawn before network acquisition. Do not click a new acquisition or assume the lease was never created: retain the exact original lifecycle command and wait for its acknowledgement or explicit recovery.',

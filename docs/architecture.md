@@ -161,6 +161,13 @@ communicate their different purposes without new tabs, local resource copies or
 automatic reads. All remain beneath the same private-detail gate. Moving their
 presentation adds no dependency edge or command/inspection authority.
 
+The feature's compact supervision bar retains status/countdown/action ownership
+in the existing presence and control components. Only static explanations use
+native local disclosures; operational status, uncertainty and recovery stay
+outside them. The shell allocates space from actual collapsed/expanded height,
+not a fixed header estimate. No callback, request, cache or authority state is
+introduced by explanation toggles; countdown ticks remain local to control.
+
 The assigned Console's optional pinned-evidence projection stays in its existing
 RTK resource and disclosure lifetime. Run-supervision data access validates the
 exact case/pinned boundary and binding/source relationships; its feature owns
