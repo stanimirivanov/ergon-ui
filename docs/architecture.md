@@ -220,6 +220,15 @@ the exact BFF gate succeeds. Discovery membership does not replace that gate.
 
 ## Routing and rendering
 
+Pinned-contract inspection uses existing run-supervision data access for exact
+run/epoch/pin decoding, bounded Effect reads and fresh RTK observations. Feature
+owns opening intent and declaration presentation; app and ui-web retain shell
+and modal/focus ownership. The existing failed-inspection barrier retires private
+workspace context. No package, application core, cache or dependency edge is added.
+Declared order/safeguards and outcome conditions are not a DAG, effective policy,
+readiness or accepted proof. See
+[ADR 0043](decisions/0043-inspect-exact-pinned-contract-declarations.md).
+
 Gateway-attempt history uses existing supervision data access for strict bounded
 decoding, Effect execution and fresh RTK observations. Feature owns explicit
 inspection and uncertainty copy; the shared inspection barrier retires prior

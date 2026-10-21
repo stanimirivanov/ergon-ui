@@ -6,6 +6,20 @@ Own the confidential Console's reads, confirmed handover/approval/execution prot
 RTK cache lifecycle. The backend owns current authority; a human decision is
 not a capability grant. Private resources never acquire a second cache.
 
+## Pinned contract
+
+`getPinnedContract` and `useRunPinnedContract` consume merged Ergon PR #180.
+Exact tenant/run/epoch and immutable pin coordinates key the private RTK read;
+expectations stay local. Validate bounded identifiers/equalities, unique 1–50
+evidence and step declarations, applicability membership, high-risk approval
+and exact key/revision/step/capability attribution. Strip extras and preserve
+declaration order and UTC backsteps. Declared safeguards need not equal effective
+runtime policy. Reopening/rechecking obtains fresh access; commands invalidate
+the existing RunDetail tag. No lease, CSRF, polling, persistence or internal
+fallback exists. Unsupported is distinct from neutral denial; defects stay
+cause-free before cache serialization. See
+[ADR 0043](../../../docs/decisions/0043-inspect-exact-pinned-contract-declarations.md).
+
 ## Gateway-attempt history
 
 `getInvocationHistory` and `useRunInvocationHistory` consume merged Ergon PR

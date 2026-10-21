@@ -2,6 +2,14 @@
 
 ## TL;DR
 
+The assigned Console now explicitly inspects the exact normalized contract
+revision pinned by its current run, using merged Ergon PR #180. Applicability,
+required evidence, ordered declarations, pinned-step identification and outcome
+conditions remain distinct from readiness, effective policy, execution and proof.
+Fresh private access and safe failures reuse the existing inspection barrier.
+The twenty-second simulated chapter covers the complete read-only flow; no
+catalog, authoring YAML reconstruction or multi-step execution is introduced.
+
 The assigned Console now explicitly inspects merged Ergon PR #178's protected
 gateway-attempt history: preparation, no recorded completion, measured gateway
 success/failure and UNKNOWN effects. Exact nanoseconds, partial coverage and

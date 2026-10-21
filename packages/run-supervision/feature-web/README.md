@@ -56,6 +56,19 @@ it is neither a client application core nor a general steering surface.
   Unexpected defects are distinct from malformed responses and never trigger an
   automatic retry.
 
+## Pinned contract inspection
+
+The exact-run inspector owns opening intent only, under fresh tenant/run/epoch
+and immutable-pin context. RTK owns facts; ui-web owns modal focus, Escape and
+viewport allocation. Pending checks hide earlier definitions, parent withdrawal
+retires the modal/subscription, and protected failure uses the shared inspection
+barrier before paint. Unsupported remains compatibility feedback, not absence.
+The complete definition preserves inert exact values and declaration order,
+identifies the pinned step and contrasts declared safeguards with run-effective
+policy. Other declarations are not executed work; outcome equality is not proof.
+No catalog, original YAML, DAG, command or new project is introduced. See
+[ADR 0043](../../../docs/decisions/0043-inspect-exact-pinned-contract-declarations.md).
+
 ## Gateway-attempt inspection
 
 The explicit inspector lives beneath fresh tenant/run/epoch Console disclosure.
