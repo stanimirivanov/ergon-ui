@@ -1,6 +1,7 @@
 import { RunControlPanel } from './run-control-panel';
 import { ThreePaneLayout, type WorkspaceRenderer } from '@ergon/ui-web';
-import type { ReactElement, ReactNode } from 'react';
+import { useRef, type ReactElement, type ReactNode } from 'react';
+import { AssignedRunSectionJumps } from './assigned-run-section-jumps';
 
 import { AssignedRunExecutionPane } from './assigned-run-execution-pane';
 import { AssignedRunList } from './assigned-run-list';
@@ -65,6 +66,8 @@ function TenantAssignedRunWorkspace({
   renderWorkspace,
 }: AssignedRunWorkspaceProps): ReactElement {
   const workflow = useAssignedRunWorkflow(tenantId);
+  const assignedHeading = useRef<HTMLHeadingElement>(null);
+  const outcomeHeading = useRef<HTMLHeadingElement>(null);
   const { assigned, detail, selectedRunId } = workflow;
   const isReadingAssigned =
     assigned.phase === 'pending' || workflow.isBlockingDisclosure;
@@ -88,6 +91,13 @@ function TenantAssignedRunWorkspace({
     statusLabel: assignedRunCommandStatus(workflow),
     toolbar: (
       <AssignedRunPresence
+        sectionNavigation={
+          <AssignedRunSectionJumps
+            onAssigned={() => assignedHeading.current?.focus()}
+            onExecution={() => workflow.heading.current?.focus()}
+            onOutcome={() => outcomeHeading.current?.focus()}
+          />
+        }
         presence={presence}
         isReadingAssigned={isReadingAssigned}
         hasSelectedRun={selectedRunId !== null}
@@ -134,6 +144,7 @@ function TenantAssignedRunWorkspace({
         trailingLabel="Run outcome"
         leading={
           <AssignedRunList
+            headingRef={assignedHeading}
             page={assigned.phase === 'ready' ? assigned.data : undefined}
             selectedRunId={selectedRunId}
             isFetching={isReadingAssigned}
@@ -276,6 +287,7 @@ function TenantAssignedRunWorkspace({
         }
         trailing={
           <AssignedRunOutcomePane
+            headingRef={outcomeHeading}
             run={detail.phase === 'ready' ? detail.data : undefined}
             proofFinalizationControl={
               detail.phase === 'ready' && workflow.control.canCommand ? (

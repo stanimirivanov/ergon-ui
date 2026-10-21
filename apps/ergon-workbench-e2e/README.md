@@ -13,6 +13,15 @@ and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
 
+## Console section navigation
+
+The assigned-run chapter demonstrates persistent Console section jumps.
+Keyboard activation focuses discovery, execution or outcome headings without
+another request, command, private URL or selected-section cache. Its layout
+regression checks focused destinations in the 320-pixel viewport; component
+tests hold successful and failed rechecks to prove later deliberate navigation
+is not overwritten by response-driven focus.
+
 ## Pinned-readiness walkthrough
 
 The twenty-third chapter has seventeen assertion-backed checkpoints: lazy access,

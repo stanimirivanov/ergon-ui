@@ -10,6 +10,7 @@ export function AssignedRunPresence({
   handoverControl,
   controlPanel,
   isCommandPending,
+  sectionNavigation,
 }: {
   readonly presence: ReactNode;
   readonly isReadingAssigned: boolean;
@@ -19,6 +20,8 @@ export function AssignedRunPresence({
   readonly handoverControl?: ReactNode;
   readonly controlPanel?: ReactNode;
   readonly isCommandPending: boolean;
+  /** Focus-only pane navigation remains usable independently of authority gates. */
+  readonly sectionNavigation?: ReactNode;
 }): ReactElement {
   return (
     <section
@@ -60,6 +63,9 @@ export function AssignedRunPresence({
         ) : null}
       </div>
       <div className="basis-full">{controlPanel}</div>
+      {sectionNavigation === undefined ? null : (
+        <div className="basis-full">{sectionNavigation}</div>
+      )}
     </section>
   );
 }

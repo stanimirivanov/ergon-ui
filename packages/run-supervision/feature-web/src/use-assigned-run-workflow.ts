@@ -13,7 +13,6 @@ import {
 } from '@ergon/run-supervision-data-access-web';
 import {
   useCallback,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -174,8 +173,13 @@ export function useAssignedRunWorkflow(tenantId: string): AssignedRunWorkflow {
     hadControl.current = control.canCommand;
   }, [control.canCommand]);
 
-  useEffect(() => {
-    if (selectedRunId === null || detail.phase === 'ready') {
+  useLayoutEffect(() => {
+    // Recover abandoned focus, not a later deliberate section-navigation intent.
+    // Selection/recheck handlers already focus this persistent heading before I/O.
+    if (
+      (selectedRunId === null || detail.phase === 'ready') &&
+      document.activeElement === document.body
+    ) {
       heading.current?.focus();
     }
   }, [selectedRunId, detail.phase]);

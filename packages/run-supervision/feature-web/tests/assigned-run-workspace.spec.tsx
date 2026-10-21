@@ -55,6 +55,70 @@ afterEach(() => {
 });
 
 describe('assigned-run Resolver Console', () => {
+  it.each(['ready', 'failed'] as const)(
+    'jumps to persistent pane headings without extra reads or selection changes through withheld then %s detail',
+    async (completion) => {
+      const held = deferred<AssignedRunConsoleResult>();
+      const client = successfulClient();
+      const getConsole = vi
+        .fn<RunSupervisionClient['getConsole']>()
+        .mockResolvedValueOnce({ ok: true, console: assignedRunConsole })
+        .mockImplementationOnce(() => held.promise);
+      renderWorkspace({ ...client, getConsole });
+      await screen.findByRole('button', { name: `Inspect run ${RUN_ID}` });
+      const jumps = screen.getByRole('group', {
+        name: 'Console section jumps',
+      });
+      const headingNames = [
+        ['Jump to assigned runs', 'Assigned runs'],
+        ['Jump to execution', 'Resolution run'],
+        ['Jump to outcome proof', 'Outcome proof'],
+      ] as const;
+      function checkJumps(): void {
+        for (const [button, heading] of headingNames) {
+          fireEvent.click(within(jumps).getByRole('button', { name: button }));
+          expect(document.activeElement).toBe(
+            screen.getByRole('heading', { name: heading }),
+          );
+        }
+      }
+      checkJumps();
+      expect(getConsole).not.toHaveBeenCalled();
+      await openRun();
+      checkJumps();
+      expect(getConsole).toHaveBeenCalledTimes(1);
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Recheck selected run' }),
+      );
+      await waitFor(() => expect(getConsole).toHaveBeenCalledTimes(2));
+      expect(screen.queryByText('access-restoration')).toBeNull();
+      checkJumps();
+      const outcomeHeading = screen.getByRole('heading', {
+        name: 'Outcome proof',
+      });
+      if (completion === 'ready') {
+        held.resolve({ ok: true, console: assignedRunConsole });
+        await loadedRunPane();
+      } else {
+        held.resolve({ ok: false, error: { kind: 'transport' } });
+        await screen.findByRole('heading', {
+          name: 'Run context could not be read',
+        });
+      }
+      expect(document.activeElement).toBe(outcomeHeading);
+      checkJumps();
+      if (completion === 'failed')
+        expect(screen.queryByText('access-restoration')).toBeNull();
+      expect(getConsole).toHaveBeenCalledTimes(2);
+      expect(client.listAssigned).toHaveBeenCalledTimes(1);
+      expect(
+        screen
+          .getByRole('button', { name: `Inspect run ${RUN_ID}` })
+          .getAttribute('aria-pressed'),
+      ).toBe('true');
+    },
+  );
+
   it('keeps named discovery, execution and outcome panes while the app owns chrome and toolbar placement', async () => {
     const held = deferred<AssignedRunConsoleResult>();
     const getConsole = vi

@@ -2,6 +2,11 @@
 
 ## TL;DR
 
+Assigned supervisors can now jump directly to the three persistent Console
+headings from the toolbar, including during withheld or failed reads. This
+focus-only navigation changes no selection, URL, authority, cache or command.
+The assigned-run executable guide covers keyboard use and 320-pixel reflow.
+
 The assigned Console now explicitly inspects readiness at the run's immutable
 case/contract pin through merged Ergon PR #182. Missing requirements, exact
 applicability and the selected citation (even beyond first-100 history) remain
