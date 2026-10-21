@@ -10,6 +10,13 @@ it is neither a client application core nor a general steering surface.
 
 ## Owns
 
+- Execution-first central reading order: Recorded execution, Run actions,
+  Supporting inspection, then Attempt context. A dedicated presentation component
+  renders start/policy, receipt/measurement and transitions; the pane composes
+  existing command and inspector slots without taking over eligibility,
+  confirmation, remote state or modal lifetime. All private sections unmount
+  together when the detail gate closes. No hidden tab or automatic read is added.
+
 - On-demand admission-history inspector under the fresh Console gate. React
   owns only opening intent; RTK owns remote history. Pending/failed history
   checks hide prior rows; failed access retires the entire earlier workspace

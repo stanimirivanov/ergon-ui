@@ -2,6 +2,13 @@
 
 ## TL;DR
 
+The central Console is execution-first: recorded start/policy, receipt/measurement
+and transitions precede Run actions, Supporting inspection and Attempt context.
+All existing entry points remain directly available under their original fresh
+access and confirmation rules. The four private sections retire together when
+detail is withheld; no trace, authority, URL or cache contract changes.
+The assigned-run guide demonstrates the reading order without another request.
+
 Pinned case coordinates, bindings and source inspection now occupy a dedicated
 Case evidence section in the leading investigation column beside discovery.
 The trailing pane separates verification, accepted proof and recorded run state

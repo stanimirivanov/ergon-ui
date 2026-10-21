@@ -76,6 +76,50 @@ test(
         expect(page.url()).not.toContain(assignedRunId);
         await guide.result('inspect-run-snapshot', resolution);
 
+        const records = resolution.getByRole('region', {
+          name: 'Recorded execution',
+          exact: true,
+        });
+        await guide.action(
+          'locate-execution-first-sections',
+          page.getByRole('button', { name: 'Jump to execution', exact: true }),
+          async () => {
+            await page
+              .getByRole('button', { name: 'Jump to execution', exact: true })
+              .focus();
+            await page.keyboard.press('Enter');
+          },
+        );
+        const orderedSections = [
+          'Recorded execution',
+          'Run actions',
+          'Supporting inspection',
+          'Attempt context',
+        ];
+        for (const [beforeName, afterName] of [
+          ['Recorded execution', 'Run actions'],
+          ['Run actions', 'Supporting inspection'],
+          ['Supporting inspection', 'Attempt context'],
+        ] as const) {
+          const before = resolution.getByRole('region', {
+            name: beforeName,
+            exact: true,
+          });
+          const after = resolution.getByRole('region', {
+            name: afterName,
+            exact: true,
+          });
+          expect((await before.boundingBox())?.y).toBeLessThan(
+            (await after.boundingBox())?.y ?? -1,
+          );
+        }
+        await expect(
+          records.getByRole('heading', { name: 'Connector result recorded' }),
+        ).toBeVisible();
+        expect(bff.consoleReads()).toBe(1);
+        expect(bff.commands()).toBe(0);
+        await guide.result('interpret-execution-first-sections', records);
+
         const locationBeforeJumps = page.url();
         const sectionJumps = page.getByRole('group', {
           name: 'Console section jumps',
@@ -280,6 +324,11 @@ test(
           name: 'Rechecking run access…',
         });
         await expect(rechecking).toBeVisible();
+        for (const name of orderedSections) {
+          await expect(
+            resolution.getByRole('region', { name, exact: true }),
+          ).toHaveCount(0);
+        }
         await expect(
           page.getByText('access-restoration', { exact: true }),
         ).toHaveCount(0);
@@ -555,6 +604,34 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
     name: 'Run execution',
     exact: true,
   });
+  const recordSections = [
+    'Recorded execution',
+    'Run actions',
+    'Supporting inspection',
+    'Attempt context',
+  ];
+  const sectionOrder = await resolution
+    .getByRole('region')
+    .evaluateAll(
+      (elements, names) =>
+        elements
+          .map(
+            (element) =>
+              element.getAttribute('aria-label') ??
+              element.querySelector('h3')?.textContent ??
+              '',
+          )
+          .filter((name) => names.includes(name)),
+      recordSections,
+    );
+  expect(sectionOrder).toEqual(recordSections);
+  await page
+    .getByRole('button', { name: 'Jump to execution', exact: true })
+    .click();
+  await page.screenshot({
+    path: testInfo.outputPath('assigned-run-console-execution-first.png'),
+    animations: 'disabled',
+  });
   await executionViewport.focus();
   const executionScroll = await executionViewport.evaluate(
     (element) => element.scrollTop,
@@ -610,6 +687,27 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
   ).toBeVisible();
   await page.setViewportSize({ width: 320, height: 812 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const [beforeName, afterName] of [
+    ['Recorded execution', 'Run actions'],
+    ['Run actions', 'Supporting inspection'],
+    ['Supporting inspection', 'Attempt context'],
+  ] as const) {
+    const before = resolution.getByRole('region', {
+      name: beforeName,
+      exact: true,
+    });
+    const after = resolution.getByRole('region', {
+      name: afterName,
+      exact: true,
+    });
+    const previous = await before.boundingBox();
+    const next = await after.boundingBox();
+    expect(previous).not.toBeNull();
+    expect(next).not.toBeNull();
+    expect((previous?.y ?? 0) + (previous?.height ?? 0)).toBeLessThan(
+      next?.y ?? -1,
+    );
+  }
   for (const [button, heading] of [
     ['Jump to assigned runs', 'Assigned runs'],
     ['Jump to case evidence', 'Case evidence'],

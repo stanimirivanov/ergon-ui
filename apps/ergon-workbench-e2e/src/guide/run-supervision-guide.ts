@@ -51,6 +51,20 @@ export const runSupervisionGuide: GuideChapter = {
         'Contract access-restoration, the verify-account-owner step, and the recorded waiting state are visible.',
     },
     {
+      id: 'locate-execution-first-sections',
+      title: 'Start with recorded execution, not recovery controls',
+      body: 'Use Jump to execution to return keyboard focus to the persistent Resolution run heading. The center column now starts with Recorded execution: start and contract pin, pinned policy, terminal receipt and measurement when supplied, followed by recorded transitions. This is the first private section in desktop and stacked layouts. Reading it neither requests an inspector nor starts a command. The pinned step is not an executed span, and a succeeded receipt is not accepted proof.',
+      expected:
+        'The execution heading is focused without a new read or command.',
+    },
+    {
+      id: 'interpret-execution-first-sections',
+      title: 'Separate facts, actions, inspection and attempt relationships',
+      body: 'Read downward through four named sections. Recorded execution contains the disclosed snapshot facts. Run actions contains the existing approval, execution, retry, escalation and cancellation entry points when supported; eligibility still requires its own protected review and confirmation, never merely the visible state badge. Supporting inspection groups explicit pinned-contract, pinned-readiness, admission-history and gateway-attempt inspectors; opening one requires fresh access and does not execute work. Attempt context follows those sections and owns predecessor/successor inspection, not a complete retry tree or remaining retry budget. Nothing is hidden behind a new tab, and no automatic inspection request is introduced. During a pending or failed Console read, all four private sections disappear together; the persistent Resolution run heading remains available for recovery and navigation.',
+      expected:
+        'Recorded execution precedes actions, supporting inspection and attempt context, with one Console read and zero commands.',
+    },
+    {
       id: 'navigate-console-sections',
       title: 'Move between panes without changing context',
       body: 'Use the Console section jumps in the supervisor toolbar. Focus Jump to assigned runs, Jump to case evidence, Jump to execution or Jump to outcome proof and press Enter or Space. Each control focuses its persistent heading and the browser brings that heading into view, including when columns stack on a narrow screen. Discovery and Case evidence share the leading investigation column, followed by execution and outcome proof. This is local keyboard navigation, not a tab switch: all sections stay mounted in reading order. No URL fragment, selected run, lease, approval or remote resource changes. The controls remain usable when detail is pending or withheld; a heading destination never permits access to hidden evidence.',

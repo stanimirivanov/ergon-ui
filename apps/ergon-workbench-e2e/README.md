@@ -15,6 +15,13 @@ can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
 
+The assigned-run chapter also demonstrates execution-first central reading order:
+recorded facts, actions, supporting inspection, then attempt relationships.
+It asserts no extra read/command and withdrawal of all four private sections on a
+held recheck. Layout checks assert identical order at desktop and 320 pixels;
+existing policy/measurement keyboard checks and inspector/command chapters
+continue to exercise their unchanged owners.
+
 The assigned Console now separates pinned inputs in its leading Case evidence
 section from verification and recorded state in the trailing Outcome proof pane.
 The supervision, pinned-evidence and readiness chapters describe that placement;
