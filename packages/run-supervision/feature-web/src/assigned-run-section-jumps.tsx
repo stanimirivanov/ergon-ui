@@ -8,10 +8,12 @@ import type { ReactElement } from 'react';
  */
 export function AssignedRunSectionJumps({
   onAssigned,
+  onEvidence,
   onExecution,
   onOutcome,
 }: {
   readonly onAssigned: () => void;
+  readonly onEvidence: () => void;
   readonly onExecution: () => void;
   readonly onOutcome: () => void;
 }): ReactElement {
@@ -32,6 +34,15 @@ export function AssignedRunSectionJumps({
         onClick={onAssigned}
       >
         Assigned runs
+      </Button>
+      <Button
+        type="button"
+        variant="quiet"
+        size="compact"
+        aria-label="Jump to case evidence"
+        onClick={onEvidence}
+      >
+        Evidence
       </Button>
       <Button
         type="button"

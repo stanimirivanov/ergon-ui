@@ -31,14 +31,39 @@ test(
         const inspect = page.getByRole('button', {
           name: `Inspect run ${assignedRunId}`,
         });
-        await guide.action('open-legacy', inspect, () => inspect.click());
+        await guide.action('open-legacy', inspect, async () => {
+          await inspect.click();
+          await page
+            .getByRole('button', { name: 'Jump to case evidence' })
+            .focus();
+          await page.keyboard.press('Enter');
+        });
         const evidence = page.getByRole('region', {
           name: 'Pinned case evidence',
           exact: true,
         });
+        const caseEvidence = page.getByRole('region', {
+          name: 'Case evidence',
+          exact: true,
+        });
+        await expect(caseEvidence).toBeVisible();
+        await expect(
+          evidence.locator('xpath=ancestor::*[@data-pane-slot][1]'),
+        ).toHaveAttribute('data-pane-slot', 'leading');
+        await expect(
+          page
+            .getByRole('region', { name: 'Outcome proof', exact: true })
+            .getByRole('region', { name: 'Pinned case evidence', exact: true }),
+        ).toHaveCount(0);
         await expect(evidence).toContainText(
           'Unsupported is not an empty snapshot',
         );
+        await expect(
+          caseEvidence.getByRole('heading', {
+            name: 'Case evidence',
+            exact: true,
+          }),
+        ).toBeFocused();
         await guide.result('legacy-state', evidence);
         const recheck = page.getByRole('button', {
           name: 'Recheck selected run',

@@ -36,6 +36,10 @@ test(
         });
         const resolution = page.getByRole('region', { name: 'Resolution run' });
         const outcome = page.getByRole('region', { name: 'Outcome proof' });
+        const evidence = page.getByRole('region', {
+          name: 'Case evidence',
+          exact: true,
+        });
         await expect(runButton).toBeVisible();
         await expect(
           page.getByRole('heading', { name: 'Select an assigned run' }),
@@ -82,6 +86,7 @@ test(
           async () => {
             for (const [button, heading] of [
               ['Jump to assigned runs', 'Assigned runs'],
+              ['Jump to case evidence', 'Case evidence'],
               ['Jump to execution', 'Resolution run'],
               ['Jump to outcome proof', 'Outcome proof'],
             ] as const) {
@@ -117,7 +122,7 @@ test(
           resolution.getByText('policy-7', { exact: true }),
         ).toBeVisible();
         await expect(
-          outcome.getByText('This server does not supply pinned evidence.', {
+          evidence.getByText('This server does not supply pinned evidence.', {
             exact: false,
           }),
         ).toBeVisible();
@@ -516,6 +521,19 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
     resolution.getByText('access-restoration', { exact: true }),
   ).toBeVisible();
   const desktopAssigned = await assigned.boundingBox();
+  const caseEvidence = page.getByRole('region', {
+    name: 'Case evidence',
+    exact: true,
+  });
+  const desktopEvidence = await caseEvidence.boundingBox();
+  expect(desktopEvidence).not.toBeNull();
+  expect(desktopEvidence?.x).toBeCloseTo(desktopAssigned?.x ?? -1);
+  await expect(
+    outcome.getByRole('region', { name: 'Case context', exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    outcome.getByRole('region', { name: 'Pinned case evidence', exact: true }),
+  ).toHaveCount(0);
   const desktopResolution = await resolution.boundingBox();
   const desktopOutcome = await outcome.boundingBox();
   if (
@@ -563,20 +581,17 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
     name: 'Run outcome',
     exact: true,
   });
-  expect(
-    await outcomeViewport.evaluate(
-      (element) => element.scrollHeight > element.clientHeight,
-    ),
-  ).toBe(true);
   await outcomeViewport.focus();
   await expect(outcomeViewport).toBeFocused();
-  const outcomeScroll = await outcomeViewport.evaluate(
-    (element) => element.scrollTop,
+  // Proof may fit now that pinned inputs have their own section. End must reach
+  // the actual boundary, including zero, rather than requiring artificial content.
+  const outcomeScrollLimit = await outcomeViewport.evaluate((element) =>
+    Math.max(0, element.scrollHeight - element.clientHeight),
   );
-  await page.keyboard.press('PageDown');
+  await page.keyboard.press('End');
   await expect
     .poll(() => outcomeViewport.evaluate((element) => element.scrollTop))
-    .toBeGreaterThan(outcomeScroll);
+    .toBe(outcomeScrollLimit);
   await expect(outcomeViewport).toBeFocused();
   await page.keyboard.press('Home');
   await expect
@@ -597,6 +612,7 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
   await page.emulateMedia({ reducedMotion: 'reduce' });
   for (const [button, heading] of [
     ['Jump to assigned runs', 'Assigned runs'],
+    ['Jump to case evidence', 'Case evidence'],
     ['Jump to execution', 'Resolution run'],
     ['Jump to outcome proof', 'Outcome proof'],
   ] as const) {
@@ -612,6 +628,7 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
     await expect(destination).toBeInViewport();
   }
   const narrowAssigned = await assigned.boundingBox();
+  const narrowEvidence = await caseEvidence.boundingBox();
   const narrowResolution = await resolution.boundingBox();
   const narrowOutcome = await outcome.boundingBox();
   if (
@@ -622,6 +639,13 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
     throw new Error('Assigned Console panes have no narrow viewport bounds.');
   }
   expect(narrowAssigned.y + narrowAssigned.height).toBeLessThan(
+    narrowResolution.y,
+  );
+  expect(narrowEvidence).not.toBeNull();
+  expect(narrowAssigned.y + narrowAssigned.height).toBeLessThan(
+    narrowEvidence?.y ?? -1,
+  );
+  expect((narrowEvidence?.y ?? 0) + (narrowEvidence?.height ?? 0)).toBeLessThan(
     narrowResolution.y,
   );
   expect(narrowResolution.y + narrowResolution.height).toBeLessThan(

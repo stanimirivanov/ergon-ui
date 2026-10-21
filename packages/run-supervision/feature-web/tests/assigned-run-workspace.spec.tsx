@@ -71,18 +71,28 @@ describe('assigned-run Resolver Console', () => {
       });
       const headingNames = [
         ['Jump to assigned runs', 'Assigned runs'],
+        ['Jump to case evidence', 'Case evidence'],
         ['Jump to execution', 'Resolution run'],
         ['Jump to outcome proof', 'Outcome proof'],
       ] as const;
+      const destinations = headingNames.map(([button, heading]) => ({
+        button: within(jumps).getByRole('button', { name: button }),
+        heading: screen.getByRole('heading', { name: heading }),
+      }));
       function checkJumps(): void {
-        for (const [button, heading] of headingNames) {
-          fireEvent.click(within(jumps).getByRole('button', { name: button }));
-          expect(document.activeElement).toBe(
-            screen.getByRole('heading', { name: heading }),
-          );
+        for (const destination of destinations) {
+          fireEvent.click(destination.button);
+          expect(document.activeElement).toBe(destination.heading);
         }
       }
-      checkJumps();
+      const evidenceButton = within(jumps).getByRole('button', {
+        name: 'Jump to case evidence',
+      });
+      const evidenceHeading = screen.getByRole('heading', {
+        name: 'Case evidence',
+      });
+      fireEvent.click(evidenceButton);
+      expect(document.activeElement).toBe(evidenceHeading);
       expect(getConsole).not.toHaveBeenCalled();
       await openRun();
       checkJumps();
@@ -92,10 +102,8 @@ describe('assigned-run Resolver Console', () => {
       );
       await waitFor(() => expect(getConsole).toHaveBeenCalledTimes(2));
       expect(screen.queryByText('access-restoration')).toBeNull();
-      checkJumps();
-      const outcomeHeading = screen.getByRole('heading', {
-        name: 'Outcome proof',
-      });
+      fireEvent.click(evidenceButton);
+      expect(document.activeElement).toBe(evidenceHeading);
       if (completion === 'ready') {
         held.resolve({ ok: true, console: assignedRunConsole });
         await loadedRunPane();
@@ -105,8 +113,9 @@ describe('assigned-run Resolver Console', () => {
           name: 'Run context could not be read',
         });
       }
-      expect(document.activeElement).toBe(outcomeHeading);
-      checkJumps();
+      expect(document.activeElement).toBe(evidenceHeading);
+      fireEvent.click(evidenceButton);
+      expect(document.activeElement).toBe(evidenceHeading);
       if (completion === 'failed')
         expect(screen.queryByText('access-restoration')).toBeNull();
       expect(getConsole).toHaveBeenCalledTimes(2);
@@ -146,6 +155,7 @@ describe('assigned-run Resolver Console', () => {
       expect(screen.queryByText('Ergon')).toBeNull();
       for (const [name, slot] of [
         ['Assigned runs', 'leading'],
+        ['Case evidence', 'leading'],
         ['Resolution run', 'primary'],
         ['Outcome proof', 'trailing'],
       ] as const) {

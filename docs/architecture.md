@@ -148,6 +148,12 @@ state/receipt/acceptance consistency. Feature owns the single-condition section
 and keyed inspector; ui-web owns modality. No new dependency edge is added. See
 [ADR 0033](decisions/0033-inspect-outcome-verification-and-accepted-proof.md).
 
+The assigned Console separates investigation inputs from outcome proof. A leading
+column composes discovery and a dedicated Case evidence section; execution remains
+central and verification/recorded state remain trailing. Persistent heading refs
+support focus-only navigation even while private facts are withheld. Moving input
+presentation does not broaden disclosure or turn pinned bindings into proof.
+
 The assigned Console's optional pinned-evidence projection stays in its existing
 RTK resource and disclosure lifetime. Run-supervision data access validates the
 exact case/pinned boundary and binding/source relationships; its feature owns

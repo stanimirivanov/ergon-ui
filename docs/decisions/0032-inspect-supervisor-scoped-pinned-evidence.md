@@ -26,7 +26,8 @@ bindings have no general claim, confidence, validity or contradiction semantics.
   Unknown extras stay outside the cache. Omission means unsupported, not empty;
   null or inconsistent evidence fails the complete Console read.
 - The run-supervision feature owns a pinned-evidence section in the existing
-  trailing case/outcome pane, a keyed binding card and linked-source inspector.
+  leading investigation column, separate from outcome proof, with a keyed
+  binding card and linked-source inspector.
   A binding's component owns only modal visibility; removal retires inspection
   permanently. RTK remains the only owner of current resource data. The app
   continues to own the shell and ui-web continues to own DOM modality/focus.

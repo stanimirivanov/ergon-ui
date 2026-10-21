@@ -23,7 +23,7 @@ export const runPinnedReadinessGuide: GuideChapter = {
     {
       id: 'discover',
       title: 'Find the read-only inspection',
-      body: 'Select the synthetic assigned run and locate Readiness at run pin beneath the run records. The right-hand history warns that only its first hundred bindings are visible. Do not derive the latest selected fact from that list. Selection alone does not fetch readiness, acquire browser control, or enable a business command. The dedicated inspector requests only the protected run route on demand.',
+      body: 'Select the synthetic assigned run and locate Readiness at run pin beneath the run records. The pinned history in the leading Case evidence section warns that only its first hundred bindings are visible. Use Evidence in the section jumps to reach those inputs; the separate outcome pane is reserved for verification and proof. Do not derive the latest selected fact from that list. Selection alone does not fetch readiness, acquire browser control, or enable a business command. The dedicated inspector requests only the protected run route on demand.',
       expected:
         'The inspection trigger is available, the history is explicitly truncated and the readiness request count is zero.',
     },

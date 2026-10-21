@@ -15,8 +15,15 @@ can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
 
+The assigned Console now separates pinned inputs in its leading Case evidence
+section from verification and recorded state in the trailing Outcome proof pane.
+The supervision, pinned-evidence and readiness chapters describe that placement;
+the evidence chapter keyboard-jumps to the persistent heading during acquisition.
+Layout checks cover desktop allocation and discovery/evidence/execution/proof
+reading order at 320 pixels, with no extra protected read or command.
+
 The assigned-run chapter demonstrates persistent Console section jumps.
-Keyboard activation focuses discovery, execution or outcome headings without
+Keyboard activation focuses discovery, case-evidence, execution or outcome headings without
 another request, command, private URL or selected-section cache. Its layout
 regression checks focused destinations in the 320-pixel viewport; component
 tests hold successful and failed rechecks to prove later deliberate navigation
