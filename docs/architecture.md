@@ -154,6 +154,13 @@ central and verification/recorded state remain trailing. Persistent heading refs
 support focus-only navigation even while private facts are withheld. Moving input
 presentation does not broaden disclosure or turn pinned bindings into proof.
 
+The central pane orchestrates execution-first sections: a dedicated feature
+component owns recorded execution presentation, followed by existing command
+controls, supporting inspectors and attempt relationships. Named sections
+communicate their different purposes without new tabs, local resource copies or
+automatic reads. All remain beneath the same private-detail gate. Moving their
+presentation adds no dependency edge or command/inspection authority.
+
 The assigned Console's optional pinned-evidence projection stays in its existing
 RTK resource and disclosure lifetime. Run-supervision data access validates the
 exact case/pinned boundary and binding/source relationships; its feature owns
