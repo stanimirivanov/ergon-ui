@@ -13,6 +13,7 @@ import type {
 } from '@ergon/follow-up-data-access-web';
 import { humanFollowUpApi } from '@ergon/follow-up-data-access-web';
 import type { WorkspaceRenderer } from '@ergon/ui-web';
+import { useLayoutEffect } from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
@@ -119,44 +120,85 @@ describe('follow-up workspace disclosure composition', () => {
     expect(await screen.findByText('Private Console evidence')).toBeTruthy();
     expect(document.activeElement).toBe(back);
   });
-  it('retains stable toolbar focus through a held owned-work recovery and fresh case context', async () => {
-    let finishRecovery: (
-      result: Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>,
-    ) => void = () => undefined;
-    const recovery = new Promise<
-      Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>
-    >((resolve) => {
-      finishRecovery = resolve;
-    });
-    const listOwned = vi
-      .fn<ListOwnedHumanFollowUps['listOwned']>()
-      .mockResolvedValueOnce(
-        successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
-      )
-      .mockResolvedValueOnce({ ok: false, error: { kind: 'transport' } })
-      .mockImplementationOnce(() => recovery);
-    renderWorkspace({ listOwned });
-    await openConsole();
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Recheck current claim' }),
-    );
-    const retry = await screen.findByRole('button', { name: 'Try again' });
-    retry.focus();
-    fireEvent.click(retry);
-    const back = screen.getByRole('button', { name: 'Back to active work' });
-    expect(document.activeElement).toBe(back);
-    await waitFor(() => expect(listOwned).toHaveBeenCalledTimes(3));
-    expect(screen.queryByText('Private Console evidence')).toBeNull();
-    expect(screen.queryByText('Verified actor display')).toBeNull();
-    expect(
-      screen
-        .getAllByRole('heading', { level: 3 })
-        .map((heading) => heading.textContent),
-    ).toEqual(['Evidence withheld', 'Execution withheld', 'Outcome withheld']);
-    finishRecovery(successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null));
-    expect(await screen.findByText('Private Console evidence')).toBeTruthy();
-    expect(document.activeElement).toBe(back);
-  });
+  it.each(['after paint', 'before passive effects'] as const)(
+    'retains stable toolbar focus through a held owned-work recovery and fresh case context (%s)',
+    async (retryTiming) => {
+      let finishRecovery: (
+        result: Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>,
+      ) => void = () => undefined;
+      const recovery = new Promise<
+        Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>
+      >((resolve) => {
+        finishRecovery = resolve;
+      });
+      const listOwned = vi
+        .fn<ListOwnedHumanFollowUps['listOwned']>()
+        .mockResolvedValueOnce(
+          successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null),
+        )
+        .mockResolvedValueOnce({ ok: false, error: { kind: 'transport' } })
+        .mockImplementationOnce(() => recovery);
+      let recoveryStarted = false;
+      let toolbarFocusedAtCommit = false;
+      function recover(): void {
+        const retry = screen.queryByRole('button', { name: 'Try again' });
+        if (retry === null || recoveryStarted) return;
+        recoveryStarted = true;
+        retry.focus();
+        fireEvent.click(retry);
+      }
+      renderWorkspace({ listOwned }, (view) => (
+        <>
+          {renderWorkspaceShell(view)}
+          <WorkspaceCommitObserver
+            onCommit={() => {
+              if (
+                retryTiming === 'before passive effects' &&
+                !toolbarFocusedAtCommit &&
+                screen.queryByRole('heading', {
+                  name: 'Your active work is temporarily unavailable.',
+                }) !== null
+              ) {
+                toolbarFocusedAtCommit = true;
+                screen
+                  .getByRole('button', { name: 'Back to active work' })
+                  .focus();
+              }
+            }}
+          />
+        </>
+      ));
+      await openConsole();
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Recheck current claim' }),
+      );
+      await screen.findByRole('button', { name: 'Try again' });
+      if (retryTiming === 'before passive effects') {
+        expect(toolbarFocusedAtCommit).toBe(true);
+        expect(document.activeElement).toBe(
+          screen.getByRole('button', { name: 'Back to active work' }),
+        );
+      }
+      recover();
+      const back = screen.getByRole('button', { name: 'Back to active work' });
+      expect(document.activeElement).toBe(back);
+      await waitFor(() => expect(listOwned).toHaveBeenCalledTimes(3));
+      expect(screen.queryByText('Private Console evidence')).toBeNull();
+      expect(screen.queryByText('Verified actor display')).toBeNull();
+      expect(
+        screen
+          .getAllByRole('heading', { level: 3 })
+          .map((heading) => heading.textContent),
+      ).toEqual([
+        'Evidence withheld',
+        'Execution withheld',
+        'Outcome withheld',
+      ]);
+      finishRecovery(successfulOwnedFollowUpResult(FIRST_WORK_ITEM_ID, null));
+      expect(await screen.findByText('Private Console evidence')).toBeTruthy();
+      expect(document.activeElement).toBe(back);
+    },
+  );
   it('retains stable toolbar focus through a held case-context recovery and fresh evidence', async () => {
     let finishRecovery: (
       result: Awaited<
@@ -464,3 +506,14 @@ const renderWorkspaceShell: WorkspaceRenderer = ({
     <main>{content}</main>
   </div>
 );
+
+// Models toolbar focus intent as soon as the failure DOM commits, before passive
+// effects flush. This exposes focus ordering without timers or repeated tests.
+function WorkspaceCommitObserver({
+  onCommit,
+}: {
+  readonly onCommit: () => void;
+}): null {
+  useLayoutEffect(onCommit);
+  return null;
+}
