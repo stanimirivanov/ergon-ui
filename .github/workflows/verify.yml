@@ -52,3 +52,38 @@ jobs:
 
       - name: Verify browser behavior
         run: pnpm e2e
+
+  visual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.16.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Start pinned visual renderer
+        run: |
+          image=$(node -p "require('./tools/visual/renderer.json').image")
+          version=$(node -p "require('./tools/visual/renderer.json').playwrightVersion")
+          docker run --detach --rm --init --platform linux/amd64 --name ergon-visual --publish 127.0.0.1:3074:3000 --shm-size=256m --user pwuser --workdir /home/pwuser "$image" /bin/sh -c "npx --yes playwright@$version run-server --host 0.0.0.0 --port 3000"
+      - name: Verify Console visual baselines
+        run: pnpm visual:check
+        env:
+          ERGON_VISUAL_WS_ENDPOINT: ws://127.0.0.1:3074/
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: console-visual-diagnostics
+          path: test-output/visual
+          if-no-files-found: error
+      - name: Stop visual renderer
+        if: always()
+        run: docker rm --force ergon-visual

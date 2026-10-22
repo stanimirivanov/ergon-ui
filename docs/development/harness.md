@@ -54,6 +54,11 @@ Dependency resolution is a separate networked, mutating bootstrap step:
 
 ## Feedback sensors
 
+Console presentation changes also require `pnpm visual:check` (T3) using the
+[pinned renderer and review procedure](visual-baselines.md). CI runs a separate
+comparison-only job; it never approves or updates a baseline automatically.
+Repository-policy tests reject skipped/tolerated visual gates and renderer drift.
+
 | Command                   | What it proves                                                                                                                  | Tier  |
 | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------ | :---- |
 | `pnpm repository:check`   | Local Markdown navigation, TL;DR policy, ADR lifecycle/index integrity, and issue/PR template contracts                         | T1    |

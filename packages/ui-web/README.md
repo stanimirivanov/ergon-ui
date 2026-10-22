@@ -8,6 +8,11 @@ be imported by future shared or native packages.
 
 ## Ownership rules
 
+The app imports `@ergon/ui-web/inspection.css` for `ModalDialog` presentation:
+solid by default, restrained glass where supported, solid again for reduced
+transparency and forced colours. The app supplies semantic theme values; this
+stylesheet does not own modal geometry, disclosure or lifecycle behavior.
+
 - Keep primitives independent of routes, API calls, authentication, Redux, and
   domain workflows.
 - Review shadcn-generated source as normal authored code.

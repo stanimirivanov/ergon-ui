@@ -52,11 +52,11 @@ export function WorkbenchFrame({
         Skip to main content
       </a>
 
-      <header className="shrink-0 border-b border-border/80 bg-surface/90 backdrop-blur-md">
+      <header className="shrink-0 border-b border-border bg-surface">
         <div
           className={
             mode === 'focused'
-              ? 'flex min-h-16 flex-wrap items-center gap-4 px-4 py-3 lg:px-6'
+              ? 'flex min-h-16 flex-wrap items-center gap-x-5 gap-y-3 px-4 py-3 lg:px-6'
               : 'mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5 lg:px-10'
           }
         >
@@ -69,7 +69,7 @@ export function WorkbenchFrame({
               aria-hidden="true"
               className={
                 mode === 'focused'
-                  ? 'grid size-10 place-items-center rounded-xl border border-accent/60 bg-canvas font-display text-xl text-accent-strong'
+                  ? 'grid size-9 place-items-center rounded-md border border-accent/60 bg-canvas font-display text-xl font-bold text-accent-strong'
                   : 'grid size-10 place-items-center rounded-xl bg-ink font-display text-xl text-white'
               }
             >
@@ -92,7 +92,7 @@ export function WorkbenchFrame({
             <h1
               ref={heading}
               tabIndex={-1}
-              className="min-w-0 flex-1 text-2xl font-extrabold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-strong"
+              className="min-w-0 flex-1 text-2xl font-bold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-strong"
             >
               Resolver Console
             </h1>
@@ -127,7 +127,7 @@ export function WorkbenchFrame({
       {mode === 'standard' ? (
         <footer className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-6 py-8 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between lg:px-10">
           <p>Ergon open resolution infrastructure.</p>
-          <p>M05 · Human follow-up and resolver console</p>
+          <p>M05 · Adaptive resolution experience</p>
         </footer>
       ) : null}
     </div>

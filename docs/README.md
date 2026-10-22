@@ -40,6 +40,9 @@ dependency edge changes.
 
 ## Canonical sources
 
+- [Visual baselines](development/visual-baselines.md) owns the pinned Console
+  renderer, screenshot review and explicit baseline-update procedure.
+
 - [Architecture](architecture.md) describes deployables, responsibility
   ownership, dependency direction, state, and security boundaries.
 - [Engineering standards](development/engineering-standards.md) govern React,

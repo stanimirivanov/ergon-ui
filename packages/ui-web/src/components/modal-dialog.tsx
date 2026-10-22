@@ -123,7 +123,7 @@ export function ModalDialog({
       }}
       // Browser-queued close events include StrictMode cleanup. They must not
       // dismiss a replacement instance or trigger late return-focus work.
-      className="m-auto max-h-[calc(100dvh-2rem)] w-[min(70rem,calc(100vw-2rem))] max-w-none overflow-y-auto rounded-lg border border-accent/55 bg-surface/95 p-4 text-ink shadow-2xl backdrop:bg-black/75 sm:p-6"
+      className="ergon-inspection m-auto max-h-[calc(100dvh-2rem)] w-[min(70rem,calc(100vw-2rem))] max-w-none overflow-y-auto rounded-lg border border-accent/55 bg-surface p-4 text-ink shadow-2xl sm:p-6"
     >
       <FocusScope
         loop

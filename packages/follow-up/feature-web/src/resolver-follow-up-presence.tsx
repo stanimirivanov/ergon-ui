@@ -27,7 +27,7 @@ export function ResolverFollowUpPresence({
   return (
     <section
       aria-label="Current claim"
-      className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-4 rounded-md border border-border bg-surface/90 p-4"
+      className="flex w-full min-w-0 flex-1 flex-wrap items-center justify-between gap-4 rounded-md border border-border bg-surface/90 p-4 sm:w-auto"
     >
       <div className="min-w-0 flex-1 basis-64">
         <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
