@@ -13,6 +13,88 @@ const workflow = parseYaml(
   ),
 );
 
+const renderer = JSON.parse(
+  await readFile(new URL('../visual/renderer.json', import.meta.url), 'utf8'),
+);
+const playwright = JSON.parse(
+  await readFile(
+    new URL(
+      '../../node_modules/@playwright/test/package.json',
+      import.meta.url,
+    ),
+    'utf8',
+  ),
+);
+
+function assertVisualConfiguration(candidate) {
+  const job = candidate.jobs.visual;
+  assert.ok(job, 'visual comparison job is required');
+  const step = job.steps.find(
+    (entry) => entry.name === 'Verify Console visual baselines',
+  );
+  assert.equal(
+    step?.run,
+    'pnpm visual:check',
+    'visual comparison must not update expectations',
+  );
+  for (const owner of [job, step]) {
+    assert.equal(owner.if, undefined, 'visual gate must not be conditional');
+    assert.equal(
+      owner['continue-on-error'],
+      undefined,
+      'visual failures must not be tolerated',
+    );
+  }
+  const startup = job.steps.find(
+    (entry) => entry.name === 'Start pinned visual renderer',
+  );
+  assert.match(startup.run, /tools\/visual\/renderer\.json/u);
+  assert.match(startup.run, /--platform linux\/amd64/u);
+  assert.equal(
+    job.steps.find((entry) => entry.uses?.startsWith('actions/checkout@'))
+      ?.with?.['persist-credentials'],
+    false,
+  );
+}
+
+test('visual comparison uses a matching immutable renderer and a mandatory comparison-only gate', () => {
+  assert.equal(renderer.playwrightVersion, playwright.version);
+  assert.match(
+    renderer.image,
+    new RegExp(
+      '^mcr\\.microsoft\\.com/playwright:v' +
+        renderer.playwrightVersion.replaceAll('.', '\\.') +
+        '-noble@sha256:[a-f0-9]{64}$',
+      'u',
+    ),
+  );
+  assert.equal(
+    manifest.scripts['visual:check'],
+    'playwright test --config=apps/ergon-workbench-e2e/playwright.visual.config.mts',
+  );
+  assertVisualConfiguration(workflow);
+});
+
+test('rejects conditional, tolerated or updating visual verification', () => {
+  for (const alteration of [
+    { if: 'false' },
+    { 'continue-on-error': true },
+    { run: 'pnpm visual:check --update-snapshots=all' },
+  ]) {
+    const changed = structuredClone(workflow);
+    Object.assign(
+      changed.jobs.visual.steps.find(
+        (entry) => entry.name === 'Verify Console visual baselines',
+      ),
+      alteration,
+    );
+    assert.throws(() => assertVisualConfiguration(changed));
+  }
+  const changed = structuredClone(workflow);
+  delete changed.jobs.visual;
+  assert.throws(() => assertVisualConfiguration(changed));
+});
+
 function assertVerificationConfiguration(packageJson, verifyWorkflow) {
   // Nx's default formatting range requires Git refs absent from shallow PR checkouts.
   assert.equal(

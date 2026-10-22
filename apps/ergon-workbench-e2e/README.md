@@ -89,6 +89,10 @@ audit. Deploy Ergon PR #178/schema first. No generated media is committed.
 
 ## Commands
 
+Console pixel comparisons run separately with `pnpm visual:check`; see the
+[pinned Linux renderer procedure](../../docs/development/visual-baselines.md).
+They use synthetic fixtures and do not replace the behavior or guide gates.
+
 From the `ergon-ui` repository root:
 
 ```powershell

@@ -1,0 +1,34 @@
+/* Native modality/focus remain in ModalDialog; glass is progressive decoration. */
+.ergon-inspection::backdrop {
+  background: rgb(2 6 12 / 80%);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .ergon-inspection {
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+    backdrop-filter: blur(24px) saturate(120%);
+    box-shadow:
+      0 24px 80px rgb(0 0 0 / 45%),
+      inset 0 1px rgb(255 255 255 / 12%);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ergon-inspection {
+    background: var(--surface);
+    backdrop-filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .ergon-inspection {
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+  .ergon-inspection::backdrop {
+    background: Canvas;
+  }
+}

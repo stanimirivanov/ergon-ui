@@ -24,6 +24,8 @@ const recordsUserGuides = process.env['ERGON_E2E_MODE'] === 'user-guide';
  */
 export default defineConfig({
   ...nxE2EPreset(import.meta.dirname, { testDir: './src' }),
+  // Pixel comparisons have a separate required, pinned-Linux CI gate.
+  testIgnore: '**/*.visual.spec.ts',
   timeout: recordsUserGuides ? 180_000 : 60_000,
   ...(recordsUserGuides ? { workers: 1, retries: 0 } : {}),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */

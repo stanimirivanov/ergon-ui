@@ -10,6 +10,7 @@
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./inspection.css": "./src/inspection.css",
     "./components/*": "./src/components/*.tsx",
     "./lib/*": "./src/lib/*.ts",
     "./package.json": "./package.json"

@@ -2,6 +2,13 @@
 
 ## TL;DR
 
+Focused Console chrome uses a dark, high-contrast sans-serif hierarchy with opaque
+shell surfaces and restrained translucent inspection dialogs. Reduced transparency
+and forced colours use solid surfaces. Native modal geometry, focus, disclosure
+and request owners are unchanged. A pinned Linux visual gate records five
+synthetic viewport states; proposed baselines require human PR review.
+This is a presentation foundation, not completion of the planned pane redesign.
+
 Supporting inspection now uses four compact launch rows for the exact pinned
 contract, pinned readiness, browser admissions and observed gateway attempts.
 Each keeps its distinct purpose and visible unavailable reason. Shared framing

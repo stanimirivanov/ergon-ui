@@ -22,7 +22,7 @@ export function ResolverFollowUpToolbar({
     onRecheckOwnership();
   }
   return (
-    <div className="flex min-w-0 flex-wrap items-start gap-3">
+    <div className="flex min-w-0 flex-col items-start gap-3 sm:flex-row sm:flex-wrap">
       <Button
         ref={backRef}
         type="button"
