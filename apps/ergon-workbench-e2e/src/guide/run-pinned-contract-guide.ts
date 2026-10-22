@@ -24,7 +24,7 @@ export const runPinnedContractGuide: GuideChapter = {
     {
       id: 'discover',
       title: 'Find the exact-run contract inspector',
-      body: 'Open Assigned runs and select the synthetic assigned run. Locate Pinned resolution contract beneath the run records. Selection alone must not fetch the optional definition. Read the introduction before opening: current supervision and resolver evidence are independently checked, and browser control is not acquired. This walkthrough uses prepared responses rather than a real session or database.',
+      body: 'Find the compact Pinned resolution contract row in Supporting inspection after selecting the assigned run. The title, direct launch action and concise purpose distinguish immutable declarations from effective policy, readiness, execution and proof. Selection alone does not fetch the optional definition. Each launch checks fresh supervision and resolver access; no browser control lease is required. This walkthrough uses prepared responses, not a live session or database.',
       expected:
         'The read-only trigger is available and the contract read count remains zero.',
     },

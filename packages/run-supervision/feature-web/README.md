@@ -10,6 +10,13 @@ it is neither a client application core nor a general steering surface.
 
 ## Owns
 
+- Compact supporting-inspection rows for pinned declarations, fixed-input
+  readiness, admissions and gateway attempts. The consumed feature-local framing
+  owns presentation only; each inspector keeps its trigger/ref, eligibility,
+  RTK hook, failures and modal lifetime. Visible unavailable reasons are not
+  empty results. The shared section explains fresh access and lease independence;
+  launch purposes do not infer trace, readiness or proof from historical records.
+
 - Compact supervision and control rows with directly visible identity, status,
   advisory countdown, eligible actions and failures/recovery. Native disclosures
   hide only static authority/control guidance and issue no request or command.

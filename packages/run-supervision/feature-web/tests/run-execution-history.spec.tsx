@@ -4,7 +4,13 @@ import type {
   RunExecutionHistoryResult,
   RunControlClient,
 } from '@ergon/run-supervision-data-access-web';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { RUN_ID } from './assigned-run-fixtures';
 import {
@@ -30,11 +36,11 @@ const history = {
   ],
   truncated: false,
 };
-async function select(): Promise<void> {
+async function select(): Promise<HTMLElement> {
   fireEvent.click(
     await screen.findByRole('button', { name: 'Inspect run ' + RUN_ID }),
   );
-  await screen.findByRole('button', { name: 'Inspect recorded admissions' });
+  return screen.findByRole('button', { name: 'Inspect recorded admissions' });
 }
 
 describe('execution admission inspector', () => {
@@ -108,18 +114,20 @@ describe('execution admission inspector', () => {
       ...successfulRetryClient(),
       getExecutionHistory: read,
     });
-    await select();
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Inspect recorded admissions' }),
-    );
-    await screen.findByRole('heading', {
+    const trigger = await select();
+    fireEvent.click(trigger);
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Recorded execution admissions',
+    });
+    const inspection = within(dialog);
+    await inspection.findByRole('heading', {
       name: 'Recovery admission',
     });
     fireEvent.click(
-      screen.getByRole('button', { name: 'Recheck admission access' }),
+      inspection.getByRole('button', { name: 'Recheck admission access' }),
     );
     expect(
-      screen.queryByRole('heading', {
+      inspection.queryByRole('heading', {
         name: 'Recovery admission',
       }),
     ).toBeNull();
@@ -135,6 +143,7 @@ describe('execution admission inspector', () => {
     expect(
       screen.queryByText(/No browser execution command recorded/),
     ).toBeNull();
+    expect(dialog.isConnected).toBe(false);
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(screen.queryByText('PRIVATE_FAILED_POLICY')).toBeNull();
     expect(

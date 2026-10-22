@@ -24,7 +24,7 @@ export const runInvocationHistoryGuide: GuideChapter = {
     {
       id: 'discover',
       title: 'Locate the read-only gateway inspector',
-      body: 'Open Assigned runs and select the prepared run. Find Gateway-attempt history beneath the distinct admission records. Selecting a run must not fetch optional gateway history. Read the access explanation before choosing Inspect gateway attempts: current exact-run supervision and resolver evidence are checked independently, without acquiring browser control or supplying an originating actor or command identifier.',
+      body: 'Find the compact Gateway-attempt history row in Supporting inspection. Its direct action opens recorded preparations and measured gateway outcomes; these are not dispatch guarantees, a live execution trace or accepted proof. The adjacent admissions row records a different boundary. Selection does not fetch gateway history and inspection acquires no browser control lease. Each launch still requests fresh exact-run access, with unsupported meaning distinct from an empty result.',
       expected:
         'The inspector trigger is available and the synthetic gateway-history read counter remains zero.',
     },

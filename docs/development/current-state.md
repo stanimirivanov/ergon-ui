@@ -2,6 +2,13 @@
 
 ## TL;DR
 
+Supporting inspection now uses four compact launch rows for the exact pinned
+contract, pinned readiness, browser admissions and observed gateway attempts.
+Each keeps its distinct purpose and visible unavailable reason. Shared framing
+owns no eligibility, request or modal state; existing inspectors still own
+explicit fresh reads, failure withdrawal and focus return. Their guides cover
+the launch surfaces without claiming a live trace or outcome proof.
+
 The assigned Console's compact supervision bar keeps identity, current control,
 advisory countdown and explicit actions visible. Static authority/control prose
 is available through native keyboard disclosures; failures, uncertainty and

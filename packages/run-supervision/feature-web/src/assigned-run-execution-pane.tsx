@@ -150,9 +150,10 @@ export function AssignedRunExecutionPane({
             </p>
             <p className="mt-2 text-sm leading-6 text-ink-muted">
               Open protected records deliberately. Each inspector checks fresh
-              access; inspecting history or pinned inputs does not execute work.
+              access; no browser control lease is required. Inspecting history
+              or pinned inputs does not execute work.
             </p>
-            <div className="mt-5 space-y-5">
+            <div className="mt-4 space-y-2">
               <div>{pinnedContract}</div>
               <div>{pinnedReadiness}</div>
               <div>{executionHistory}</div>

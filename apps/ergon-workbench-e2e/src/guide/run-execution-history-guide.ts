@@ -25,7 +25,7 @@ export const runExecutionHistoryGuide: GuideChapter = {
     {
       id: 'discover',
       title: 'Select the run without loading its audit',
-      body: 'Open Assigned runs and inspect the prepared run. Find the Execution admission history card below durable records. The card explains its read-only boundary; existing run receipt and proof remain separate. No history request, control acquisition, CSRF fetch or business POST is caused by simply selecting this run.',
+      body: 'Find the compact Execution admission history row in Supporting inspection. Its direct action reads recorded browser admissions, including earlier supervision epochs, not dispatches, per-call results or live spans. Selection does not request this optional history, and no browser control lease is required. The concise launcher is not an authority shortcut: each open independently checks fresh exact-run supervision and resolver access.',
       expected:
         'The inspector trigger is available and the synthetic history-read count remains zero.',
     },

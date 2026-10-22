@@ -161,6 +161,13 @@ communicate their different purposes without new tabs, local resource copies or
 automatic reads. All remain beneath the same private-detail gate. Moving their
 presentation adds no dependency edge or command/inspection authority.
 
+Four current supporting inspectors consume feature-local launch-row framing.
+The framing receives purpose, action and unavailable feedback, and renders only
+the modal children explicitly supplied by each inspector. Trigger refs, exact
+query coordinates, lazy reads, typed failures and open/close lifetime stay with
+their original owners. Shared presentation does not introduce a generic workflow,
+resource cache, authority policy, dependency edge or package API.
+
 The feature's compact supervision bar retains status/countdown/action ownership
 in the existing presence and control components. Only static explanations use
 native local disclosures; operational status, uncertainty and recovery stay

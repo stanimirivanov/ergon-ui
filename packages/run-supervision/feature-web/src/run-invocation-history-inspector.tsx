@@ -4,6 +4,7 @@ import {
   type RunSupervisionFailure,
 } from '@ergon/run-supervision-data-access-web';
 import { Button, ModalDialog } from '@ergon/ui-web';
+import { RunInspectionEntry } from './run-inspection-entry';
 import {
   useId,
   useLayoutEffect,
@@ -50,32 +51,27 @@ export function RunInvocationHistoryInspector({
     if (failure !== undefined) onAccessFailure(failure);
   }, [failure, onAccessFailure]);
   return (
-    <section
-      aria-label="Gateway-attempt history"
-      className="rounded-md border border-border bg-surface/70 p-4"
-    >
-      <h3 className="font-bold">Gateway-attempt history</h3>
-      <p className="mt-2 text-sm leading-6 text-ink-muted">
-        Inspect recorded preparations and measured gateway outcomes, including
-        earlier supervision epochs and internal execution. Current supervisor
-        access is checked independently; no browser control lease is required.
-      </p>
-      <div className="mt-4">
+    <RunInspectionEntry
+      title="Gateway-attempt history"
+      description="Recorded preparations and measured gateway outcomes, not dispatch guarantees or outcome proof."
+      unavailableReason={
+        run.supervisionRevision === undefined
+          ? 'Gateway history cannot be inspected without a supported supervision epoch.'
+          : undefined
+      }
+      action={
         <Button
           ref={trigger}
+          type="button"
           variant="quiet"
+          size="compact"
           disabled={run.supervisionRevision === undefined}
           onClick={() => setOpen(true)}
         >
           Inspect gateway attempts
         </Button>
-      </div>
-      {run.supervisionRevision === undefined ? (
-        <p className="mt-2 text-sm text-ink-muted">
-          This snapshot has no supported supervision epoch. History cannot be
-          inspected.
-        </p>
-      ) : null}
+      }
+    >
       {open ? (
         <ModalDialog
           id={`invocation-history-${id}`}
@@ -123,6 +119,6 @@ export function RunInvocationHistoryInspector({
           </div>
         </ModalDialog>
       ) : null}
-    </section>
+    </RunInspectionEntry>
   );
 }
