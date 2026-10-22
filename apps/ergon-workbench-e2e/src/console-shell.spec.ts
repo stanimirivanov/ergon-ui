@@ -160,7 +160,7 @@ test('owned Console keeps one app shell and three panes while private context is
 
 test('assigned Console allocates space beneath a wrapping toolbar in every read phase', async ({
   page,
-}) => {
+}, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const bff = await installSimulatedRunSupervisionBff(page);
   await page.goto(`${supervisorTenantPath}?view=runs`);
@@ -192,6 +192,38 @@ test('assigned Console allocates space beneath a wrapping toolbar in every read 
   const desktopToolbar = await bounds(
     page.getByRole('region', { name: 'Supervisor presence' }),
   );
+  const authorityGuidance = page.locator('summary', {
+    hasText: 'Supervision and authority boundaries',
+  });
+  const authorityExplanation = page.getByText(
+    'Assignment and current resolver authority are checked',
+    { exact: false },
+  );
+  await expect(authorityExplanation).toBeHidden();
+  const readsBeforeGuidance = bff.consoleReads();
+  const locationBeforeGuidance = page.url();
+  await authorityGuidance.focus();
+  await page.keyboard.press('Space');
+  await expect(authorityExplanation).toBeVisible();
+  const expandedToolbar = await bounds(
+    page.getByRole('region', { name: 'Supervisor presence' }),
+  );
+  expect(expandedToolbar.height).toBeGreaterThan(desktopToolbar.height);
+  await expectBelowToolbar(page, 'Supervisor presence');
+  await expectViewportAllocation(page);
+  await page.keyboard.press('Enter');
+  await expect(authorityExplanation).toBeHidden();
+  expect(
+    (await bounds(page.getByRole('region', { name: 'Supervisor presence' })))
+      .height,
+  ).toBeCloseTo(desktopToolbar.height);
+  expect(bff.consoleReads()).toBe(readsBeforeGuidance);
+  expect(bff.commands()).toBe(0);
+  expect(page.url()).toBe(locationBeforeGuidance);
+  await page.screenshot({
+    path: testInfo.outputPath('resolver-presence-compact-desktop.png'),
+    animations: 'disabled',
+  });
   await expectBelowToolbar(page, 'Supervisor presence');
   await expectViewportAllocation(page);
   bff.holdNextRunRead();
@@ -246,6 +278,9 @@ test('assigned Console allocates space beneath a wrapping toolbar in every read 
   await expect(resolutionHeading).toBeFocused();
   // A halved CSS viewport exercises 1440x900 reflow at 200% zoom.
   // This is not a claim to automate the browser's own zoom control.
+  await page.setViewportSize({ width: 1440, height: 600 });
+  await expectBelowToolbar(page, 'Supervisor presence');
+  await expectViewportAllocation(page);
   await page.setViewportSize({ width: 720, height: 450 });
   await expectPaneOrder(page, 'rows');
   await expectBelowToolbar(page, 'Supervisor presence');
@@ -258,6 +293,19 @@ test('assigned Console allocates space beneath a wrapping toolbar in every read 
   await expectPaneOrder(page, 'rows');
   await expectBelowToolbar(page, 'Supervisor presence');
   await expectNoHorizontalOverflow(page);
+  await authorityGuidance.focus();
+  await page.keyboard.press('Enter');
+  await expect(authorityExplanation).toBeVisible();
+  await expectBelowToolbar(page, 'Supervisor presence');
+  await expectNoHorizontalOverflow(page);
+  await expect(authorityGuidance).toBeFocused();
+  await page.keyboard.press('Space');
+  await expect(authorityExplanation).toBeHidden();
+  await page.screenshot({
+    path: testInfo.outputPath('resolver-presence-compact-narrow.png'),
+    animations: 'disabled',
+    fullPage: true,
+  });
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   expect(bff.commands()).toBe(0);
 

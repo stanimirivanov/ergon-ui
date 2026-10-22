@@ -15,6 +15,13 @@ can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
 
+The compact presence/control bar retains operational feedback and actions outside
+two native explanation disclosures. The control chapter keyboard-opens/closes
+both and asserts unchanged protected reads, lifecycle/business commands and URL;
+uncertain feedback remains visible with guidance closed. Shell checks compare
+collapsed/expanded allocation and cover short desktop height and 320-pixel reflow.
+Both supervision and control chapters describe the same presentation.
+
 The assigned-run chapter also demonstrates execution-first central reading order:
 recorded facts, actions, supporting inspection, then attempt relationships.
 It asserts no extra read/command and withdrawal of all four private sections on a

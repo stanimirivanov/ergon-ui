@@ -19,6 +19,14 @@ test(
       runControlGuide,
       async (guide) => {
         const page = guide.page;
+        let protectedReads = 0;
+        page.on('request', (request) => {
+          if (
+            request.method() === 'GET' &&
+            new URL(request.url()).pathname.startsWith('/bff/v1/')
+          )
+            protectedReads += 1;
+        });
         const bff = await installSimulatedRunControlBff(page);
         await page.goto(supervisorTenantPath);
         await page
@@ -51,12 +59,61 @@ test(
         ).toHaveCount(0);
         await guide.result('available', panel);
 
+        const presence = page.getByRole('region', {
+          name: 'Supervisor presence',
+          exact: true,
+        });
+        const controlGuidance = panel.locator('summary', {
+          hasText: 'Browser control boundaries',
+        });
+        const supervisionGuidance = presence.locator('summary', {
+          hasText: 'Supervision and authority boundaries',
+        });
+        const controlExplanation = panel.getByText(
+          'Control is not tool authorization.',
+          { exact: false },
+        );
+        const supervisionExplanation = presence.getByText(
+          'Assignment and current resolver authority are checked',
+          { exact: false },
+        );
+        const readsBeforeGuidance = protectedReads;
+        const locationBeforeGuidance = page.url();
+        await expect(controlExplanation).toBeHidden();
+        await expect(supervisionExplanation).toBeHidden();
+        await guide.action(
+          'open-authority-guidance',
+          controlGuidance,
+          async () => {
+            await controlGuidance.focus();
+            await page.keyboard.press('Space');
+            await supervisionGuidance.focus();
+            await page.keyboard.press('Enter');
+          },
+        );
+        await expect(controlExplanation).toBeVisible();
+        await expect(supervisionExplanation).toBeVisible();
+        await expect(acquire).toBeVisible();
+        expect(protectedReads).toBe(readsBeforeGuidance);
+        expect(bff.controlIntents()).toHaveLength(0);
+        expect(bff.intents()).toHaveLength(0);
+        expect(page.url()).toBe(locationBeforeGuidance);
+        await guide.result('interpret-authority-guidance', presence);
+        await controlGuidance.focus();
+        await page.keyboard.press('Enter');
+        await supervisionGuidance.focus();
+        await page.keyboard.press('Space');
+        await expect(controlExplanation).toBeHidden();
+        await expect(supervisionExplanation).toBeHidden();
+
         bff.loseNextControlResponse();
         await acquire.click();
         const replayControl = panel.getByRole('button', {
           name: 'Retry exact control intent',
         });
         await expect(replayControl).toBeVisible();
+        await expect(panel.getByRole('alert')).toBeVisible();
+        await expect(controlExplanation).toBeHidden();
         expect(bff.controlIntents()).toHaveLength(1);
         await guide.result('lost', panel);
 
@@ -115,6 +172,21 @@ test(
         await guide.result('reacquire', panel);
 
         await page.setViewportSize({ width: 320, height: 900 });
+        await controlGuidance.focus();
+        await page.keyboard.press('Space');
+        await supervisionGuidance.focus();
+        await page.keyboard.press('Enter');
+        await expect(controlExplanation).toBeVisible();
+        await expect(supervisionExplanation).toBeVisible();
+        expect(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth <= window.innerWidth,
+          ),
+        ).toBe(true);
+        await controlGuidance.focus();
+        await page.keyboard.press('Enter');
+        await supervisionGuidance.focus();
+        await page.keyboard.press('Space');
         await panel
           .getByRole('button', { name: 'Renew browser control' })
           .focus();
