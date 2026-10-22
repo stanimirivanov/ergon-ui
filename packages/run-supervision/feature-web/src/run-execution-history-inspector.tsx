@@ -4,6 +4,7 @@ import {
   type RunSupervisionFailure,
 } from '@ergon/run-supervision-data-access-web';
 import { Button, ModalDialog } from '@ergon/ui-web';
+import { RunInspectionEntry } from './run-inspection-entry';
 import {
   useId,
   useLayoutEffect,
@@ -50,32 +51,27 @@ export function RunExecutionHistoryInspector({
     if (failure !== undefined) onAccessFailure(failure);
   }, [failure, onAccessFailure]);
   return (
-    <section
-      aria-label="Execution admission history"
-      className="rounded-md border border-border bg-surface/70 p-4"
-    >
-      <h3 className="font-bold">Execution admission history</h3>
-      <p className="mt-2 text-sm leading-6 text-ink-muted">
-        Inspect recorded browser admissions, including earlier supervision
-        epochs. Current supervisor access is checked independently; no browser
-        control lease is required.
-      </p>
-      <div className="mt-4">
+    <RunInspectionEntry
+      title="Execution admission history"
+      description="Recorded browser admissions across supervision epochs, not dispatches or results."
+      unavailableReason={
+        run.supervisionRevision === undefined
+          ? 'Admission history cannot be inspected without a supported supervision epoch.'
+          : undefined
+      }
+      action={
         <Button
           ref={trigger}
+          type="button"
           variant="quiet"
+          size="compact"
           disabled={run.supervisionRevision === undefined}
           onClick={() => setOpen(true)}
         >
           Inspect recorded admissions
         </Button>
-      </div>
-      {run.supervisionRevision === undefined ? (
-        <p className="mt-2 text-sm text-ink-muted">
-          This snapshot has no supported supervision epoch. History cannot be
-          inspected.
-        </p>
-      ) : null}
+      }
+    >
       {open ? (
         <ModalDialog
           id={`admission-history-${id}`}
@@ -123,6 +119,6 @@ export function RunExecutionHistoryInspector({
           </div>
         </ModalDialog>
       ) : null}
-    </section>
+    </RunInspectionEntry>
   );
 }

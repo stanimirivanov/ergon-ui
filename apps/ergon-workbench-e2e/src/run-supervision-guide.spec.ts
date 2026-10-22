@@ -604,6 +604,29 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
     name: 'Run execution',
     exact: true,
   });
+  const inspectionEntries = [
+    ['Pinned resolution contract', 'Inspect pinned contract'],
+    ['Readiness at run pin', 'Inspect pinned readiness'],
+    ['Execution admission history', 'Inspect recorded admissions'],
+    ['Gateway-attempt history', 'Inspect gateway attempts'],
+  ] as const;
+  for (const [title, action] of inspectionEntries) {
+    const row = resolution.getByRole('region', { name: title, exact: true });
+    const titleBox = await row
+      .getByRole('heading', { name: title, exact: true })
+      .boundingBox();
+    const button = row.getByRole('button', { name: action, exact: true });
+    const buttonBox = await button.boundingBox();
+    expect(titleBox).not.toBeNull();
+    expect(buttonBox).not.toBeNull();
+    expect((titleBox?.x ?? 0) + (titleBox?.width ?? 0)).toBeLessThan(
+      buttonBox?.x ?? -1,
+    );
+    await expect(button).toBeDisabled();
+    await expect(
+      row.getByText('supported supervision epoch', { exact: false }),
+    ).toBeVisible();
+  }
   const recordSections = [
     'Recorded execution',
     'Run actions',
@@ -687,6 +710,20 @@ test('assigned Console preserves three panes, keyboard access and narrow reflow'
   ).toBeVisible();
   await page.setViewportSize({ width: 320, height: 812 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const [title, action] of inspectionEntries) {
+    const row = resolution.getByRole('region', { name: title, exact: true });
+    const button = row.getByRole('button', { name: action, exact: true });
+    await button.scrollIntoViewIfNeeded();
+    await expect(button).toBeInViewport();
+    expect(
+      await row.evaluate(
+        (element) => element.scrollWidth <= element.clientWidth,
+      ),
+    ).toBe(true);
+    await expect(
+      row.getByText('supported supervision epoch', { exact: false }),
+    ).toBeVisible();
+  }
   for (const [beforeName, afterName] of [
     ['Recorded execution', 'Run actions'],
     ['Run actions', 'Supporting inspection'],

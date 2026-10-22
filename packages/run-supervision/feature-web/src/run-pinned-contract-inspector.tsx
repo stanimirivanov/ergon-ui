@@ -4,6 +4,7 @@ import {
   type RunSupervisionFailure,
 } from '@ergon/run-supervision-data-access-web';
 import { Button, ModalDialog } from '@ergon/ui-web';
+import { RunInspectionEntry } from './run-inspection-entry';
 import {
   useId,
   useLayoutEffect,
@@ -54,32 +55,27 @@ export function RunPinnedContractInspector({
     if (failure !== undefined) onAccessFailure(failure);
   }, [failure, onAccessFailure]);
   return (
-    <section
-      aria-label="Pinned resolution contract"
-      className="rounded-md border border-border bg-surface/70 p-4"
-    >
-      <h3 className="font-bold">Pinned resolution contract</h3>
-      <p className="mt-2 text-sm leading-6 text-ink-muted">
-        Inspect the exact immutable contract revision pinned by this run. These
-        are declarations, not effective policy, readiness, execution or proof.
-        No browser control lease is required.
-      </p>
-      <div className="mt-4">
+    <RunInspectionEntry
+      title="Pinned resolution contract"
+      description="Exact immutable declarations, not effective policy, readiness, execution or proof."
+      unavailableReason={
+        run.supervisionRevision === undefined
+          ? 'The contract cannot be inspected without a supported supervision epoch.'
+          : undefined
+      }
+      action={
         <Button
           ref={trigger}
+          type="button"
           variant="quiet"
+          size="compact"
           disabled={run.supervisionRevision === undefined}
           onClick={() => setOpen(true)}
         >
           Inspect pinned contract
         </Button>
-      </div>
-      {run.supervisionRevision === undefined ? (
-        <p className="mt-2 text-sm text-ink-muted">
-          This snapshot has no supported supervision epoch. The contract cannot
-          be inspected.
-        </p>
-      ) : null}
+      }
+    >
       {open ? (
         <ModalDialog
           id={`pinned-contract-${id}`}
@@ -127,6 +123,6 @@ export function RunPinnedContractInspector({
           </div>
         </ModalDialog>
       ) : null}
-    </section>
+    </RunInspectionEntry>
   );
 }

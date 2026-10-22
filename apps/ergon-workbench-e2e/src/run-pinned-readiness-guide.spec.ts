@@ -26,10 +26,12 @@ test(
         await page
           .getByRole('button', { name: 'Inspect run ' + assignedRunId })
           .click();
-        const card = page.getByRole('region', {
-          name: 'Readiness at run pin',
-          exact: true,
-        });
+        const card = page
+          .getByRole('region', { name: 'Supporting inspection', exact: true })
+          .getByRole('region', {
+            name: 'Readiness at run pin',
+            exact: true,
+          });
         const trigger = card.getByRole('button', {
           name: 'Inspect pinned readiness',
         });

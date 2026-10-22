@@ -4,6 +4,7 @@ import {
   type RunSupervisionFailure,
 } from '@ergon/run-supervision-data-access-web';
 import { Button, ModalDialog } from '@ergon/ui-web';
+import { RunInspectionEntry } from './run-inspection-entry';
 import {
   useId,
   useLayoutEffect,
@@ -48,33 +49,27 @@ export function RunPinnedReadinessInspector({
     if (failure !== undefined) onAccessFailure(failure);
   }, [failure, onAccessFailure]);
   return (
-    <section
-      aria-label="Readiness at run pin"
-      className="rounded-md border border-border bg-surface/70 p-4"
-    >
-      <h3 className="font-bold">Readiness at run pin</h3>
-      <p className="mt-2 text-sm leading-6 text-ink-muted">
-        Re-evaluate the exact pinned inputs and inspect the selected citation,
-        even beyond the bounded binding history. This is neither historical
-        planning nor current-case readiness. No browser control lease is
-        required.
-      </p>
-      <div className="mt-4">
+    <RunInspectionEntry
+      title="Readiness at run pin"
+      description="Fixed-input re-evaluation and selected citation, not historical planning or current-case readiness."
+      unavailableReason={
+        run.supervisionRevision === undefined
+          ? 'Readiness cannot be inspected without a supported supervision epoch.'
+          : undefined
+      }
+      action={
         <Button
           ref={trigger}
+          type="button"
           variant="quiet"
+          size="compact"
           disabled={run.supervisionRevision === undefined}
           onClick={() => setOpen(true)}
         >
           Inspect pinned readiness
         </Button>
-      </div>
-      {run.supervisionRevision === undefined ? (
-        <p className="mt-2 text-sm text-ink-muted">
-          This snapshot has no supported supervision epoch. Readiness cannot be
-          inspected.
-        </p>
-      ) : null}
+      }
+    >
       {open ? (
         <ModalDialog
           id={`pinned-readiness-${id}`}
@@ -122,6 +117,6 @@ export function RunPinnedReadinessInspector({
           </div>
         </ModalDialog>
       ) : null}
-    </section>
+    </RunInspectionEntry>
   );
 }

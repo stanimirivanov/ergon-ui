@@ -15,6 +15,12 @@ can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
 
+Supporting inspection has four compact launch rows rather than full-size cards.
+The assigned Console layout regression checks side-by-side title/action layout
+at desktop, wrapping/unavailable feedback at 320 pixels and no row overflow.
+The four inspector walkthroughs still prove lazy reads, keyboard launch/focus
+return, fresh reopening, unsupported meaning and held/failed disclosure retirement.
+
 The compact presence/control bar retains operational feedback and actions outside
 two native explanation disclosures. The control chapter keyboard-opens/closes
 both and asserts unchanged protected reads, lifecycle/business commands and URL;
