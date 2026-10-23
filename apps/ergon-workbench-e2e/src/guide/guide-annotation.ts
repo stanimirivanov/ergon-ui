@@ -1,6 +1,10 @@
 import type { Locator, Page } from '@playwright/test';
 
-/** Replaces the recording overlay without moving focus. Captions wrap before their measured size determines viewport placement. */
+/**
+ * Replaces the recording overlay without moving focus. Manual popovers place
+ * annotations above native modal top layers; z-index alone cannot do that.
+ * Captions wrap before their measured size determines viewport placement.
+ */
 export async function showGuideAnnotation(
   page: Page,
   target: Locator,
@@ -10,22 +14,31 @@ export async function showGuideAnnotation(
   const box = await target.boundingBox();
   if (box === null) throw new Error('Guide target is not visible.');
   await clearGuideAnnotation(page);
-  await page.evaluate(
-    ({ targetBox, label }) => {
+  await target.evaluate(
+    (element, { targetBox, label }) => {
       if (
         document.querySelector('[data-ergon-guide-simulation="true"]') === null
       ) {
         const badge = document.createElement('div');
         badge.dataset['ergonGuideSimulation'] = 'true';
+        badge.popover = 'manual';
         badge.textContent = 'SIMULATED DATA';
         badge.style.cssText =
-          'position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:2147483646;padding:6px 10px;border-radius:7px;background:#f4d99d;color:#33220d;font:800 12px/1.2 system-ui,sans-serif;letter-spacing:.08em;pointer-events:none';
+          'position:fixed;inset:auto;left:50%;top:12px;margin:0;border:0;transform:translateX(-50%);z-index:2147483646;padding:6px 10px;border-radius:7px;background:#f4d99d;color:#33220d;font:800 12px/1.2 system-ui,sans-serif;letter-spacing:.08em;pointer-events:none';
         (document.querySelector('main') ?? document.body).append(badge);
       }
+      const badge = document.querySelector<HTMLDivElement>(
+        '[data-ergon-guide-simulation="true"]',
+      );
+      // A newly opened modal is later in the top layer than an earlier badge.
+      // Re-raise it for every capture without acquiring keyboard focus.
+      if (badge?.matches(':popover-open')) badge.hidePopover();
+      badge?.showPopover();
       const layer = document.createElement('div');
       layer.dataset['ergonGuideAnnotation'] = 'true';
+      layer.popover = 'manual';
       layer.style.cssText =
-        'position:fixed;inset:0;pointer-events:none;z-index:2147483647';
+        'position:fixed;inset:0;margin:0;border:0;padding:0;width:100vw;height:100vh;overflow:visible;background:transparent;pointer-events:none;z-index:2147483647';
       const highlight = document.createElement('div');
       highlight.style.cssText =
         'position:fixed;border:3px solid #d3a234;border-radius:10px;box-shadow:0 0 0 4px rgba(211,162,52,.24)';
@@ -39,7 +52,10 @@ export async function showGuideAnnotation(
       note.style.cssText =
         'position:fixed;box-sizing:border-box;max-width:min(380px,calc(100vw - 24px));overflow-wrap:anywhere;padding:13px 16px;border-radius:10px;background:#193d31;color:white;font:600 16px/1.4 system-ui,sans-serif;box-shadow:0 12px 32px rgba(0,0,0,.25)';
       layer.append(highlight, note);
-      document.body.append(layer);
+      // Keep modal descendants inside its inert/focus boundary while promoting
+      // their paint layer above it. Ordinary targets remain document-owned.
+      (element.closest('dialog:modal') ?? document.body).append(layer);
+      layer.showPopover();
       // A desktop allowance can make left negative on narrow screens. Measure
       // wrapped text, and prefer space outside the highlighted target.
       const bounds = note.getBoundingClientRect();

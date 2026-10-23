@@ -172,6 +172,8 @@ export async function installSimulatedOwnedContextBff(
     readonly caseGoal?: string;
     readonly observationContent?: string;
     readonly includeSharedWork?: boolean;
+    /** Positive odd current claim revision; notes scenarios can include predecessor claims. */
+    readonly ownershipRevision?: number;
   } = {},
 ): Promise<{
   summaryReads: () => number;
@@ -183,6 +185,18 @@ export async function installSimulatedOwnedContextBff(
   let summaryReads = 0;
   let ownedReads = 0;
   let claimCommands = 0;
+  const ownershipRevision =
+    options.ownershipRevision ?? workItem.ownershipRevision;
+  if (
+    !Number.isSafeInteger(ownershipRevision) ||
+    ownershipRevision < 1 ||
+    ownershipRevision % 2 !== 1
+  ) {
+    throw new RangeError(
+      'Synthetic owned claim revision must be positive, odd and safe',
+    );
+  }
+  const ownedWorkItem = { ...workItem, ownershipRevision };
   let finishPendingRead: () => void = () => undefined;
   const caseSummary = {
     ...summary,
@@ -230,7 +244,7 @@ export async function installSimulatedOwnedContextBff(
   await page.route('**/bff/v1/tenants/*/human-follow-ups/owned?*', (route) => {
     ownedReads += 1;
     return fulfillSimulatedBff(route, {
-      items: ownedVisible ? [{ workItem, claim }] : [],
+      items: ownedVisible ? [{ workItem: ownedWorkItem, claim }] : [],
       nextCursor: null,
     });
   });

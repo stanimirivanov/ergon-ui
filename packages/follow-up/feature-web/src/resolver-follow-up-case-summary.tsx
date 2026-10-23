@@ -1,6 +1,7 @@
 import { useFreshResolverFollowUpCaseSummary } from '@ergon/follow-up-data-access-web';
 import { Button } from '@ergon/ui-web';
 import type { ReactElement } from 'react';
+import { FollowUpNotesInspector } from './follow-up-notes-inspector';
 
 import { caseSummaryFailureCopy } from './resolver-follow-up-case-summary-copy';
 import { ResolverFollowUpCaseSummaryView } from './resolver-follow-up-case-summary-view';
@@ -22,6 +23,9 @@ export function ResolverFollowUpCaseSummary({
   runId,
   regionId,
   onBeforeRetry,
+  claimId,
+  ownershipRevision,
+  onNotesAccessLost,
 }: {
   readonly tenantId: string;
   readonly signInHref: string;
@@ -31,6 +35,9 @@ export function ResolverFollowUpCaseSummary({
   readonly regionId: string;
   /** Focuses the persistent capability control before this recovery body retires. */
   readonly onBeforeRetry: () => void;
+  readonly claimId: string;
+  readonly ownershipRevision: number;
+  readonly onNotesAccessLost: () => void;
 }): ReactElement {
   const result = useFreshResolverFollowUpCaseSummary({
     tenantId,
@@ -86,6 +93,17 @@ export function ResolverFollowUpCaseSummary({
       summary={result.summary}
       regionId={regionId}
       isFetching={false}
+      notes={
+        <FollowUpNotesInspector
+          query={{
+            tenantId,
+            workItemId,
+            claimId,
+            expectedOwnershipRevision: ownershipRevision,
+          }}
+          onAccessLost={onNotesAccessLost}
+        />
+      }
     />
   );
 }

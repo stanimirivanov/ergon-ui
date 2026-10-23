@@ -90,8 +90,11 @@ content and media still require the full `pnpm guide:generate` gate.
 Recording captions are measured after wrapping, clamped to viewport gutters and
 placed outside their highlighted target when space permits. The same annotation
 helper is exercised directly in Chromium at 320 and 1440 pixels, including long
-unbroken labels, above/below placement, replacement and cleanup. These tests run
-without recording video; visual review still checks that a checkpoint targets
+unbroken labels, above/below placement, replacement and cleanup. Native-modal
+paint-order checks at both widths prove non-interactive manual popovers
+keep captions above the modal top layer without moving focus. A high z-index
+alone is not evidence that a caption is visible. These tests run without recording
+video; visual review still checks that a checkpoint targets
 the complete relevant message rather than hiding its explanation with a caption.
 
 The guide workflow regression derives the failure-diagnostic directory from the

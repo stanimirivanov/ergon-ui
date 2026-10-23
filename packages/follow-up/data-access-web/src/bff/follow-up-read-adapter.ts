@@ -92,7 +92,11 @@ export function createFollowUpReadAdapter({
  * Executes the policy shared by idempotent BFF reads while preserving each
  * operation's success shape and typed failure channel.
  */
-async function runRead<Value, Failure extends FollowUpReadFailure, Success>(
+export async function runRead<
+  Value,
+  Failure extends FollowUpReadFailure,
+  Success,
+>(
   request: Effect.Effect<Value, Failure, never>,
   signal: AbortSignal,
   requestTimeout: number,

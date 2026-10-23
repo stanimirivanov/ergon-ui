@@ -1,4 +1,5 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { FollowUpNoteFailure } from '../client/follow-up-notes';
 
 import type {
   ClaimHumanFollowUp,
@@ -66,6 +67,7 @@ export const humanFollowUpApi = createApi({
     | HumanFollowUpFailure
     | HumanFollowUpClaimFailure
     | HumanFollowUpReleaseFailure
+    | FollowUpNoteFailure
     | ResolverFollowUpCaseSummaryFailure
   >(),
   tagTypes: [
@@ -267,7 +269,7 @@ export const {
  * aborted signal: a thrown client defect must never be disguised as cancellation.
  * This seam adds no retry or telemetry and cannot infer whether a write occurred.
  */
-async function executeFollowUpQuery<Result, Value, Failure>(
+export async function executeFollowUpQuery<Result, Value, Failure>(
   operation: () => Promise<Result>,
   project: (result: Result) => { data: Value } | { error: Failure },
 ): Promise<

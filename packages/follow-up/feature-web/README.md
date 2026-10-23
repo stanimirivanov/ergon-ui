@@ -87,6 +87,13 @@ out of the deployable app and domain-agnostic UI primitives.
   and release defects preserve uncertainty and the original immutable replay
   tuple rather than assuming no write occurred or minting a replacement intent.
 - Accessible follow-up-specific interaction and rendering.
+- On-demand internal notes beneath the current owned-work/context gates.
+  A separate history component presents inert text and historical attribution;
+  RHF owns the composer draft and a mounted controller owns immutable replay
+  intent. Save feedback is historical; current history remains RTK-owned.
+  Close/recheck/release discard drafts and retire callbacks; access denial or
+  claim conflict withdraws prior context and requires an explicit ownership check.
+  There is no older-history paging, rich text, requester message or proof action.
 
 ## Does not own
 

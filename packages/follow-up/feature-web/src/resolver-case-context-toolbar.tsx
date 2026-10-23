@@ -1,5 +1,5 @@
 import type { ResolverFollowUpCaseSummary } from '@ergon/follow-up-model';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 const sectionJumpClass =
   'min-h-11 rounded-md border border-border bg-surface px-3 py-2 text-xs font-semibold text-ink hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas';
@@ -10,12 +10,14 @@ export function ResolverCaseContextToolbar({
   onEvidence,
   onAttempts,
   onOutcome,
+  notes,
 }: {
   readonly summary: ResolverFollowUpCaseSummary;
   readonly regionId: string;
   readonly onEvidence: () => void;
   readonly onAttempts: () => void;
   readonly onOutcome: () => void;
+  readonly notes?: ReactNode;
 }): ReactElement {
   return (
     <div className="flex min-w-0 flex-col gap-4">
@@ -79,6 +81,7 @@ export function ResolverCaseContextToolbar({
         >
           Outcome
         </button>
+        {notes}
       </div>
     </div>
   );

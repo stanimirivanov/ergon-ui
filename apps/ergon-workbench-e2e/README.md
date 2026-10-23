@@ -3,17 +3,28 @@
 ## TL;DR
 
 The tagged access-state, inbox-navigation, follow-up, owned-context,
-claim-recovery, release-recovery, run-supervision, handover, approval,
+claim-recovery, release-recovery, internal-notes, run-supervision, handover, approval,
 pinned-evidence, outcome-verification, proof-finalization, execution/recovery,
 failed-run retry, exhausted-run escalation, predecessor-inspection and admission-history scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-three with
-annotations, screenshots, and video, then assembles a local twenty-three-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-four with
+annotations, screenshots, and video, then assembles a local twenty-four-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
+
+The internal-notes chapter has nine assertion-backed checkpoints: lazy attributed
+history, exact plain-text draft, a simulated lost append response, identical
+explicit replay, fresh history after acknowledgement, close/focus return,
+latest-100 truncation, keyboard/320-pixel reflow and neutral access withdrawal.
+The final denial retires both notes and case context, restoring persistent toolbar
+focus. Separate protocol/cache/component tests cover Unicode limits, server field
+errors, malformed receipts, pending retirement and no automatic mutation replay.
+Deploy merged Ergon PR #186 and its schema first. These marked fixtures do not
+prove actual current ownership, OIDC, durable idempotency or PostgreSQL behavior.
+Notes are internal commentary, never evidence, approval or case completion.
 
 The assigned recorded-execution workspace separates snapshot/start/policy context,
 connector measurement and the actual append-sequence rail. The supervision chapter

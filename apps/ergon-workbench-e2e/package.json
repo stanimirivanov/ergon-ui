@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
+    "@ergon/follow-up-data-access-web": "workspace:*",
+    "@ergon/follow-up-model": "workspace:*",
     "@ergon/run-supervision-data-access-web": "workspace:*"
   },
   "nx": {

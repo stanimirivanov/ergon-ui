@@ -2,6 +2,14 @@
 
 ## TL;DR
 
+Owned work now offers on-demand internal notes with claim/author attribution,
+bounded newest-first history and an RHF plain-text composer. Saves share the
+session-bound CSRF lifecycle, never retry automatically and preserve the exact
+note/claim/revision/text tuple for explicit uncertain replay. Fresh private gates
+hide retained notes; ownership rechecks, release, close and denied access retire
+drafts and private DOM. Commentary never changes evidence, proof or resolution.
+The twenty-fourth simulated guide demonstrates replay, truncation and withdrawal.
+
 The shared and owned follow-up landing workspace now uses compact sans-serif
 headings, bordered cards and an owned-first responsive grid. Each list retains
 its own page count and navigation; cards distinguish available work from current
@@ -25,7 +33,7 @@ mutable matching, recorded state and accepted proof never substitute for each ot
 Focused Console chrome uses a dark, high-contrast sans-serif hierarchy with opaque
 shell surfaces and restrained translucent inspection dialogs. Reduced transparency
 and forced colours use solid surfaces. Native modal geometry, focus, disclosure
-and request owners are unchanged. A pinned Linux visual gate records fifteen
+and request owners are unchanged. A pinned Linux visual gate records seventeen
 synthetic states, including attributed inputs and matching/accepted proof at desktop
 and accepted proof at narrow width; proposed baselines
 require human PR review.

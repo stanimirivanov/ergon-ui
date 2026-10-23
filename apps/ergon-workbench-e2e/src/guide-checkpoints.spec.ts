@@ -52,6 +52,39 @@ test('guide checkpoints reject ambiguous targets during ordinary browser verific
 });
 
 for (const width of [320, 1440]) {
+  test(`guide annotations stay above a native modal at ${width}px without moving focus`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 400 });
+    await page.setContent(
+      '<dialog style="position:fixed;inset:0;margin:0;border:0;width:100vw;height:100vh;max-width:none;max-height:none"><h1>Private inspector</h1><button style="position:fixed;left:20px;top:200px">Inspect note</button></dialog>',
+    );
+    await page.locator('dialog').evaluate((dialog) => {
+      if (!(dialog instanceof HTMLDialogElement))
+        throw new Error('Expected native dialog fixture');
+      dialog.showModal();
+    });
+    const target = page.getByRole('button', { name: 'Inspect note' });
+    await target.focus();
+    await showGuideAnnotation(page, target, 'Read the note attribution');
+    const caption = page.locator('[data-ergon-guide-caption="true"]');
+    const paintsAboveModal = await caption.evaluate((element) => {
+      element.style.pointerEvents = 'auto';
+      const rect = element.getBoundingClientRect();
+      const hit = document.elementFromPoint(
+        rect.left + rect.width / 2,
+        rect.top + rect.height / 2,
+      );
+      element.style.pointerEvents = 'none';
+      return hit === element || (hit !== null && element.contains(hit));
+    });
+    expect(paintsAboveModal).toBe(true);
+    await expect(target).toBeFocused();
+    await clearGuideAnnotation(page);
+    await expect(caption).toHaveCount(0);
+    await expect(target).toBeFocused();
+    await expect(page.getByRole('dialog')).toBeVisible();
+  });
   test(`guide captions wrap inside ${width}px and avoid the target when space permits`, async ({
     page,
   }) => {

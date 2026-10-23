@@ -8,6 +8,7 @@ claims, and resolver-visible case context.
 ## Owns
 
 - Follow-up work-item and claim values.
+- Inert internal note values and the pure exact-text Unicode refinement.
 - Resolver-owned work projections and pure claim/work-item pairing refinement.
 - Server-authorized case-summary projections and pure contract, version,
   evidence-order, retry-chain, and unassessed-proof refinements.
