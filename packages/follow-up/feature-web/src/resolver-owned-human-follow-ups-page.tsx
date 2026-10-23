@@ -132,6 +132,7 @@ export function ResolverOwnedHumanFollowUpsPage({
         signInHref={signInHref}
         item={currentSelection}
         onBeforeRetry={onBeforeConsoleRetry}
+        onRecheckOwnership={workflow.recheck}
       />
     );
   }

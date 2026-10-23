@@ -46,3 +46,15 @@ export type {
   ResolverOwnedHumanFollowUpQuery,
   ResolverOwnedHumanFollowUpResult,
 } from './client';
+export type {
+  AppendFollowUpNoteCommand,
+  FollowUpNoteFailure,
+  FollowUpNotesClient,
+  FollowUpNotesQuery,
+} from './client/follow-up-notes';
+export { normalizeFollowUpNoteFailure } from './client/normalize-human-follow-up-failures';
+export {
+  followUpNotesApi,
+  type FollowUpNotesCacheDependencies,
+} from './cache/follow-up-notes-api';
+export { useFreshFollowUpNotes } from './cache/use-fresh-follow-up-notes';

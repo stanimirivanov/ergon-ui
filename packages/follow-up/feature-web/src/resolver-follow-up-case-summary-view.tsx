@@ -1,6 +1,6 @@
 import type { ResolverFollowUpCaseSummary } from '@ergon/follow-up-model';
 import { ThreePaneLayout } from '@ergon/ui-web';
-import { useRef, type ReactElement } from 'react';
+import { useRef, type ReactElement, type ReactNode } from 'react';
 
 import { ResolverCaseContextToolbar } from './resolver-case-context-toolbar';
 import { ResolverEvidencePane } from './resolver-evidence-pane';
@@ -15,10 +15,12 @@ export function ResolverFollowUpCaseSummaryView({
   summary,
   regionId,
   isFetching,
+  notes,
 }: {
   readonly summary: ResolverFollowUpCaseSummary;
   readonly regionId: string;
   readonly isFetching: boolean;
+  readonly notes?: ReactNode;
 }): ReactElement {
   const evidenceHeading = useRef<HTMLHeadingElement>(null);
   const runHeading = useRef<HTMLHeadingElement>(null);
@@ -36,6 +38,7 @@ export function ResolverFollowUpCaseSummaryView({
         onEvidence={() => evidenceHeading.current?.focus()}
         onAttempts={() => runHeading.current?.focus()}
         onOutcome={() => proofHeading.current?.focus()}
+        notes={notes}
       />
       <ThreePaneLayout
         leadingLabel="Case evidence"

@@ -5,6 +5,7 @@ import type {
   HumanFollowUpReleaseFailure,
   ResolverFollowUpCaseSummaryFailure,
 } from './human-follow-up-failures';
+import type { FollowUpNoteFailure } from './follow-up-notes';
 
 type StatusFailure = Extract<HumanFollowUpFailure, { readonly status: number }>;
 type StatusKind = StatusFailure['kind'];
@@ -50,6 +51,21 @@ const COMMAND_FAILURES = {
 } satisfies SimpleFailures<HumanFollowUpCommandFailure>;
 
 const READ_FAILURE_MAP = new Map(Object.entries(READ_FAILURES));
+const NOTE_FAILURE_MAP = new Map(
+  Object.entries({
+    ...COMMAND_FAILURES,
+    'not-found': { kind: 'not-found' },
+    'note-conflict': { kind: 'note-conflict' },
+    'invalid-note': { kind: 'invalid-note' },
+  } satisfies SimpleFailures<FollowUpNoteFailure>),
+);
+
+/** Safe note failures retain uncertainty but never raw causes or private response fields. */
+export function normalizeFollowUpNoteFailure(
+  value: unknown,
+): FollowUpNoteFailure {
+  return normalizeFailure(value, NOTE_FAILURE_MAP);
+}
 const SUMMARY_FAILURE_MAP = new Map(
   Object.entries({
     ...READ_FAILURES,

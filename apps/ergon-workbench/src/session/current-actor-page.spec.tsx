@@ -291,7 +291,16 @@ const emptyFollowUpDependencies: Pick<
   | 'getOwnedFollowUpCaseSummary'
   | 'claimHumanFollowUp'
   | 'releaseHumanFollowUp'
+  | 'followUpNotes'
 > = {
+  followUpNotes: {
+    async listNotes() {
+      throw new Error('Notes are not used by this test');
+    },
+    async appendNote() {
+      throw new Error('Notes are not used by this test');
+    },
+  },
   listOpenHumanFollowUps: {
     async listOpen() {
       return { ok: true, page: { items: [], nextCursor: null } };

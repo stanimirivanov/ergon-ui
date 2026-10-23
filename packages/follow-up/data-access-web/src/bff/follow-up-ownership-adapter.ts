@@ -14,6 +14,8 @@ import type {
   HumanFollowUpRelease,
 } from '@ergon/follow-up-model';
 import { Effect, Either, SynchronizedRef } from 'effect';
+import type { FollowUpNotesClient } from '../client/follow-up-notes';
+import { requestFollowUpNote } from './follow-up-notes-adapter';
 
 import {
   decodeCsrfToken,
@@ -38,17 +40,19 @@ interface FollowUpOwnershipAdapterOptions {
 }
 
 /**
- * Creates claim and release operations with one in-memory CSRF lifecycle.
+ * Creates claim, release and note append operations with one CSRF lifecycle.
  *
- * Concurrent claims share token acquisition. Setup transport and 503 failures
- * receive one retry, setup timeouts do not, and the claim POST is never replayed
+ * Concurrent mutations share token acquisition. Setup transport and 503 failures
+ * receive one retry, setup timeouts do not, and no POST is ever replayed
  * automatically after an ambiguous result. Exact release replay uses the
  * original claim ID and expected revision; no command state is persisted.
  */
 export function createFollowUpOwnershipAdapter({
   fetch,
   requestTimeout,
-}: FollowUpOwnershipAdapterOptions): ClaimHumanFollowUp & ReleaseHumanFollowUp {
+}: FollowUpOwnershipAdapterOptions): ClaimHumanFollowUp &
+  ReleaseHumanFollowUp &
+  Pick<FollowUpNotesClient, 'appendNote'> {
   // SynchronizedRef owns no external resources; construction is synchronous
   // and infallible, so the adapter does not need a Scope or async factory.
   const csrfToken = Effect.runSync(
@@ -56,6 +60,18 @@ export function createFollowUpOwnershipAdapter({
   );
 
   return {
+    async appendNote(
+      command,
+      signal,
+    ): ReturnType<FollowUpNotesClient['appendNote']> {
+      const result = await runCommand(
+        withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
+          requestFollowUpNote(fetch, command, token),
+        ),
+        signal,
+      );
+      return result.ok ? { ok: true, note: result.value } : result;
+    },
     async claim(command, signal): Promise<HumanFollowUpClaimResult> {
       const result = await runCommand(
         withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
@@ -133,7 +149,7 @@ async function runCommand<A, E extends { readonly kind: string }>(
 
 /**
  * Returns the cached token or performs one single-flight acquisition while the
- * synchronized reference is locked for competing claim calls.
+ * synchronized reference is locked for competing mutations.
  */
 function getCsrfToken(
   csrfToken: SynchronizedRef.SynchronizedRef<BrowserCsrfToken | undefined>,

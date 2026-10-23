@@ -8,6 +8,8 @@ import type {
 
 import { createFollowUpOwnershipAdapter } from './bff/follow-up-ownership-adapter';
 import { createFollowUpReadAdapter } from './bff/follow-up-read-adapter';
+import type { FollowUpNotesClient } from './client/follow-up-notes';
+import { listFollowUpNotes } from './bff/follow-up-notes-adapter';
 
 /** Dependencies and per-request policy for the confidential-BFF adapter. */
 export interface HumanFollowUpBffAdapterOptions {
@@ -24,13 +26,14 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
   ListOwnedHumanFollowUps &
   GetOwnedFollowUpCaseSummary &
   ClaimHumanFollowUp &
-  ReleaseHumanFollowUp;
+  ReleaseHumanFollowUp &
+  FollowUpNotesClient;
 
 /**
  * Adapts the confidential browser BFF to the follow-up data-access contracts.
  *
  * Responses are fully decoded before reaching application state. Read
- * operations retry one classified transient failure; ownership mutations are
+ * operations retry one classified transient failure; mutations are
  * never replayed automatically. The session-bound CSRF value remains inside the
  * returned adapter and is discarded when the server rejects it. Caller
  * cancellation interrupts Effect, propagates to the signal supplied to fetch,
@@ -43,7 +46,7 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
  * browser-session composition lifetime and discard it when that session is
  * replaced; do not share it across authenticated browser sessions.
  *
- * @returns The five follow-up operations backed by one adapter state.
+ * @returns The seven follow-up operations backed by one adapter state.
  * @throws A `RangeError` when `requestTimeout` is not a positive finite number.
  */
 export function createHumanFollowUpBffAdapter({
@@ -55,6 +58,7 @@ export function createHumanFollowUpBffAdapter({
   }
 
   return {
+    listNotes: listFollowUpNotes(fetch, requestTimeout),
     ...createFollowUpReadAdapter({ fetch, requestTimeout }),
     ...createFollowUpOwnershipAdapter({ fetch, requestTimeout }),
   };

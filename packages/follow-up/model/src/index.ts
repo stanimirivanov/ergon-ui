@@ -13,3 +13,8 @@ export {
   type ResolverFollowUpCaseSummary,
   type ResolverFollowUpCaseSummaryCandidate,
 } from './resolver-follow-up-case-summary';
+export {
+  isFollowUpNoteText,
+  type FollowUpNote,
+  type FollowUpNotes,
+} from './follow-up-note';

@@ -24,4 +24,5 @@ export const browserDependencies: WorkbenchDependencies = {
   getOwnedFollowUpCaseSummary: humanFollowUpAdapter,
   claimHumanFollowUp: humanFollowUpAdapter,
   releaseHumanFollowUp: humanFollowUpAdapter,
+  followUpNotes: humanFollowUpAdapter,
 };

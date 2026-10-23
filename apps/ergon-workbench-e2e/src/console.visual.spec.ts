@@ -302,3 +302,29 @@ test('owned chrome and inspection remain usable at narrow width and in forced co
   ).toBe('none');
   await expect(page).toHaveScreenshot('inspection-forced-colours.png');
 });
+import {
+  installSimulatedFollowUpNotesBff,
+  historicalNote,
+} from './guide/simulated-follow-up-notes-bff';
+
+test('owned notes separate attributed commentary from evidence and reflow narrowly', async ({
+  page,
+}) => {
+  await installSimulatedFollowUpNotesBff(page);
+  await page.goto(supervisorTenantPath);
+  await page.getByRole('button', { name: 'Open resolver console' }).click();
+  await page
+    .getByRole('button', { name: 'Internal notes', exact: true })
+    .click();
+  const dialog = page.getByRole('dialog', { name: 'Internal follow-up notes' });
+  await expect(dialog.getByText(historicalNote.text)).toBeVisible();
+  await expect(page).toHaveScreenshot('owned-notes.png');
+  await page.setViewportSize({ width: 320, height: 812 });
+  await expect(dialog).toHaveScreenshot('owned-notes-narrow.png');
+  expect(
+    await dialog.evaluate(
+      (element) => element.scrollWidth <= element.clientWidth,
+    ),
+  ).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+});

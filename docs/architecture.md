@@ -104,6 +104,15 @@ because this slice has no separate platform-neutral client policy.
 
 ## State ownership
 
+Internal follow-up notes consume the owner-scoped browser contract introduced
+by Ergon PR #186. The follow-up model owns inert values and exact-text semantics;
+data access owns bounded decoding, shared session CSRF, safe append outcomes and
+fresh RTK history gates keyed by tenant/work/claim/revision. Feature owns lazy
+inspection, RHF drafts and immutable uncertain intent. A receipt refreshes history,
+never case proof or ownership. Modal and shell owners are unchanged; access denial
+withdraws case context until explicit ownership recovery. ADR 0025's acquisition
+and retirement policy applies without a new package or application layer.
+
 Browser control now uses fresh private status and explicit lifecycle commands in
 existing supervision data access. Feature owns advisory monotonic countdown and
 immutable confirmation/replay fences, not another remote cache. Every existing
