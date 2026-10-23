@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { installSimulatedOwnedContextBff } from './guide/simulated-owned-context-bff';
+import { installSimulatedInboxBff } from './guide/simulated-inbox-bff';
 import { installSimulatedRunExecutionBff } from './guide/simulated-run-execution-bff';
 import { installSimulatedRunEvidenceBff } from './guide/simulated-run-evidence-bff';
 import { installSimulatedRunVerificationBff } from './guide/simulated-run-verification-bff';
@@ -13,6 +14,83 @@ import {
 test.beforeEach(async ({ page, browserName }) => {
   expect(browserName).toBe('chromium');
   expect(await page.evaluate(() => navigator.platform)).toContain('Linux');
+});
+
+test('paired follow-up workspace keeps owned work first and reflows without overflow', async ({
+  page,
+}) => {
+  const bff = await installSimulatedOwnedContextBff(page, {
+    includeSharedWork: true,
+  });
+  await page.goto(supervisorTenantPath);
+  const owned = page.getByRole('region', { name: 'Claimed follow-ups' });
+  const shared = page.getByRole('region', { name: 'Open follow-up work' });
+  await expect(
+    owned.getByRole('button', { name: 'Open resolver console' }),
+  ).toBeVisible();
+  await expect(
+    shared.getByText('Available to claim', { exact: true }),
+  ).toBeVisible();
+  await expect(owned.getByText('1 row on this page')).toBeVisible();
+  await expect(shared.getByText('1 row on this page')).toBeVisible();
+  const desktopOwned = await owned.boundingBox();
+  const desktopShared = await shared.boundingBox();
+  if (desktopOwned === null || desktopShared === null)
+    throw new Error('Both work surfaces must be measurable.');
+  expect(desktopShared.x).toBeGreaterThanOrEqual(
+    desktopOwned.x + desktopOwned.width,
+  );
+  expect(desktopShared.y).toBe(desktopOwned.y);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await expect(page).toHaveScreenshot('follow-up-workspace.png', {
+    fullPage: true,
+  });
+
+  await page.setViewportSize({ width: 320, height: 812 });
+  const narrowOwned = await owned.boundingBox();
+  const narrowShared = await shared.boundingBox();
+  if (narrowOwned === null || narrowShared === null)
+    throw new Error('Both work surfaces must remain measurable.');
+  expect(narrowShared.y).toBeGreaterThanOrEqual(
+    narrowOwned.y + narrowOwned.height,
+  );
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await expect(page).toHaveScreenshot('follow-up-workspace-narrow.png', {
+    fullPage: true,
+  });
+  expect(bff.summaryReads()).toBe(0);
+  expect(bff.claimCommands()).toBe(0);
+  expect(bff.ownedReads()).toBe(1);
+});
+
+test('empty follow-up views retain independent filters and page controls', async ({
+  page,
+}) => {
+  await installSimulatedInboxBff(page);
+  await page.goto(supervisorTenantPath + '?queue=no-such-queue');
+  await expect(
+    page.getByRole('heading', { name: 'No active claimed work in this view.' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'No open work in this view.' }),
+  ).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Queue key' })).toHaveValue(
+    'no-such-queue',
+  );
+  for (const name of ['Follow-up pages', 'Claimed follow-up pages']) {
+    const paging = page.getByRole('navigation', { name, exact: true });
+    await expect(paging.getByText('No rows on this page')).toBeVisible();
+    for (const button of await paging.getByRole('button').all())
+      await expect(button).toBeDisabled();
+  }
+  await expect(page).toHaveScreenshot('follow-up-workspace-empty.png', {
+    fullPage: true,
+  });
 });
 
 test('assigned chrome retains populated and withheld layout', async ({

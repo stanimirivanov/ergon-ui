@@ -4,7 +4,7 @@ import type {
 } from '@ergon/follow-up-data-access-web';
 import type { ResolverOwnedHumanFollowUpWork } from '@ergon/follow-up-model';
 import { Button } from '@ergon/ui-web';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactElement } from 'react';
 
 import { ConfirmedFollowUpRelease } from './confirmed-follow-up-release';
 import { FollowUpMessage } from './follow-up-message';
@@ -64,7 +64,7 @@ export function ResolverOwnedHumanFollowUpsList({
   returnFocusToWorkItemId,
   onMissingReturnFocus,
   onRetryRelease,
-}: ResolverOwnedHumanFollowUpsListProps) {
+}: ResolverOwnedHumanFollowUpsListProps): ReactElement {
   const pendingReleaseStatus = useRef<HTMLParagraphElement>(null);
   const isConsoleReleasePending =
     consoleReleaseFocusId !== null &&
@@ -98,7 +98,7 @@ export function ResolverOwnedHumanFollowUpsList({
   }, [items, returnFocusToWorkItemId, onMissingReturnFocus]);
 
   return (
-    <div className="pt-7" aria-busy={isFetching}>
+    <div className="pt-4" aria-busy={isFetching}>
       {isConsoleReleasePending ? (
         <p
           ref={pendingReleaseStatus}
@@ -156,7 +156,7 @@ export function ResolverOwnedHumanFollowUpsList({
             : `${items.length} ${items.length === 1 ? 'row' : 'rows'} on this page`}
           {isFetching ? ' · Refreshing…' : ''}
         </p>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2">
           <Button
             type="button"
             variant="quiet"
@@ -204,22 +204,29 @@ function OwnedWorkItem({
     }
   }, [shouldRestoreFocus]);
   return (
-    <article className="rounded-2xl border border-accent/35 bg-surface p-5 shadow-[0_12px_35px_rgb(24_32_25_/_6%)] sm:p-6">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-        <div>
+    <article className="min-w-0 rounded-md border border-accent/35 bg-surface-strong p-4">
+      <div className="flex flex-col gap-4">
+        <div className="min-w-0">
           <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
             {item.workItem.queueKey}
           </p>
           <h3 className="mt-2 text-lg font-bold text-ink">{reason}</h3>
-          <p className="mt-3 text-sm text-ink-muted">
-            Case{' '}
-            <span className="break-all font-mono text-xs text-ink">
-              {item.workItem.caseId}
-            </span>
-          </p>
+          <dl
+            className="mt-3 grid gap-2 text-xs"
+            aria-label="Owned follow-up identifiers"
+          >
+            <div>
+              <dt className="text-ink-muted">Case</dt>
+              <dd className="break-all font-mono">{item.workItem.caseId}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-muted">Ownership revision</dt>
+              <dd className="font-mono">{item.workItem.ownershipRevision}</dd>
+            </div>
+          </dl>
         </div>
-        <div className="shrink-0 text-left sm:text-right">
-          <span className="inline-flex rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-bold tracking-wide text-accent-strong uppercase">
+        <div className="border-t border-border pt-3">
+          <span className="inline-flex rounded-sm border border-accent/40 bg-accent/10 px-2 py-1 text-xs font-bold tracking-wide text-accent-strong uppercase">
             Claimed
           </span>
           <p className="mt-3 text-xs text-ink-muted">
@@ -230,11 +237,10 @@ function OwnedWorkItem({
           </p>
         </div>
       </div>
-      <div className="mt-5 flex flex-wrap items-start gap-3">
+      <div className="mt-4 flex flex-wrap items-start gap-3">
         <Button
           ref={openConsoleButton}
           type="button"
-          variant="quiet"
           disabled={anotherReleaseIsPending || releaseWasRecorded}
           onClick={() => onOpenConsole(item)}
         >
@@ -283,7 +289,7 @@ function ReleaseResultNotice({
         role="status"
         aria-label="Follow-up released"
         tabIndex={focusOnMount ? -1 : undefined}
-        className="mb-5 rounded-2xl border border-accent/40 bg-accent/10 p-5"
+        className="mb-4 rounded-md border border-accent/40 bg-accent/10 p-4"
       >
         <p className="font-bold text-ink">Follow-up released.</p>
         <p className="mt-1 text-sm leading-6 text-ink-muted">
@@ -314,7 +320,7 @@ function ReleaseResultNotice({
       role="alert"
       aria-label={copy.title}
       tabIndex={focusOnMount ? -1 : undefined}
-      className="mb-5 rounded-2xl border border-highlight/60 bg-highlight/10 p-5"
+      className="mb-4 rounded-md border border-highlight/60 bg-highlight/10 p-4"
     >
       <p className="font-bold text-ink">{copy.title}</p>
       <p className="mt-1 text-sm leading-6 text-ink-muted">

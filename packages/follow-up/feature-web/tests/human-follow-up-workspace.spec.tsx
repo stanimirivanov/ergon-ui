@@ -39,6 +39,49 @@ const cursor = {
 };
 
 describe('follow-up workspace disclosure composition', () => {
+  it('distinguishes owned from available work in reading order without combining page counts', async () => {
+    renderWorkspace({
+      listOpen: async () =>
+        successfulOpenFollowUpResult(SECOND_WORK_ITEM_ID, null, 2),
+    });
+    const owned = await screen.findByRole('region', {
+      name: 'Claimed follow-ups',
+    });
+    const shared = await screen.findByRole('region', {
+      name: 'Open follow-up work',
+    });
+    await within(owned).findByRole('button', { name: 'Open resolver console' });
+    await within(shared).findByRole('button', {
+      name: 'Claim Retry attempt limit reached follow-up',
+    });
+    expect(
+      owned.compareDocumentPosition(shared) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).not.toBe(0);
+    expect(
+      within(owned).getByText('Claimed', { selector: 'span' }),
+    ).toBeTruthy();
+    expect(within(shared).getByText('Available to claim')).toBeTruthy();
+    expect(
+      within(owned).getByText('Case', { exact: true }).nextElementSibling
+        ?.textContent,
+    ).toBe(FIRST_WORK_ITEM_ID);
+    expect(
+      within(owned).getByText('Ownership revision').nextElementSibling
+        ?.textContent,
+    ).toBe('1');
+    expect(
+      within(shared).getByText('Ownership revision').nextElementSibling
+        ?.textContent,
+    ).toBe('2');
+    expect(within(owned).getByText('1 row on this page')).toBeTruthy();
+    expect(within(shared).getByText('1 row on this page')).toBeTruthy();
+    expect(
+      within(shared).queryByRole('button', { name: 'Open resolver console' }),
+    ).toBeNull();
+    expect(
+      within(owned).queryByRole('button', { name: /Claim Retry/ }),
+    ).toBeNull();
+  });
   it('derives shell mode and withdraws claim presence while preserving every pane during a held ownership gate', async () => {
     let finishOwned: (
       result: Awaited<ReturnType<ListOwnedHumanFollowUps['listOwned']>>,

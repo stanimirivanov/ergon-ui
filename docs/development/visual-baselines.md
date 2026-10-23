@@ -31,7 +31,8 @@ clients. See [Playwright remote connections](https://playwright.dev/docs/docker)
 
 ## Review and updates
 
-Twelve screenshots cover assigned populated and withheld detail, projected execution,
+Fifteen screenshots cover the paired shared/owned landing workspace at desktop
+and narrow widths, neutral empty views, assigned populated and withheld detail, projected execution,
 desktop/narrow authorization review, pinned inputs, matching/accepted outcome proof
 and narrow accepted proof, owned inspection,
 320-pixel owned chrome and forced-colour inspection. Existing browser fixtures

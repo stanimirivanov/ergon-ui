@@ -44,7 +44,7 @@ export function HumanFollowUpWorkspace({
               className={
                 isConsoleOpen
                   ? 'flex min-h-0 min-w-0 flex-1 flex-col'
-                  : 'mx-auto w-full max-w-6xl px-6 py-16 lg:px-10 lg:py-20'
+                  : 'mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-10'
               }
             >
               {isConsoleOpen ? null : (
@@ -52,22 +52,39 @@ export function HumanFollowUpWorkspace({
                   <p className="text-sm font-bold tracking-[0.18em] text-accent-strong uppercase">
                     Resolver workbench
                   </p>
-                  <h1 className="mt-5 font-display text-5xl tracking-[-0.035em] text-ink sm:text-6xl">
+                  <h1 className="mt-3 font-sans text-3xl font-bold tracking-tight text-ink sm:text-4xl">
                     Human follow-up inbox
                   </h1>
-                  <p className="mt-6 max-w-2xl text-lg leading-8 text-ink-muted">
-                    Review the oldest unclaimed work that is visible under your
-                    current tenant authority.
+                  <p className="mt-3 max-w-3xl leading-6 text-ink-muted">
+                    Resume your claimed work or claim a follow-up from the
+                    shared queue. Each view is checked against your current
+                    authority.
                   </p>
                   {actorDetails}
                 </>
               )}
-              {content}
-              <HumanFollowUpInbox
-                tenantId={tenantId}
-                signInHref={signInHref}
-                isActive={!isConsoleOpen}
-              />
+              <div
+                className={
+                  isConsoleOpen
+                    ? 'flex min-h-0 min-w-0 flex-1 flex-col'
+                    : 'mt-8 grid min-w-0 items-start gap-6 xl:grid-cols-2'
+                }
+              >
+                <div
+                  className={
+                    isConsoleOpen
+                      ? 'flex min-h-0 min-w-0 flex-1 flex-col'
+                      : 'min-w-0'
+                  }
+                >
+                  {content}
+                </div>
+                <HumanFollowUpInbox
+                  tenantId={tenantId}
+                  signInHref={signInHref}
+                  isActive={!isConsoleOpen}
+                />
+              </div>
             </section>
           ),
         })

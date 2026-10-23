@@ -4,7 +4,7 @@ import type {
 } from '@ergon/follow-up-data-access-web';
 import type { HumanFollowUpWorkItem } from '@ergon/follow-up-model';
 import { Button } from '@ergon/ui-web';
-import type { FormEvent } from 'react';
+import type { FormEvent, ReactElement } from 'react';
 
 import { FollowUpMessage } from './follow-up-message';
 import { claimFailureCopy } from './human-follow-up-inbox-copy';
@@ -60,9 +60,9 @@ export function HumanFollowUpPageView({
   onRetry,
   onPrevious,
   onNext,
-}: HumanFollowUpPageViewProps) {
+}: HumanFollowUpPageViewProps): ReactElement {
   return (
-    <div className="pt-7" aria-busy={isFetching}>
+    <div className="pt-4" aria-busy={isFetching}>
       {claimNotice === undefined ? null : (
         <ClaimResultNotice
           notice={claimNotice}
@@ -105,7 +105,7 @@ export function HumanFollowUpPageView({
             : `${items.length} ${items.length === 1 ? 'row' : 'rows'} on this page`}
           {isFetching ? ' · Refreshing…' : ''}
         </p>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2">
           <Button
             type="button"
             variant="quiet"
@@ -128,13 +128,14 @@ export function HumanFollowUpPageView({
   );
 }
 
+/** Applies an exact URL-owned queue key; an empty field restores all visible queues. */
 export function QueueFilter({
   queueKey,
   onApply,
 }: {
   readonly queueKey: string | null | undefined;
   readonly onApply: (queueKey: string | undefined) => void;
-}) {
+}): ReactElement {
   function submit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
     const value = new FormData(event.currentTarget).get('queue');
@@ -146,13 +147,13 @@ export function QueueFilter({
     <form
       role="search"
       aria-label="Filter follow-up work"
-      className="flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:items-end lg:w-auto"
+      className="flex w-full flex-col gap-3 sm:flex-row sm:items-end"
       onSubmit={submit}
     >
-      <label className="flex min-w-64 grow flex-col gap-2 text-sm font-semibold">
+      <label className="flex min-w-0 grow flex-col gap-2 text-sm font-semibold">
         Queue key
         <input
-          className="min-h-11 rounded-xl border border-border bg-surface-strong px-4 text-base font-normal text-ink outline-none placeholder:text-ink-muted/70 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+          className="min-h-11 min-w-0 rounded-md border border-border bg-surface-strong px-3 text-base font-normal text-ink outline-none placeholder:text-ink-muted/70 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
           defaultValue={queueKey ?? ''}
           name="queue"
           placeholder="All queues"
@@ -184,23 +185,30 @@ function WorkItem({
 }) {
   const reason = humanizeReason(item.reason);
   return (
-    <article className="rounded-2xl border border-border bg-surface p-5 shadow-[0_12px_35px_rgb(24_32_25_/_6%)] sm:p-6">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-        <div>
+    <article className="min-w-0 rounded-md border border-border bg-surface-strong p-4">
+      <div className="flex flex-col gap-4">
+        <div className="min-w-0">
           <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
             {item.queueKey}
           </p>
           <h3 className="mt-2 text-lg font-bold text-ink">{reason}</h3>
-          <p className="mt-3 text-sm text-ink-muted">
-            Case{' '}
-            <span className="break-all font-mono text-xs text-ink">
-              {item.caseId}
-            </span>
-          </p>
+          <dl
+            className="mt-3 grid gap-2 text-xs"
+            aria-label="Shared follow-up identifiers"
+          >
+            <div>
+              <dt className="text-ink-muted">Case</dt>
+              <dd className="break-all font-mono">{item.caseId}</dd>
+            </div>
+            <div>
+              <dt className="text-ink-muted">Ownership revision</dt>
+              <dd className="font-mono">{item.ownershipRevision}</dd>
+            </div>
+          </dl>
         </div>
-        <div className="shrink-0 text-left sm:text-right">
-          <span className="inline-flex rounded-full border border-highlight/50 bg-highlight/15 px-3 py-1 text-xs font-bold tracking-wide text-ink uppercase">
-            Open
+        <div className="border-t border-border pt-3">
+          <span className="inline-flex rounded-sm border border-highlight/50 bg-highlight/15 px-2 py-1 text-xs font-bold tracking-wide text-ink uppercase">
+            Available to claim
           </span>
           <p className="mt-3 text-xs text-ink-muted">
             Opened{' '}
@@ -240,7 +248,7 @@ function ClaimResultNotice({
       <div
         role="status"
         aria-label="Follow-up claimed"
-        className="mb-5 rounded-2xl border border-accent/40 bg-accent/10 p-5"
+        className="mb-4 rounded-md border border-accent/40 bg-accent/10 p-4"
       >
         <p className="font-bold text-ink">Follow-up claimed.</p>
         <p className="mt-1 text-sm leading-6 text-ink-muted">
@@ -270,7 +278,7 @@ function ClaimResultNotice({
     <div
       role="alert"
       aria-label={copy.title}
-      className="mb-5 rounded-2xl border border-highlight/60 bg-highlight/10 p-5"
+      className="mb-4 rounded-md border border-highlight/60 bg-highlight/10 p-4"
     >
       <p className="font-bold text-ink">{copy.title}</p>
       <p className="mt-1 text-sm leading-6 text-ink-muted">

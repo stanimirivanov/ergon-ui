@@ -163,12 +163,15 @@ const summary = {
  * callers must retain the domain's trimmed, non-blank, 500-character limit.
  * An optional first-source content override exercises inert long-text inspection
  * without changing the default recorded chapter or shared fixture objects.
+ * A separate synthetic shared item can populate the paired landing workspace;
+ * it is never a second rendering of the owned claim.
  */
 export async function installSimulatedOwnedContextBff(
   page: Page,
   options: {
     readonly caseGoal?: string;
     readonly observationContent?: string;
+    readonly includeSharedWork?: boolean;
   } = {},
 ): Promise<{
   summaryReads: () => number;
@@ -208,7 +211,21 @@ export async function installSimulatedOwnedContextBff(
     }),
   );
   await page.route('**/bff/v1/tenants/*/human-follow-ups?*', (route) =>
-    fulfillSimulatedBff(route, { items: [], nextCursor: null }),
+    fulfillSimulatedBff(route, {
+      items: options.includeSharedWork
+        ? [
+            {
+              ...workItem,
+              workItemId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+              caseId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+              runId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+              escalationEventId: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+              ownershipRevision: 0,
+            },
+          ]
+        : [],
+      nextCursor: null,
+    }),
   );
   await page.route('**/bff/v1/tenants/*/human-follow-ups/owned?*', (route) => {
     ownedReads += 1;

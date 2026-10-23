@@ -2,6 +2,13 @@
 
 ## TL;DR
 
+The shared and owned follow-up landing workspace now uses compact sans-serif
+headings, bordered cards and an owned-first responsive grid. Each list retains
+its own page count and navigation; cards distinguish available work from current
+claims and show the supplied ownership revision, not priority or authorization.
+Console detours preserve mounted inbox traversal and exact uncertain replay.
+The standard shell palette is unchanged; dark tokens remain Console-scoped.
+
 The assigned Console now presents recorded execution as compact snapshot/start/policy
 context, a separate attributed connector-result panel and a sequence-marked
 transition rail. Only supplied durable transitions receive markers. Exact timing,
@@ -18,7 +25,7 @@ mutable matching, recorded state and accepted proof never substitute for each ot
 Focused Console chrome uses a dark, high-contrast sans-serif hierarchy with opaque
 shell surfaces and restrained translucent inspection dialogs. Reduced transparency
 and forced colours use solid surfaces. Native modal geometry, focus, disclosure
-and request owners are unchanged. A pinned Linux visual gate records twelve
+and request owners are unchanged. A pinned Linux visual gate records fifteen
 synthetic states, including attributed inputs and matching/accepted proof at desktop
 and accepted proof at narrow width; proposed baselines
 require human PR review.

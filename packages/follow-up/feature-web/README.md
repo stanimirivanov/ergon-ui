@@ -61,6 +61,9 @@ out of the deployable app and domain-agnostic UI primitives.
   when a later server-observed ownership revision supersedes it. Release means
   return to the original shared queue, not direct handover or case completion.
 - Follow-up workspace introduction and composition of the two work views.
+  Standard mode places owned work before the shared queue in a responsive grid,
+  with separate page counts, actual ownership revisions and explicit claim vs.
+  Console/release actions. It retains the app's standard palette.
   The owned surface supplies derived Console mode and content through an
   optional `renderWorkspace` slot instead of mirroring visibility. The inbox
   remains mounted but suspended during detours, retaining traversal and exact
