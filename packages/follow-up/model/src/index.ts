@@ -4,6 +4,7 @@ export type {
   HumanFollowUpWorkItem,
   ResolverOwnedHumanFollowUpWork,
 } from './human-follow-up';
+export type { FollowUpHandover } from './follow-up-handover';
 export {
   isAvailableHumanFollowUpWorkItem,
   isResolverOwnedHumanFollowUpWork,

@@ -13,6 +13,12 @@ out of the deployable app and domain-agnostic UI primitives.
 
 ## Owns
 
+- Confirmed direct follow-up handover: RHF owns recipient and acknowledgement;
+  a mounted controller owns immutable intent and uncertain exact replay. It
+  commits private withdrawal before sending, retains only historical feedback
+  after acknowledgement and explicitly reacquires owned work before new context.
+  Close/tenant change retires requests; leaving cannot undo a sent transfer.
+
 - Shared-inbox queue filtering, pagination, revision-checked claim interaction,
   explicit same-command retry, and presentation.
 - Resolver-owned pagination and local selection of an exact owned claim. A

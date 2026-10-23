@@ -58,3 +58,13 @@ export {
   type FollowUpNotesCacheDependencies,
 } from './cache/follow-up-notes-api';
 export { useFreshFollowUpNotes } from './cache/use-fresh-follow-up-notes';
+export type {
+  FollowUpHandoverClient,
+  FollowUpHandoverCommand,
+  FollowUpHandoverFailure,
+} from './client/follow-up-handover';
+export { normalizeFollowUpHandoverFailure } from './client/normalize-human-follow-up-failures';
+export {
+  followUpHandoverApi,
+  type FollowUpHandoverCacheDependencies,
+} from './cache/follow-up-handover-api';

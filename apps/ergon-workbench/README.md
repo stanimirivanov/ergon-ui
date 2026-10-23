@@ -5,7 +5,11 @@
 This application is Ergon's internal browser experience. It delivers the
 accessible shell, a typed fail-closed current-actor session boundary, and the
 shared and resolver-owned follow-up views, including a locally selected
-Resolver Console with read-only case/run context and confirmed claim release.
+Resolver Console with read-only case/run context, confirmed claim release and
+direct follow-up handover. Handover shares session CSRF, never automatically
+retries a POST, withdraws private context before execution and requires fresh
+owned-work recovery after historical acknowledgement. It does not transfer run
+supervision or complete the case.
 Assigned supervisors have a separate dark three-pane Console for active-run
 discovery, pinned execution policy, and server-recorded current state.
 It consumes the control plane's
