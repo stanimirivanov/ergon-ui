@@ -10,6 +10,13 @@ it is neither a client application core nor a general steering surface.
 
 ## Owns
 
+- Compact recorded-execution workspace: current snapshot coordinates, start/policy
+  context, an attributed result/measurement panel, and an append-sequence rail.
+  Only actual transitions receive markers; no global clock-based order combines
+  policy, receipts and state history. Native policy/measurement disclosures retain
+  their semantics and perform no I/O. Commands and supporting inspection remain
+  separate, with their existing lifetime and authority owners.
+
 - Compact supporting-inspection rows for pinned declarations, fixed-input
   readiness, admissions and gateway attempts. The consumed feature-local framing
   owns presentation only; each inspector keeps its trigger/ref, eligibility,

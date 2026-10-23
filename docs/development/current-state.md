@@ -2,6 +2,12 @@
 
 ## TL;DR
 
+The assigned Console now presents recorded execution as compact snapshot/start/policy
+context, a separate attributed connector-result panel and a sequence-marked
+transition rail. Only supplied durable transitions receive markers. Exact timing,
+unsupported/empty/unmeasured distinctions and private withdrawal remain unchanged.
+Command/recovery and evidence/proof redesign remain later M05 slices.
+
 Focused Console chrome uses a dark, high-contrast sans-serif hierarchy with opaque
 shell surfaces and restrained translucent inspection dialogs. Reduced transparency
 and forced colours use solid surfaces. Native modal geometry, focus, disclosure

@@ -15,6 +15,12 @@ can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
 
+The assigned recorded-execution workspace separates snapshot/start/policy context,
+connector measurement and the actual append-sequence rail. The supervision chapter
+explains this reading order and exercises the unchanged disclosures and privacy
+gate. A projected-history pixel baseline covers the complete read-only section;
+it is not a live trace, command surface or accepted-proof inspector.
+
 Supporting inspection has four compact launch rows rather than full-size cards.
 The assigned Console layout regression checks side-by-side title/action layout
 at desktop, wrapping/unavailable feedback at 320 pixels and no row overflow.

@@ -80,6 +80,12 @@ test(
           name: 'Recorded execution',
           exact: true,
         });
+        await expect(
+          records
+            .getByText('Snapshot revision', { exact: true })
+            .locator('..')
+            .getByRole('definition'),
+        ).toHaveText('0');
         await guide.action(
           'locate-execution-first-sections',
           page.getByRole('button', { name: 'Jump to execution', exact: true }),

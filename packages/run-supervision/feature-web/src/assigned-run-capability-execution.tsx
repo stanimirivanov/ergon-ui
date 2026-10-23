@@ -18,7 +18,7 @@ export function AssignedRunCapabilityExecution({
     return (
       <section
         aria-label="Capability execution"
-        className="rounded-md border border-dashed border-border p-4"
+        className="rounded-md border border-dashed border-border p-3"
       >
         <h3 className="font-bold text-ink">
           {execution === undefined
@@ -38,9 +38,9 @@ export function AssignedRunCapabilityExecution({
   return (
     <section
       aria-labelledby="capability-execution-heading"
-      className="rounded-md border border-border bg-canvas/60 p-4"
+      className="rounded-md border border-border bg-canvas/60"
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface-strong/40 px-3 py-3">
         <h3 id="capability-execution-heading" className="font-bold text-ink">
           Connector result recorded
         </h3>
@@ -56,19 +56,21 @@ export function AssignedRunCapabilityExecution({
             : 'Connector failed'}
         </span>
       </div>
-      <p className="mt-3 text-sm leading-6 text-ink-muted">
+      <p className="px-3 pt-3 text-xs leading-5 text-ink-muted">
         Terminal result for the pinned step and capability. Recording a result
         does not advance the displayed run state. Connector success is not
         outcome proof.
       </p>
-      <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
+      <dl className="grid gap-x-4 gap-y-3 p-3 text-sm sm:grid-cols-2">
         <AssignedRunFact label="Connector">
           {execution.connector}
         </AssignedRunFact>
         <AssignedRunFact label="Gateway-call latency">
-          {timing === null
-            ? 'Unmeasured'
-            : formatGatewayLatency(timing.elapsedNanoseconds)}
+          <span className="font-mono font-bold tabular-nums">
+            {timing === null
+              ? 'Unmeasured'
+              : formatGatewayLatency(timing.elapsedNanoseconds)}
+          </span>
         </AssignedRunFact>
         <AssignedRunFact label="Completed">
           <time dateTime={execution.completedAt}>
@@ -83,16 +85,16 @@ export function AssignedRunCapabilityExecution({
         <AssignedRunFact label="Cost">Not measured</AssignedRunFact>
       </dl>
       {timing === null ? (
-        <p className="mt-4 text-xs leading-5 text-ink-muted">
+        <p className="border-t border-border p-3 text-xs leading-5 text-ink-muted">
           This receipt has no timing measurement, including receipts from older
           writers. Unmeasured is not zero; timestamps cannot reconstruct it.
         </p>
       ) : (
-        <details className="mt-4 rounded-md border border-border bg-surface/95 shadow-xl backdrop-blur-md">
-          <summary className="cursor-pointer rounded-md px-4 py-3 text-sm font-bold text-accent-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong">
+        <details className="border-t border-border">
+          <summary className="cursor-pointer rounded-md px-3 py-2 text-sm font-bold text-accent-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong">
             Inspect execution measurement
           </summary>
-          <div className="border-t border-border p-4">
+          <div className="border-t border-border p-3">
             <dl className="grid gap-4 text-sm">
               <AssignedRunFact label="Measurement source">
                 {timing.source}

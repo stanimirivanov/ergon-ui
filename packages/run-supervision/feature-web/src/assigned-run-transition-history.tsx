@@ -22,7 +22,7 @@ export function AssignedRunTransitionHistory({
   return (
     <section
       aria-labelledby="recorded-transitions-heading"
-      className="rounded-md border border-border bg-canvas/60 p-4"
+      className="min-w-0 border-t border-border pt-4"
     >
       <h3 id="recorded-transitions-heading" className="font-bold text-ink">
         Recorded run transitions
@@ -39,22 +39,22 @@ export function AssignedRunTransitionHistory({
         </p>
       ) : (
         <ol
-          className="mt-4 space-y-4"
+          className="mt-4 border-s border-border"
           aria-label="Sequence-ordered run transitions"
         >
           {transitions.map((event) => (
             <li
               key={event.sequence}
-              className="rounded-md border border-border bg-surface/90 p-4"
+              className="relative min-w-0 pb-5 ps-4 before:absolute before:-start-[5px] before:top-1 before:size-2 before:rounded-full before:border before:border-accent before:bg-canvas last:pb-0"
             >
               <h4 className="font-bold text-accent-strong">
                 {event.sequence} · {eventLabels[event.type]}
               </h4>
-              <p className="mt-2 text-sm text-ink-muted">
+              <p className="mt-1 text-xs leading-5 text-ink-muted">
                 {runStateLabels[event.fromState]} →{' '}
                 {runStateLabels[event.toState]}
               </p>
-              <dl className="mt-3 grid gap-4 text-sm sm:grid-cols-2">
+              <dl className="mt-2 grid gap-2 text-xs sm:grid-cols-2">
                 <AssignedRunFact label="Occurred">
                   <time dateTime={event.occurredAt}>
                     {formatRecordedAt(event.occurredAt)}
