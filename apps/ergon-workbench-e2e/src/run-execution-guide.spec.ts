@@ -71,6 +71,14 @@ test(
         await review.click();
         await expect(submit).toBeVisible();
         expect(bff.reviewReads()).toBe(2);
+        await expect(
+          dialog.getByText('Server-reviewed scope · not editable here'),
+        ).toBeVisible();
+        await expect(
+          dialog.getByRole('complementary', {
+            name: 'Irreversible admission · external effect',
+          }),
+        ).toBeVisible();
         await guide.result('enabled-fresh-review', dialog);
         await submit.click();
         await expect(dialog.getByRole('alert')).toContainText(
@@ -186,6 +194,11 @@ test(
         await review.click();
         await expect(resume).toBeVisible();
         await expect(dialog).toContainText('not a status recheck');
+        await expect(
+          dialog.getByRole('complementary', {
+            name: 'New dispatch · original reservation',
+          }),
+        ).toBeVisible();
         await guide.result('fresh-recovery-review', dialog);
         await ack.check();
         bff.setNext('receipt');

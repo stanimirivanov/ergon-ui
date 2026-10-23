@@ -5,6 +5,7 @@ import {
   type RunCancellationFailure,
 } from '@ergon/run-supervision-data-access-web';
 import { Button, ModalDialog } from '@ergon/ui-web';
+import { RunActionCard } from './run-action-card';
 import {
   useId,
   useLayoutEffect,
@@ -58,11 +59,11 @@ export function RunCancellationControl({
   )
     return <></>;
   return (
-    <section
-      aria-label="Untouched-run cancellation"
-      className="rounded-md border border-highlight/60 bg-highlight/5 p-4"
+    <RunActionCard
+      label="Untouched-run cancellation"
+      title="Cancel before authorization or execution"
+      consequence="Terminal decision · untouched runs only"
     >
-      <h3 className="font-bold">Cancel before authorization or execution</h3>
       <p className="mt-2 text-sm leading-6 text-ink-muted">
         Cancel only before any durable authorization or execution. This does not
         stop provider work, compensate, refund a retry or close the case.
@@ -106,6 +107,6 @@ export function RunCancellationControl({
           )}
         </ModalDialog>
       ) : null}
-    </section>
+    </RunActionCard>
   );
 }

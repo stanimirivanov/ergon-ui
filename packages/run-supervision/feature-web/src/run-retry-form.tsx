@@ -7,6 +7,7 @@ import { Button } from '@ergon/ui-web';
 import { useId, useLayoutEffect, useRef, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { AssignedRunFact } from './assigned-run-fact';
+import { RunDecisionBoundary } from './run-action-card';
 
 const unavailable: Record<RunRetryReviewReason, string> = {
   DISABLED:
@@ -83,12 +84,12 @@ export function RunRetryForm({
       }}
     >
       <h3 className="text-lg font-bold">Confirm a fresh successor</h3>
-      <p className="text-sm leading-6">
+      <RunDecisionBoundary title="Fresh successor · new safeguards">
         This atomically supersedes the failed run and creates attempt{' '}
         {review.attemptNumber + 1} of {review.maximumAttempts}, initially
         supervised by you. It does not recover the old invocation, call a
         connector or close the case.
-      </p>
+      </RunDecisionBoundary>
       <dl className="grid min-w-0 gap-3 rounded-md border border-border p-3 text-sm [overflow-wrap:anywhere] sm:grid-cols-2">
         <AssignedRunFact label="Retry policy">
           {review.retryPolicyRevision}

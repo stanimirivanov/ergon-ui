@@ -7,6 +7,7 @@ import { Button } from '@ergon/ui-web';
 import { useId, useLayoutEffect, useRef, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { AssignedRunFact } from './assigned-run-fact';
+import { RunDecisionBoundary } from './run-action-card';
 
 const unavailable: Record<RunEscalationReviewReason, string> = {
   DISABLED:
@@ -81,12 +82,12 @@ export function RunEscalationForm({
       }}
     >
       <h3 className="text-lg font-bold">Confirm unassigned human follow-up</h3>
-      <p className="text-sm leading-6">
+      <RunDecisionBoundary title="Terminal escalation · unassigned work">
         This ends exhausted automated recovery by recording ESCALATED and
         opening one unassigned work item in the server-selected
         access-restoration queue. It does not create a third attempt, invoke a
         connector, claim work or close the case.
-      </p>
+      </RunDecisionBoundary>
       <dl className="grid min-w-0 gap-3 rounded-md border border-border p-3 text-sm [overflow-wrap:anywhere] sm:grid-cols-2">
         <AssignedRunFact label="Retry policy">
           {review.retryPolicyRevision}

@@ -5,6 +5,7 @@ import {
   type RunEscalationFailure,
 } from '@ergon/run-supervision-data-access-web';
 import { Button, ModalDialog } from '@ergon/ui-web';
+import { RunActionCard } from './run-action-card';
 import {
   useId,
   useLayoutEffect,
@@ -54,11 +55,11 @@ export function RunEscalationControl({
   }, [failure, stale, onAccessFailure]);
   if (run.state !== 'ACTION_FAILED' || run.stateVersion !== 1) return <></>;
   return (
-    <section
-      aria-label="Exhausted-run escalation"
-      className="rounded-md border border-highlight/60 bg-highlight/5 p-4"
+    <RunActionCard
+      label="Exhausted-run escalation"
+      title="End exhausted recovery with human follow-up"
+      consequence="Human follow-up · no further attempt"
     >
-      <h3 className="font-bold">End exhausted recovery with human follow-up</h3>
       <p className="mt-2 text-sm leading-6 text-ink-muted">
         Review runtime exhaustion before opening unassigned work. This does not
         create another attempt, execute a capability or close the case.
@@ -102,6 +103,6 @@ export function RunEscalationControl({
           )}
         </ModalDialog>
       ) : null}
-    </section>
+    </RunActionCard>
   );
 }

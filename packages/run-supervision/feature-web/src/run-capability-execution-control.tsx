@@ -6,6 +6,7 @@ import {
   type RunExecutionReview,
 } from '@ergon/run-supervision-data-access-web';
 import { Button, ModalDialog } from '@ergon/ui-web';
+import { RunActionCard } from './run-action-card';
 import {
   useId,
   useLayoutEffect,
@@ -48,11 +49,11 @@ export function RunCapabilityExecutionControl({
   }, [error, stale, onAccessFailure]);
   if (run.stateVersion !== 0) return <></>;
   return (
-    <section
-      aria-label="Pinned action admission"
-      className="rounded-md border border-highlight/60 bg-highlight/5 p-4"
+    <RunActionCard
+      label="Pinned action admission"
+      title="Execute the approved pinned action"
+      consequence="External effect · fresh review required"
     >
-      <h3 className="font-bold">Execute the approved pinned action</h3>
       <p className="mt-2 text-sm leading-6 text-ink-muted">
         Supervision and an approval decision alone do not execute anything.
         Review current eligibility before deliberately admitting this one
@@ -98,7 +99,7 @@ export function RunCapabilityExecutionControl({
           )}
         </ModalDialog>
       ) : null}
-    </section>
+    </RunActionCard>
   );
 }
 

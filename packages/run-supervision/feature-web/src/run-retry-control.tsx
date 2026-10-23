@@ -6,6 +6,7 @@ import {
   type RunRetryReview,
 } from '@ergon/run-supervision-data-access-web';
 import { Button, ModalDialog } from '@ergon/ui-web';
+import { RunActionCard } from './run-action-card';
 import {
   useId,
   useLayoutEffect,
@@ -51,11 +52,11 @@ export function RunRetryControl({
   }, [failure, stale, onAccessFailure]);
   if (run.state !== 'ACTION_FAILED' || run.stateVersion !== 1) return <></>;
   return (
-    <section
-      aria-label="Failed-run retry"
-      className="rounded-md border border-highlight/60 bg-highlight/5 p-4"
+    <RunActionCard
+      label="Failed-run retry"
+      title="Start a fresh run after failure"
+      consequence="New run · no inherited authorization"
     >
-      <h3 className="font-bold">Start a fresh run after failure</h3>
       <p className="mt-2 text-sm leading-6 text-ink-muted">
         A terminal failed action is not an uncertain invocation. Review the
         current retry budget and plan before creating a fresh successor. Nothing
@@ -100,7 +101,7 @@ export function RunRetryControl({
           )}
         </ModalDialog>
       ) : null}
-    </section>
+    </RunActionCard>
   );
 }
 

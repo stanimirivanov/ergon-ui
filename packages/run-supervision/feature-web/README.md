@@ -10,6 +10,14 @@ it is neither a client application core nor a general steering surface.
 
 ## Owns
 
+- Consequence-first authorization/recovery presentation. Feature-local stateless
+  action framing separates prerequisite approval from external execution, a fresh
+  successor, exhausted escalation and untouched-only cancellation. Confirmation
+  callouts expose the decision boundary; execution shows actual risk and exact
+  case scope, never an editable override. Exact uncertain replay, new dispatch
+  recovery and historical acknowledgement remain distinct. Controllers, RTK/RHF
+  owners, slot reconciliation, fresh eligibility and ui-web modality are unchanged.
+
 - Compact recorded-execution workspace: current snapshot coordinates, start/policy
   context, an attributed result/measurement panel, and an append-sequence rail.
   Only actual transitions receive markers; no global clock-based order combines
