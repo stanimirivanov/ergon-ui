@@ -31,8 +31,9 @@ clients. See [Playwright remote connections](https://playwright.dev/docs/docker)
 
 ## Review and updates
 
-Eight screenshots cover assigned populated and withheld detail, projected execution,
-desktop/narrow authorization review, owned inspection,
+Twelve screenshots cover assigned populated and withheld detail, projected execution,
+desktop/narrow authorization review, pinned inputs, matching/accepted outcome proof
+and narrow accepted proof, owned inspection,
 320-pixel owned chrome and forced-colour inspection. Existing browser fixtures
 provide deterministic synthetic records; these are not live operational evidence.
 Viewport, scale, locale, timezone, colour scheme and reduced motion are fixed in

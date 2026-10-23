@@ -44,12 +44,12 @@ export function AssignedRunCaseEvidence({
         <>
           <section
             aria-labelledby="run-case-context-heading"
-            className="mt-4 rounded-md border border-border bg-canvas/60 p-4"
+            className="mt-4 border-y border-border py-4"
           >
             <h3 id="run-case-context-heading" className="font-bold">
               Case context
             </h3>
-            <dl className="mt-4 grid gap-4 text-sm">
+            <dl className="mt-3 grid gap-3 text-sm">
               <AssignedRunFact label="Case ID">{run.caseId}</AssignedRunFact>
               <AssignedRunFact label="Pinned evidence stream version">
                 {run.caseEvidenceStreamVersion}
@@ -69,7 +69,7 @@ export function AssignedRunCaseEvidence({
               post-action verification or accepted outcome proof.
             </p>
           </section>
-          <div className="mt-4">
+          <div className="mt-5">
             <AssignedRunEvidence
               key={`${run.runId}:${run.caseEvidenceStreamVersion}`}
               evidence={run.pinnedEvidence}

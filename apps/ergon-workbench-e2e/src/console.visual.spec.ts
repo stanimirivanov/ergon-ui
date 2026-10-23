@@ -2,6 +2,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { installSimulatedOwnedContextBff } from './guide/simulated-owned-context-bff';
 import { installSimulatedRunExecutionBff } from './guide/simulated-run-execution-bff';
+import { installSimulatedRunEvidenceBff } from './guide/simulated-run-evidence-bff';
+import { installSimulatedRunVerificationBff } from './guide/simulated-run-verification-bff';
 import {
   assignedRunId,
   installSimulatedRunSupervisionBff,
@@ -113,6 +115,65 @@ test('authorization shows reviewed risk, scope and admission boundary before any
   expect(bff.reviewReads()).toBe(1);
   expect(bff.intents()).toHaveLength(0);
   expect(bff.dispatches()).toBe(0);
+});
+
+test('pinned inputs show attributable history, not verified claims', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1800 });
+  const bff = await installSimulatedRunEvidenceBff(page);
+  bff.setMode('populated');
+  await page.goto(supervisorTenantPath + '?view=runs');
+  await page
+    .getByRole('button', { name: 'Inspect run ' + assignedRunId })
+    .click();
+  const inputs = page.getByRole('region', {
+    name: 'Case evidence',
+    exact: true,
+  });
+  await expect(
+    inputs.getByRole('note', { name: 'Pinned binding attribution' }),
+  ).toHaveCount(2);
+  await expect(inputs).toHaveScreenshot('pinned-evidence.png');
+  expect(bff.reads()).toBe(1);
+  expect(bff.commands()).toBe(0);
+});
+
+test('outcome separates mutable matching from durable acceptance and reflows narrowly', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1800 });
+  const bff = await installSimulatedRunVerificationBff(page);
+  bff.setMode('matching');
+  await page.goto(supervisorTenantPath + '?view=runs');
+  await page
+    .getByRole('button', { name: 'Inspect run ' + assignedRunId })
+    .click();
+  const outcome = page.getByRole('region', {
+    name: 'Outcome proof',
+    exact: true,
+  });
+  await expect(
+    outcome.getByText('Current assessment · not acceptance', { exact: true }),
+  ).toBeVisible();
+  await expect(outcome).toHaveScreenshot('outcome-matching.png');
+  bff.setMode('accepted');
+  await page.getByRole('button', { name: 'Recheck selected run' }).click();
+  await expect(
+    outcome.getByRole('region', { name: 'Durable acceptance record' }),
+  ).toBeVisible();
+  await expect(outcome).toHaveScreenshot('outcome-accepted.png');
+  await page.setViewportSize({ width: 320, height: 1800 });
+  await page.getByRole('button', { name: 'Jump to outcome proof' }).click();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await expect(outcome).toHaveScreenshot('outcome-accepted-narrow.png');
+  expect(bff.reads()).toBe(2);
+  expect(bff.commands()).toBe(0);
 });
 
 test('owned chrome and inspection remain usable at narrow width and in forced colours', async ({

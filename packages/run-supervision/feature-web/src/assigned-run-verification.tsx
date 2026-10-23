@@ -24,58 +24,79 @@ export function AssignedRunVerification({
   if (proof === undefined)
     return <UnsupportedVerification terminal={isTerminalState(run.state)} />;
   return (
-    <section
-      aria-label="Outcome verification"
-      className="rounded-md border border-accent-strong/40 bg-canvas/60 p-4"
-    >
-      <h3 className="font-bold text-ink">{statusLabels[proof.status]}</h3>
-      <p className="mt-3 text-sm leading-6 text-ink-muted">
-        {verificationExplanation(proof)}
-      </p>
-      <dl className="mt-4 grid gap-4 text-sm">
+    <section aria-label="Outcome verification" className="min-w-0 space-y-4">
+      <div className="border-s-2 border-accent-strong bg-canvas/60 p-3">
+        <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
+          {proof.status === 'ACCEPTED'
+            ? 'Stored proof · durable decision'
+            : 'Current assessment · not acceptance'}
+        </p>
+        <h3 className="mt-2 font-extrabold text-ink">
+          {statusLabels[proof.status]}
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-ink-muted">
+          {verificationExplanation(proof)}
+        </p>
+      </div>
+      <dl
+        aria-label="Outcome condition comparison"
+        className="grid gap-3 rounded-md border border-border bg-canvas/60 p-3 text-sm"
+      >
         <AssignedRunFact label="Pinned outcome condition">
-          {proof.property} = {proof.expectedValue}
+          <span className="font-mono font-bold">
+            {proof.property} = {proof.expectedValue}
+          </span>
+        </AssignedRunFact>
+        <AssignedRunFact label="Selected actual value">
+          <span className="font-mono text-base font-bold">
+            {proof.evidence?.value ?? 'No citation selected'}
+          </span>
         </AssignedRunFact>
         {proof.caseStreamVersion !== null ? (
           <AssignedRunFact label="Assessed case version">
             {proof.caseStreamVersion}
           </AssignedRunFact>
         ) : null}
-        {proof.evidence !== null ? (
-          <AssignedRunFact label="Selected actual value">
-            {proof.evidence.value}
-          </AssignedRunFact>
-        ) : null}
       </dl>
       {proof.acceptance !== null ? (
-        <dl className="mt-4 grid gap-4 text-sm">
-          <AssignedRunFact label="Acceptance run sequence">
-            {proof.acceptance.runSequence}
-          </AssignedRunFact>
-          <AssignedRunFact label="Accepted">
-            <time dateTime={proof.acceptance.acceptedAt}>
-              {formatRecordedAt(proof.acceptance.acceptedAt)}
-            </time>
-          </AssignedRunFact>
-          <AssignedRunFact label="Acceptance recorded">
-            <time dateTime={proof.acceptance.recordedAt}>
-              {formatRecordedAt(proof.acceptance.recordedAt)}
-            </time>
-          </AssignedRunFact>
-          <AssignedRunFact label="Verified case closure version">
-            {proof.acceptance.caseClosureStreamVersion}
-          </AssignedRunFact>
-        </dl>
-      ) : null}
+        <section
+          aria-label="Durable acceptance record"
+          className="rounded-md border border-accent-strong/60 bg-accent-strong/5 p-3"
+        >
+          <h4 className="font-bold">Recorded acceptance and case closure</h4>
+          <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+            <AssignedRunFact label="Acceptance run sequence">
+              {proof.acceptance.runSequence}
+            </AssignedRunFact>
+            <AssignedRunFact label="Accepted">
+              <time dateTime={proof.acceptance.acceptedAt}>
+                {formatRecordedAt(proof.acceptance.acceptedAt)}
+              </time>
+            </AssignedRunFact>
+            <AssignedRunFact label="Acceptance recorded">
+              <time dateTime={proof.acceptance.recordedAt}>
+                {formatRecordedAt(proof.acceptance.recordedAt)}
+              </time>
+            </AssignedRunFact>
+            <AssignedRunFact label="Verified case closure version">
+              {proof.acceptance.caseClosureStreamVersion}
+            </AssignedRunFact>
+          </dl>
+        </section>
+      ) : (
+        <p className="text-xs font-semibold text-ink-muted">
+          This assessment contains no durable acceptance.
+        </p>
+      )}
       {proof.evidence !== null ? (
-        <div className="mt-4">
+        <div>
           <AssignedRunProofInspector
             key={`${run.runId}:${proof.status}:${proof.caseStreamVersion}:${proof.evidence.factId}`}
             evidence={proof.evidence}
           />
         </div>
       ) : null}
-      <p className="mt-4 text-xs leading-5 text-ink-muted">
+      <p className="border-t border-border pt-3 text-xs leading-5 text-ink-muted">
         This view reads one recorded contract condition. Only an explicitly
         confirmed, server-authorized acceptance can close the case. Reading a
         match cannot execute an action or independently verify the external

@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { AssignedRunVerification } from '../src/assigned-run-verification';
 import { AssignedRunOutcomePane } from '../src/assigned-run-outcome-pane';
@@ -48,6 +48,18 @@ describe('single-condition verification presentation', () => {
   it('does not turn a current match or mismatch into durable acceptance', () => {
     const view = render(<AssignedRunVerification run={verifyingRun} />);
     expect(
+      screen.getByText('Current assessment · not acceptance'),
+    ).toBeTruthy();
+    expect(
+      screen.getByText('This assessment contains no durable acceptance.'),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole('region', { name: 'Durable acceptance record' }),
+    ).toBeNull();
+    expect(
+      screen.getByLabelText('Outcome condition comparison').textContent,
+    ).toContain('account.access.state = ACTIVE');
+    expect(
       screen.getByRole('heading', {
         name: 'Condition matches · not durably accepted',
       }),
@@ -89,6 +101,17 @@ describe('single-condition verification presentation', () => {
       },
     } as const;
     const view = render(<AssignedRunOutcomePane run={accepted} />);
+    const acceptance = screen.getByRole('region', {
+      name: 'Durable acceptance record',
+    });
+    expect(
+      within(acceptance).getByText('Verified case closure version'),
+    ).toBeTruthy();
+    expect(within(acceptance).getByText('6')).toBeTruthy();
+    expect(screen.getByText('Stored proof · durable decision')).toBeTruthy();
+    expect(
+      screen.queryByText('This assessment contains no durable acceptance.'),
+    ).toBeNull();
     expect(
       screen.getByRole('heading', { name: 'Durable outcome proof accepted' }),
     ).toBeTruthy();
@@ -98,7 +121,36 @@ describe('single-condition verification presentation', () => {
       screen.queryByRole('region', { name: 'Outcome verification' }),
     ).toBeNull();
     expect(
+      screen.queryByRole('region', { name: 'Durable acceptance record' }),
+    ).toBeNull();
+    expect(
       screen.queryByRole('button', { name: 'Inspect verification evidence' }),
+    ).toBeNull();
+  });
+
+  it('preserves an opaque expected value and the selected mismatch rather than inventing a passed check', () => {
+    render(
+      <AssignedRunVerification
+        run={{
+          ...verifyingRun,
+          outcomeVerification: {
+            ...matchingVerification,
+            status: 'PENDING',
+            reason: 'VALUE_MISMATCH',
+            expectedValue: '<strong>policy-specific target</strong>',
+            evidence: { ...matchingVerification.evidence, value: 'LOCKED' },
+          },
+        }}
+      />,
+    );
+    const comparison = screen.getByLabelText('Outcome condition comparison');
+    expect(comparison.textContent).toContain(
+      'account.access.state = <strong>policy-specific target</strong>',
+    );
+    expect(within(comparison).getByText('LOCKED')).toBeTruthy();
+    expect(comparison.querySelector('strong')).toBeNull();
+    expect(
+      screen.queryByRole('region', { name: 'Durable acceptance record' }),
     ).toBeNull();
   });
 });

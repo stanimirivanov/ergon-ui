@@ -60,7 +60,7 @@ function AssignedRunOutcomeRecords({
       </div>
       <section
         aria-labelledby="run-state-heading"
-        className="mt-4 rounded-md border border-border bg-canvas/60 p-4"
+        className="mt-5 border-t border-border pt-4"
       >
         <h3 id="run-state-heading" className="font-bold">
           Recorded run state
@@ -72,7 +72,7 @@ function AssignedRunOutcomeRecords({
             close the case.
           </p>
         ) : null}
-        <dl className="mt-4 grid gap-4 text-sm">
+        <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
           <AssignedRunFact label="State">
             {runStateLabels[run.state]}
           </AssignedRunFact>

@@ -10,14 +10,17 @@ Authorization/recovery now uses consequence-first action panels and confirmation
 callouts, with effective risk and exact case scope before execution acknowledgement.
 Uncertain exact replay, fresh dispatch recovery and historical acknowledgement
 are explicitly labelled. Eligibility, control fences, RHF acknowledgement and
-private withdrawal retain their existing owners. Evidence/proof redesign remains
-the next independent M05 presentation slice.
+private withdrawal retain their existing owners. Evidence/proof now uses compact
+case context and source/binding/pinned-prefix attribution, an exact condition/value
+comparison and a separately framed durable acceptance/closure record. Input history,
+mutable matching, recorded state and accepted proof never substitute for each other.
 
 Focused Console chrome uses a dark, high-contrast sans-serif hierarchy with opaque
 shell surfaces and restrained translucent inspection dialogs. Reduced transparency
 and forced colours use solid surfaces. Native modal geometry, focus, disclosure
-and request owners are unchanged. A pinned Linux visual gate records eight
-synthetic states, including desktop/narrow authorization review; proposed baselines
+and request owners are unchanged. A pinned Linux visual gate records twelve
+synthetic states, including attributed inputs and matching/accepted proof at desktop
+and accepted proof at narrow width; proposed baselines
 require human PR review.
 This is a presentation foundation, not completion of the planned pane redesign.
 
