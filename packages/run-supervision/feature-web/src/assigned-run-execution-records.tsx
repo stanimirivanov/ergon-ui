@@ -21,28 +21,39 @@ export function AssignedRunExecutionRecords({
       <p className="text-xs font-bold tracking-wide text-accent-strong uppercase">
         Recorded execution
       </p>
-      <p className="mt-3 font-mono text-xs text-ink-muted [overflow-wrap:anywhere]">
-        Run {run.runId}
-      </p>
-      <p className="mt-3 text-sm leading-6 text-ink-muted">
+      <div className="mt-2 flex min-w-0 flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+        <p className="min-w-0 font-mono text-xs text-ink-muted [overflow-wrap:anywhere]">
+          Run {run.runId}
+        </p>
+        <dl className="text-xs">
+          <div className="flex flex-wrap items-baseline gap-2">
+            <dt className="font-semibold text-ink-muted">Snapshot revision</dt>
+            <dd className="font-mono font-bold text-ink">{run.stateVersion}</dd>
+          </div>
+        </dl>
+      </div>
+      <p className="mt-2 text-xs leading-5 text-ink-muted">
         Recorded start, terminal receipt when supplied, and current state, not a
         live execution trace. No automatic polling; recheck deliberately to read
         a newer snapshot.
       </p>
-      <ol className="mt-6 space-y-4" aria-label="Available durable run records">
-        <li className="rounded-md border border-border bg-canvas/60 p-4">
+      <ol
+        className="mt-4 divide-y divide-border border-y border-border"
+        aria-label="Available durable run records"
+      >
+        <li className="py-3">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <h3 className="font-bold text-accent-strong">Run start recorded</h3>
-            <span className="text-xs font-semibold text-ink-muted">
+            <span className="rounded border border-border bg-canvas px-2 py-1 text-xs font-semibold text-ink-muted">
               Attempt {run.attemptNumber}
             </span>
           </div>
-          <p className="mt-2 text-sm text-ink-muted">
+          <p className="mt-1 text-xs text-ink-muted">
             <time dateTime={run.startedRecordedAt}>
               {formatRecordedAt(run.startedRecordedAt)}
             </time>
           </p>
-          <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
+          <dl className="mt-3 grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-3 text-sm">
             <AssignedRunFact label="Contract">
               {run.contractKey}
             </AssignedRunFact>
@@ -51,7 +62,7 @@ export function AssignedRunExecutionRecords({
             </AssignedRunFact>
           </dl>
         </li>
-        <li className="rounded-md border border-highlight/60 bg-highlight/5 p-4">
+        <li className="py-3">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <h3 className="min-w-0 font-bold text-ink [overflow-wrap:anywhere]">
               Pinned step · {run.stepId}
@@ -60,16 +71,16 @@ export function AssignedRunExecutionRecords({
               {run.effectiveRisk} risk
             </span>
           </div>
-          <p className="mt-3 text-sm leading-6 text-ink-muted">
+          <p className="mt-2 text-xs leading-5 text-ink-muted">
             The run records this capability and its policy inputs. A pinned step
             is not a recorded tool invocation, grant, or pending approval
             decision.
           </p>
-          <details className="mt-4 rounded-md border border-border bg-surface/95 shadow-xl backdrop-blur-md">
-            <summary className="cursor-pointer rounded-md px-4 py-3 text-sm font-bold text-accent-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong">
+          <details className="mt-3 rounded-md border border-border bg-canvas/60">
+            <summary className="cursor-pointer rounded-md px-3 py-2 text-sm font-bold text-accent-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong">
               Inspect recorded execution policy
             </summary>
-            <div className="border-t border-border p-4">
+            <div className="border-t border-border p-3">
               <h4 className="font-bold text-ink">
                 Recorded capability policy · read only
               </h4>
@@ -97,10 +108,10 @@ export function AssignedRunExecutionRecords({
           </details>
         </li>
       </ol>
-      <div className="mt-5">
+      <div className="mt-4">
         <AssignedRunCapabilityExecution execution={run.execution} />
       </div>
-      <div className="mt-5">
+      <div className="mt-4">
         <AssignedRunTransitionHistory transitions={run.transitions} />
       </div>
       <p className="mt-4 text-xs leading-5 text-ink-muted">

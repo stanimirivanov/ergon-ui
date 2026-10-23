@@ -35,6 +35,34 @@ test('assigned chrome retains populated and withheld layout', async ({
     page.getByText('access-restoration', { exact: true }),
   ).toHaveCount(0);
   await expect(page).toHaveScreenshot('assigned-withheld.png');
+  expect(bff.consoleReads()).toBe(2);
+  expect(bff.commands()).toBe(0);
+});
+
+test('recorded workspace separates pinned context, receipt and append history', async ({
+  page,
+}) => {
+  // Allocate the full section before navigation; do not resize an active
+  // scroll container or disturb the separate chrome/withdrawal baseline.
+  await page.setViewportSize({ width: 1440, height: 1800 });
+  const bff = await installSimulatedRunSupervisionBff(page);
+  bff.setRunReadMode('projected');
+  await page.goto(supervisorTenantPath + '?view=runs');
+  await page
+    .getByRole('button', { name: 'Inspect run ' + assignedRunId })
+    .click();
+  const records = page.getByRole('region', { name: 'Recorded execution' });
+  await expect(
+    records
+      .getByText('Snapshot revision', { exact: true })
+      .locator('..')
+      .getByRole('definition'),
+  ).toHaveText('1');
+  await expect(
+    records.getByRole('heading', { name: '1 · Capability success projected' }),
+  ).toBeVisible();
+  await expect(records).toHaveScreenshot('execution-projected.png');
+  expect(bff.consoleReads()).toBe(1);
   expect(bff.commands()).toBe(0);
 });
 
