@@ -7,6 +7,7 @@ import { Button } from '@ergon/ui-web';
 import { useId, useLayoutEffect, useRef, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { AssignedRunFact } from './assigned-run-fact';
+import { RunDecisionBoundary } from './run-action-card';
 
 /** Acknowledgement belongs to RHF. No command identity is minted until valid, still-mounted confirmation; remote facts remain RTK-owned props. */
 export function RunCapabilityExecutionForm({
@@ -91,17 +92,29 @@ export function RunCapabilityExecutionForm({
           ? 'Confirm a new recovery attempt'
           : 'Confirm pinned capability execution'}
       </h3>
-      <p className="text-sm leading-6">
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <span className="rounded border border-highlight/60 bg-highlight/10 px-2 py-1 font-bold text-highlight">
+          Effective risk: {run.effectiveRisk}
+        </span>
+        <span className="text-ink-muted">
+          Server-reviewed scope · not editable here
+        </span>
+      </div>
+      <RunDecisionBoundary
+        title={
+          resuming
+            ? 'New dispatch · original reservation'
+            : 'Irreversible admission · external effect'
+        }
+      >
         {resuming
           ? 'This is a new dispatch attempt against the original reservation, not a status recheck or a new authorization. It may invoke the same provider operation again with its original idempotency key.'
           : 'Admission derives and consumes the exact approved authorization and commits before connector I/O. Once admitted, leaving, timeout or later handover cannot cancel the external effect.'}
-      </p>
+      </RunDecisionBoundary>
       <dl className="grid gap-3 rounded-md border border-border p-3 text-sm [overflow-wrap:anywhere] sm:grid-cols-2">
         <AssignedRunFact label="Pinned action">{run.stepId}</AssignedRunFact>
         <AssignedRunFact label="Capability">{run.capability}</AssignedRunFact>
-        <AssignedRunFact label="Effective risk">
-          {run.effectiveRisk}
-        </AssignedRunFact>
+        <AssignedRunFact label="Case scope">{run.caseId}</AssignedRunFact>
         <AssignedRunFact label="Policy revision">
           {run.policyRevision}
         </AssignedRunFact>

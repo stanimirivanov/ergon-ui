@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { useForm } from 'react-hook-form';
 import { formatRecordedAt } from './run-supervision-copy';
+import { RunDecisionBoundary } from './run-action-card';
 
 const lifecycleCopy = {
   NOT_REQUIRED:
@@ -47,12 +48,17 @@ export function RunApprovalCard({
   return (
     <section
       aria-labelledby={`approval-${id}`}
-      className="rounded-md border border-highlight/60 bg-highlight/5 p-4"
+      className="min-w-0 border-s-2 border-border bg-surface p-4 [overflow-wrap:anywhere]"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <h3 id={`approval-${id}`} className="font-bold text-ink">
-          Human approval review
-        </h3>
+        <div>
+          <p className="text-xs font-bold tracking-wide text-ink-muted uppercase">
+            Prerequisite only · no execution
+          </p>
+          <h3 id={`approval-${id}`} className="mt-2 font-extrabold text-ink">
+            Human approval review
+          </h3>
+        </div>
         <span className="rounded border border-highlight/60 px-2 py-1 text-xs font-bold text-highlight">
           {review?.status ?? 'UNSUPPORTED'}
         </span>
@@ -232,11 +238,11 @@ function RunApprovalConfirmation({
           <dd>{run.supervisionRevision}</dd>
         </div>
       </dl>
-      <p className="text-sm leading-6 text-ink-muted">
+      <RunDecisionBoundary title="Immutable human response">
         You will record {outcome} for the currently reviewed request. The server
         rechecks supervision revision, expiry, runtime state and exact
         authority. This immutable response cannot be edited or withdrawn here.
-      </p>
+      </RunDecisionBoundary>
       <label className="flex items-start gap-3">
         <input
           type="checkbox"

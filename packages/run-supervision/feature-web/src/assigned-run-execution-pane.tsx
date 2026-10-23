@@ -133,7 +133,7 @@ export function AssignedRunExecutionPane({
               Inspect current eligibility before confirming a command. Recorded
               results above do not grant authority or permission to retry.
             </p>
-            <div className="mt-5 space-y-5">
+            <div className="mt-4 space-y-3">
               <div>{approvalControl}</div>
               <div>{executionControl}</div>
               <div>{retryControl}</div>

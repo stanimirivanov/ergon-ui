@@ -7,6 +7,7 @@ import { Button } from '@ergon/ui-web';
 import { useId, useLayoutEffect, useRef, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { AssignedRunFact } from './assigned-run-fact';
+import { RunDecisionBoundary } from './run-action-card';
 
 const unavailable: Record<RunCancellationReviewReason, string> = {
   DISABLED:
@@ -70,11 +71,11 @@ export function RunCancellationForm({
       }}
     >
       <h3 className="text-lg font-bold">Confirm untouched-run cancellation</h3>
-      <p className="text-sm leading-6">
+      <RunDecisionBoundary title="Terminal cancellation · no provider stop">
         This records RUN_CANCELLED and ends this untouched run as CANCELLED. It
         does not stop a provider operation, revoke a grant, compensate, close
         the case, accept outcome proof, open human work or refund a retry.
-      </p>
+      </RunDecisionBoundary>
       <dl className="grid min-w-0 gap-3 rounded-md border border-border p-3 text-sm [overflow-wrap:anywhere] sm:grid-cols-2">
         <AssignedRunFact label="Supervision / run versions">
           {review.supervisionRevision} / {review.runVersion}

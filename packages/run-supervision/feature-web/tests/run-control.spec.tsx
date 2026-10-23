@@ -125,6 +125,8 @@ describe('explicit browser control', () => {
         name: 'Acquire browser control',
       }),
     );
+    // A lifecycle receipt is not authority; commands need the fresh status.
+    await screen.findByText('This browser session holds control');
     fireEvent.click(
       await screen.findByRole('button', { name: 'Review fresh-run retry' }),
     );

@@ -6,13 +6,19 @@ The assigned Console now presents recorded execution as compact snapshot/start/p
 context, a separate attributed connector-result panel and a sequence-marked
 transition rail. Only supplied durable transitions receive markers. Exact timing,
 unsupported/empty/unmeasured distinctions and private withdrawal remain unchanged.
-Command/recovery and evidence/proof redesign remain later M05 slices.
+Authorization/recovery now uses consequence-first action panels and confirmation
+callouts, with effective risk and exact case scope before execution acknowledgement.
+Uncertain exact replay, fresh dispatch recovery and historical acknowledgement
+are explicitly labelled. Eligibility, control fences, RHF acknowledgement and
+private withdrawal retain their existing owners. Evidence/proof redesign remains
+the next independent M05 presentation slice.
 
 Focused Console chrome uses a dark, high-contrast sans-serif hierarchy with opaque
 shell surfaces and restrained translucent inspection dialogs. Reduced transparency
 and forced colours use solid surfaces. Native modal geometry, focus, disclosure
-and request owners are unchanged. A pinned Linux visual gate records five
-synthetic viewport states; proposed baselines require human PR review.
+and request owners are unchanged. A pinned Linux visual gate records eight
+synthetic states, including desktop/narrow authorization review; proposed baselines
+require human PR review.
 This is a presentation foundation, not completion of the planned pane redesign.
 
 Supporting inspection now uses four compact launch rows for the exact pinned

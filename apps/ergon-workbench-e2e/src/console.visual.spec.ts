@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { installSimulatedOwnedContextBff } from './guide/simulated-owned-context-bff';
+import { installSimulatedRunExecutionBff } from './guide/simulated-run-execution-bff';
 import {
   assignedRunId,
   installSimulatedRunSupervisionBff,
@@ -64,6 +65,54 @@ test('recorded workspace separates pinned context, receipt and append history', 
   await expect(records).toHaveScreenshot('execution-projected.png');
   expect(bff.consoleReads()).toBe(1);
   expect(bff.commands()).toBe(0);
+});
+
+test('authorization shows reviewed risk, scope and admission boundary before any write', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1200 });
+  const bff = await installSimulatedRunExecutionBff(page);
+  bff.setEnabled(true);
+  await page.goto(supervisorTenantPath + '?view=runs');
+  await page
+    .getByRole('button', { name: 'Inspect run ' + assignedRunId })
+    .click();
+  await page
+    .getByRole('button', { name: 'Review execution or recovery', exact: true })
+    .click();
+  const dialog = page.getByRole('dialog', {
+    name: 'Review pinned capability execution',
+    exact: true,
+  });
+  await expect(
+    dialog.getByRole('button', { name: 'Authorize and execute pinned action' }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByRole('complementary', {
+      name: 'Irreversible admission · external effect',
+    }),
+  ).toBeVisible();
+  await expect(dialog).toHaveScreenshot('authorization-review.png');
+  await page.setViewportSize({ width: 320, height: 812 });
+  expect(
+    await dialog.evaluate(
+      (element) => element.scrollWidth <= element.clientWidth,
+    ),
+  ).toBe(true);
+  expect(
+    (await new AxeBuilder({ page }).include('dialog').analyze()).violations,
+  ).toEqual([]);
+  await expect(dialog).toHaveScreenshot('authorization-narrow.png');
+  await page.keyboard.press('Escape');
+  await expect(
+    page.getByRole('button', {
+      name: 'Review execution or recovery',
+      exact: true,
+    }),
+  ).toBeFocused();
+  expect(bff.reviewReads()).toBe(1);
+  expect(bff.intents()).toHaveLength(0);
+  expect(bff.dispatches()).toBe(0);
 });
 
 test('owned chrome and inspection remain usable at narrow width and in forced colours', async ({

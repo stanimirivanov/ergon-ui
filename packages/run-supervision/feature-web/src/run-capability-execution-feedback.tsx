@@ -68,6 +68,9 @@ export function RunCapabilityExecutionFeedback({
         role="status"
         className="rounded-md border border-highlight/60 bg-highlight/10 p-4"
       >
+        <p className="mb-2 text-xs font-bold tracking-wide text-highlight uppercase">
+          Historical acknowledgement · not current authority
+        </p>
         <h3 className="font-bold">
           {receipt.status === 'COMPLETED'
             ? 'Execution result recorded · not outcome proof'
@@ -94,8 +97,13 @@ export function RunCapabilityExecutionFeedback({
   return (
     <div
       role="alert"
-      className="rounded-md border border-border bg-surface p-4"
+      className="rounded-md border border-highlight/60 bg-surface p-4"
     >
+      <p className="mb-2 text-xs font-bold tracking-wide text-highlight uppercase">
+        {action === 'replay'
+          ? 'Uncertain result · preserve exact intent'
+          : 'Fresh access required'}
+      </p>
       <h3 className="font-bold">
         {reviewFailed
           ? 'Execution review unavailable'
