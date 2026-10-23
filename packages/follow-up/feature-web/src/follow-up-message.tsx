@@ -1,4 +1,4 @@
-import type { ReactNode, Ref } from 'react';
+import type { ReactElement, ReactNode, Ref } from 'react';
 
 /** Renders a neutral follow-up state with an optional recovery action. */
 export function FollowUpMessage({
@@ -13,10 +13,10 @@ export function FollowUpMessage({
   readonly action?: ReactNode;
   readonly headingRef?: Ref<HTMLHeadingElement>;
   readonly live?: boolean;
-}) {
+}): ReactElement {
   return (
     <div
-      className="mt-7 rounded-2xl border border-dashed border-border bg-surface/70 p-7"
+      className="mt-4 rounded-md border border-dashed border-border bg-surface/70 p-4"
       aria-live={live ? 'polite' : undefined}
     >
       <h3
@@ -26,7 +26,9 @@ export function FollowUpMessage({
       >
         {title}
       </h3>
-      <p className="mt-2 max-w-3xl leading-7 text-ink-muted">{description}</p>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">
+        {description}
+      </p>
       {action === undefined ? null : <div className="mt-5">{action}</div>}
     </div>
   );

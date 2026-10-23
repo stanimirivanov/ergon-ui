@@ -47,7 +47,7 @@ export const followUpGuide: GuideChapter = {
     {
       id: 'owned-work',
       title: 'Confirm your active claim',
-      body: 'Check the claimed-work section after the lists refresh. This is the place to recover work you own after navigation. The visible card is not the full case record; open its Resolver Console before deciding what action is safe.',
+      body: 'Check Claimed follow-ups after the lists refresh: it appears first, beside the shared queue on wide screens and above it on narrow screens. Match the case and current ownership revision. Open resolver console is the primary action; Release work separately asks you to confirm returning this exact claim to its original queue, not completing the case. The card is not the full case record and the BFF checks ownership again when you open the Console.',
       expected:
         'The same follow-up appears in your active work and no longer appears as open shared work.',
     },

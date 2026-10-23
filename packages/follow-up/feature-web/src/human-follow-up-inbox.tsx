@@ -50,21 +50,21 @@ export function HumanFollowUpInbox({
   return (
     <section
       aria-labelledby="inbox-heading"
-      className="mt-12"
+      className="min-w-0 rounded-md border border-border bg-surface p-4 sm:p-5"
       hidden={!isActive}
     >
-      <div className="flex flex-col gap-6 border-b border-border pb-7 lg:flex-row lg:items-end lg:justify-between">
+      <div className="flex flex-col gap-4 border-b border-border pb-4">
         <div>
           <p className="text-sm font-bold tracking-[0.18em] text-accent-strong uppercase">
             Shared queue
           </p>
           <h2
             id="inbox-heading"
-            className="mt-3 font-display text-3xl tracking-[-0.025em] text-ink sm:text-4xl"
+            className="mt-2 font-sans text-2xl font-bold tracking-tight text-ink"
           >
             Open follow-up work
           </h2>
-          <p className="mt-3 max-w-2xl leading-7 text-ink-muted">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-muted">
             Oldest work appears first. Visibility follows your current resolver
             authority and is re-evaluated by the control plane.
           </p>

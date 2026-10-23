@@ -85,11 +85,11 @@ function OwnedFollowUpSurface({
       className={
         workflow.isConsoleOpen
           ? 'flex min-h-0 min-w-0 flex-1 flex-col'
-          : 'mt-12'
+          : 'min-w-0 rounded-md border border-accent/40 bg-surface p-4 sm:p-5'
       }
     >
       {!workflow.isConsoleOpen ? (
-        <div className="border-b border-border pb-7">
+        <div className="border-b border-border pb-4">
           <p className="text-sm font-bold tracking-[0.18em] text-accent-strong uppercase">
             Your active work
           </p>
@@ -97,11 +97,11 @@ function OwnedFollowUpSurface({
             ref={activeWorkHeading}
             id="owned-work-heading"
             tabIndex={-1}
-            className="mt-3 font-display text-3xl tracking-[-0.025em] text-ink sm:text-4xl"
+            className="mt-2 font-sans text-2xl font-bold tracking-tight text-ink"
           >
             Claimed follow-ups
           </h2>
-          <p className="mt-3 max-w-2xl leading-7 text-ink-muted">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-muted">
             Recover work you already own after navigation or reload. Current
             resolver authority is checked again whenever this list is requested.
           </p>

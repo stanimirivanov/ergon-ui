@@ -280,9 +280,11 @@ test(
             .getByRole('list', { name: 'Open human follow-ups' })
             .locator('li'),
         ).toHaveCount(1);
-        await expect(inbox).toContainText(
-          'Case 22222222-2222-4222-8222-222222222222',
-        );
+        await expect(
+          inbox.getByRole('definition').filter({
+            hasText: '22222222-2222-4222-8222-222222222222',
+          }),
+        ).toHaveText('22222222-2222-4222-8222-222222222222');
         await expect(inbox).toContainText('access-restoration');
         expect(bff.commands()).toBe(3);
         await expect(

@@ -17,13 +17,13 @@ export const inboxGuide: GuideChapter = {
   ],
   prerequisites: [
     'In a real deployment, sign in through the same-origin workbench flow, confirm the tenant, and ensure your resolver identity is registered with current tenant-wide resolver authority. This recording starts after a simulated verified session and does not perform a real login.',
-    'Open the tenant workbench and locate Open follow-up work below your claimed-work section. The tenant identifier is navigation context, not proof of authority. Do not use the queue field as an access-control mechanism.',
+    'Open the tenant workbench and locate Open follow-up work beside Claimed follow-ups on wide screens, or after it on narrow screens. Owned work comes first in reading order. Each section has independent page controls and a count for its current page only; the shared queue filter does not filter your owned work. The tenant identifier is navigation context, not proof of authority.',
   ],
   steps: [
     {
       id: 'first-page',
       title: 'Read the first visible page',
-      body: 'The shared inbox presents the oldest visible follow-ups first. Check the queue, reason, case identifier, and opened time on a card before deciding whether to claim it. This example first page contains 25 rows, the workbench page size. A row count describes only the current page, not the total number of matching cases or the size of your authority.',
+      body: 'The shared inbox presents the oldest visible follow-ups first. Available to claim distinguishes these cards from your Claimed work. Check the queue, reason, case identifier, ownership revision, and opened time before claiming. The revision is a concurrency token, not priority or authority. This example first page contains 25 rows, the workbench page size; the count describes only this page, not the total matching cases.',
       expected:
         'The first page reports 25 rows; Previous page is unavailable and Next page is available.',
     },
