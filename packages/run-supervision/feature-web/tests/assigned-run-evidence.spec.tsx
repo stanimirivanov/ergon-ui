@@ -96,6 +96,22 @@ afterEach(() => {
 });
 
 describe('pinned evidence inspection', () => {
+  it('presents exact source-to-binding-to-pin attribution without a latest-value or proof claim', () => {
+    render(<AssignedRunEvidence evidence={evidence} />);
+    expect(
+      screen.getByRole('note', { name: 'Pinned binding attribution' })
+        .textContent,
+    ).toBe('Source #2 → binding #3 → pinned prefix #3');
+    expect(
+      screen.getByText('Historical inputs · not outcome proof'),
+    ).toBeTruthy();
+    expect(screen.getAllByRole('listitem')).toHaveLength(1);
+    expect(screen.getByText('Source provider')).toBeTruthy();
+    expect(
+      screen.queryByRole('region', { name: 'Durable acceptance record' }),
+    ).toBeNull();
+  });
+
   it('renders proof text literally, restores focus and retires replaced proof inspection permanently', () => {
     const view = render(
       <StrictMode>

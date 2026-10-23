@@ -79,6 +79,11 @@ test(
         await expect(evidence.getByRole('listitem')).toHaveCount(2);
         await expect(evidence).toContainText('account.access.state · LOCKED');
         await expect(evidence).toContainText('account.access.state · ACTIVE');
+        await expect(
+          evidence
+            .getByRole('note', { name: 'Pinned binding attribution' })
+            .first(),
+        ).toHaveText('Source #2 → binding #3 → pinned prefix #6');
         await guide.result('history-meaning', evidence);
         const source = page.getByRole('button', {
           name: 'Inspect source for binding 3',

@@ -10,6 +10,14 @@ it is neither a client application core nor a general steering surface.
 
 ## Owns
 
+- Evidence/proof presentation with compact case context, attributed input cards
+  and a condition-first outcome pane. Source/binding/pinned-prefix strips use
+  actual stream positions, never a graph or completeness claim. Expected and
+  selected values remain exact; mutable assessment and durable acceptance have
+  separate framing and closure coordinates. Source/proof inspectors retain their
+  existing keys, private gate and ui-web lifetime. No remote data or policy owner
+  moves, and no unsupported/empty/truncated distinction is collapsed.
+
 - Consequence-first authorization/recovery presentation. Feature-local stateless
   action framing separates prerequisite approval from external execution, a fresh
   successor, exhausted escalation and untouched-only cancellation. Confirmation

@@ -33,12 +33,12 @@ export function AssignedRunProofInspector({
           onDismiss={() => setOpen(false)}
         >
           <div className="min-w-0 space-y-5">
-            <p className="text-sm leading-6 text-ink-muted">
+            <p className="border-s-2 border-accent-strong bg-canvas/60 p-3 text-sm leading-6 text-ink-muted">
               Exact post-action source → semantic binding → outcome condition.
               This is separate from the pre-run pinned evidence; unrelated later
               observations are not disclosed.
             </p>
-            <dl className="grid min-w-0 gap-4 text-sm sm:grid-cols-2">
+            <dl className="grid min-w-0 gap-4 border-y border-border py-4 text-sm sm:grid-cols-2">
               <AssignedRunFact label="Fact identity">
                 {evidence.factId}
               </AssignedRunFact>

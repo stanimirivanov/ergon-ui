@@ -15,11 +15,11 @@ export function AssignedRunEvidence({
 }): ReactElement {
   const id = useId();
   return (
-    <section
-      aria-labelledby={`pinned-evidence-${id}`}
-      className="rounded-md border border-accent-strong/40 bg-canvas/60 p-4"
-    >
-      <h3 id={`pinned-evidence-${id}`} className="font-bold text-ink">
+    <section aria-labelledby={`pinned-evidence-${id}`} className="min-w-0">
+      <p className="mb-2 text-xs font-bold tracking-wide text-accent-strong uppercase">
+        Historical inputs · not outcome proof
+      </p>
+      <h3 id={`pinned-evidence-${id}`} className="font-extrabold text-ink">
         Pinned case evidence
       </h3>
       {evidence === undefined ? (
@@ -57,11 +57,14 @@ export function AssignedRunEvidence({
           ) : (
             <ol
               aria-label="Pinned semantic bindings"
-              className="mt-4 space-y-4"
+              className="mt-4 space-y-3"
             >
               {evidence.facts.map((fact) => (
                 <li key={fact.factId}>
-                  <PinnedBinding fact={fact} />
+                  <PinnedBinding
+                    fact={fact}
+                    pinnedVersion={evidence.caseStreamVersion}
+                  />
                 </li>
               ))}
             </ol>
@@ -74,21 +77,34 @@ export function AssignedRunEvidence({
 
 function PinnedBinding({
   fact,
+  pinnedVersion,
 }: {
   readonly fact: PinnedEvidenceFact;
+  readonly pinnedVersion: number;
 }): ReactElement {
   const [isInspecting, setInspecting] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   const id = useId();
   return (
-    <article className="min-w-0 rounded-md border border-border bg-surface/90 p-3">
+    <article className="min-w-0 border-s-2 border-accent-strong/60 bg-canvas/60 p-3">
       <h4 className="font-mono text-sm font-bold [overflow-wrap:anywhere]">
         {fact.property} · {fact.value}
       </h4>
       <p className="mt-2 text-xs text-ink-muted [overflow-wrap:anywhere]">
         Subject · {fact.accountReference}
       </p>
-      <dl className="mt-3 grid gap-3 text-sm">
+      <div
+        role="note"
+        aria-label="Pinned binding attribution"
+        className="mt-3 border-y border-border py-2 text-xs font-semibold text-accent-strong [overflow-wrap:anywhere]"
+      >
+        Source #{fact.source.streamVersion} → binding #{fact.streamVersion} →
+        pinned prefix #{pinnedVersion}
+      </div>
+      <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+        <AssignedRunFact label="Source provider">
+          {fact.source.provider}
+        </AssignedRunFact>
         <AssignedRunFact label="Binding stream position">
           {fact.streamVersion}
         </AssignedRunFact>
@@ -101,10 +117,6 @@ function PinnedBinding({
           </time>
         </AssignedRunFact>
       </dl>
-      <p className="mt-3 text-xs text-ink-muted [overflow-wrap:anywhere]">
-        Source #{fact.source.streamVersion} · {fact.source.provider} → binding #
-        {fact.streamVersion}
-      </p>
       <div className="mt-3">
         <Button
           ref={trigger}
@@ -140,12 +152,12 @@ export function PinnedBindingSource({
   const source = fact.source;
   return (
     <div className="min-w-0 space-y-5">
-      <p className="text-sm leading-6 text-ink-muted">
+      <p className="border-s-2 border-accent-strong bg-canvas/60 p-3 text-sm leading-6 text-ink-muted">
         Recorded connector source → semantic binding → pinned run snapshot. This
         citation establishes attribution, not source reliability, confidence or
         outcome verification.
       </p>
-      <dl className="grid min-w-0 gap-4 text-sm sm:grid-cols-2">
+      <dl className="grid min-w-0 gap-4 border-y border-border py-4 text-sm sm:grid-cols-2">
         <AssignedRunFact label="Fact identity">{fact.factId}</AssignedRunFact>
         <AssignedRunFact label="Observation identity">
           {source.observationId}

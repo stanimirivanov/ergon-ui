@@ -143,6 +143,12 @@ test(
           'Condition matches · not durably accepted',
         );
         await expect(proof).not.toContainText('Acceptance recorded');
+        await expect(
+          proof.getByLabel('Outcome condition comparison'),
+        ).toContainText('account.access.state = ACTIVE');
+        await expect(
+          proof.getByRole('region', { name: 'Durable acceptance record' }),
+        ).toHaveCount(0);
         await guide.result('matching-not-accepted', proof);
         bff.setMode('mismatch');
         await recheck.click();
@@ -154,6 +160,9 @@ test(
         await recheck.click();
         await expect(proof).toContainText('Durable outcome proof accepted');
         await expect(proof).toContainText('Verified case closure version');
+        await expect(
+          proof.getByRole('region', { name: 'Durable acceptance record' }),
+        ).toContainText('7');
         await guide.result('durable-acceptance', proof);
         bff.hideActiveRuns();
         await page
