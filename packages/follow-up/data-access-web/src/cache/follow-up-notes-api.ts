@@ -22,6 +22,12 @@ export const followUpNotesApi = humanFollowUpApi.injectEndpoints({
   endpoints: (build) => ({
     followUpNotes: build.query<FollowUpNotes, FollowUpNotesQuery>({
       keepUnusedDataFor: 0,
+      providesTags: (_result, _error, query) => [
+        {
+          type: 'FollowUpNotes',
+          id: `${query.tenantId}:${query.workItemId}`,
+        },
+      ],
       queryFn: (
         query,
         api,

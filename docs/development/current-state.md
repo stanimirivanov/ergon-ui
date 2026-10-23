@@ -2,6 +2,18 @@
 
 ## TL;DR
 
+M05-PR10 adds confirmed direct handover from the owned Console. One immutable
+recipient/claim/revision intent shares the existing CSRF client without automatic
+POST retry. Pending and uncertain states hide private context before I/O; exact
+replay returns only historical acknowledgement. Explicit owned-work recovery
+precedes a fresh context acquisition. Close/tenant change retires requests and
+local replay intent without claiming to undo a sent transfer. The twenty-fifth
+simulated guide covers disabled/conflicting outcomes, lost-response replay,
+former-owner withdrawal and independently authorized recipient note history.
+Deploy backend PR #188 first; its default-off handover flag remains operational
+policy. No directory, administrator override, notifications or case completion
+is introduced.
+
 Owned work now offers on-demand internal notes with claim/author attribution,
 bounded newest-first history and an RHF plain-text composer. Saves share the
 session-bound CSRF lifecycle, never retry automatically and preserve the exact
@@ -33,7 +45,7 @@ mutable matching, recorded state and accepted proof never substitute for each ot
 Focused Console chrome uses a dark, high-contrast sans-serif hierarchy with opaque
 shell surfaces and restrained translucent inspection dialogs. Reduced transparency
 and forced colours use solid surfaces. Native modal geometry, focus, disclosure
-and request owners are unchanged. A pinned Linux visual gate records seventeen
+and request owners are unchanged. A pinned Linux visual gate records nineteen
 synthetic states, including attributed inputs and matching/accepted proof at desktop
 and accepted proof at narrow width; proposed baselines
 require human PR review.

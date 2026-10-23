@@ -153,6 +153,9 @@ const summary = {
   },
 } as const;
 
+/** Shared immutable synthetic case coordinates; scenario adapters still own access decisions. */
+export const ownedContextScenario = { workItem, claim, summary } as const;
+
 /**
  * Serves one synthetic owned item and a successful deliberate recheck, then
  * withholds the third context read, lets the scenario close it, then withholds

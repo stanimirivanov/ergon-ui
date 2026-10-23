@@ -16,6 +16,8 @@ import type {
 import { Effect, Either, SynchronizedRef } from 'effect';
 import type { FollowUpNotesClient } from '../client/follow-up-notes';
 import { requestFollowUpNote } from './follow-up-notes-adapter';
+import type { FollowUpHandoverClient } from '../client/follow-up-handover';
+import { requestFollowUpHandover } from './follow-up-handover-adapter';
 
 import {
   decodeCsrfToken,
@@ -40,7 +42,7 @@ interface FollowUpOwnershipAdapterOptions {
 }
 
 /**
- * Creates claim, release and note append operations with one CSRF lifecycle.
+ * Creates ownership and note append operations with one CSRF lifecycle.
  *
  * Concurrent mutations share token acquisition. Setup transport and 503 failures
  * receive one retry, setup timeouts do not, and no POST is ever replayed
@@ -52,6 +54,7 @@ export function createFollowUpOwnershipAdapter({
   requestTimeout,
 }: FollowUpOwnershipAdapterOptions): ClaimHumanFollowUp &
   ReleaseHumanFollowUp &
+  FollowUpHandoverClient &
   Pick<FollowUpNotesClient, 'appendNote'> {
   // SynchronizedRef owns no external resources; construction is synchronous
   // and infallible, so the adapter does not need a Scope or async factory.
@@ -60,6 +63,18 @@ export function createFollowUpOwnershipAdapter({
   );
 
   return {
+    async handOver(
+      command,
+      signal,
+    ): ReturnType<FollowUpHandoverClient['handOver']> {
+      const result = await runCommand(
+        withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
+          requestFollowUpHandover(fetch, command, token),
+        ),
+        signal,
+      );
+      return result.ok ? { ok: true, handover: result.value } : result;
+    },
     async appendNote(
       command,
       signal,

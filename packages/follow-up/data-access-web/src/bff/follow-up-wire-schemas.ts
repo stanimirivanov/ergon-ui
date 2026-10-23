@@ -1,6 +1,6 @@
 import { Schema } from 'effect';
 
-const utcInstant = Schema.String.pipe(
+export const utcInstant = Schema.String.pipe(
   Schema.pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/),
   Schema.filter((value) => !Number.isNaN(Date.parse(value))),
 );

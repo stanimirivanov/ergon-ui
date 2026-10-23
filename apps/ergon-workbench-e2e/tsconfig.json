@@ -27,6 +27,12 @@
   "references": [
     {
       "path": "../../packages/run-supervision/data-access-web"
+    },
+    {
+      "path": "../../packages/follow-up/model"
+    },
+    {
+      "path": "../../packages/follow-up/data-access-web"
     }
   ]
 }

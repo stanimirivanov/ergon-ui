@@ -6,6 +6,7 @@ import type {
   ResolverFollowUpCaseSummaryFailure,
 } from './human-follow-up-failures';
 import type { FollowUpNoteFailure } from './follow-up-notes';
+import type { FollowUpHandoverFailure } from './follow-up-handover';
 
 type StatusFailure = Extract<HumanFollowUpFailure, { readonly status: number }>;
 type StatusKind = StatusFailure['kind'];
@@ -51,6 +52,23 @@ const COMMAND_FAILURES = {
 } satisfies SimpleFailures<HumanFollowUpCommandFailure>;
 
 const READ_FAILURE_MAP = new Map(Object.entries(READ_FAILURES));
+const HANDOVER_FAILURE_MAP = new Map(
+  Object.entries({
+    ...COMMAND_FAILURES,
+    'not-found': { kind: 'not-found' },
+    'handover-conflict': { kind: 'handover-conflict' },
+    'recipient-unavailable': { kind: 'recipient-unavailable' },
+    'invalid-handover': { kind: 'invalid-handover' },
+    'handover-unavailable': { kind: 'handover-unavailable' },
+  } satisfies SimpleFailures<FollowUpHandoverFailure>),
+);
+
+/** Preserve only safe handover outcomes; defects never prove that no transfer occurred. */
+export function normalizeFollowUpHandoverFailure(
+  value: unknown,
+): FollowUpHandoverFailure {
+  return normalizeFailure(value, HANDOVER_FAILURE_MAP);
+}
 const NOTE_FAILURE_MAP = new Map(
   Object.entries({
     ...COMMAND_FAILURES,

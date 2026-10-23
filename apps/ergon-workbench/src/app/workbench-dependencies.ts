@@ -1,6 +1,7 @@
 import type {
   HumanFollowUpCacheDependencies,
   FollowUpNotesCacheDependencies,
+  FollowUpHandoverCacheDependencies,
 } from '@ergon/follow-up-data-access-web';
 import type { CurrentActorCacheDependencies } from '@ergon/session-data-access-web';
 import type { RunSupervisionDependencies } from '@ergon/run-supervision-data-access-web';
@@ -17,4 +18,5 @@ export interface WorkbenchDependencies
     CurrentActorCacheDependencies,
     HumanFollowUpCacheDependencies,
     FollowUpNotesCacheDependencies,
+    FollowUpHandoverCacheDependencies,
     RunSupervisionDependencies {}

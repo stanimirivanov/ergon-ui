@@ -9,6 +9,7 @@ import type {
 import { createFollowUpOwnershipAdapter } from './bff/follow-up-ownership-adapter';
 import { createFollowUpReadAdapter } from './bff/follow-up-read-adapter';
 import type { FollowUpNotesClient } from './client/follow-up-notes';
+import type { FollowUpHandoverClient } from './client/follow-up-handover';
 import { listFollowUpNotes } from './bff/follow-up-notes-adapter';
 
 /** Dependencies and per-request policy for the confidential-BFF adapter. */
@@ -27,6 +28,7 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
   GetOwnedFollowUpCaseSummary &
   ClaimHumanFollowUp &
   ReleaseHumanFollowUp &
+  FollowUpHandoverClient &
   FollowUpNotesClient;
 
 /**
@@ -46,7 +48,7 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
  * browser-session composition lifetime and discard it when that session is
  * replaced; do not share it across authenticated browser sessions.
  *
- * @returns The seven follow-up operations backed by one adapter state.
+ * @returns Follow-up operations backed by one session-lifetime adapter state.
  * @throws A `RangeError` when `requestTimeout` is not a positive finite number.
  */
 export function createHumanFollowUpBffAdapter({

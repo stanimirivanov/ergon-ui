@@ -223,6 +223,18 @@ POST, and the receipt is checked before success. Success revalidates both work
 views and that item's case-context cache. Release returns still-open work to
 its original shared queue; it is neither direct handover nor case completion.
 Availability remains a backend rollout decision.
+
+Direct follow-up handover is a separate explicit confirmation. RHF owns the
+recipient UUID and acknowledgement; the feature captures one immutable command
+tuple and commits private-context withdrawal before its effect sends the POST.
+Shared data access owns CSRF, bounded execution, exact receipt validation and
+safe failure normalization. Uncertain recovery resends only that original tuple.
+Historical acknowledgement does not restore private access: explicit owned-work
+recovery and a fresh case-summary gate are required. RTK remains the sole remote
+resource owner; local state contains phase/intent/history, never copied rows.
+This does not transfer run supervision or complete a case.
+See [ADR 0045](decisions/0045-confirm-current-owner-follow-up-handover.md).
+
 Owned-work pages use a separate tenant-and-cursor cache. Successful claims also
 invalidate that cache so active ownership is recovered from server truth; stale
 shared-inbox conflicts do not imply a change to the current resolver's claims.

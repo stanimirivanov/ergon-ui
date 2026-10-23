@@ -1,4 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
+import { installSimulatedFollowUpHandoverBff } from './guide/simulated-follow-up-handover-bff';
 import { expect, test } from '@playwright/test';
 import { installSimulatedOwnedContextBff } from './guide/simulated-owned-context-bff';
 import { installSimulatedInboxBff } from './guide/simulated-inbox-bff';
@@ -14,6 +15,30 @@ import {
 test.beforeEach(async ({ page, browserName }) => {
   expect(browserName).toBe('chromium');
   expect(await page.evaluate(() => navigator.platform)).toContain('Linux');
+});
+
+test('direct follow-up handover confirmation explains private-access loss at desktop and narrow widths', async ({
+  page,
+}) => {
+  await installSimulatedFollowUpHandoverBff(page);
+  await page.goto(supervisorTenantPath);
+  await page.getByRole('button', { name: 'Open resolver console' }).click();
+  await page
+    .getByRole('button', { name: 'Hand over follow-up', exact: true })
+    .click();
+  const dialog = page.getByRole('dialog', {
+    name: 'Hand over owned follow-up',
+  });
+  await expect(dialog).toBeVisible();
+  await expect(page).toHaveScreenshot('follow-up-handover.png');
+  await page.setViewportSize({ width: 320, height: 812 });
+  expect(
+    await dialog.evaluate(
+      (element) => element.scrollWidth <= element.clientWidth,
+    ),
+  ).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await expect(page).toHaveScreenshot('follow-up-handover-narrow.png');
 });
 
 test('paired follow-up workspace keeps owned work first and reflows without overflow', async ({

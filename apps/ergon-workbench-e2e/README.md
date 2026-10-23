@@ -7,13 +7,24 @@ claim-recovery, release-recovery, internal-notes, run-supervision, handover, app
 pinned-evidence, outcome-verification, proof-finalization, execution/recovery,
 failed-run retry, exhausted-run escalation, predecessor-inspection and admission-history scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-four with
-annotations, screenshots, and video, then assembles a local twenty-four-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-five with
+annotations, screenshots, and video, then assembles a local twenty-five-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
+
+The direct follow-up handover chapter adds fourteen assertion-backed checkpoints:
+claim/consequence review, UUID/acknowledgement validation, cancellation/focus,
+320-pixel keyboard containment, disabled and conflicting responses, explicit
+owned recovery, pending withdrawal, lost-response uncertainty, exact replay,
+historical acknowledgement, former-owner absence, fresh recipient context and
+originally attributed notes. Identity switching is fixture-only, not a product
+login control. Deploy backend PR #188 before enabling its default-off handover
+flag. The command does not release work, transfer run supervision or complete a
+case. Component tests also cover StrictMode, late completion and private DOM
+withdrawal at the network boundary; Linux pixels cover the confirmation dialog.
 
 The internal-notes chapter has nine assertion-backed checkpoints: lazy attributed
 history, exact plain-text draft, a simulated lost append response, identical
