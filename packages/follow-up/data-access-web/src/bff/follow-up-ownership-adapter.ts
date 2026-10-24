@@ -17,6 +17,8 @@ import { Effect, Either, SynchronizedRef } from 'effect';
 import type { FollowUpNotesClient } from '../client/follow-up-notes';
 import { requestFollowUpNote } from './follow-up-notes-adapter';
 import type { FollowUpHandoverClient } from '../client/follow-up-handover';
+import type { FollowUpCompletionClient } from '../client/follow-up-completion';
+import { requestFollowUpCompletion } from './follow-up-completion-adapter';
 import { requestFollowUpHandover } from './follow-up-handover-adapter';
 
 import {
@@ -55,6 +57,7 @@ export function createFollowUpOwnershipAdapter({
 }: FollowUpOwnershipAdapterOptions): ClaimHumanFollowUp &
   ReleaseHumanFollowUp &
   FollowUpHandoverClient &
+  FollowUpCompletionClient &
   Pick<FollowUpNotesClient, 'appendNote'> {
   // SynchronizedRef owns no external resources; construction is synchronous
   // and infallible, so the adapter does not need a Scope or async factory.
@@ -63,6 +66,18 @@ export function createFollowUpOwnershipAdapter({
   );
 
   return {
+    async complete(
+      command,
+      signal,
+    ): ReturnType<FollowUpCompletionClient['complete']> {
+      const result = await runCommand(
+        withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
+          requestFollowUpCompletion(fetch, command, token),
+        ),
+        signal,
+      );
+      return result.ok ? { ok: true, completion: result.value } : result;
+    },
     async handOver(
       command,
       signal,

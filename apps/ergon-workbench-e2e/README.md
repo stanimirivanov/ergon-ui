@@ -7,13 +7,22 @@ claim-recovery, release-recovery, internal-notes, run-supervision, handover, app
 pinned-evidence, outcome-verification, proof-finalization, execution/recovery,
 failed-run retry, exhausted-run escalation, predecessor-inspection and admission-history scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-five with
-annotations, screenshots, and video, then assembles a local twenty-five-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-six with
+annotations, screenshots, and video, then assembles a local twenty-six-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
+
+The administrative-completion chapter adds eleven assertion-backed checkpoints:
+claim/consequence review, acknowledgement validation, cancellation/focus,
+320-pixel containment, disabled/conflicting responses, fresh owned recovery,
+pending withdrawal, lost acknowledgement, identical replay and terminal absence.
+Completion is not case resolution, run completion or verified outcome proof.
+Deploy merged backend PR #192 and terminal guards before enabling its default-off
+feature. Component coverage includes StrictMode and retired callbacks; pinned
+Linux pixels cover the confirmation at desktop and narrow widths.
 
 The direct follow-up handover chapter adds fourteen assertion-backed checkpoints:
 claim/consequence review, UUID/acknowledgement validation, cancellation/focus,

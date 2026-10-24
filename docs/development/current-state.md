@@ -2,6 +2,18 @@
 
 ## TL;DR
 
+M05-PR12 adds acknowledged terminal follow-up completion through merged Ergon
+PR #192. Private context is withdrawn before the POST; exact uncertain replay
+returns historical administrative acknowledgement, never case resolution or
+outcome proof. Completion and handover share one discriminated feature lifetime
+and the existing CSRF adapter. Fresh owned-work recovery is explicit; close or
+tenant change discards local intent without undoing a sent command. The
+twenty-sixth simulated guide covers validation, cancellation, narrow reflow,
+disabled/conflicting responses, lost acknowledgement and terminal retirement.
+Deploy compatible backend guards before the client; completion remains
+default-off under operator policy. See
+[ADR 0046](../decisions/0046-confirm-terminal-follow-up-completion.md).
+
 M05-PR10 adds confirmed direct handover from the owned Console. One immutable
 recipient/claim/revision intent shares the existing CSRF client without automatic
 POST retry. Pending and uncertain states hide private context before I/O; exact
@@ -45,8 +57,8 @@ mutable matching, recorded state and accepted proof never substitute for each ot
 Focused Console chrome uses a dark, high-contrast sans-serif hierarchy with opaque
 shell surfaces and restrained translucent inspection dialogs. Reduced transparency
 and forced colours use solid surfaces. Native modal geometry, focus, disclosure
-and request owners are unchanged. A pinned Linux visual gate records nineteen
-synthetic states, including attributed inputs and matching/accepted proof at desktop
+and request owners are unchanged. A pinned Linux visual gate records twenty-one
+synthetic states, including completion confirmation, attributed inputs and matching/accepted proof at desktop
 and accepted proof at narrow width; proposed baselines
 require human PR review.
 This is a presentation foundation, not completion of the planned pane redesign.

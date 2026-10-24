@@ -293,7 +293,13 @@ const emptyFollowUpDependencies: Pick<
   | 'releaseHumanFollowUp'
   | 'followUpNotes'
   | 'followUpHandover'
+  | 'followUpCompletion'
 > = {
+  followUpCompletion: {
+    async complete() {
+      throw new Error('Completion is not used by this test');
+    },
+  },
   followUpHandover: {
     async handOver() {
       throw new Error('Handover is not used by this test');

@@ -19,3 +19,4 @@ export {
   type FollowUpNote,
   type FollowUpNotes,
 } from './follow-up-note';
+export type { FollowUpCompletion } from './follow-up-completion';

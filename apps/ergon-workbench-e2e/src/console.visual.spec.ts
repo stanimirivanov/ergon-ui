@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { installSimulatedFollowUpHandoverBff } from './guide/simulated-follow-up-handover-bff';
+import { installSimulatedFollowUpCompletionBff } from './guide/simulated-follow-up-completion-bff';
 import { expect, test } from '@playwright/test';
 import { installSimulatedOwnedContextBff } from './guide/simulated-owned-context-bff';
 import { installSimulatedInboxBff } from './guide/simulated-inbox-bff';
@@ -39,6 +40,28 @@ test('direct follow-up handover confirmation explains private-access loss at des
   ).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await expect(page).toHaveScreenshot('follow-up-handover-narrow.png');
+});
+
+test('administrative completion confirmation distinguishes terminal follow-up retirement from proof', async ({
+  page,
+}) => {
+  await installSimulatedFollowUpCompletionBff(page);
+  await page.goto(supervisorTenantPath);
+  await page.getByRole('button', { name: 'Open resolver console' }).click();
+  await page
+    .getByRole('button', { name: 'Complete follow-up', exact: true })
+    .click();
+  const dialog = page.getByRole('dialog', { name: 'Complete owned follow-up' });
+  await expect(dialog).toBeVisible();
+  await expect(page).toHaveScreenshot('follow-up-completion.png');
+  await page.setViewportSize({ width: 320, height: 812 });
+  expect(
+    await dialog.evaluate(
+      (element) => element.scrollWidth <= element.clientWidth,
+    ),
+  ).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await expect(page).toHaveScreenshot('follow-up-completion-narrow.png');
 });
 
 test('paired follow-up workspace keeps owned work first and reflows without overflow', async ({

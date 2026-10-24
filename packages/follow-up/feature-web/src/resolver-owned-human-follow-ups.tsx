@@ -10,9 +10,10 @@ import { ResolverOwnedHumanFollowUpsPage } from './resolver-owned-human-follow-u
 import { ResolverFollowUpPresence } from './resolver-follow-up-presence';
 import { ResolverFollowUpToolbar } from './resolver-follow-up-toolbar';
 import { useOwnedFollowUpWorkflow } from './use-owned-follow-up-workflow';
-import { useFollowUpHandover } from './use-follow-up-handover';
+import { useFollowUpOwnershipCommand } from './use-follow-up-ownership-command';
+import { ConfirmedFollowUpCompletion } from './confirmed-follow-up-completion';
 import { ConfirmedFollowUpHandover } from './confirmed-follow-up-handover';
-import { FollowUpHandoverFeedback } from './follow-up-handover-feedback';
+import { FollowUpOwnershipFeedback } from './follow-up-ownership-feedback';
 
 /** Inputs supplied by the route-level composition boundary. */
 export interface ResolverOwnedHumanFollowUpsProps {
@@ -47,9 +48,9 @@ function OwnedFollowUpSurface({
   renderWorkspace,
 }: ResolverOwnedHumanFollowUpsProps): ReactElement {
   const workflow = useOwnedFollowUpWorkflow(tenantId);
-  const handover = useFollowUpHandover(workflow.ownedWork.refetch);
-  const isHandoverActive = handover.phase.kind !== 'idle';
-  const isConsoleOpen = workflow.isConsoleOpen || isHandoverActive;
+  const ownership = useFollowUpOwnershipCommand(workflow.ownedWork.refetch);
+  const isOwnershipCommandActive = ownership.phase.kind !== 'idle';
+  const isConsoleOpen = workflow.isConsoleOpen || isOwnershipCommandActive;
   const activeWorkHeading = useRef<HTMLHeadingElement>(null);
   const consoleBack = useRef<HTMLButtonElement>(null);
   const focusConsoleBack = useCallback(() => consoleBack.current?.focus(), []);
@@ -57,21 +58,22 @@ function OwnedFollowUpSurface({
     () => activeWorkHeading.current?.focus(),
     [],
   );
-  const wasHandingOver = useRef(false);
+  const wasChangingOwnership = useRef(false);
   useLayoutEffect(() => {
-    if (isHandoverActive && !wasHandingOver.current) focusConsoleBack();
-    else if (!isHandoverActive && wasHandingOver.current)
+    if (isOwnershipCommandActive && !wasChangingOwnership.current)
+      focusConsoleBack();
+    else if (!isOwnershipCommandActive && wasChangingOwnership.current)
       focusActiveWorkHeading();
-    wasHandingOver.current = isHandoverActive;
-  }, [isHandoverActive, focusConsoleBack, focusActiveWorkHeading]);
-  const gatedSelection = isHandoverActive
+    wasChangingOwnership.current = isOwnershipCommandActive;
+  }, [isOwnershipCommandActive, focusConsoleBack, focusActiveWorkHeading]);
+  const gatedSelection = isOwnershipCommandActive
     ? undefined
     : workflow.currentSelection;
   const toolbar = isConsoleOpen ? (
     <ResolverFollowUpToolbar
       backRef={consoleBack}
       onBack={() => {
-        handover.dismiss();
+        ownership.dismiss();
         workflow.close();
       }}
       onRecheckOwnership={workflow.recheck}
@@ -87,13 +89,23 @@ function OwnedFollowUpSurface({
                 onConfirmRelease={() =>
                   workflow.releaseFromConsole(gatedSelection)
                 }
+                completionAction={
+                  <ConfirmedFollowUpCompletion
+                    tenantId={tenantId}
+                    item={gatedSelection}
+                    onConfirm={(command) => {
+                      workflow.close();
+                      ownership.submit({ operation: 'completion', command });
+                    }}
+                  />
+                }
                 handoverAction={
                   <ConfirmedFollowUpHandover
                     tenantId={tenantId}
                     item={gatedSelection}
                     onConfirm={(command) => {
                       workflow.close();
-                      handover.submit(command);
+                      ownership.submit({ operation: 'handover', command });
                     }}
                   />
                 }
@@ -102,8 +114,10 @@ function OwnedFollowUpSurface({
           })}
     />
   ) : undefined;
-  const statusLabel = isHandoverActive
-    ? 'Handover · context withheld'
+  const statusLabel = isOwnershipCommandActive
+    ? ownership.phase.operation === 'completion'
+      ? 'Completion · context withheld'
+      : 'Handover · context withheld'
     : !isConsoleOpen
       ? 'Human follow-ups'
       : gatedSelection !== undefined
@@ -141,17 +155,17 @@ function OwnedFollowUpSurface({
           </p>
         </div>
       ) : null}
-      {handover.phase.kind !== 'idle' ? (
-        <FollowUpHandoverFeedback
-          phase={handover.phase}
+      {ownership.phase.kind !== 'idle' ? (
+        <FollowUpOwnershipFeedback
+          phase={ownership.phase}
           signInHref={signInHref}
-          onReplay={(command) => {
+          onReplay={() => {
             focusConsoleBack();
-            handover.submit(command);
+            ownership.replay();
           }}
           onRecover={() => {
             focusConsoleBack();
-            handover.recover();
+            ownership.recover();
           }}
         />
       ) : (
