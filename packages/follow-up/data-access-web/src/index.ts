@@ -68,3 +68,13 @@ export {
   followUpHandoverApi,
   type FollowUpHandoverCacheDependencies,
 } from './cache/follow-up-handover-api';
+export type {
+  FollowUpCompletionClient,
+  FollowUpCompletionCommand,
+  FollowUpCompletionFailure,
+} from './client/follow-up-completion';
+export { normalizeFollowUpCompletionFailure } from './client/normalize-human-follow-up-failures';
+export {
+  followUpCompletionApi,
+  type FollowUpCompletionCacheDependencies,
+} from './cache/follow-up-completion-api';

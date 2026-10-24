@@ -10,6 +10,7 @@ import { createFollowUpOwnershipAdapter } from './bff/follow-up-ownership-adapte
 import { createFollowUpReadAdapter } from './bff/follow-up-read-adapter';
 import type { FollowUpNotesClient } from './client/follow-up-notes';
 import type { FollowUpHandoverClient } from './client/follow-up-handover';
+import type { FollowUpCompletionClient } from './client/follow-up-completion';
 import { listFollowUpNotes } from './bff/follow-up-notes-adapter';
 
 /** Dependencies and per-request policy for the confidential-BFF adapter. */
@@ -29,6 +30,7 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
   ClaimHumanFollowUp &
   ReleaseHumanFollowUp &
   FollowUpHandoverClient &
+  FollowUpCompletionClient &
   FollowUpNotesClient;
 
 /**

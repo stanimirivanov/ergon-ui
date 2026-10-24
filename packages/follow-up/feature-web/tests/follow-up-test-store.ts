@@ -7,12 +7,14 @@ import type {
   ReleaseHumanFollowUp,
   FollowUpNotesClient,
   FollowUpHandoverClient,
+  FollowUpCompletionClient,
 } from '@ergon/follow-up-data-access-web';
 import {
   type HumanFollowUpCacheDependencies,
   humanFollowUpApi,
   type FollowUpNotesCacheDependencies,
   type FollowUpHandoverCacheDependencies,
+  type FollowUpCompletionCacheDependencies,
 } from '@ergon/follow-up-data-access-web';
 
 /**
@@ -31,6 +33,7 @@ export interface FollowUpTestCapabilities {
   readonly listNotes?: FollowUpNotesClient['listNotes'];
   readonly appendNote?: FollowUpNotesClient['appendNote'];
   readonly handOver?: FollowUpHandoverClient['handOver'];
+  readonly complete?: FollowUpCompletionClient['complete'];
 }
 
 type FollowUpTestStore = ReturnType<typeof configureFollowUpStore>;
@@ -41,7 +44,15 @@ export function createFollowUpTestStore(
 ): FollowUpTestStore {
   const dependencies: HumanFollowUpCacheDependencies &
     FollowUpNotesCacheDependencies &
-    FollowUpHandoverCacheDependencies = {
+    FollowUpHandoverCacheDependencies &
+    FollowUpCompletionCacheDependencies = {
+    followUpCompletion: {
+      complete:
+        capabilities.complete ??
+        (async () => {
+          throw new Error('Completion was not configured for this test');
+        }),
+    },
     followUpHandover: {
       handOver:
         capabilities.handOver ??

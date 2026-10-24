@@ -13,6 +13,12 @@ out of the deployable app and domain-agnostic UI primitives.
 
 ## Owns
 
+- Confirmed terminal administrative completion: RHF owns acknowledgement;
+  completion and handover share one discriminated mounted ownership-command
+  controller for committed withdrawal, exact uncertain replay and explicit fresh
+  owned-work recovery. Historical completion never means case resolution or
+  proof acceptance. Close/tenant change retires intent, not a sent server write.
+
 - Confirmed direct follow-up handover: RHF owns recipient and acknowledgement;
   a mounted controller owns immutable intent and uncertain exact replay. It
   commits private withdrawal before sending, retains only historical feedback

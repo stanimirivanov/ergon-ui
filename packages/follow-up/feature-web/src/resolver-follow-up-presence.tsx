@@ -18,6 +18,7 @@ export function ResolverFollowUpPresence({
   onRecheckOwnership,
   onConfirmRelease,
   handoverAction,
+  completionAction,
 }: {
   readonly actorDetails: ReactNode;
   readonly item: ResolverOwnedHumanFollowUpWork;
@@ -25,6 +26,7 @@ export function ResolverFollowUpPresence({
   readonly onRecheckOwnership: () => void;
   readonly onConfirmRelease: () => void;
   readonly handoverAction?: ReactNode;
+  readonly completionAction?: ReactNode;
 }): ReactElement {
   return (
     <section
@@ -74,6 +76,7 @@ export function ResolverFollowUpPresence({
           Recheck current claim
         </Button>
         {handoverAction}
+        {completionAction}
         <ConfirmedFollowUpRelease
           context="resolver-console"
           reason={item.workItem.reason}

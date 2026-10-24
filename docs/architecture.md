@@ -235,6 +235,15 @@ resource owner; local state contains phase/intent/history, never copied rows.
 This does not transfer run supervision or complete a case.
 See [ADR 0045](decisions/0045-confirm-current-owner-follow-up-handover.md).
 
+Terminal administrative completion uses the same discriminated feature
+ownership-command controller, with a separate RHF acknowledgement and exact
+completion protocol. It retires active work without resolving its case or run.
+Receipt recovery survives terminal retirement only under server-enforced
+original-actor/current-resolver checks. A receipt never reopens private context;
+all outcomes invalidate work and exact context/notes observations. No automatic
+POST retry, persistent replay intent or optimistic terminal resource is added.
+See [ADR 0046](decisions/0046-confirm-terminal-follow-up-completion.md).
+
 Owned-work pages use a separate tenant-and-cursor cache. Successful claims also
 invalidate that cache so active ownership is recovered from server truth; stale
 shared-inbox conflicts do not imply a change to the current resolver's claims.

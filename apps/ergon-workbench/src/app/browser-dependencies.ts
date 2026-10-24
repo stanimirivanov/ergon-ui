@@ -26,4 +26,5 @@ export const browserDependencies: WorkbenchDependencies = {
   releaseHumanFollowUp: humanFollowUpAdapter,
   followUpNotes: humanFollowUpAdapter,
   followUpHandover: humanFollowUpAdapter,
+  followUpCompletion: humanFollowUpAdapter,
 };

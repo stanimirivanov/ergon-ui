@@ -7,6 +7,7 @@ import type {
 } from './human-follow-up-failures';
 import type { FollowUpNoteFailure } from './follow-up-notes';
 import type { FollowUpHandoverFailure } from './follow-up-handover';
+import type { FollowUpCompletionFailure } from './follow-up-completion';
 
 type StatusFailure = Extract<HumanFollowUpFailure, { readonly status: number }>;
 type StatusKind = StatusFailure['kind'];
@@ -52,6 +53,23 @@ const COMMAND_FAILURES = {
 } satisfies SimpleFailures<HumanFollowUpCommandFailure>;
 
 const READ_FAILURE_MAP = new Map(Object.entries(READ_FAILURES));
+const COMPLETION_FAILURE_MAP = new Map(
+  Object.entries({
+    ...COMMAND_FAILURES,
+    'not-found': { kind: 'not-found' },
+    'completion-conflict': { kind: 'completion-conflict' },
+    'invalid-completion': { kind: 'invalid-completion' },
+    'completion-unavailable': { kind: 'completion-unavailable' },
+  } satisfies SimpleFailures<FollowUpCompletionFailure>),
+);
+
+/** Safe outcomes retain original completion intent, never raw causes or proof that no write occurred. */
+export function normalizeFollowUpCompletionFailure(
+  value: unknown,
+): FollowUpCompletionFailure {
+  return normalizeFailure(value, COMPLETION_FAILURE_MAP);
+}
+
 const HANDOVER_FAILURE_MAP = new Map(
   Object.entries({
     ...COMMAND_FAILURES,

@@ -6,6 +6,11 @@ Own confidential-browser BFF execution and follow-up remote-cache integration.
 
 ## Owns
 
+- Exact administrative completion requests and historical receipt validation.
+  Reuse session CSRF and bounded execution without automatic POST retries.
+  Every outcome invalidates work and exact private context/notes observations;
+  a completion receipt never synthesizes terminal rows or current access.
+
 - Same-origin BFF request construction and response decoding.
 - Direct handover commands and exact echoed receipt validation, sharing CSRF
   without automatic POST retry. All outcomes revalidate work/context/notes;
@@ -70,7 +75,7 @@ StrictMode setups and obsolete query lifetimes cannot publish a new disclosure.
 The public failure normalizers accept unknown cache/framework errors and return
 the operation's closed failure contract. Extra name, message, stack, body, and
 cause fields are discarded. Direct client calls can still reject unexpected
-defects; all eight RTK Query operations contain those defects as `unexpected-defect`.
+defects; all nine RTK Query operations contain those defects as `unexpected-defect`.
 The cache adds no retry and never infers cancellation from an aborted signal.
 Normalizers recognize only RTK's plain, two-field `AbortError`/`Aborted`
 cancellation fingerprint; exceptions and surplus fields are defects. Catches
