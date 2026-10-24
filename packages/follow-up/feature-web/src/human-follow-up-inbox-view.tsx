@@ -7,6 +7,7 @@ import { Button } from '@ergon/ui-web';
 import type { FormEvent, ReactElement } from 'react';
 
 import { FollowUpMessage } from './follow-up-message';
+import { FollowUpPriorityLabel } from './follow-up-priority-label';
 import { claimFailureCopy } from './human-follow-up-inbox-copy';
 
 const openedAtFormatter = new Intl.DateTimeFormat('en-GB', {
@@ -192,6 +193,7 @@ function WorkItem({
             {item.queueKey}
           </p>
           <h3 className="mt-2 text-lg font-bold text-ink">{reason}</h3>
+          <FollowUpPriorityLabel value={item} />
           <dl
             className="mt-3 grid gap-2 text-xs"
             aria-label="Shared follow-up identifiers"

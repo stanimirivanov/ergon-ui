@@ -30,6 +30,8 @@ const workItems = Array.from({ length: firstPageSize + 1 }, (_, offset) => {
           : 'ACCOUNT_REVIEW_REQUIRED',
     queueKey: index === 1 ? 'access-restoration' : 'account-review',
     status: 'OPEN',
+    priority: 'NORMAL' as const,
+    priorityRevision: 0,
     openedAt: openedAt(index),
     recordedAt: openedAt(index),
     ownershipRevision: 0,

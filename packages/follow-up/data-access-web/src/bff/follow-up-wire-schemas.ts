@@ -1,4 +1,9 @@
 import { Schema } from 'effect';
+import { hasConsistentFollowUpPriority } from '@ergon/follow-up-model';
+import {
+  followUpPriority,
+  priorityRevision,
+} from './follow-up-priority-schemas';
 
 export const utcInstant = Schema.String.pipe(
   Schema.pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/),
@@ -23,7 +28,9 @@ const workItemSchema = Schema.Struct({
   openedAt: utcInstant,
   recordedAt: utcInstant,
   ownershipRevision,
-});
+  priority: followUpPriority,
+  priorityRevision,
+}).pipe(Schema.filter(hasConsistentFollowUpPriority));
 const claimSchema = Schema.Struct({
   claimId: Schema.UUID,
   workItemId: Schema.UUID,
@@ -116,7 +123,9 @@ export const resolverFollowUpCaseSummarySchema = Schema.Struct({
     escalationReason: Schema.NonEmptyString,
     openedAt: utcInstant,
     claimedAt: utcInstant,
-  }),
+    priority: followUpPriority,
+    priorityRevision,
+  }).pipe(Schema.filter(hasConsistentFollowUpPriority)),
   case: Schema.Struct({
     caseId: Schema.UUID,
     goal: Schema.NonEmptyString,

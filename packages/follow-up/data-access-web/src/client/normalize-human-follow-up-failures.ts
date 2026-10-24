@@ -8,6 +8,7 @@ import type {
 import type { FollowUpNoteFailure } from './follow-up-notes';
 import type { FollowUpHandoverFailure } from './follow-up-handover';
 import type { FollowUpCompletionFailure } from './follow-up-completion';
+import type { FollowUpPriorityFailure } from './follow-up-priority';
 
 type StatusFailure = Extract<HumanFollowUpFailure, { readonly status: number }>;
 type StatusKind = StatusFailure['kind'];
@@ -53,6 +54,22 @@ const COMMAND_FAILURES = {
 } satisfies SimpleFailures<HumanFollowUpCommandFailure>;
 
 const READ_FAILURE_MAP = new Map(Object.entries(READ_FAILURES));
+const PRIORITY_FAILURE_MAP = new Map(
+  Object.entries({
+    ...COMMAND_FAILURES,
+    'not-found': { kind: 'not-found' },
+    'priority-conflict': { kind: 'priority-conflict' },
+    'invalid-priority': { kind: 'invalid-priority' },
+    'priority-unavailable': { kind: 'priority-unavailable' },
+  } satisfies SimpleFailures<FollowUpPriorityFailure>),
+);
+
+/** Keep uncertainty and safe failure tags only; never persist raw response or exception details. */
+export function normalizeFollowUpPriorityFailure(
+  value: unknown,
+): FollowUpPriorityFailure {
+  return normalizeFailure(value, PRIORITY_FAILURE_MAP);
+}
 const COMPLETION_FAILURE_MAP = new Map(
   Object.entries({
     ...COMMAND_FAILURES,

@@ -2,6 +2,17 @@
 
 ## TL;DR
 
+M05-PR14 consumes merged Ergon PRs #194/#196/#198: required independent priority
+metadata on all active work reads and confirmed owner-scoped assignments.
+Historical acknowledgements never replace current metadata; exact uncertain
+replay first acquires fresh original active ownership. Private context withdraws
+before I/O, and explicit owned recovery precedes case re-entry. The priority
+guide demonstrates disabled/conflict handling, lost acknowledgements and a
+later URGENT observation superseding the recovered HIGH receipt. No ordering,
+risk, SLA, ownership or proof semantics change. Deploy compatible readers before
+this client; keep the producer default-off until enabled by operator policy.
+See [ADR 0047](../decisions/0047-confirm-independent-follow-up-priority.md).
+
 M05-PR12 adds acknowledged terminal follow-up completion through merged Ergon
 PR #192. Private context is withdrawn before the POST; exact uncertain replay
 returns historical administrative acknowledgement, never case resolution or

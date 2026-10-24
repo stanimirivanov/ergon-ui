@@ -9,7 +9,8 @@ Resolver Console with read-only case/run context, confirmed claim release and
 direct follow-up handover. Handover shares session CSRF, never automatically
 retries a POST, withdraws private context before execution and requires fresh
 owned-work recovery after historical acknowledgement. It does not transfer run
-supervision or complete the case.
+supervision or complete the case. Independently revisioned follow-up priority is
+administrative metadata, not queue order, risk, SLA, runtime authority or proof.
 Assigned supervisors have a separate dark three-pane Console for active-run
 discovery, pinned execution policy, and server-recorded current state.
 It consumes the control plane's
@@ -63,7 +64,9 @@ pnpm nx e2e @ergon/workbench-e2e
 
 The app binds `@ergon/follow-up-data-access-web` to the browser follow-up
 contracts for open-work listing, owned-work listing, owned case-context
-loading, claiming, and releasing. That data-access package owns the follow-up
+loading, claiming, releasing, notes, handover, completion and priority assignment.
+All mutations share the same session-lifetime adapter; the app does not implement
+confirmation or replay policy. That data-access package owns the follow-up
 RTK Query API; the workbench registers its reducer and middleware and renders the
 `@ergon/follow-up-feature-web` feature that consumes its generated
 hooks. The workbench supplies tenant request context and the trusted same-origin

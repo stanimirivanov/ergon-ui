@@ -267,6 +267,8 @@ export async function installSimulatedRunEscalationBff(page: Page): Promise<{
               reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
               queueKey: 'access-restoration',
               status: 'OPEN',
+              priority: 'NORMAL' as const,
+              priorityRevision: 0,
               openedAt: escalatedAt,
               recordedAt: escalatedAt,
               ownershipRevision: 0,

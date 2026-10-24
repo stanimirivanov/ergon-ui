@@ -75,6 +75,8 @@ export function resolverFollowUpCaseSummary(
 ): ResolverFollowUpCaseSummary {
   return {
     followUp: {
+      priority: 'NORMAL' as const,
+      priorityRevision: 0,
       workItemId,
       queueKey: 'access-restoration',
       escalationReason: 'RETRY_ATTEMPT_LIMIT_REACHED',
@@ -197,6 +199,8 @@ function followUpWorkItem(workItemId: string): HumanFollowUpWorkItem {
     reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
     queueKey: 'access-restoration',
     status: 'OPEN',
+    priority: 'NORMAL' as const,
+    priorityRevision: 0,
     ownershipRevision: 0,
     openedAt: '2026-09-21T09:30:00Z',
     recordedAt: '2026-09-21T09:30:01Z',

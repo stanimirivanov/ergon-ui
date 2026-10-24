@@ -18,6 +18,8 @@ import type { FollowUpNotesClient } from '../client/follow-up-notes';
 import { requestFollowUpNote } from './follow-up-notes-adapter';
 import type { FollowUpHandoverClient } from '../client/follow-up-handover';
 import type { FollowUpCompletionClient } from '../client/follow-up-completion';
+import type { FollowUpPriorityClient } from '../client/follow-up-priority';
+import { requestFollowUpPriority } from './follow-up-priority-adapter';
 import { requestFollowUpCompletion } from './follow-up-completion-adapter';
 import { requestFollowUpHandover } from './follow-up-handover-adapter';
 
@@ -44,7 +46,7 @@ interface FollowUpOwnershipAdapterOptions {
 }
 
 /**
- * Creates ownership and note append operations with one CSRF lifecycle.
+ * Creates follow-up administrative mutations with one CSRF lifecycle.
  *
  * Concurrent mutations share token acquisition. Setup transport and 503 failures
  * receive one retry, setup timeouts do not, and no POST is ever replayed
@@ -58,6 +60,7 @@ export function createFollowUpOwnershipAdapter({
   ReleaseHumanFollowUp &
   FollowUpHandoverClient &
   FollowUpCompletionClient &
+  FollowUpPriorityClient &
   Pick<FollowUpNotesClient, 'appendNote'> {
   // SynchronizedRef owns no external resources; construction is synchronous
   // and infallible, so the adapter does not need a Scope or async factory.
@@ -66,6 +69,18 @@ export function createFollowUpOwnershipAdapter({
   );
 
   return {
+    async assignPriority(
+      command,
+      signal,
+    ): ReturnType<FollowUpPriorityClient['assignPriority']> {
+      const result = await runCommand(
+        withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
+          requestFollowUpPriority(fetch, command, token),
+        ),
+        signal,
+      );
+      return result.ok ? { ok: true, assignment: result.value } : result;
+    },
     async complete(
       command,
       signal,

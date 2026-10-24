@@ -8,6 +8,8 @@ import {
 function validSummary(): ResolverFollowUpCaseSummaryCandidate {
   return {
     followUp: {
+      priority: 'NORMAL' as const,
+      priorityRevision: 0,
       workItemId: 'work-1',
       queueKey: 'access-restoration',
       escalationReason: 'RETRY_ATTEMPT_LIMIT_REACHED',

@@ -19,6 +19,8 @@ export function validPage() {
         reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
         queueKey: 'access-restoration',
         status: 'OPEN' as const,
+        priority: 'NORMAL' as const,
+        priorityRevision: 0,
         ownershipRevision: 0,
         openedAt: '2026-09-21T09:30:00Z',
         recordedAt: '2026-09-21T09:30:01Z',
@@ -79,6 +81,8 @@ export function validOwnedPage() {
 export function validCaseSummary(): ResolverFollowUpCaseSummary {
   return {
     followUp: {
+      priority: 'NORMAL' as const,
+      priorityRevision: 0,
       workItemId: WORK_ITEM_ID,
       queueKey: 'access-restoration',
       escalationReason: 'RETRY_ATTEMPT_LIMIT_REACHED',

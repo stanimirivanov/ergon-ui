@@ -31,13 +31,13 @@ clients. See [Playwright remote connections](https://playwright.dev/docs/docker)
 
 ## Review and updates
 
-Twenty-one screenshots cover the paired shared/owned landing workspace at desktop
+Twenty-three screenshots cover the paired shared/owned landing workspace at desktop
 and narrow widths, neutral empty views, assigned populated and withheld detail, projected execution,
 desktop/narrow authorization review, pinned inputs, matching/accepted outcome proof
 and narrow accepted proof, owned inspection,
 320-pixel owned chrome, forced-colour inspection, desktop/narrow internal notes
-and desktop/narrow direct follow-up handover and administrative-completion
-confirmation. Existing browser fixtures
+and desktop/narrow direct follow-up handover, administrative-completion and
+independent-priority confirmation. Existing browser fixtures
 provide deterministic synthetic records; these are not live operational evidence.
 Viewport, scale, locale, timezone, colour scheme and reduced motion are fixed in
 [`playwright.visual.config.mts`](../../apps/ergon-workbench-e2e/playwright.visual.config.mts).

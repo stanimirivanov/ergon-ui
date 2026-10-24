@@ -8,6 +8,7 @@ import { useEffect, useRef, type ReactElement } from 'react';
 
 import { ConfirmedFollowUpRelease } from './confirmed-follow-up-release';
 import { FollowUpMessage } from './follow-up-message';
+import { FollowUpPriorityLabel } from './follow-up-priority-label';
 import { releaseFailureCopy } from './resolver-owned-release-copy';
 
 const claimedAtFormatter = new Intl.DateTimeFormat('en-GB', {
@@ -211,6 +212,7 @@ function OwnedWorkItem({
             {item.workItem.queueKey}
           </p>
           <h3 className="mt-2 text-lg font-bold text-ink">{reason}</h3>
+          <FollowUpPriorityLabel value={item.workItem} />
           <dl
             className="mt-3 grid gap-2 text-xs"
             aria-label="Owned follow-up identifiers"

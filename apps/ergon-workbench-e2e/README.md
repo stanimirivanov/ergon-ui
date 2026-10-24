@@ -7,13 +7,21 @@ claim-recovery, release-recovery, internal-notes, run-supervision, handover, app
 pinned-evidence, outcome-verification, proof-finalization, execution/recovery,
 failed-run retry, exhausted-run escalation, predecessor-inspection and admission-history scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-six with
-annotations, screenshots, and video, then assembles a local twenty-six-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-seven with
+annotations, screenshots, and video, then assembles a local twenty-seven-chapter Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
+
+The independent-priority chapter has ten assertion-backed checkpoints covering
+current revision review, acknowledgement, cancel/focus, narrow keyboard/reflow,
+disabled/conflicting outcomes, pending withdrawal, lost acknowledgement, exact
+replay and a later current observation superseding history. Deploy Ergon
+#194/#196/#198 before enabling its default-off producer. Priority is metadata,
+not sorting, risk, SLA, ownership or proof. Synthetic BFF observations do not
+certify live identity or PostgreSQL; generated media is not committed.
 
 The administrative-completion chapter adds eleven assertion-backed checkpoints:
 claim/consequence review, acknowledgement validation, cancellation/focus,
