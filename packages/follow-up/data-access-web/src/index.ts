@@ -1,3 +1,14 @@
+export type {
+  FollowUpPriorityClient,
+  FollowUpPriorityCommand,
+  FollowUpPriorityFailure,
+} from './client/follow-up-priority';
+export { usePriorityOwnershipCheck } from './cache/use-priority-ownership-check';
+export { normalizeFollowUpPriorityFailure } from './client/normalize-human-follow-up-failures';
+export {
+  followUpPriorityApi,
+  type FollowUpPriorityCacheDependencies,
+} from './cache/follow-up-priority-api';
 export {
   normalizeHumanFollowUpFailure,
   normalizeHumanFollowUpClaimFailure,

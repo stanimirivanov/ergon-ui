@@ -15,6 +15,8 @@ const pairedWork: ResolverOwnedHumanFollowUpWork = {
     reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
     queueKey: 'access-restoration',
     status: 'OPEN',
+    priority: 'NORMAL' as const,
+    priorityRevision: 0,
     ownershipRevision: 1,
     openedAt: '2026-09-21T09:30:00Z',
     recordedAt: '2026-09-21T09:30:01Z',

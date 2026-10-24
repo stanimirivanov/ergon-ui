@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { installSimulatedFollowUpHandoverBff } from './guide/simulated-follow-up-handover-bff';
 import { installSimulatedFollowUpCompletionBff } from './guide/simulated-follow-up-completion-bff';
+import { installSimulatedFollowUpPriorityBff } from './guide/simulated-follow-up-priority-bff';
 import { expect, test } from '@playwright/test';
 import { installSimulatedOwnedContextBff } from './guide/simulated-owned-context-bff';
 import { installSimulatedInboxBff } from './guide/simulated-inbox-bff';
@@ -16,6 +17,30 @@ import {
 test.beforeEach(async ({ page, browserName }) => {
   expect(browserName).toBe('chromium');
   expect(await page.evaluate(() => navigator.platform)).toContain('Linux');
+});
+
+test('priority review distinguishes independent metadata at desktop and narrow widths', async ({
+  page,
+}) => {
+  await installSimulatedFollowUpPriorityBff(page);
+  await page.goto(supervisorTenantPath);
+  await page.getByRole('button', { name: 'Open resolver console' }).click();
+  await page
+    .getByRole('button', { name: 'Change priority', exact: true })
+    .click();
+  const dialog = page.getByRole('dialog', {
+    name: 'Change owned follow-up priority',
+  });
+  await expect(dialog).toBeVisible();
+  await expect(page).toHaveScreenshot('follow-up-priority.png');
+  await page.setViewportSize({ width: 320, height: 812 });
+  expect(
+    await dialog.evaluate(
+      (element) => element.scrollWidth <= element.clientWidth,
+    ),
+  ).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await expect(page).toHaveScreenshot('follow-up-priority-narrow.png');
 });
 
 test('direct follow-up handover confirmation explains private-access loss at desktop and narrow widths', async ({

@@ -10,10 +10,12 @@ import { ResolverOwnedHumanFollowUpsPage } from './resolver-owned-human-follow-u
 import { ResolverFollowUpPresence } from './resolver-follow-up-presence';
 import { ResolverFollowUpToolbar } from './resolver-follow-up-toolbar';
 import { useOwnedFollowUpWorkflow } from './use-owned-follow-up-workflow';
-import { useFollowUpOwnershipCommand } from './use-follow-up-ownership-command';
+import { useFollowUpAdministrationCommand } from './use-follow-up-administration-command';
 import { ConfirmedFollowUpCompletion } from './confirmed-follow-up-completion';
 import { ConfirmedFollowUpHandover } from './confirmed-follow-up-handover';
-import { FollowUpOwnershipFeedback } from './follow-up-ownership-feedback';
+import { FollowUpAdministrationFeedback } from './follow-up-administration-feedback';
+import { ConfirmedFollowUpPriority } from './confirmed-follow-up-priority';
+import { usePriorityOwnershipCheck } from '@ergon/follow-up-data-access-web';
 
 /** Inputs supplied by the route-level composition boundary. */
 export interface ResolverOwnedHumanFollowUpsProps {
@@ -48,7 +50,17 @@ function OwnedFollowUpSurface({
   renderWorkspace,
 }: ResolverOwnedHumanFollowUpsProps): ReactElement {
   const workflow = useOwnedFollowUpWorkflow(tenantId);
-  const ownership = useFollowUpOwnershipCommand(workflow.ownedWork.refetch);
+  const checkPriorityOwnership = usePriorityOwnershipCheck({
+    tenantId,
+    limit: 25,
+    ...(workflow.position.cursor === undefined
+      ? {}
+      : { cursor: workflow.position.cursor }),
+  });
+  const ownership = useFollowUpAdministrationCommand(
+    workflow.ownedWork.refetch,
+    checkPriorityOwnership,
+  );
   const isOwnershipCommandActive = ownership.phase.kind !== 'idle';
   const isConsoleOpen = workflow.isConsoleOpen || isOwnershipCommandActive;
   const activeWorkHeading = useRef<HTMLHeadingElement>(null);
@@ -99,6 +111,16 @@ function OwnedFollowUpSurface({
                     }}
                   />
                 }
+                priorityAction={
+                  <ConfirmedFollowUpPriority
+                    tenantId={tenantId}
+                    item={gatedSelection}
+                    onConfirm={(command) => {
+                      workflow.close();
+                      ownership.submit({ operation: 'priority', command });
+                    }}
+                  />
+                }
                 handoverAction={
                   <ConfirmedFollowUpHandover
                     tenantId={tenantId}
@@ -115,9 +137,11 @@ function OwnedFollowUpSurface({
     />
   ) : undefined;
   const statusLabel = isOwnershipCommandActive
-    ? ownership.phase.operation === 'completion'
-      ? 'Completion · context withheld'
-      : 'Handover · context withheld'
+    ? ownership.phase.operation === 'priority'
+      ? 'Priority · context withheld'
+      : ownership.phase.operation === 'completion'
+        ? 'Completion · context withheld'
+        : 'Handover · context withheld'
     : !isConsoleOpen
       ? 'Human follow-ups'
       : gatedSelection !== undefined
@@ -156,7 +180,7 @@ function OwnedFollowUpSurface({
         </div>
       ) : null}
       {ownership.phase.kind !== 'idle' ? (
-        <FollowUpOwnershipFeedback
+        <FollowUpAdministrationFeedback
           phase={ownership.phase}
           signInHref={signInHref}
           onReplay={() => {

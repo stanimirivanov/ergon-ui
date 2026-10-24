@@ -8,6 +8,7 @@ import type {
   FollowUpNotesClient,
   FollowUpHandoverClient,
   FollowUpCompletionClient,
+  FollowUpPriorityClient,
 } from '@ergon/follow-up-data-access-web';
 import {
   type HumanFollowUpCacheDependencies,
@@ -15,6 +16,7 @@ import {
   type FollowUpNotesCacheDependencies,
   type FollowUpHandoverCacheDependencies,
   type FollowUpCompletionCacheDependencies,
+  type FollowUpPriorityCacheDependencies,
 } from '@ergon/follow-up-data-access-web';
 
 /**
@@ -34,6 +36,7 @@ export interface FollowUpTestCapabilities {
   readonly appendNote?: FollowUpNotesClient['appendNote'];
   readonly handOver?: FollowUpHandoverClient['handOver'];
   readonly complete?: FollowUpCompletionClient['complete'];
+  readonly assignPriority?: FollowUpPriorityClient['assignPriority'];
 }
 
 type FollowUpTestStore = ReturnType<typeof configureFollowUpStore>;
@@ -45,7 +48,15 @@ export function createFollowUpTestStore(
   const dependencies: HumanFollowUpCacheDependencies &
     FollowUpNotesCacheDependencies &
     FollowUpHandoverCacheDependencies &
-    FollowUpCompletionCacheDependencies = {
+    FollowUpCompletionCacheDependencies &
+    FollowUpPriorityCacheDependencies = {
+    followUpPriority: {
+      assignPriority:
+        capabilities.assignPriority ??
+        (async () => {
+          throw new Error('Priority was not configured for this test');
+        }),
+    },
     followUpCompletion: {
       complete:
         capabilities.complete ??

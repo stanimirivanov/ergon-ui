@@ -13,6 +13,12 @@ out of the deployable app and domain-agnostic UI primitives.
 
 ## Owns
 
+- Priority metadata labels and an RHF selection/acknowledgement under current
+  owned disclosure. The concrete administration controller also handles handover
+  and completion, but priority replay first requires fresh original active
+  ownership. Pending/uncertain/history feedback withholds context; fresh owned
+  recovery precedes case re-entry. Priority changes no queue ordering or proof.
+
 - Confirmed terminal administrative completion: RHF owns acknowledgement;
   completion and handover share one discriminated mounted ownership-command
   controller for committed withdrawal, exact uncertain replay and explicit fresh

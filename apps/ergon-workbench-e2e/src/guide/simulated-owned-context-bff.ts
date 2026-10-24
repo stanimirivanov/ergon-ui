@@ -15,6 +15,8 @@ const workItem = {
   reason: 'RETRY_ATTEMPT_LIMIT_REACHED',
   queueKey: 'access-restoration',
   status: 'OPEN',
+  priority: 'NORMAL' as const,
+  priorityRevision: 0,
   openedAt: '2026-09-21T09:30:00Z',
   recordedAt: '2026-09-21T09:30:01Z',
   ownershipRevision: 1,
@@ -29,6 +31,8 @@ const claim = {
 
 const summary = {
   followUp: {
+    priority: 'NORMAL' as const,
+    priorityRevision: 0,
     workItemId,
     queueKey: workItem.queueKey,
     escalationReason: workItem.reason,

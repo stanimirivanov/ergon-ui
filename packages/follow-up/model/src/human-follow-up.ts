@@ -1,10 +1,12 @@
+import type { FollowUpPriorityState } from './follow-up-priority';
+
 /**
  * Server-authorized open escalation that can be claimed by a human resolver.
  *
  * Identifiers are opaque UUID strings. Time values are validated UTC instants;
  * `openedAt` records the business event while `recordedAt` records persistence.
  */
-export interface HumanFollowUpWorkItem {
+export interface HumanFollowUpWorkItem extends FollowUpPriorityState {
   readonly workItemId: string;
   readonly caseId: string;
   readonly runId: string;

@@ -3,6 +3,7 @@ import { Button } from '@ergon/ui-web';
 import type { ReactElement, ReactNode } from 'react';
 
 import { ConfirmedFollowUpRelease } from './confirmed-follow-up-release';
+import { FollowUpPriorityLabel } from './follow-up-priority-label';
 
 const claimedAtFormatter = new Intl.DateTimeFormat('en-GB', {
   dateStyle: 'medium',
@@ -19,6 +20,7 @@ export function ResolverFollowUpPresence({
   onConfirmRelease,
   handoverAction,
   completionAction,
+  priorityAction,
 }: {
   readonly actorDetails: ReactNode;
   readonly item: ResolverOwnedHumanFollowUpWork;
@@ -27,6 +29,7 @@ export function ResolverFollowUpPresence({
   readonly onConfirmRelease: () => void;
   readonly handoverAction?: ReactNode;
   readonly completionAction?: ReactNode;
+  readonly priorityAction?: ReactNode;
 }): ReactElement {
   return (
     <section
@@ -47,6 +50,7 @@ export function ResolverFollowUpPresence({
         </p>
       </div>
       {actorDetails}
+      <FollowUpPriorityLabel value={item.workItem} />
       <dl className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
         <div>
           <dt className="font-bold tracking-wide text-ink-muted uppercase">
@@ -77,6 +81,7 @@ export function ResolverFollowUpPresence({
         </Button>
         {handoverAction}
         {completionAction}
+        {priorityAction}
         <ConfirmedFollowUpRelease
           context="resolver-console"
           reason={item.workItem.reason}

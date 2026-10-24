@@ -1,3 +1,5 @@
+import type { FollowUpPriorityState } from './follow-up-priority';
+
 /**
  * Evidence snapshot authorized for the resolver who owns a follow-up.
  *
@@ -14,7 +16,7 @@
  * storage, URLs, logs, or analytics.
  */
 export interface ResolverFollowUpCaseSummary {
-  readonly followUp: {
+  readonly followUp: FollowUpPriorityState & {
     readonly workItemId: string;
     readonly queueKey: string;
     readonly escalationReason: string;

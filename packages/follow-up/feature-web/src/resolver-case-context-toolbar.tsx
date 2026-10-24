@@ -1,5 +1,6 @@
 import type { ResolverFollowUpCaseSummary } from '@ergon/follow-up-model';
 import type { ReactElement, ReactNode } from 'react';
+import { FollowUpPriorityLabel } from './follow-up-priority-label';
 
 const sectionJumpClass =
   'min-h-11 rounded-md border border-border bg-surface px-3 py-2 text-xs font-semibold text-ink hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas';
@@ -38,6 +39,7 @@ export function ResolverCaseContextToolbar({
           </p>
         </div>
         <div className="flex flex-wrap gap-2 text-xs font-bold tracking-wide uppercase">
+          <FollowUpPriorityLabel value={summary.followUp} />
           <span className="rounded-md border border-border bg-surface px-2.5 py-1.5 text-ink-muted">
             Case {summary.case.status}
           </span>

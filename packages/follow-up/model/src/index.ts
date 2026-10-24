@@ -20,3 +20,9 @@ export {
   type FollowUpNotes,
 } from './follow-up-note';
 export type { FollowUpCompletion } from './follow-up-completion';
+export {
+  hasConsistentFollowUpPriority,
+  type FollowUpPriority,
+  type FollowUpPriorityState,
+  type FollowUpPriorityAssignment,
+} from './follow-up-priority';

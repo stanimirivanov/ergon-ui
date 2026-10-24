@@ -7,6 +7,9 @@ claims, and resolver-visible case context.
 
 ## Owns
 
+- Closed priority values, independent current revisions and inert historical
+  assignment receipts; never queue ordering, risk, SLA or authority.
+
 - Follow-up work-item and claim values.
 - Inert terminal administrative-completion receipts, never case resolution.
 - Inert historical direct-handover acknowledgements, distinct from current access.

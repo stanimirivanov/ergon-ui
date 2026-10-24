@@ -383,6 +383,15 @@ Redux, a URL, or persistent browser storage.
 
 ## API and trust boundary
 
+Independent follow-up priority uses existing model/data-access/feature owners.
+Required value/revision pairs cannot synthesize missing NORMAL/0 metadata.
+RHF owns confirmed intent, RTK owns current observations, and historical receipts
+cannot patch resources. Priority extends the concrete administration-command
+controller, without changing ownership; explicit recovery is gated by a distinct
+fresh original-active-claim read and the backend's command fence. App/modal/focus
+and session-CSRF owners stay unchanged. No dependency edge or application core
+is added. See [ADR 0047](decisions/0047-confirm-independent-follow-up-priority.md).
+
 Untouched-run cancellation stays in the existing supervision data-access and
 feature owners. Fresh advisory review, acknowledged intent and exact receipt
 decoding use the committed command barrier; no automatic POST retry or new
