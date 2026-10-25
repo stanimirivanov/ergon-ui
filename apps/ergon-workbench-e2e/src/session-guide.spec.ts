@@ -33,7 +33,7 @@ test(
         });
         await expect(signInHeading).toBeVisible();
         await expect(
-          page.getByText(/no resolver data has been loaded/i),
+          page.getByText(/no protected content has been loaded/i),
         ).toBeVisible();
         await guide.result('recognize-sign-in-required', signInHeading);
 
@@ -76,7 +76,7 @@ test(
         });
         await expect(rejectedHeading).toBeVisible();
         await expect(
-          page.getByText(/no resolver data has been loaded/i),
+          page.getByText(/no protected content has been loaded/i),
         ).toBeVisible();
         await guide.result('recognize-rejected-identity', rejectedHeading);
         const rejectedAccessibility = await new AxeBuilder({ page }).analyze();

@@ -40,6 +40,9 @@ dependency edge changes.
 
 ## Canonical sources
 
+- [Requester app](../apps/ergon-requester/README.md) owns requester deployment,
+  supplied-link navigation and verification limits.
+
 - [Visual baselines](development/visual-baselines.md) owns the pinned Console
   renderer, screenshot review and explicit baseline-update procedure.
 

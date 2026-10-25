@@ -2,6 +2,13 @@
 
 ## TL;DR
 
+M05-PR17 adds the first usable [requester app](../../apps/ergon-requester/README.md):
+an independent artifact with verified-session gating and supplied-link,
+owner-scoped goal/lifecycle/timestamps. Rechecks withhold previous facts before I/O.
+No discovery, intake or resolver control exists. Login returns to the tenant;
+reopen the original case link. Trusted provisioning remains necessary until
+authenticated intake. See [ADR 0048](../decisions/0048-compose-requester-owned-case-progress.md).
+
 M05-PR14 consumes merged Ergon PRs #194/#196/#198: required independent priority
 metadata on all active work reads and confirmed owner-scoped assignments.
 Historical acknowledgements never replace current metadata; exact uncertain

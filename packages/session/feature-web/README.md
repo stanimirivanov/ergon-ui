@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Own the browser's fail-closed session verification states and verified-actor
+Own both apps' fail-closed session verification states and verified-actor
 presentation without importing the deployable workbench or follow-up feature.
 
 ## Owns
@@ -18,7 +18,7 @@ presentation without importing the deployable workbench or follow-up feature.
 
 ## Does not own
 
-- Route hierarchy, sign-in URL construction, workbench shell, or Redux store.
+- Route hierarchy, sign-in URL construction, app shell, or Redux store.
 - Follow-up workspace presentation or other tenant-scoped resources.
 - BFF protocol decoding, authentication authority, or RTK Query cache policy.
 - Provider credentials or browser storage.

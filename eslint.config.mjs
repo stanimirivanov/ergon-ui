@@ -100,6 +100,34 @@ export default [
               onlyDependOnLibsWithTags: ['scope:shared'],
             },
             {
+              sourceTag: 'scope:browser-tests',
+              onlyDependOnLibsWithTags: [
+                'scope:workbench',
+                'scope:requester',
+                'scope:follow-up',
+                'scope:run-supervision',
+                'scope:requester-progress',
+                'scope:session',
+                'scope:shared',
+              ],
+            },
+            {
+              sourceTag: 'scope:requester',
+              onlyDependOnLibsWithTags: [
+                'scope:requester',
+                'scope:requester-progress',
+                'scope:session',
+                'scope:shared',
+              ],
+            },
+            {
+              sourceTag: 'scope:requester-progress',
+              onlyDependOnLibsWithTags: [
+                'scope:requester-progress',
+                'scope:shared',
+              ],
+            },
+            {
               sourceTag: 'scope:follow-up',
               onlyDependOnLibsWithTags: ['scope:follow-up', 'scope:shared'],
             },

@@ -19,7 +19,7 @@ export interface VerifiedSession {
 }
 
 /**
- * Inputs provided by the workbench composition root.
+ * Inputs provided by each browser application's composition root.
  *
  * The unverified shell and complete verified workspace are injected so this feature never
  * imports app layout or follow-up presentation. The sign-in target builder is
@@ -87,7 +87,7 @@ function CurrentActorSession({
       <SessionPanel
         eyebrow="Identity boundary"
         title="Verifying your Ergon session…"
-        description="Resolver data stays hidden until the server confirms your tenant-scoped actor."
+        description="Protected content stays hidden until the server confirms your tenant-scoped actor."
         live
       />,
     );
@@ -238,10 +238,10 @@ function failureCopy(failure: CurrentActorFailure): SessionFailureCopy {
   switch (failure.kind) {
     case 'unexpected-defect':
       return {
-        statusLabel: 'Workbench error',
-        title: 'Session verification encountered a workbench error.',
+        statusLabel: 'Application error',
+        title: 'Session verification encountered an application error.',
         description:
-          'An unexpected workbench failure prevented verification. Resolver data remains hidden. Contact an operator; no diagnostic details are shown.',
+          'An unexpected application failure prevented verification. Protected content remains hidden. Contact an operator; no diagnostic details are shown.',
         canRetry: false,
       };
     case 'authentication-required':
@@ -249,7 +249,7 @@ function failureCopy(failure: CurrentActorFailure): SessionFailureCopy {
         statusLabel: 'Sign-in required',
         title: 'Authentication is required.',
         description:
-          'Sign in through the Ergon control plane to open this tenant workspace. No resolver data has been loaded.',
+          'Sign in through the Ergon control plane to open this tenant workspace. No protected content has been loaded.',
         canRetry: false,
       };
     case 'authentication-unavailable':
@@ -257,7 +257,7 @@ function failureCopy(failure: CurrentActorFailure): SessionFailureCopy {
         statusLabel: 'Sign-in unavailable',
         title: 'Browser sign-in is not configured.',
         description:
-          'The control plane has not enabled its browser session boundary. Ask an operator to configure workbench authentication.',
+          'The control plane has not enabled its browser session boundary. Ask an operator to configure authentication for this application.',
         canRetry: false,
       };
     case 'actor-not-registered':
@@ -274,7 +274,7 @@ function failureCopy(failure: CurrentActorFailure): SessionFailureCopy {
         statusLabel: 'Identity rejected',
         title: 'This identity cannot enter the workspace.',
         description:
-          'The control plane rejected the identity for this tenant. No resolver data has been loaded.',
+          'The control plane rejected the identity for this tenant. No protected content has been loaded.',
         canRetry: false,
       };
     case 'timeout':
@@ -284,7 +284,7 @@ function failureCopy(failure: CurrentActorFailure): SessionFailureCopy {
         statusLabel: 'Temporarily unavailable',
         title: 'Session verification is temporarily unavailable.',
         description:
-          'The workbench could not confirm your actor safely. Try again after the control plane is reachable.',
+          'The application could not confirm your actor safely. Try again after the control plane is reachable.',
         canRetry: true,
       };
     case 'unexpected-response':
@@ -294,7 +294,7 @@ function failureCopy(failure: CurrentActorFailure): SessionFailureCopy {
         statusLabel: 'Verification failed',
         title: 'Your session could not be verified.',
         description:
-          'The identity response was not usable, so the workbench remained closed. Try again or contact an operator.',
+          'The identity response was not usable, so protected content remained closed. Try again or contact an operator.',
         canRetry: true,
       };
   }
