@@ -2,6 +2,12 @@
 
 ## TL;DR
 
+M05-PR18 completes the bounded light requester canvas: goal/status, four
+explanatory cards and responsive request-details rail over the same five-field
+read. No concept-art stages, checks, uploads or confirmation are invented.
+The complete private canvas withdraws during rechecks; later response/intake
+slices remain deferred.
+
 M05-PR17 adds the first usable [requester app](../../apps/ergon-requester/README.md):
 an independent artifact with verified-session gating and supplied-link,
 owner-scoped goal/lifecycle/timestamps. Rechecks withhold previous facts before I/O.

@@ -6,14 +6,16 @@ import {
   type RunRetryClient,
   type RunRetryCommand,
   type RunRetryCommandResult,
+  type RunRetryFailure,
   type RunRetryReview,
   type RunSupervisionClient,
 } from '@ergon/run-supervision-data-access-web';
 import { cleanup, render, type RenderResult } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { Provider } from 'react-redux';
-import { afterEach, beforeEach, vi } from 'vitest';
+import { afterEach, beforeEach, vi, type Mock } from 'vitest';
 import { AssignedRunWorkspace } from '../src';
+import { RunRetryControl } from '../src/run-retry-control';
 import {
   assignedPage,
   assignedRunConsole,
@@ -181,6 +183,32 @@ export function renderRetryWorkspace<
       </Provider>
     </StrictMode>,
   );
+}
+
+/** Review/form behavior needs the real cache and modal, not unrelated Console panes. */
+export function renderRetryControl(
+  client: RunSupervisionClient & RunRetryClient,
+): RenderResult & {
+  readonly onConfirm: Mock<(command: RunRetryCommand) => void>;
+  readonly onAccessFailure: Mock<(failure: RunRetryFailure) => void>;
+} {
+  const store = buildStore(client);
+  stores.push(store);
+  const onConfirm = vi.fn<(command: RunRetryCommand) => void>();
+  const onAccessFailure = vi.fn<(failure: RunRetryFailure) => void>();
+  const view = render(
+    <StrictMode>
+      <Provider store={store}>
+        <RunRetryControl
+          tenantId={TENANT_ID}
+          run={failedConsole}
+          onConfirm={onConfirm}
+          onAccessFailure={onAccessFailure}
+        />
+      </Provider>
+    </StrictMode>,
+  );
+  return { ...view, onConfirm, onAccessFailure };
 }
 export function deferred<A>() {
   let resolve: (value: A) => void = () => undefined;

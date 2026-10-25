@@ -16,6 +16,7 @@ import {
   type ProgressResult,
 } from '@ergon/requester-progress-data-access-web';
 import { RequesterCaseProgress } from '../src/requester-progress';
+import { RequesterCanvas } from '../src/requester-canvas';
 
 const query = {
   tenantId: '9ad66e9b-e81a-4b61-8d8f-5708312772d8',
@@ -57,6 +58,8 @@ describe('requester progress disclosure', () => {
       .mockResolvedValueOnce({ ok: true, progress })
       .mockImplementationOnce(() => {
         expect(screen.queryByText(progress.goal)).toBeNull();
+        expect(screen.queryByText(query.caseId)).toBeNull();
+        expect(document.querySelector('time')).toBeNull();
         return new Promise((resolve) => {
           finish = resolve;
         });
@@ -75,6 +78,7 @@ describe('requester progress disclosure', () => {
       name: 'Case progress is unavailable.',
     });
     expect(screen.queryByText(progress.goal)).toBeNull();
+    expect(screen.queryByRole('complementary')).toBeNull();
     store.dispatch(progressApi.util.resetApiState());
   });
   it('retires a pending lifetime and reacquires rather than using an obsolete response on reopen', async () => {
@@ -105,4 +109,40 @@ describe('requester progress disclosure', () => {
     reopened.unmount();
     first.store.dispatch(progressApi.util.resetApiState());
   });
+});
+
+describe('bounded requester canvas', () => {
+  it.each(['OPEN', 'VERIFIED_RESOLVED'] as const)(
+    'presents only the disclosed %s lifecycle with no invented controls or stages',
+    (status) => {
+      render(<RequesterCanvas progress={{ ...progress, status }} />);
+      expect(screen.getByRole('heading', { name: progress.goal })).toBeTruthy();
+      expect(
+        screen.getByRole('complementary', { name: 'Request details' }),
+      ).toBeTruthy();
+      expect(screen.getByText(query.caseId)).toBeTruthy();
+      for (const name of [
+        'What we need from you',
+        'What Ergon is checking',
+        'Outcome proof',
+        'Confirm the outcome',
+      ]) {
+        expect(screen.getByRole('heading', { name })).toBeTruthy();
+      }
+      expect(
+        screen.getByText(
+          status === 'OPEN'
+            ? 'No verified resolution recorded'
+            : 'Accepted outcome recorded',
+        ),
+      ).toBeTruthy();
+      expect(
+        screen.getByText('Individual checks are not disclosed.'),
+      ).toBeTruthy();
+      expect(screen.queryByRole('button')).toBeNull();
+      expect(screen.queryByRole('link')).toBeNull();
+      expect(document.querySelector('img')).toBeNull();
+      expect(document.querySelectorAll('time')).toHaveLength(2);
+    },
+  );
 });

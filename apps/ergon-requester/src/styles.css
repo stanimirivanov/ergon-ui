@@ -11,11 +11,14 @@
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
   --font-display: Arial, Helvetica, sans-serif;
 }
 :root {
   color-scheme: light;
-  --canvas: #edf2f6;
+  --canvas: #f6f8fb;
   --surface: #ffffff;
   --ink: #142131;
   --ink-muted: #43576c;
@@ -23,6 +26,24 @@
   --accent: #185a9d;
   --accent-strong: #124b85;
   --accent-foreground: #ffffff;
+  --accent-soft: #e7f0ff;
+  --success: #12613a;
+  --success-soft: #e6f5ec;
+}
+@media (forced-colors: active) {
+  :root {
+    --canvas: Canvas;
+    --surface: Canvas;
+    --ink: CanvasText;
+    --ink-muted: CanvasText;
+    --border: CanvasText;
+    --accent: LinkText;
+    --accent-strong: LinkText;
+    --accent-foreground: Canvas;
+    --accent-soft: Canvas;
+    --success: CanvasText;
+    --success-soft: Canvas;
+  }
 }
 * {
   box-sizing: border-box;

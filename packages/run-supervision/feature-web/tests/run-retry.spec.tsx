@@ -15,6 +15,7 @@ import { RUN_ID, SECOND_RUN_ID } from './assigned-run-fixtures';
 import {
   deferred,
   installRetryTestEnvironment,
+  renderRetryControl,
   renderRetryWorkspace,
   retryResult,
   retryReview,
@@ -28,21 +29,22 @@ describe('confirmed fresh-run retry', () => {
     const client = successfulRetryClient();
     const read = vi.spyOn(client, 'getRetryReview');
     const send = vi.spyOn(client, 'retryRun');
-    renderRetryWorkspace(client);
-    await select();
+    const { onConfirm, onAccessFailure } = renderRetryControl(client);
     expect(read).not.toHaveBeenCalled();
     await review();
+    const dialog = within(screen.getByRole('dialog'));
     fireEvent.click(
-      screen.getByRole('button', { name: 'Create fresh successor' }),
+      dialog.getByRole('button', { name: 'Create fresh successor' }),
     );
     expect(
-      await screen.findByText(
+      await dialog.findByText(
         'Acknowledge the fresh-run boundary before confirming.',
       ),
     ).toBeTruthy();
     expect(send).not.toHaveBeenCalled();
+    expect(onConfirm).not.toHaveBeenCalled();
     fireEvent.click(
-      screen.getByRole('button', { name: 'Cancel retry review' }),
+      dialog.getByRole('button', { name: 'Cancel retry review' }),
     );
     expect(screen.getByRole('button', { name: 'Review fresh-run retry' })).toBe(
       document.activeElement,
@@ -50,6 +52,8 @@ describe('confirmed fresh-run retry', () => {
     await review();
     expect(read).toHaveBeenCalledTimes(2);
     expect(send).not.toHaveBeenCalled();
+    expect(onConfirm).not.toHaveBeenCalled();
+    expect(onAccessFailure).not.toHaveBeenCalled();
   });
   it.each([
     'DISABLED',
@@ -292,12 +296,16 @@ async function review(): Promise<void> {
   fireEvent.click(
     await screen.findByRole('button', { name: 'Review fresh-run retry' }),
   );
-  await screen.findByRole('heading', { name: 'Confirm a fresh successor' });
+  // Query the active dialog, not every unrelated section of the Console.
+  await within(screen.getByRole('dialog')).findByRole('heading', {
+    name: 'Confirm a fresh successor',
+  });
 }
 async function confirm(): Promise<void> {
-  fireEvent.click(within(screen.getByRole('dialog')).getByRole('checkbox'));
+  const dialog = within(screen.getByRole('dialog'));
+  fireEvent.click(dialog.getByRole('checkbox'));
   fireEvent.click(
-    screen.getByRole('button', { name: 'Create fresh successor' }),
+    dialog.getByRole('button', { name: 'Create fresh successor' }),
   );
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
 }

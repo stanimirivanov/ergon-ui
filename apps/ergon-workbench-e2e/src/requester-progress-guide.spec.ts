@@ -89,6 +89,24 @@ test(
       await page.goto(path);
       await expect(page.getByRole('heading', { name: goal })).toBeVisible();
       await expect(page.getByText('Open', { exact: true })).toBeVisible();
+      const details = page.getByRole('complementary', {
+        name: 'Request details',
+      });
+      await expect(details).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: 'What Ergon is checking' }),
+      ).toBeVisible();
+      // The desktop reference has a details rail, not a reordered mobile DOM.
+      const goalBounds = await page
+        .getByRole('heading', { name: goal })
+        .boundingBox();
+      const detailsBounds = await details.boundingBox();
+      expect(
+        goalBounds &&
+          detailsBounds &&
+          detailsBounds.x > goalBounds.x + goalBounds.width,
+      ).toBeTruthy();
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
       await expect(
         page.getByRole('button', { name: /claim|execute|approve|handover/i }),
       ).toHaveCount(0);
@@ -100,11 +118,28 @@ test(
         ),
       ).toBe(true);
       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      const narrowGoal = await page
+        .getByRole('heading', { name: goal })
+        .boundingBox();
+      const narrowDetails = await details.boundingBox();
+      expect(
+        narrowGoal && narrowDetails && narrowDetails.y > narrowGoal.y,
+      ).toBeTruthy();
+      await page.emulateMedia({
+        forcedColors: 'active',
+        reducedMotion: 'reduce',
+      });
+      await expect(page.getByText('Open', { exact: true })).toBeVisible();
+      await page.emulateMedia({
+        forcedColors: 'none',
+        reducedMotion: 'no-preference',
+      });
       await page.getByRole('button', { name: 'Recheck progress' }).focus();
       await expect(
         page.getByRole('button', { name: 'Recheck progress' }),
       ).toBeFocused();
       await guide.result('requester-narrow', page.getByRole('main'));
+      await guide.result('requester-details', details);
       await page.setViewportSize({ width: 1440, height: 900 });
       // Start an independent desktop disclosure rather than reuse the narrow
       // document's viewport/compositor state for the next recorded frame.
@@ -116,6 +151,8 @@ test(
         page.getByRole('heading', { name: 'Case progress', exact: true }),
       ).toBeFocused();
       await expect(page.getByText(goal, { exact: true })).toHaveCount(0);
+      await expect(details).toHaveCount(0);
+      await expect(page.locator('time')).toHaveCount(0);
       // Reset after withdrawal and focus, not before them. The complete pending
       // panel is the capture target, so annotation scrolling retains the shell.
       await page.evaluate(() => window.scrollTo(0, 0));
