@@ -60,7 +60,7 @@ test('offers the local BFF sign-in path without revealing tenant work', async ({
     }),
   ).toBeVisible();
   await expect(
-    page.getByText(/no resolver data has been loaded/i),
+    page.getByText(/no protected content has been loaded/i),
   ).toBeVisible();
   await expect(
     page.getByRole('link', { name: 'Sign in to Ergon' }),

@@ -180,7 +180,9 @@ describe('current actor page', () => {
         name: 'Authentication is required.',
       }),
     ).toBeTruthy();
-    expect(screen.getByText(/no resolver data has been loaded/i)).toBeTruthy();
+    expect(
+      screen.getByText(/no protected content has been loaded/i),
+    ).toBeTruthy();
     expect(
       screen.getByRole('link', { name: 'Sign in to Ergon' }),
     ).toHaveProperty(

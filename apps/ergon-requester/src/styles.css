@@ -1,0 +1,43 @@
+@import 'tailwindcss';
+@source '../../../packages/ui-web/src';
+@source '../../../packages/session/feature-web/src';
+@source '../../../packages/requester-progress/feature-web/src';
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-foreground: var(--accent-foreground);
+  --font-display: Arial, Helvetica, sans-serif;
+}
+:root {
+  color-scheme: light;
+  --canvas: #edf2f6;
+  --surface: #ffffff;
+  --ink: #142131;
+  --ink-muted: #43576c;
+  --border: #8497ab;
+  --accent: #185a9d;
+  --accent-strong: #124b85;
+  --accent-foreground: #ffffff;
+}
+* {
+  box-sizing: border-box;
+  border-color: var(--border);
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}

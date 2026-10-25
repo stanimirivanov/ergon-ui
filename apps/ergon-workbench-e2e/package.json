@@ -10,10 +10,11 @@
   "nx": {
     "tags": [
       "type:test",
-      "scope:workbench",
+      "scope:browser-tests",
       "platform:web"
     ],
     "implicitDependencies": [
+      "@ergon/requester",
       "@ergon/workbench"
     ]
   }

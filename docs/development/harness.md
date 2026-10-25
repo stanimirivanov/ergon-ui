@@ -221,6 +221,14 @@ redesigned. Do not turn a deferred finding into a broad suppression.
 
 ## Browser-control regression evidence
 
+The existing browser suite now launches both independent previews (workbench
+4300, requester 4301); workspace verification builds both apps. The requester
+guide is recorded against only its own origin with the same fail-closed fixture
+network boundary. Supplied-case document paths are allowed, not arbitrary routes.
+The requester scope cannot import resolver packages, and protocol/component/browser
+regressions prove session-before-progress, exact identity, private withdrawal,
+fresh reopen, safe failures and narrow keyboard/accessibility behavior.
+
 Changes to session control must prove explicit lifecycle-only writes, fresh
 status after historical acknowledgement, exclusive advisory expiry, retirement
 of an open confirmation and unchanged fences across uncertain business replay.

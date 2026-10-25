@@ -35,14 +35,23 @@ export default defineConfig({
     trace: recordsUserGuides ? 'retain-on-failure' : 'on-first-retry',
   },
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'pnpm exec nx run @ergon/workbench:preview',
-    url: 'http://localhost:4300',
-    // A cold Nx project graph and Vite build can exceed Playwright's 60s default.
-    timeout: 180_000,
-    reuseExistingServer: !recordsUserGuides,
-    cwd: workspaceRoot,
-  },
+  webServer: [
+    {
+      command: 'pnpm exec nx run @ergon/workbench:preview',
+      url: 'http://localhost:4300',
+      // A cold Nx project graph and Vite build can exceed Playwright's 60s default.
+      timeout: 180_000,
+      reuseExistingServer: !recordsUserGuides,
+      cwd: workspaceRoot,
+    },
+    {
+      command: 'pnpm exec nx run @ergon/requester:preview',
+      url: 'http://localhost:4301',
+      timeout: 180_000,
+      reuseExistingServer: !recordsUserGuides,
+      cwd: workspaceRoot,
+    },
+  ],
   projects: [
     {
       name: 'chromium',

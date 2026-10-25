@@ -8,6 +8,95 @@ const ACCEPTED_APPLICATION_DECISION =
   'docs/decisions/0042-own-follow-up-workflow.md';
 
 describe('project boundary policy', () => {
+  it('permits multi-app browser verification without granting a production escape scope', () => {
+    const requester = project('apps/ergon-requester', '@ergon/requester', [
+      'type:app',
+      'scope:requester',
+      'platform:web',
+    ]);
+    const tests = project(
+      'apps/ergon-workbench-e2e',
+      '@ergon/workbench-e2e',
+      ['type:test', 'scope:browser-tests', 'platform:web'],
+      { '@ergon/requester': 'workspace:*' },
+    );
+    assert.deepEqual(validateProjectBoundaries([requester, tests]), []);
+    const invalid = project('apps/ergon-invalid', '@ergon/invalid', [
+      'type:app',
+      'scope:browser-tests',
+      'platform:web',
+    ]);
+    assert(
+      validateProjectBoundaries([invalid]).some((error) =>
+        error.includes('scope:browser-tests requires type:test'),
+      ),
+    );
+  });
+  it('allows requester composition but rejects resolver dependencies and cross-capability progress imports', () => {
+    const progress = project(
+      'packages/requester-progress/data-access-web',
+      '@ergon/requester-progress-data-access-web',
+      ['type:data-access', 'scope:requester-progress', 'platform:web'],
+    );
+    const session = project(
+      'packages/session/data-access-web',
+      '@ergon/session-data-access-web',
+      ['type:data-access', 'scope:session', 'platform:web'],
+    );
+    const resolver = project(
+      'packages/follow-up/data-access-web',
+      '@ergon/follow-up-data-access-web',
+      ['type:data-access', 'scope:follow-up', 'platform:web'],
+    );
+    const requester = project(
+      'apps/ergon-requester',
+      '@ergon/requester',
+      ['type:app', 'scope:requester', 'platform:web'],
+      {
+        '@ergon/requester-progress-data-access-web': 'workspace:*',
+        '@ergon/session-data-access-web': 'workspace:*',
+      },
+    );
+    assert.deepEqual(
+      validateProjectBoundaries([progress, session, requester]),
+      [],
+    );
+    const coupled = structuredClone(requester);
+    coupled.manifest.dependencies['@ergon/follow-up-data-access-web'] =
+      'workspace:*';
+    assert(
+      validateProjectBoundaries([progress, session, resolver, coupled]).some(
+        (error) =>
+          error.includes('scope:requester cannot depend on scope:follow-up'),
+      ),
+    );
+    const crossed = project(
+      progress.path,
+      progress.manifest.name,
+      progress.manifest.nx.tags,
+      { '@ergon/session-data-access-web': 'workspace:*' },
+    );
+    assert(
+      validateProjectBoundaries([crossed, session]).some((error) =>
+        error.includes(
+          'scope:requester-progress cannot depend on scope:session',
+        ),
+      ),
+    );
+    const workbench = project(
+      'apps/ergon-workbench',
+      '@ergon/workbench',
+      ['type:app', 'scope:workbench', 'platform:web'],
+      { '@ergon/requester-progress-data-access-web': 'workspace:*' },
+    );
+    assert(
+      validateProjectBoundaries([progress, workbench]).some((error) =>
+        error.includes(
+          'scope:workbench cannot depend on scope:requester-progress',
+        ),
+      ),
+    );
+  });
   it('allows app composition but keeps run supervision independent of follow-up and session', () => {
     const dataAccess = project(
       'packages/run-supervision/data-access-web',

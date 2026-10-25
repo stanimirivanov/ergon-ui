@@ -111,7 +111,7 @@ describe('current actor boundary', () => {
     });
     expect(
       await screen.findByRole('heading', {
-        name: 'Session verification encountered a workbench error.',
+        name: 'Session verification encountered an application error.',
       }),
     ).toBeTruthy();
     expect(screen.queryByText(/PRIVATE-SESSION-CAUSE/)).toBeNull();
@@ -155,7 +155,7 @@ describe('current actor boundary', () => {
     });
     expect(
       await screen.findByRole('heading', {
-        name: 'Session verification encountered a workbench error.',
+        name: 'Session verification encountered an application error.',
       }),
     ).toBeTruthy();
     expect(

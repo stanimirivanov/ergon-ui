@@ -2,19 +2,22 @@
 
 ## TL;DR
 
+The independent [requester app](apps/ergon-requester/README.md) now supports
+authenticated case progress from supplied links; it is not a resolver route.
+
 Ergon UI is the browser workspace for Ergon's evidence-led resolution
 experiences. The repository contains the resolver workbench, a typed
 confidential-BFF boundary, a human follow-up inbox with CSRF-protected claiming,
 an active claimed-work view, an assigned-run snapshot Console, and a web-only UI package. The requester
-application, React Native clients, and animation enter only with a slice
-that uses them.
+application now has its first owner-scoped read; React Native clients and
+animation enter only with a slice that uses them.
 
 ## Current status
 
 The first foundation provides:
 
 - React 19.3 in an Nx and pnpm workspace;
-- one Vite-built `ergon-workbench` application using React Router Data Mode;
+- independently Vite-built `ergon-workbench` and `ergon-requester` applications using React Router Data Mode;
 - Tailwind CSS and a shadcn-compatible `@ergon/ui-web` source package;
 - RTK Query request state backed by an Effect HTTP, timeout, retry, decoding,
   and typed-error pipeline;
@@ -73,9 +76,11 @@ Nx serves it at `http://localhost:4200` by default.
 
 ```text
 apps/
+  ergon-requester/       External owner-scoped case progress
   ergon-workbench/       Internal resolver experience
   ergon-workbench-e2e/   Browser verification
 packages/
+  requester-progress/    Requester protocol/cache and feature
   follow-up/             Target group for follow-up model, data, and feature projects
   session/               Target group for session model, data, and feature projects
   run-supervision/       Assigned-run browser data access and feature

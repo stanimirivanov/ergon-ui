@@ -9,12 +9,12 @@ native UI, application state, and authentication adapters platform-specific.
 
 ## Application topology
 
-| Deployable        | Audience and responsibility                                        | Status                                                   |
-| :---------------- | :----------------------------------------------------------------- | :------------------------------------------------------- |
-| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Follow-up handling and assigned-run snapshot supervision |
-| `ergon-requester` | External adaptive resolution canvas                                | Deferred to first requester slice                        |
-| widget SDK        | Embeddable headless client and web components                      | Deferred                                                 |
-| native clients    | Selected requester or resolver workflows                           | Deferred until required                                  |
+| Deployable        | Audience and responsibility                                        | Status                                                     |
+| :---------------- | :----------------------------------------------------------------- | :--------------------------------------------------------- |
+| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Follow-up handling and assigned-run snapshot supervision   |
+| `ergon-requester` | External requester case progress                                   | Authenticated supplied-link read; complete canvas deferred |
+| widget SDK        | Embeddable headless client and web components                      | Deferred                                                   |
+| native clients    | Selected requester or resolver workflows                           | Deferred until required                                    |
 
 The workbench and requester experience use distinct deployment artifacts,
 identity clients, CSPs, URLs, performance budgets, and release decisions. Studio
@@ -22,6 +22,14 @@ and simulation begin as workbench route areas because they share the internal
 trust boundary; split them only for demonstrated isolation or ownership needs.
 
 ## Project roles and dependency direction
+
+The [requester app](../apps/ergon-requester/README.md) composes session gating and
+requester-progress feature/data access into its own artifact and per-link store.
+It cannot depend on follow-up/run-supervision or workbench. Progress data access
+owns exact-case decoding and fresh RTK acquisition; feature owns recheck intent,
+withdrawal and focus. No pass-through application core is introduced. Login
+returns only to the tenant, requiring the original supplied case link to reopen.
+See [ADR 0048](decisions/0048-compose-requester-owned-case-progress.md).
 
 Projects are grouped by business capability and concrete frontend
 responsibility. A capability gains a hexagonal application core only when the

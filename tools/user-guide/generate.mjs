@@ -44,6 +44,7 @@ if (
 rmSync(outputRoot, { recursive: true, force: true });
 
 runStep('Building the workbench', pnpm, ['build']);
+runStep('Building the requester', pnpm, ['nx', 'build', '@ergon/requester']);
 runStep('Installing the guide browser', pnpm, [
   'exec',
   'playwright',

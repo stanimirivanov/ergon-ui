@@ -2,6 +2,12 @@
 
 ## TL;DR
 
+This suite also verifies the separate requester preview at localhost:4301.
+Its test-only browser scope and implicit app dependencies cover both artifacts
+without allowing resolver production projects to import requester capabilities.
+The requester chapter covers supplied-link access, session gating, narrow reflow
+and private withdrawal on failed revalidation.
+
 The tagged access-state, inbox-navigation, follow-up, owned-context,
 claim-recovery, release-recovery, internal-notes, run-supervision, handover, approval,
 pinned-evidence, outcome-verification, proof-finalization, execution/recovery,

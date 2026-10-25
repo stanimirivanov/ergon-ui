@@ -14,7 +14,7 @@ section order in the template. Supported statuses are `Proposed`, `Accepted`,
 
 A replacement adds `- Supersedes:` with exact links to every decision it
 replaces; each older record points back through its status. The published ADR
-high-water mark is `0047`. It may advance with the next decision but must never
+high-water mark is `0048`. It may advance with the next decision but must never
 decrease, even when the newest record is later superseded or deprecated.
 
 ## Index
@@ -68,6 +68,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0045](0045-confirm-current-owner-follow-up-handover.md)                    | Accepted   | Confirm direct follow-up handover with exact historical recovery |
 | [0046](0046-confirm-terminal-follow-up-completion.md)                       | Accepted   | Confirm terminal administrative completion with exact recovery   |
 | [0047](0047-confirm-independent-follow-up-priority.md)                      | Accepted   | Confirm independent metadata with original-active-owner recovery |
+| [0048](0048-compose-requester-owned-case-progress.md)                       | Accepted   | Separate requester app and fresh owner-scoped progress           |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

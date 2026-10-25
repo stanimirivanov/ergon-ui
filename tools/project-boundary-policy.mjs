@@ -17,11 +17,14 @@ const ALLOWED_PLATFORMS = new Set([
 ]);
 
 const ALLOWED_SCOPES = new Set([
+  'scope:browser-tests',
   'scope:follow-up',
   'scope:session',
   'scope:run-supervision',
   'scope:shared',
   'scope:workbench',
+  'scope:requester',
+  'scope:requester-progress',
 ]);
 
 const TYPE_DEPENDENCIES = new Map([
@@ -50,6 +53,31 @@ const TYPE_DEPENDENCIES = new Map([
 ]);
 
 const SCOPE_DEPENDENCIES = new Map([
+  [
+    'scope:browser-tests',
+    new Set([
+      'scope:workbench',
+      'scope:requester',
+      'scope:follow-up',
+      'scope:run-supervision',
+      'scope:requester-progress',
+      'scope:session',
+      'scope:shared',
+    ]),
+  ],
+  [
+    'scope:requester-progress',
+    new Set(['scope:requester-progress', 'scope:shared']),
+  ],
+  [
+    'scope:requester',
+    new Set([
+      'scope:requester',
+      'scope:requester-progress',
+      'scope:session',
+      'scope:shared',
+    ]),
+  ],
   ['scope:shared', new Set(['scope:shared'])],
   ['scope:follow-up', new Set(['scope:follow-up', 'scope:shared'])],
   ['scope:session', new Set(['scope:session', 'scope:shared'])],
@@ -208,6 +236,12 @@ export function validateProjectBoundaries(
     }
 
     const type = tagsByDimension.get('type');
+    if (
+      tagsByDimension.get('scope') === 'scope:browser-tests' &&
+      type !== 'type:test'
+    ) {
+      errors.push(`${project.path}: scope:browser-tests requires type:test`);
+    }
     const platform = tagsByDimension.get('platform');
     if (
       (type === 'type:model' || type === 'type:application') &&

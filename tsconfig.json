@@ -3,6 +3,9 @@
   "compileOnSave": false,
   "files": [],
   "references": [
+    { "path": "./apps/ergon-requester" },
+    { "path": "./packages/requester-progress/data-access-web" },
+    { "path": "./packages/requester-progress/feature-web" },
     {
       "path": "./packages/run-supervision/data-access-web"
     },
