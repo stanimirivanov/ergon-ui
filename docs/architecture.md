@@ -9,12 +9,12 @@ native UI, application state, and authentication adapters platform-specific.
 
 ## Application topology
 
-| Deployable        | Audience and responsibility                                        | Status                                                     |
-| :---------------- | :----------------------------------------------------------------- | :--------------------------------------------------------- |
-| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Follow-up handling and assigned-run snapshot supervision   |
-| `ergon-requester` | External requester case progress                                   | Authenticated supplied-link read; complete canvas deferred |
-| widget SDK        | Embeddable headless client and web components                      | Deferred                                                   |
-| native clients    | Selected requester or resolver workflows                           | Deferred until required                                    |
+| Deployable        | Audience and responsibility                                        | Status                                                   |
+| :---------------- | :----------------------------------------------------------------- | :------------------------------------------------------- |
+| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Follow-up handling and assigned-run snapshot supervision |
+| `ergon-requester` | External requester case progress                                   | Authenticated supplied-link read and bounded canvas      |
+| widget SDK        | Embeddable headless client and web components                      | Deferred                                                 |
+| native clients    | Selected requester or resolver workflows                           | Deferred until required                                  |
 
 The workbench and requester experience use distinct deployment artifacts,
 identity clients, CSPs, URLs, performance budgets, and release decisions. Studio

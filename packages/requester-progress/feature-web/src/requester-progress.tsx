@@ -3,9 +3,9 @@ import {
   useFreshProgress,
   type ProgressFailure,
   type ProgressQuery,
-  type RequesterProgress,
 } from '@ergon/requester-progress-data-access-web';
 import { Button } from '@ergon/ui-web';
+import { RequesterCanvas } from './requester-canvas';
 
 const failures: Readonly<
   Record<
@@ -140,53 +140,9 @@ export function RequesterCaseProgress({
             ) : null}
           </div>
         ) : (
-          <ProgressDetails progress={read.progress} />
+          <RequesterCanvas progress={read.progress} />
         )}
       </div>
     </section>
-  );
-}
-
-function ProgressDetails({
-  progress,
-}: {
-  readonly progress: RequesterProgress;
-}): ReactElement {
-  const resolved = progress.status === 'VERIFIED_RESOLVED';
-  return (
-    <article className="grid min-w-0 gap-6 rounded-xl border-2 border-border bg-surface p-5 shadow-lg sm:p-8">
-      <div>
-        <p className="text-sm font-bold tracking-wide uppercase">
-          {resolved ? 'Verified resolved' : 'Open'}
-        </p>
-        <h2 className="mt-3 text-2xl font-bold [overflow-wrap:anywhere]">
-          {progress.goal}
-        </h2>
-        <p className="mt-4 leading-7 text-ink-muted">
-          {resolved
-            ? 'The case records an accepted verified outcome. Internal proof and execution details are not disclosed here.'
-            : 'The case remains open. This does not identify an active run, an approval, a waiting person or an estimated completion time.'}
-        </p>
-      </div>
-      <dl className="grid min-w-0 gap-5 border-t border-border pt-5 sm:grid-cols-2">
-        <div>
-          <dt className="text-sm font-bold">Opened</dt>
-          <dd className="mt-1 break-words">
-            <time dateTime={progress.openedAt}>{progress.openedAt}</time>
-          </dd>
-        </div>
-        <div>
-          <dt className="text-sm font-bold">Last case update</dt>
-          <dd className="mt-1 break-words">
-            <time dateTime={progress.updatedAt}>{progress.updatedAt}</time>
-          </dd>
-        </div>
-      </dl>
-      <p className="text-sm leading-6 text-ink-muted">
-        These are case timestamps, not proof recording times. This is a checked
-        snapshot, not live monitoring. Recheck deliberately when you need a new
-        observation.
-      </p>
-    </article>
   );
 }

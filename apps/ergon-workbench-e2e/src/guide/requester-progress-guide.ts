@@ -29,21 +29,28 @@ export const requesterProgressGuide: GuideChapter = {
     {
       id: 'requester-open',
       title: 'Read the checked lifecycle, not an execution promise',
-      body: 'After session verification, the server checks the exact case. OPEN says nothing about an active run, approval readiness, a waiting person or estimated completion. The goal is untrusted text, not markup. Internal observations, provider references, owner IDs and run details are absent.',
+      body: 'After session verification, the server checks the exact case. Read the prominent goal and recorded status above the four explanatory cards. OPEN says nothing about an active run, approval readiness, a waiting person or estimated completion. What we need from you explains that responses and uploads are unavailable; What Ergon is checking explicitly withholds individual checks. Outcome proof distinguishes the recorded lifecycle from private evidence, and Confirm the outcome explains that reading cannot change the case. No disabled pretend actions are offered. The goal is untrusted text, not markup.',
       expected:
-        'The supplied goal, Open label and two UTC case timestamps appear without resolver controls.',
+        'The supplied goal, Open label, four explanatory cards and Request details sidebar appear without inferred stages or resolver controls.',
     },
     {
       id: 'requester-narrow',
       title: 'Read the same facts on a narrow screen',
-      body: 'At 320 pixels the goal and timestamps wrap without horizontal scrolling. Recheck remains keyboard accessible with visible focus. Status is not communicated by color alone and no animation is required. Narrow layout does not alter authority or remove a required action. The recording then reopens the supplied link at desktop width, demonstrating a separate fresh session and case check rather than reusing a private snapshot.',
+      body: 'At desktop width the request details form a right-hand rail beside the goal and two-column cards. At 320 pixels, also representing reflow at high zoom, the cards stack and details follow in reading order. The case ID and UTC timestamps wrap without horizontal scrolling. Recheck remains keyboard accessible with visible focus. Status is not communicated by color alone; forced colors and reduced motion retain the same facts. The recording then reopens the supplied link at desktop width, demonstrating a separate fresh session and case check rather than reusing a private snapshot.',
       expected:
         'The narrow page has no horizontal overflow and passes automated accessibility checks.',
     },
     {
+      id: 'requester-details',
+      title: 'Read request details below the narrow canvas',
+      body: 'Scroll past the four explanatory cards to Request details. The same case ID and UTC case timestamps are available here as on desktop, without a separate read. A checked snapshot explains that these are not proof recording times and that the page does not monitor continuously. Your private view explains which internal information is not returned; it is not a substitute for your organization’s privacy policy. There is no invented source link or activity-log button.',
+      expected:
+        'The narrow details rail remains readable with wrapping case identity, timestamps and snapshot/privacy guidance.',
+    },
+    {
       id: 'requester-pending',
       title: 'Withdraw old facts before checking again',
-      body: 'Choose Recheck progress. Focus moves to the persistent heading before the private card disappears. The fixture holds the request: previous goal and timestamps remain hidden. This is a checked snapshot, not live monitoring. Automatic polling does not continuously re-establish authorization.',
+      body: 'Choose Recheck progress. Focus moves to the persistent heading before the private canvas disappears, including the details sidebar. The fixture holds the request: previous goal, case ID and timestamps remain hidden. The sidebar explained that timestamps describe the case, not proof recording time, and that internal notes, operator identity and activity logs are not provided. This is a checked snapshot, not live monitoring. Automatic polling does not continuously re-establish authorization.',
       expected:
         'Pending guidance replaces private details before the request starts; heading focus survives.',
     },
@@ -80,7 +87,7 @@ export const requesterProgressGuide: GuideChapter = {
     },
   ],
   limitations: [
-    'This is the first usable read surface, not the complete M05-PR18 adaptive canvas. Intake, discovery, information responses, notifications and sign-out belong to later slices. No resolver navigation or command exists.',
+    'This bounded canvas adapts the requester concept without inventing its staged timeline, running checks, uploads, owner identity, source links or outcome confirmation. Intake, discovery, information responses, notifications and sign-out belong to later slices. No resolver navigation or command exists.',
     'Ownership is provisioned through reviewed privileged database operations, not the browser. Transfer/revocation is not supplied; incorrect provisioning requires disabling requester access and reviewed forward repair.',
     'This simulated Chromium guide does not certify live IdP, separate-origin deployment, PostgreSQL authorization or actual proof acceptance. Those need backend and operational verification.',
   ],
