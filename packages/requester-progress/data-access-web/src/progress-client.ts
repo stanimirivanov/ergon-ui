@@ -1,3 +1,5 @@
+import type { RequesterQuestions } from './question-history';
+
 /** Public lifecycle observation only: OPEN is not a run state; resolution requires server-accepted proof. */
 export interface RequesterProgress {
   readonly caseId: string;
@@ -29,6 +31,9 @@ export type ProgressFailure = {
 export type ProgressResult =
   | { readonly ok: true; readonly progress: RequesterProgress }
   | { readonly ok: false; readonly error: ProgressFailure };
+export type RequesterQuestionsResult =
+  | { readonly ok: true; readonly questions: RequesterQuestions }
+  | { readonly ok: false; readonly error: ProgressFailure };
 /**
  * Reads one explicitly owned case. Identity is supplied by the server session,
  * not these coordinates. Expected failures and cancellation resolve as outcomes;
@@ -36,4 +41,9 @@ export type ProgressResult =
  */
 export interface ProgressClient {
   read(query: ProgressQuery, signal: AbortSignal): Promise<ProgressResult>;
+  /** Separately authorized history, including closed owned cases; no delivery acknowledgement or mutation. */
+  readQuestions(
+    query: ProgressQuery,
+    signal: AbortSignal,
+  ): Promise<RequesterQuestionsResult>;
 }

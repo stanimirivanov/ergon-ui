@@ -144,6 +144,10 @@ describe('requester progress protocol', () => {
           thunk: {
             extraArgument: {
               progressClient: {
+                readQuestions: async () => ({
+                  ok: true,
+                  questions: { items: [], truncated: false },
+                }),
                 read: () => {
                   throw new Error(diagnostic);
                 },

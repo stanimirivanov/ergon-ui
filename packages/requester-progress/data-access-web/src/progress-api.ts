@@ -5,6 +5,7 @@ import type {
   ProgressQuery,
   RequesterProgress,
 } from './progress-client';
+import type { RequesterQuestions } from './question-history';
 
 /** Executable dependency, supplied outside serializable Redux state by the requester app. */
 export interface ProgressDependencies {
@@ -35,6 +36,32 @@ export const progressApi = createApi({
   baseQuery: fakeBaseQuery<ProgressFailure>(),
   keepUnusedDataFor: 0,
   endpoints: (build) => ({
+    questions: build.query<RequesterQuestions, ProgressQuery>({
+      async queryFn(
+        query,
+        api,
+      ): Promise<{ data: RequesterQuestions } | { error: ProgressFailure }> {
+        try {
+          const extra = api.extra;
+          if (
+            typeof extra !== 'object' ||
+            extra === null ||
+            !('progressClient' in extra) ||
+            !isProgressClient(extra.progressClient)
+          )
+            return { error: { kind: 'unexpected-defect' } };
+          const result = await extra.progressClient.readQuestions(
+            query,
+            api.signal,
+          );
+          return result.ok
+            ? { data: result.questions }
+            : { error: normalizeProgressFailure(result.error) };
+        } catch {
+          return { error: { kind: 'unexpected-defect' } };
+        }
+      },
+    }),
     progress: build.query<RequesterProgress, ProgressQuery>({
       async queryFn(
         query,
@@ -68,6 +95,8 @@ function isProgressClient(value: unknown): value is ProgressClient {
     typeof value === 'object' &&
     value !== null &&
     'read' in value &&
-    typeof value.read === 'function'
+    typeof value.read === 'function' &&
+    'readQuestions' in value &&
+    typeof value.readQuestions === 'function'
   );
 }

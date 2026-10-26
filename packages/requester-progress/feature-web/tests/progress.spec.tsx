@@ -30,12 +30,18 @@ const progress = {
   updatedAt: '2026-10-25T00:00:00Z',
 };
 afterEach(cleanup);
-function fixture(read: ProgressClient['read']) {
+function fixture(
+  read: ProgressClient['read'],
+  readQuestions: ProgressClient['readQuestions'] = async () => ({
+    ok: true,
+    questions: { items: [], truncated: false },
+  }),
+) {
   const store = configureStore({
     reducer: { [progressApi.reducerPath]: progressApi.reducer },
     middleware: (defaults) =>
       defaults({
-        thunk: { extraArgument: { progressClient: { read } } },
+        thunk: { extraArgument: { progressClient: { read, readQuestions } } },
       }).concat(progressApi.middleware),
   });
   const view = render(
@@ -51,6 +57,124 @@ function fixture(read: ProgressClient['read']) {
   return { store, ...view };
 }
 describe('requester progress disclosure', () => {
+  it('reacquires history on immediate reopen and cannot publish a retired answer', async () => {
+    type Result = Awaited<ReturnType<ProgressClient['readQuestions']>>;
+    let finish: (value: Result) => void = () => undefined;
+    const readQuestions = vi
+      .fn<ProgressClient['readQuestions']>()
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            finish = resolve;
+          }),
+      )
+      .mockResolvedValue({ ok: false, error: { kind: 'not-found' } });
+    const first = fixture(async () => ({ ok: true, progress }), readQuestions);
+    await waitFor(() => expect(readQuestions).toHaveBeenCalledTimes(1));
+    first.unmount();
+    const reopened = render(
+      <Provider store={first.store}>
+        <RequesterCaseProgress query={query} signInHref="/bff/login" />
+      </Provider>,
+    );
+    expect(screen.queryByText(progress.goal)).toBeNull();
+    await act(async () =>
+      finish({
+        ok: true,
+        questions: {
+          items: [
+            {
+              requestId: 'retired-question',
+              question: 'Retired question',
+              requestedAt: progress.openedAt,
+              recordedAt: progress.updatedAt,
+              response: {
+                responseId: 'retired-response',
+                answer: 'RETIRED ANSWER',
+                respondedAt: progress.openedAt,
+                recordedAt: progress.updatedAt,
+              },
+            },
+          ],
+          truncated: false,
+        },
+      }),
+    );
+    await screen.findByText('Case progress is unavailable.');
+    expect(readQuestions).toHaveBeenCalledTimes(2);
+    expect(screen.queryByText('RETIRED ANSWER')).toBeNull();
+    expect(screen.queryByText(progress.goal)).toBeNull();
+    reopened.unmount();
+    first.store.dispatch(progressApi.util.resetApiState());
+  });
+  it('withholds the whole canvas until history succeeds and before a held failed history recheck', async () => {
+    const question = {
+      requestId: 'question',
+      question: 'Exact <script>question</script>',
+      requestedAt: progress.openedAt,
+      recordedAt: progress.updatedAt,
+      response: {
+        responseId: 'answer',
+        answer: ' Exact 😀 <script>answer</script>\n',
+        respondedAt: '2026-10-25T00:00:02.123456789Z',
+        recordedAt: '2026-10-25T00:00:03Z',
+      },
+    };
+    type Result = Awaited<ReturnType<ProgressClient['readQuestions']>>;
+    let finish: (value: Result) => void = () => undefined;
+    const readQuestions = vi
+      .fn<ProgressClient['readQuestions']>()
+      .mockImplementation(() => {
+        expect(screen.queryByText(progress.goal)).toBeNull();
+        expect(screen.queryByRole('complementary')).toBeNull();
+        expect(screen.queryByText(question.response.answer)).toBeNull();
+        return new Promise((resolve) => {
+          finish = resolve;
+        });
+      });
+    const { store } = fixture(
+      async () => ({
+        ok: true,
+        progress: { ...progress, status: 'VERIFIED_RESOLVED' },
+      }),
+      readQuestions,
+    );
+    await waitFor(() => expect(readQuestions).toHaveBeenCalledTimes(1));
+    expect(screen.queryByText(progress.goal)).toBeNull();
+    await act(async () =>
+      finish({ ok: true, questions: { items: [question], truncated: false } }),
+    );
+    await screen.findByText(progress.goal);
+    const answer = screen.getByRole('region', { name: 'Recorded answer' });
+    expect(answer.textContent).toContain(question.response.answer);
+    expect(answer.querySelector('script')).toBeNull();
+    expect(answer.querySelector('time')?.getAttribute('datetime')).toBe(
+      question.response.respondedAt,
+    );
+    expect(screen.getByText(/This case is closed/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Recheck progress' }));
+    await waitFor(() => expect(readQuestions).toHaveBeenCalledTimes(2));
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { name: 'Case progress' }),
+    );
+    await act(async () => finish({ ok: false, error: { kind: 'not-found' } }));
+    await screen.findByText('Case progress is unavailable.');
+    expect(
+      screen.queryByRole('region', { name: 'Recorded answer' }),
+    ).toBeNull();
+    expect(screen.queryByText(progress.goal)).toBeNull();
+    store.dispatch(progressApi.util.resetApiState());
+  });
+  it('does not acquire history after progress denial', async () => {
+    const readQuestions = vi.fn<ProgressClient['readQuestions']>();
+    const { store } = fixture(
+      async () => ({ ok: false, error: { kind: 'not-found' } }),
+      readQuestions,
+    );
+    await screen.findByText('Case progress is unavailable.');
+    expect(readQuestions).not.toHaveBeenCalled();
+    store.dispatch(progressApi.util.resetApiState());
+  });
   it('hides before recheck I/O, keeps stable focus and never restores retained facts on failure', async () => {
     let finish: (value: ProgressResult) => void = () => undefined;
     const read = vi
@@ -115,7 +239,12 @@ describe('bounded requester canvas', () => {
   it.each(['OPEN', 'VERIFIED_RESOLVED'] as const)(
     'presents only the disclosed %s lifecycle with no invented controls or stages',
     (status) => {
-      render(<RequesterCanvas progress={{ ...progress, status }} />);
+      render(
+        <RequesterCanvas
+          progress={{ ...progress, status }}
+          questions={{ items: [], truncated: false }}
+        />,
+      );
       expect(screen.getByRole('heading', { name: progress.goal })).toBeTruthy();
       expect(
         screen.getByRole('complementary', { name: 'Request details' }),

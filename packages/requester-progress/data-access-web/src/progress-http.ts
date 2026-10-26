@@ -5,7 +5,12 @@ import type {
   ProgressQuery,
   ProgressResult,
   RequesterProgress,
+  RequesterQuestionsResult,
 } from './progress-client';
+import {
+  decodeRequesterQuestions,
+  isRequesterInstant as validInstant,
+} from './question-history';
 
 const instant = Schema.String.pipe(
   Schema.pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/),
@@ -43,48 +48,77 @@ export function createProgressBffClient({
 }): ProgressClient {
   if (!Number.isFinite(requestTimeout) || requestTimeout <= 0)
     throw new RangeError('Invalid request timeout');
+  async function run<A>(
+    request: Effect.Effect<A, ProgressFailure, never>,
+    signal: AbortSignal,
+  ): Promise<Either.Either<A, ProgressFailure>> {
+    const program = request.pipe(
+      Effect.timeoutFail({
+        duration: requestTimeout,
+        onTimeout: (): ProgressFailure => ({ kind: 'timeout' }),
+      }),
+      Effect.retry({
+        times: 1,
+        while: (error) =>
+          ['transport', 'timeout', 'unavailable'].includes(error.kind),
+      }),
+    );
+    try {
+      const result = await Effect.runPromise(Effect.either(program), {
+        signal,
+      });
+      return signal.aborted &&
+        Either.isLeft(result) &&
+        result.left.kind === 'transport'
+        ? Either.left({ kind: 'request-cancelled' })
+        : result;
+    } catch (cause) {
+      if (!signal.aborted) throw cause;
+      return Either.left({ kind: 'request-cancelled' });
+    }
+  }
   return {
     async read(query, signal): Promise<ProgressResult> {
-      const program = request(fetch, query).pipe(
-        Effect.timeoutFail({
-          duration: requestTimeout,
-          onTimeout: (): ProgressFailure => ({ kind: 'timeout' }),
-        }),
-        Effect.retry({
-          times: 1,
-          while: (error) =>
-            ['transport', 'timeout', 'unavailable'].includes(error.kind),
-        }),
-      );
-      try {
-        const result = await Effect.runPromise(Effect.either(program), {
+      return Either.match(
+        await run(
+          request(fetch, query).pipe(
+            Effect.flatMap((response) => decode(response, query)),
+          ),
           signal,
-        });
-        return Either.match(result, {
+        ),
+        {
           onRight: (progress): ProgressResult => ({ ok: true, progress }),
-          onLeft: (error): ProgressResult => ({
-            ok: false,
-            error:
-              signal.aborted && error.kind === 'transport'
-                ? { kind: 'request-cancelled' }
-                : error,
-          }),
-        });
-      } catch (cause) {
-        if (!signal.aborted) throw cause;
-        return { ok: false, error: { kind: 'request-cancelled' } };
-      }
+          onLeft: (error): ProgressResult => ({ ok: false, error }),
+        },
+      );
+    },
+    async readQuestions(query, signal): Promise<RequesterQuestionsResult> {
+      const program = request(fetch, query, 'information-requests').pipe(
+        Effect.flatMap((response) =>
+          response.status === 200
+            ? json(response).pipe(Effect.flatMap(decodeRequesterQuestions))
+            : decodeFailure(response),
+        ),
+      );
+      return Either.match(await run(program, signal), {
+        onRight: (questions): RequesterQuestionsResult => ({
+          ok: true,
+          questions,
+        }),
+        onLeft: (error): RequesterQuestionsResult => ({ ok: false, error }),
+      });
     },
   };
 }
 function request(
   fetch: typeof globalThis.fetch,
   query: ProgressQuery,
-): Effect.Effect<RequesterProgress, ProgressFailure, never> {
+  resource: 'progress' | 'information-requests' = 'progress',
+): Effect.Effect<Response, ProgressFailure, never> {
   return Effect.tryPromise({
     try: (signal) =>
       fetch(
-        `/bff/v1/tenants/${encodeURIComponent(query.tenantId)}/requester-cases/${encodeURIComponent(query.caseId)}/progress`,
+        `/bff/v1/tenants/${encodeURIComponent(query.tenantId)}/requester-cases/${encodeURIComponent(query.caseId)}/${resource}`,
         {
           method: 'GET',
           credentials: 'same-origin',
@@ -94,7 +128,7 @@ function request(
         },
       ),
     catch: (): ProgressFailure => ({ kind: 'transport' }),
-  }).pipe(Effect.flatMap((response) => decode(response, query)));
+  });
 }
 function json(
   response: Response,
@@ -125,6 +159,11 @@ function decode(
         return Effect.succeed({ caseId, goal, status, openedAt, updatedAt });
       }),
     );
+  return decodeFailure(response);
+}
+function decodeFailure(
+  response: Response,
+): Effect.Effect<never, ProgressFailure, never> {
   return json(response).pipe(
     Effect.catchAll(() => Effect.succeed(undefined)),
     Effect.flatMap((body) => {
@@ -142,12 +181,5 @@ function decode(
               : (mapped ?? 'unexpected-response');
       return Effect.fail<ProgressFailure>({ kind });
     }),
-  );
-}
-function validInstant(value: string): boolean {
-  const time = Date.parse(value);
-  return (
-    Number.isFinite(time) &&
-    new Date(time).toISOString().slice(0, 19) === value.slice(0, 19)
   );
 }

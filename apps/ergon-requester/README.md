@@ -5,7 +5,8 @@
 Independently deploy the external requester app, never the resolver workbench
 artifact. Open a supplied `/tenants/{tenantId}/cases/{caseId}` link. Session
 verification precedes a fresh owner-scoped read. The bounded canvas presents
-only the existing five-field projection; it does not invent execution stages.
+the existing progress and narrow question/answer history projections; it does not
+invent execution stages. Both fresh reads must succeed before private disclosure.
 
 ## Ownership and public routes
 
@@ -55,8 +56,8 @@ hosting or put provider credentials into Vite variables.
 Existing Chromium and guide gates start both independent previews. The requester
 chapter uses synthetic marked BFF fixtures; it proves browser behavior, not live
 IdP/two-origin deployment, actual PostgreSQL authorization or proof acceptance.
-M05-PR18 adds the bounded canvas; later slices supply intake,
-information responses, notifications and safe logout.
+M05-PR18 adds the bounded canvas; PR22b adds read-only question/answer history.
+Later slices supply intake, answer submission/recovery, notifications and safe logout.
 
 ## Canvas presentation
 
@@ -64,7 +65,8 @@ The light requester concept becomes a prominent goal, recorded status, four
 explanatory cards and a right-hand request-details rail. Below desktop width
 the rail follows the cards; at narrow/zoom-equivalent width everything stacks.
 The app owns outer placement and tokens; feature components own the canvas.
-All case details disappear together during pending/failed fresh checks.
+All case details and history disappear together during pending/failed fresh checks.
 No concept-art stage timeline, upload, confirmation, owner, source or activity
-control is inferred from the five-field response. Unsupported sections explain
-their limits without disabled pretend actions or additional requests.
+control is inferred from the progress response. History adds its own protected
+read; other unsupported sections explain their limits without disabled pretend
+actions or further requests.
