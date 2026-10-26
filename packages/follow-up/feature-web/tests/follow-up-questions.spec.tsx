@@ -84,6 +84,79 @@ async function confirm(question = '  Exact question 😀\n'): Promise<void> {
   );
 }
 
+it.each([
+  {
+    response: undefined,
+    label: 'Answer history is not supplied by this server.',
+  },
+  { response: null, label: 'No answer recorded in this checked snapshot.' },
+])(
+  'distinguishes answer coverage from a checked unanswered question: $label',
+  async ({ response, label }) => {
+    const record = vi.fn<RecordFollowUpQuestion>();
+    setup(record, async () => ({
+      ok: true,
+      questions: {
+        items: [
+          { ...oldQuestion, ...(response === undefined ? {} : { response }) },
+        ],
+        truncated: false,
+      },
+    }));
+    await open();
+    expect(screen.getByText(label)).toBeTruthy();
+    expect(
+      screen.queryByRole('region', { name: 'Recorded requester answer' }),
+    ).toBeNull();
+    expect(record).not.toHaveBeenCalled();
+  },
+);
+
+it('renders inert exact answers then withdraws them before a held and failed history recheck', async () => {
+  const response = {
+    responseId: 'response',
+    answer: ' Exact 😀 <script>answer</script>\n',
+    respondedAt: '2026-10-26T08:00:00.123456789Z',
+    recordedAt: '2026-10-26T08:00:01Z',
+  };
+  let finish:
+    ((result: Awaited<ReturnType<ListFollowUpQuestions>>) => void) | undefined;
+  const held = new Promise<Awaited<ReturnType<ListFollowUpQuestions>>>(
+    (resolve) => {
+      finish = resolve;
+    },
+  );
+  const read = vi
+    .fn<ListFollowUpQuestions>()
+    .mockResolvedValueOnce({
+      ok: true,
+      questions: { items: [{ ...oldQuestion, response }], truncated: false },
+    })
+    .mockReturnValueOnce(held);
+  setup(vi.fn<RecordFollowUpQuestion>(), read);
+  await open();
+  const answer = screen.getByRole('region', {
+    name: 'Recorded requester answer',
+  });
+  expect(answer.textContent).toContain(response.answer);
+  expect(answer.querySelector('script')).toBeNull();
+  expect(answer.querySelector('time')?.getAttribute('datetime')).toBe(
+    response.respondedAt,
+  );
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Recheck question access' }),
+  );
+  expect(
+    screen.queryByRole('region', { name: 'Recorded requester answer' }),
+  ).toBeNull();
+  await waitFor(() => expect(read).toHaveBeenCalledTimes(2));
+  await act(async () => finish?.({ ok: false, error: { kind: 'not-found' } }));
+  await screen.findByText(/Question history unavailable/);
+  expect(
+    screen.queryByRole('region', { name: 'Recorded requester answer' }),
+  ).toBeNull();
+});
+
 it('requires valid Unicode text and deliberate acknowledgement without issuing a POST', async () => {
   const record = vi.fn<RecordFollowUpQuestion>();
   setup(record);

@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import { followUpQuestionsGuide } from './guide/follow-up-questions-guide';
 import {
   historicalQuestion,
+  recordedAnswer,
   installSimulatedFollowUpQuestionsBff,
 } from './guide/simulated-follow-up-questions-bff';
 import { runGuideScenario } from './guide/user-guide-session';
@@ -45,6 +46,24 @@ test(
           'questions-history',
           dialog.getByRole('region', { name: 'Recorded requester questions' }),
         );
+        await expect(
+          dialog.getByText('Answer history is not supplied by this server.'),
+        ).toBeVisible();
+        bff.setMode('answered');
+        await dialog
+          .getByRole('button', { name: 'Recheck question access' })
+          .click();
+        const answer = dialog.getByRole('region', {
+          name: 'Recorded requester answer',
+        });
+        await expect(answer).toContainText(recordedAnswer.answer.trim());
+        await expect(answer.locator('time').first()).toHaveAttribute(
+          'datetime',
+          recordedAnswer.respondedAt,
+        );
+        expect(await answer.locator('script').count()).toBe(0);
+        await guide.result('questions-answer', answer);
+        const readsBeforeReopen = bff.reads();
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
           [],
         );
@@ -58,11 +77,13 @@ test(
         await expect(page.getByText(historicalQuestion.question)).toHaveCount(
           0,
         );
+        await expect(answer).toHaveCount(0);
         await trigger.click();
         await expect(
           dialog.getByText(historicalQuestion.question),
         ).toBeVisible();
-        expect(bff.reads()).toBe(2);
+        await expect(answer).toBeVisible();
+        expect(bff.reads()).toBe(readsBeforeReopen + 1);
         bff.setMode('temporary');
         await dialog
           .getByRole('button', { name: 'Recheck question access' })
@@ -71,6 +92,7 @@ test(
           name: 'Try questions again',
         });
         await expect(retry).toBeVisible();
+        await expect(answer).toHaveCount(0);
         await expect(retry).toBeFocused();
         await expect(
           dialog.getByText('No retained questions are displayed.', {
@@ -94,6 +116,15 @@ test(
           'questions-empty',
           dialog.getByRole('region', { name: 'Recorded requester questions' }),
         );
+        bff.setMode('unanswered');
+        await dialog
+          .getByRole('button', { name: 'Recheck question access' })
+          .click();
+        const unanswered = dialog.getByText(
+          'No answer recorded in this checked snapshot.',
+        );
+        await expect(unanswered).toBeVisible();
+        await guide.result('questions-unanswered', unanswered);
         bff.setMode('truncated');
         await dialog
           .getByRole('button', { name: 'Recheck question access' })

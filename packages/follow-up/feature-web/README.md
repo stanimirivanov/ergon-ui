@@ -14,6 +14,9 @@ out of the deployable app and domain-agnostic UI primitives.
 ## Owns
 
 - Lazy requester-question inspection under existing owned-work/case gates.
+  Recorded answers remain inert within the same disclosure lifetime. Older-server
+  omission and an explicitly unanswered snapshot have distinct truthful messages;
+  answer times are neither delivery confirmation nor accepted evidence/proof.
   Questions stay separate from notes and proof; attributed latest-100 history
   supports explicit recheck, empty/failure recovery and access-loss withdrawal.
   UI primitives retain modal/focus ownership. RHF owns question/acknowledgement;

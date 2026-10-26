@@ -13,11 +13,11 @@ import {
 } from './follow-up-failures';
 import { readJson, readOptionalProblem } from './json-response';
 import { runRead } from './follow-up-read-adapter';
-import { followUpQuestionSchema } from './follow-up-question-schema';
+import { followUpQuestionHistorySchema } from './follow-up-question-history-schema';
 import { questionsUrl } from './follow-up-urls';
 
 const page = Schema.Struct({
-  items: Schema.Array(followUpQuestionSchema).pipe(Schema.maxItems(100)),
+  items: Schema.Array(followUpQuestionHistorySchema).pipe(Schema.maxItems(100)),
   truncated: Schema.Boolean,
 });
 
@@ -68,24 +68,31 @@ function decodeQuestions(
   return readJson(response).pipe(
     Effect.flatMap(Schema.decodeUnknown(page)),
     Effect.filterOrFail(
-      (history) =>
-        (!history.truncated || history.items.length === 100) &&
-        new Set(history.items.map((item) => item.requestId.toLowerCase()))
-          .size === history.items.length &&
-        history.items.every((item, index) => {
-          const previous = history.items[index - 1];
-          const key = (value: typeof item): string => {
-            const [seconds = '', fraction = ''] = value.recordedAt
-              .slice(0, -1)
-              .split('.');
-            return `${seconds}.${fraction.padEnd(9, '0')}:${value.requestId.toLowerCase()}`;
-          };
-          return (
-            item.caseId === query.caseId &&
-            item.ownershipRevision <= query.expectedOwnershipRevision &&
-            (previous === undefined || key(previous) > key(item))
-          );
-        }),
+      (history) => {
+        const responses = history.items.flatMap((item) =>
+          item.response ? [item.response.responseId.toLowerCase()] : [],
+        );
+        return (
+          new Set(responses).size === responses.length &&
+          (!history.truncated || history.items.length === 100) &&
+          new Set(history.items.map((item) => item.requestId.toLowerCase()))
+            .size === history.items.length &&
+          history.items.every((item, index) => {
+            const previous = history.items[index - 1];
+            const key = (value: typeof item): string => {
+              const [seconds = '', fraction = ''] = value.recordedAt
+                .slice(0, -1)
+                .split('.');
+              return `${seconds}.${fraction.padEnd(9, '0')}:${value.requestId.toLowerCase()}`;
+            };
+            return (
+              item.caseId === query.caseId &&
+              item.ownershipRevision <= query.expectedOwnershipRevision &&
+              (previous === undefined || key(previous) > key(item))
+            );
+          })
+        );
+      },
       () => INVALID_RESPONSE,
     ),
     Effect.mapError(() => INVALID_RESPONSE),

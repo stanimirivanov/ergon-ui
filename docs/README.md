@@ -40,6 +40,9 @@ dependency edge changes.
 
 ## Canonical sources
 
+- [Requester-response delivery](development/plans/m05-requester-responses.md) refines
+  M05-PR22 into resolver inspection, requester history and requester submission/recovery.
+
 - [Requester app](../apps/ergon-requester/README.md) owns requester deployment,
   supplied-link navigation and verification limits.
 

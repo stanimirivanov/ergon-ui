@@ -38,7 +38,7 @@ and narrow accepted proof, owned inspection,
 320-pixel owned chrome, forced-colour inspection, desktop/narrow internal notes
 and desktop/narrow direct follow-up handover, administrative-completion and
 independent-priority confirmation, plus desktop/narrow requester-question history
-and its deliberate composer. Existing browser fixtures
+with recorded answers and its deliberate composer. Existing browser fixtures
 provide deterministic synthetic records; these are not live operational evidence.
 Viewport, scale, locale, timezone, colour scheme and reduced motion are fixed in
 [`playwright.visual.config.mts`](../../apps/ergon-workbench-e2e/playwright.visual.config.mts).

@@ -13,9 +13,23 @@ export const historicalQuestion: FollowUpQuestion = {
   requestedAt: '2026-09-21T09:40:00Z',
   recordedAt: '2026-09-21T09:40:01Z',
 };
-type HistoryMode = 'populated' | 'empty' | 'truncated' | 'temporary' | 'denied';
+export const recordedAnswer = {
+  responseId: '77777777-7777-4777-8777-777777777777',
+  answer:
+    ' The customer workspace 😀 <script>inert answer</script>\nSecond line.',
+  respondedAt: '2026-09-21T09:41:00.123456789Z',
+  recordedAt: '2026-09-21T09:41:01.000001Z',
+};
+type HistoryMode =
+  | 'populated'
+  | 'answered'
+  | 'unanswered'
+  | 'empty'
+  | 'truncated'
+  | 'temporary'
+  | 'denied';
 
-/** Synthetic history only: no delivery, requester response or authorization decision is simulated as real. */
+/** Synthetic history only: recorded answer fixtures do not establish real delivery, authority or accepted proof. */
 export async function installSimulatedFollowUpQuestionsBff(
   page: Page,
 ): Promise<{
@@ -52,7 +66,16 @@ export async function installSimulatedFollowUpQuestionsBff(
                 ...historicalQuestion,
                 requestId: `88888888-8888-4888-8888-${(100 - index).toString(16).padStart(12, '0')}`,
               }))
-            : [historicalQuestion];
+            : [
+                {
+                  ...historicalQuestion,
+                  ...(mode === 'answered'
+                    ? { response: recordedAnswer }
+                    : mode === 'unanswered'
+                      ? { response: null }
+                      : {}),
+                },
+              ];
       await fulfillSimulatedBff(route, {
         items,
         truncated: mode === 'truncated',

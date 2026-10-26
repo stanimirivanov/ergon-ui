@@ -12,6 +12,9 @@ Own confidential-browser BFF execution and follow-up remote-cache integration.
   Question recording joins the existing session CSRF lifecycle without automatic
   POST replay. Both 200/201 receipts must match exact request/case/claim/revision/text;
   safe mutation failures preserve uncertainty. Acknowledgement never patches history.
+  The GET-only response extension validates exact Unicode text, UTC calendar instants
+  and unique response identities, strips private extras and preserves omission/null.
+  Supplied malformed answers fail the whole observation; POST receipts stay separate.
 
 - Required current priority pairs and exact independent-revision assignment
   receipts, sharing session CSRF without POST retries. Every outcome invalidates

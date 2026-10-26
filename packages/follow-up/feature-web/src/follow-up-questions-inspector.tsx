@@ -14,6 +14,7 @@ import {
 import { FollowUpQuestionForm } from './follow-up-question-form';
 import { useQuestionRecording } from './use-question-recording';
 import { QuestionRecordingFeedback } from './question-recording-feedback';
+import { FollowUpQuestionAnswer } from './follow-up-question-answer';
 
 /** Lazy private inspection is retired with the enclosing exact owned-work/case disclosure. */
 export function FollowUpQuestionsInspector({
@@ -86,8 +87,8 @@ function QuestionDisclosure({
     >
       <div className="space-y-4">
         <p className="text-sm text-ink-muted">
-          Questions are recorded requests for information, not internal notes,
-          delivery, answers, evidence or approval.
+          Questions and answers are recorded plain text, not internal notes,
+          delivery confirmation, consent, accepted evidence or approval.
         </p>
         {/* Keep this control mounted while its observation changes so keyboard focus cannot fall into the inert background. */}
         <Button
@@ -180,6 +181,7 @@ function QuestionHistory({
               <p className="break-words whitespace-pre-wrap text-ink">
                 {question.question}
               </p>
+              <FollowUpQuestionAnswer response={question.response} />
               <dl className="grid gap-1 text-xs text-ink-muted">
                 <div>
                   <dt className="font-bold">Author actor</dt>
