@@ -6,6 +6,7 @@ import type {
   ResolverFollowUpCaseSummaryFailure,
 } from './human-follow-up-failures';
 import type { FollowUpNoteFailure } from './follow-up-notes';
+import type { FollowUpQuestionFailure } from './follow-up-questions';
 import type { FollowUpHandoverFailure } from './follow-up-handover';
 import type { FollowUpCompletionFailure } from './follow-up-completion';
 import type { FollowUpPriorityFailure } from './follow-up-priority';
@@ -112,6 +113,22 @@ const NOTE_FAILURE_MAP = new Map(
     'invalid-note': { kind: 'invalid-note' },
   } satisfies SimpleFailures<FollowUpNoteFailure>),
 );
+
+const QUESTION_FAILURE_MAP = new Map(
+  Object.entries({
+    ...COMMAND_FAILURES,
+    'not-found': { kind: 'not-found' },
+    'question-conflict': { kind: 'question-conflict' },
+    'invalid-question': { kind: 'invalid-question' },
+  } satisfies SimpleFailures<FollowUpQuestionFailure>),
+);
+
+/** Closed safe failures preserve write uncertainty while discarding private bodies and causes. */
+export function normalizeFollowUpQuestionFailure(
+  value: unknown,
+): FollowUpQuestionFailure {
+  return normalizeFailure(value, QUESTION_FAILURE_MAP);
+}
 
 /** Safe note failures retain uncertainty but never raw causes or private response fields. */
 export function normalizeFollowUpNoteFailure(

@@ -37,7 +37,15 @@ test('requester questions remain attributed inert history at desktop and narrow 
   });
   await expect(dialog.getByText(historicalQuestion.question)).toBeVisible();
   await expect(page).toHaveScreenshot('owned-questions.png');
+  const form = dialog.getByRole('region', {
+    name: 'Record requester question',
+    exact: true,
+  });
+  await expect(form).toHaveScreenshot('question-composer.png');
   await page.setViewportSize({ width: 320, height: 812 });
+  await dialog
+    .getByRole('heading', { name: 'Requester question history', exact: true })
+    .focus();
   expect(
     await dialog.evaluate(
       (element) => element.scrollWidth <= element.clientWidth,
@@ -45,6 +53,8 @@ test('requester questions remain attributed inert history at desktop and narrow 
   ).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await expect(dialog).toHaveScreenshot('owned-questions-narrow.png');
+  await form.getByRole('textbox').focus();
+  await expect(dialog).toHaveScreenshot('question-composer-narrow.png');
 });
 
 test('priority review distinguishes independent metadata at desktop and narrow widths', async ({

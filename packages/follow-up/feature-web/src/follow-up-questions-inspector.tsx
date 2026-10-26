@@ -11,6 +11,9 @@ import {
   type ReactElement,
   type RefObject,
 } from 'react';
+import { FollowUpQuestionForm } from './follow-up-question-form';
+import { useQuestionRecording } from './use-question-recording';
+import { QuestionRecordingFeedback } from './question-recording-feedback';
 
 /** Lazy private inspection is retired with the enclosing exact owned-work/case disclosure. */
 export function FollowUpQuestionsInspector({
@@ -52,6 +55,11 @@ function QuestionDisclosure({
   readonly onAccessLost: () => void;
 }): ReactElement {
   const result = useFreshFollowUpQuestions(query);
+  const recording = useQuestionRecording(() => {
+    if (result.kind !== 'pending') result.refresh();
+  }, onAccessLost);
+  const hasIntent =
+    recording.phase.kind === 'pending' || recording.phase.kind === 'failure';
   const failed =
     result.kind === 'failure' &&
     [
@@ -66,7 +74,8 @@ function QuestionDisclosure({
     if (failed) onAccessLost();
   }, [failed, onAccessLost]);
   const canRecheck =
-    result.kind === 'ready' || (result.kind === 'failure' && !failed);
+    !hasIntent &&
+    (result.kind === 'ready' || (result.kind === 'failure' && !failed));
   return (
     <ModalDialog
       id="requester-question-history"
@@ -92,7 +101,26 @@ function QuestionDisclosure({
             ? 'Try questions again'
             : 'Recheck question access'}
         </Button>
-        {result.kind === 'pending' ? (
+        <QuestionRecordingFeedback
+          phase={recording.phase}
+          onReplay={recording.replay}
+        />
+        {hasIntent ? (
+          recording.phase.kind === 'failure' &&
+          recording.phase.failure.kind === 'invalid-question' ? (
+            <FollowUpQuestionForm
+              initialQuestion={recording.phase.command.question}
+              rejected
+              onSubmit={(question) =>
+                recording.submit({
+                  ...query,
+                  requestId: crypto.randomUUID(),
+                  question,
+                })
+              }
+            />
+          ) : null
+        ) : result.kind === 'pending' ? (
           <p role="status">Checking current question access…</p>
         ) : result.kind === 'failure' ? (
           <div role="status" className="space-y-3">
@@ -103,7 +131,18 @@ function QuestionDisclosure({
             </p>
           </div>
         ) : (
-          <QuestionHistory questions={result.questions} />
+          <>
+            <QuestionHistory questions={result.questions} />
+            <FollowUpQuestionForm
+              onSubmit={(question) =>
+                recording.submit({
+                  ...query,
+                  requestId: crypto.randomUUID(),
+                  question,
+                })
+              }
+            />
+          </>
         )}
       </div>
     </ModalDialog>

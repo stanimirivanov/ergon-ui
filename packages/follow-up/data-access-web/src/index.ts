@@ -93,6 +93,11 @@ export { createFollowUpQuestionsReader } from './bff/follow-up-questions-adapter
 export type {
   FollowUpQuestionsQuery,
   ListFollowUpQuestions,
+  RecordFollowUpQuestion,
+  RecordFollowUpQuestionCommand,
+  FollowUpQuestionFailure,
 } from './client/follow-up-questions';
 export type { FollowUpQuestionsCacheDependencies } from './cache/follow-up-questions-api';
 export { useFreshFollowUpQuestions } from './cache/use-fresh-follow-up-questions';
+export { followUpQuestionsApi } from './cache/follow-up-questions-api';
+export { normalizeFollowUpQuestionFailure } from './client/normalize-human-follow-up-failures';

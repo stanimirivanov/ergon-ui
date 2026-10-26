@@ -130,6 +130,11 @@ until a superseding ADR changes their lifetime and disclosure meaning. Stateful
 editable forms use React Hook Form; a native navigation form with no owned
 field/error/touched state does not justify installing a form framework.
 
+Retire asynchronous form-validation callbacks with the form, not only the page.
+A recheck that removes a form must prevent its late validated values from
+dispatching a command through a still-mounted controller. Test that retirement
+boundary before I/O, including StrictMode.
+
 Prefer declarative RTK subscriptions. When fresh private disclosure requires
 pending-request retirement or sequencing beyond ordinary refetching, encapsulate
 that mechanism in a tested cache integration hook; capability selection and

@@ -16,6 +16,8 @@ import type {
 import { Effect, Either, SynchronizedRef } from 'effect';
 import type { FollowUpNotesClient } from '../client/follow-up-notes';
 import { requestFollowUpNote } from './follow-up-notes-adapter';
+import type { RecordFollowUpQuestion } from '../client/follow-up-questions';
+import { requestFollowUpQuestion } from './follow-up-question-command';
 import type { FollowUpHandoverClient } from '../client/follow-up-handover';
 import type { FollowUpCompletionClient } from '../client/follow-up-completion';
 import type { FollowUpPriorityClient } from '../client/follow-up-priority';
@@ -61,7 +63,9 @@ export function createFollowUpOwnershipAdapter({
   FollowUpHandoverClient &
   FollowUpCompletionClient &
   FollowUpPriorityClient &
-  Pick<FollowUpNotesClient, 'appendNote'> {
+  Pick<FollowUpNotesClient, 'appendNote'> & {
+    readonly recordQuestion: RecordFollowUpQuestion;
+  } {
   // SynchronizedRef owns no external resources; construction is synchronous
   // and infallible, so the adapter does not need a Scope or async factory.
   const csrfToken = Effect.runSync(
@@ -69,6 +73,15 @@ export function createFollowUpOwnershipAdapter({
   );
 
   return {
+    async recordQuestion(command, signal): ReturnType<RecordFollowUpQuestion> {
+      const result = await runCommand(
+        withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
+          requestFollowUpQuestion(fetch, command, token),
+        ),
+        signal,
+      );
+      return result.ok ? { ok: true, question: result.value } : result;
+    },
     async assignPriority(
       command,
       signal,

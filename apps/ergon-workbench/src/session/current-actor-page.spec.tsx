@@ -298,7 +298,11 @@ const emptyFollowUpDependencies: Pick<
   | 'followUpCompletion'
   | 'followUpPriority'
   | 'listFollowUpQuestions'
+  | 'recordFollowUpQuestion'
 > = {
+  recordFollowUpQuestion: async () => {
+    throw new Error('Question recording is not used by this test');
+  },
   listFollowUpQuestions: async () => {
     throw new Error('Questions are not used by this test');
   },

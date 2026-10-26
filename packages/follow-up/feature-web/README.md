@@ -16,7 +16,9 @@ out of the deployable app and domain-agnostic UI primitives.
 - Lazy requester-question inspection under existing owned-work/case gates.
   Questions stay separate from notes and proof; attributed latest-100 history
   supports explicit recheck, empty/failure recovery and access-loss withdrawal.
-  UI primitives retain modal/focus ownership; PR20b adds the composer later.
+  UI primitives retain modal/focus ownership. RHF owns question/acknowledgement;
+  a mounted controller withholds history before recording, preserves exact replay
+  intent after uncertainty, and reacquires history after historical acknowledgement.
 
 - Priority metadata labels and an RHF selection/acknowledgement under current
   owned disclosure. The concrete administration controller also handles handover

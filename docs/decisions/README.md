@@ -70,6 +70,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0047](0047-confirm-independent-follow-up-priority.md)                      | Accepted   | Confirm independent metadata with original-active-owner recovery |
 | [0048](0048-compose-requester-owned-case-progress.md)                       | Accepted   | Separate requester app and fresh owner-scoped progress           |
 | [0049](0049-inspect-private-requester-question-history.md)                  | Accepted   | Distinct private observations for owner-scoped question history  |
+| [0050](0050-record-requester-questions-with-exact-recovery.md)              | Accepted   | Confirmed exact question recording and uncertain recovery        |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

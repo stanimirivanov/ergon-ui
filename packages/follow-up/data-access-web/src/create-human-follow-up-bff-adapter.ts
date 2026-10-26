@@ -13,6 +13,7 @@ import type { FollowUpHandoverClient } from './client/follow-up-handover';
 import type { FollowUpCompletionClient } from './client/follow-up-completion';
 import type { FollowUpPriorityClient } from './client/follow-up-priority';
 import { listFollowUpNotes } from './bff/follow-up-notes-adapter';
+import type { RecordFollowUpQuestion } from './client/follow-up-questions';
 
 /** Dependencies and per-request policy for the confidential-BFF adapter. */
 export interface HumanFollowUpBffAdapterOptions {
@@ -33,7 +34,7 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
   FollowUpHandoverClient &
   FollowUpCompletionClient &
   FollowUpPriorityClient &
-  FollowUpNotesClient;
+  FollowUpNotesClient & { readonly recordQuestion: RecordFollowUpQuestion };
 
 /**
  * Adapts the confidential browser BFF to the follow-up data-access contracts.
