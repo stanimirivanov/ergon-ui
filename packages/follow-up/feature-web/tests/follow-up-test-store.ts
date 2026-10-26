@@ -9,6 +9,9 @@ import type {
   FollowUpHandoverClient,
   FollowUpCompletionClient,
   FollowUpPriorityClient,
+  ListFollowUpQuestions,
+  RecordFollowUpQuestion,
+  FollowUpQuestionsCacheDependencies,
 } from '@ergon/follow-up-data-access-web';
 import {
   type HumanFollowUpCacheDependencies,
@@ -27,6 +30,8 @@ import {
  * production application deliberately segregates.
  */
 export interface FollowUpTestCapabilities {
+  readonly listQuestions?: ListFollowUpQuestions;
+  readonly recordQuestion?: RecordFollowUpQuestion;
   readonly listOpen?: ListOpenHumanFollowUps['listOpen'];
   readonly listOwned?: ListOwnedHumanFollowUps['listOwned'];
   readonly getOwnedCaseSummary?: GetOwnedFollowUpCaseSummary['getOwnedCaseSummary'];
@@ -49,7 +54,18 @@ export function createFollowUpTestStore(
     FollowUpNotesCacheDependencies &
     FollowUpHandoverCacheDependencies &
     FollowUpCompletionCacheDependencies &
-    FollowUpPriorityCacheDependencies = {
+    FollowUpPriorityCacheDependencies &
+    FollowUpQuestionsCacheDependencies = {
+    listFollowUpQuestions:
+      capabilities.listQuestions ??
+      (async () => {
+        throw new Error('Question history was not configured');
+      }),
+    recordFollowUpQuestion:
+      capabilities.recordQuestion ??
+      (async () => {
+        throw new Error('Question recording was not configured');
+      }),
     followUpPriority: {
       assignPriority:
         capabilities.assignPriority ??

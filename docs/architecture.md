@@ -117,7 +117,10 @@ bounded Effect reader/private RTK observation, and feature-owned lazy inspection
 Each mount/recheck has an exclusive ephemeral observation identity; it never
 reuses a retiring request or copies resource state. The parent owned-work/case
 barriers, app shell and ui-web modality remain authoritative. No project edge
-changes. M05-PR20a delivers this read slice; PR20b adds the composer/recovery.
+changes. M05-PR20b adds an RHF composer and mounted command controller: committed
+withdrawal precedes POST, uncertain replay preserves exact intent, and historical
+acknowledgement triggers independently fresh history. See
+[ADR 0050](decisions/0050-record-requester-questions-with-exact-recovery.md).
 See [ADR 0049](decisions/0049-inspect-private-requester-question-history.md).
 
 Internal follow-up notes consume the owner-scoped browser contract introduced

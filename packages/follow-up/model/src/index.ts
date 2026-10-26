@@ -27,3 +27,4 @@ export {
   type FollowUpPriorityAssignment,
 } from './follow-up-priority';
 export type { FollowUpQuestion, FollowUpQuestions } from './follow-up-question';
+export { isFollowUpQuestionText } from './follow-up-question';

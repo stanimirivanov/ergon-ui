@@ -14,10 +14,11 @@ const humanFollowUpAdapter = createHumanFollowUpBffAdapter({
 /**
  * Production browser dependency graph for the resolver workbench.
  *
- * All follow-up operations deliberately share one client instance so its ephemeral
+ * All follow-up mutations deliberately share one client instance so its ephemeral
  * CSRF state has the same lifetime as the workbench store.
  */
 export const browserDependencies: WorkbenchDependencies = {
+  recordFollowUpQuestion: humanFollowUpAdapter.recordQuestion,
   listFollowUpQuestions: createFollowUpQuestionsReader({
     fetch: globalThis.fetch,
   }),

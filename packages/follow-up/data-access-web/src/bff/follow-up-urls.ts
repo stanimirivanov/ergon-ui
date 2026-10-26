@@ -5,6 +5,14 @@ import type {
   ResolverFollowUpCaseSummaryQuery,
   ResolverOwnedHumanFollowUpQuery,
 } from '../client';
+import type { FollowUpQuestionsQuery } from '../client/follow-up-questions';
+
+/** Shared read/write resource; claim, case and revision stay out of its URL. */
+export function questionsUrl(
+  query: Pick<FollowUpQuestionsQuery, 'tenantId' | 'workItemId'>,
+): string {
+  return `/bff/v1/tenants/${encodeURIComponent(query.tenantId)}/human-follow-ups/${encodeURIComponent(query.workItemId)}/information-requests`;
+}
 
 /** Same-origin endpoint for acquiring an ephemeral browser CSRF token. */
 export const CSRF_TOKEN_PATH = '/bff/v1/csrf' as const;

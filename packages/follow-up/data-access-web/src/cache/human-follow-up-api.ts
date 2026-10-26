@@ -1,5 +1,6 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { FollowUpNoteFailure } from '../client/follow-up-notes';
+import type { FollowUpQuestionFailure } from '../client/follow-up-questions';
 import type { FollowUpHandoverFailure } from '../client/follow-up-handover';
 import type { FollowUpCompletionFailure } from '../client/follow-up-completion';
 import type { FollowUpPriorityFailure } from '../client/follow-up-priority';
@@ -71,6 +72,7 @@ export const humanFollowUpApi = createApi({
     | HumanFollowUpClaimFailure
     | HumanFollowUpReleaseFailure
     | FollowUpNoteFailure
+    | FollowUpQuestionFailure
     | FollowUpHandoverFailure
     | FollowUpCompletionFailure
     | FollowUpPriorityFailure

@@ -12,7 +12,7 @@ export const followUpQuestionsGuide: GuideChapter = {
   audience:
     'Resolvers handling an open, explicitly requester-bound case through their currently owned follow-up.',
   overview: [
-    'Requester questions record what information a resolver deliberately asked for. They are different from internal notes: a question is intended for the explicitly bound case requester, while a note is internal commentary. Neither a recorded question nor a successful read proves delivery, an answer, approval, consent, verified evidence or resolution. This first history slice is read-only; there is no question composer or response form in this inspector yet.',
+    'Requester questions record what information a resolver deliberately asked for. They are different from internal notes: a question is intended for the explicitly bound case requester, while a note is internal commentary. Neither a recorded question nor a successful read proves delivery, an answer, approval, consent, verified evidence or resolution. A separate composer now records questions; this walkthrough focuses on history and access checks.',
     'This walkthrough uses synthetic BFF responses and synthetic actor, claim and request identities. It demonstrates a predecessor-authored question, a temporary service failure, empty and truncated histories, and a neutral denial. It proves browser presentation and disclosure retirement, not live identity, database persistence, notifications or an actual authorization decision. Production access remains a server decision on every read.',
   ],
   prerequisites: [
@@ -44,7 +44,7 @@ export const followUpQuestionsGuide: GuideChapter = {
     {
       id: 'questions-empty',
       title: 'Recognize an authorized empty history',
-      body: 'Select Try questions again after the temporary failure has been removed. The synthetic server now returns an authorized empty history. No requester questions recorded means this bounded resource contains no recorded questions, not that the requester responded or the case is complete. It is different from an unavailable or hidden resource. There is no compose action in this slice, so do not use Internal notes as a substitute customer message.',
+      body: 'Select Try questions again after the temporary failure has been removed. The synthetic server now returns an authorized empty history. No requester questions recorded means this bounded resource contains no recorded questions, not that the requester responded or the case is complete. It is different from an unavailable or hidden resource. Use Record requester question only for a newly reviewed request; Internal notes are not a substitute customer message.',
       expected:
         'An explicit empty-state message replaces the unavailable state.',
     },
@@ -79,11 +79,11 @@ export const followUpQuestionsGuide: GuideChapter = {
     {
       symptom: 'An earlier question cannot be found.',
       guidance:
-        'Check whether the latest-100 marker is present. Older history may be omitted; there is no older-page control or delivery status here. Do not create a replacement request solely because this bounded view cannot show it. The composer and exact recovery flow are a later slice.',
+        'Check whether the latest-100 marker is present. Older history may be omitted; there is no older-page control or delivery status here. Do not create a replacement request solely because this bounded view cannot show it. Consult the separate recording/recovery walkthrough before submitting a new question.',
     },
   ],
   limitations: [
-    'Read-only current-owner inspection; question composition and exact command replay follow in M05-PR20b. Requester rendering and responses follow their separate planned slice.',
+    'This chapter covers current-owner inspection. Question recording and exact replay have a separate walkthrough; requester rendering and responses remain planned.',
     'Questions are untrusted plain text, not internal notes, proof, approvals, notifications or confirmed delivery. No edit, deletion, attachments or older-history paging is provided.',
     'This recording is simulated browser evidence. Live OIDC, PostgreSQL integrity and operational authorization are separate backend and deployment acceptance requirements.',
   ],

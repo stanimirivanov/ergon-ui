@@ -9,7 +9,9 @@ Own confidential-browser BFF execution and follow-up remote-cache integration.
 - Owner-scoped question history: strict bounded/case/ordering checks, the
   `createFollowUpQuestionsReader` binding and `useFreshFollowUpQuestions`.
   Mount/recheck observations are exclusive, zero-grace and cancelled on retirement.
-  No question command or CSRF acquisition is implemented in this slice.
+  Question recording joins the existing session CSRF lifecycle without automatic
+  POST replay. Both 200/201 receipts must match exact request/case/claim/revision/text;
+  safe mutation failures preserve uncertainty. Acknowledgement never patches history.
 
 - Required current priority pairs and exact independent-revision assignment
   receipts, sharing session CSRF without POST retries. Every outcome invalidates
