@@ -89,3 +89,10 @@ export {
   followUpCompletionApi,
   type FollowUpCompletionCacheDependencies,
 } from './cache/follow-up-completion-api';
+export { createFollowUpQuestionsReader } from './bff/follow-up-questions-adapter';
+export type {
+  FollowUpQuestionsQuery,
+  ListFollowUpQuestions,
+} from './client/follow-up-questions';
+export type { FollowUpQuestionsCacheDependencies } from './cache/follow-up-questions-api';
+export { useFreshFollowUpQuestions } from './cache/use-fresh-follow-up-questions';

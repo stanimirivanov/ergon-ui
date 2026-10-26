@@ -2,6 +2,7 @@ import { useFreshResolverFollowUpCaseSummary } from '@ergon/follow-up-data-acces
 import { Button } from '@ergon/ui-web';
 import type { ReactElement } from 'react';
 import { FollowUpNotesInspector } from './follow-up-notes-inspector';
+import { FollowUpQuestionsInspector } from './follow-up-questions-inspector';
 
 import { caseSummaryFailureCopy } from './resolver-follow-up-case-summary-copy';
 import { ResolverFollowUpCaseSummaryView } from './resolver-follow-up-case-summary-view';
@@ -93,16 +94,28 @@ export function ResolverFollowUpCaseSummary({
       summary={result.summary}
       regionId={regionId}
       isFetching={false}
-      notes={
-        <FollowUpNotesInspector
-          query={{
-            tenantId,
-            workItemId,
-            claimId,
-            expectedOwnershipRevision: ownershipRevision,
-          }}
-          onAccessLost={onNotesAccessLost}
-        />
+      inspectionActions={
+        <div className="flex flex-wrap gap-2">
+          <FollowUpNotesInspector
+            query={{
+              tenantId,
+              workItemId,
+              claimId,
+              expectedOwnershipRevision: ownershipRevision,
+            }}
+            onAccessLost={onNotesAccessLost}
+          />
+          <FollowUpQuestionsInspector
+            query={{
+              tenantId,
+              workItemId,
+              caseId,
+              claimId,
+              expectedOwnershipRevision: ownershipRevision,
+            }}
+            onAccessLost={onNotesAccessLost}
+          />
+        </div>
       }
     />
   );

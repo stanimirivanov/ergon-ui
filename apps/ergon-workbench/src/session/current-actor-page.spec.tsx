@@ -297,7 +297,11 @@ const emptyFollowUpDependencies: Pick<
   | 'followUpHandover'
   | 'followUpCompletion'
   | 'followUpPriority'
+  | 'listFollowUpQuestions'
 > = {
+  listFollowUpQuestions: async () => {
+    throw new Error('Questions are not used by this test');
+  },
   followUpPriority: {
     async assignPriority() {
       throw new Error('Priority is not used by this test');

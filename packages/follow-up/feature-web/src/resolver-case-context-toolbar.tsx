@@ -11,14 +11,14 @@ export function ResolverCaseContextToolbar({
   onEvidence,
   onAttempts,
   onOutcome,
-  notes,
+  inspectionActions,
 }: {
   readonly summary: ResolverFollowUpCaseSummary;
   readonly regionId: string;
   readonly onEvidence: () => void;
   readonly onAttempts: () => void;
   readonly onOutcome: () => void;
-  readonly notes?: ReactNode;
+  readonly inspectionActions?: ReactNode;
 }): ReactElement {
   return (
     <div className="flex min-w-0 flex-col gap-4">
@@ -83,7 +83,7 @@ export function ResolverCaseContextToolbar({
         >
           Outcome
         </button>
-        {notes}
+        {inspectionActions}
       </div>
     </div>
   );

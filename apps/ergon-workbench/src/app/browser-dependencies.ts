@@ -1,4 +1,7 @@
-import { createHumanFollowUpBffAdapter } from '@ergon/follow-up-data-access-web';
+import {
+  createHumanFollowUpBffAdapter,
+  createFollowUpQuestionsReader,
+} from '@ergon/follow-up-data-access-web';
 import { createCurrentActorBffAdapter } from '@ergon/session-data-access-web';
 import { createRunSupervisionClient } from '@ergon/run-supervision-data-access-web';
 
@@ -15,6 +18,9 @@ const humanFollowUpAdapter = createHumanFollowUpBffAdapter({
  * CSRF state has the same lifetime as the workbench store.
  */
 export const browserDependencies: WorkbenchDependencies = {
+  listFollowUpQuestions: createFollowUpQuestionsReader({
+    fetch: globalThis.fetch,
+  }),
   runSupervision: createRunSupervisionClient({ fetch: globalThis.fetch }),
   resolveCurrentActor: createCurrentActorBffAdapter({
     fetch: globalThis.fetch,

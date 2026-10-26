@@ -1,4 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
+import {
+  historicalQuestion,
+  installSimulatedFollowUpQuestionsBff,
+} from './guide/simulated-follow-up-questions-bff';
 import { installSimulatedFollowUpHandoverBff } from './guide/simulated-follow-up-handover-bff';
 import { installSimulatedFollowUpCompletionBff } from './guide/simulated-follow-up-completion-bff';
 import { installSimulatedFollowUpPriorityBff } from './guide/simulated-follow-up-priority-bff';
@@ -17,6 +21,30 @@ import {
 test.beforeEach(async ({ page, browserName }) => {
   expect(browserName).toBe('chromium');
   expect(await page.evaluate(() => navigator.platform)).toContain('Linux');
+});
+
+test('requester questions remain attributed inert history at desktop and narrow widths', async ({
+  page,
+}) => {
+  await installSimulatedFollowUpQuestionsBff(page);
+  await page.goto(supervisorTenantPath);
+  await page.getByRole('button', { name: 'Open resolver console' }).click();
+  await page
+    .getByRole('button', { name: 'Requester questions', exact: true })
+    .click();
+  const dialog = page.getByRole('dialog', {
+    name: 'Requester question history',
+  });
+  await expect(dialog.getByText(historicalQuestion.question)).toBeVisible();
+  await expect(page).toHaveScreenshot('owned-questions.png');
+  await page.setViewportSize({ width: 320, height: 812 });
+  expect(
+    await dialog.evaluate(
+      (element) => element.scrollWidth <= element.clientWidth,
+    ),
+  ).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await expect(dialog).toHaveScreenshot('owned-questions-narrow.png');
 });
 
 test('priority review distinguishes independent metadata at desktop and narrow widths', async ({
