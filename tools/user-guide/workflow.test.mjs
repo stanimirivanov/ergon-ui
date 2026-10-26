@@ -10,6 +10,87 @@ const workflowPath = fileURLToPath(
   new URL('../../.github/workflows/user-guide.yml', import.meta.url),
 );
 
+const renderer = JSON.parse(
+  await readFile(new URL('../visual/renderer.json', import.meta.url), 'utf8'),
+);
+const playwright = JSON.parse(
+  await readFile(
+    new URL(
+      '../../node_modules/@playwright/test/package.json',
+      import.meta.url,
+    ),
+    'utf8',
+  ),
+);
+
+function assertGuideRuntime(workflow) {
+  const job = workflow.jobs.generate;
+  assert.equal(job['runs-on'], 'ubuntu-24.04');
+  assert.equal(job.container?.image, renderer.image);
+  assert.equal(job.container.options, '--init --shm-size=256m');
+  assert.equal(job.env?.PLAYWRIGHT_BROWSERS_PATH, '/ms-playwright');
+  assert.equal(job['timeout-minutes'], 20);
+  const generation = job.steps.find(
+    (step) => step.name === 'Generate and validate the simulated guide',
+  );
+  assert.equal(generation?.run, 'pnpm guide:generate');
+  assert.equal(generation['timeout-minutes'], 15);
+  for (const owner of [job, generation]) {
+    assert.equal(owner.if, undefined);
+    assert.equal(owner['continue-on-error'], undefined);
+  }
+  assert.ok(
+    job.steps.every(
+      (step) => !/--with-deps|install-deps|apt-get/u.test(step.run ?? ''),
+    ),
+    'the guide image already supplies browser system dependencies',
+  );
+}
+
+test('guide capture uses the matching immutable browser with diagnostic headroom', async () => {
+  assert.equal(renderer.playwrightVersion, playwright.version);
+  const workflow = parseYaml(await readFile(workflowPath, 'utf8'));
+  assertGuideRuntime(workflow);
+});
+
+test('rejects mutable browser setup, mismatched images and weakened guide gates', async () => {
+  const workflow = parseYaml(await readFile(workflowPath, 'utf8'));
+  const mutations = [
+    (job) => {
+      job['runs-on'] = 'ubuntu-latest';
+    },
+    (job) => {
+      job.container.image = 'mcr.microsoft.com/playwright:latest';
+    },
+    (job) => {
+      delete job.env.PLAYWRIGHT_BROWSERS_PATH;
+    },
+    (job) => {
+      job.steps.push({
+        run: 'pnpm exec playwright install --with-deps chromium',
+      });
+    },
+    (job) => {
+      job.steps.find((step) => step.run === 'pnpm guide:generate')[
+        'timeout-minutes'
+      ] = 20;
+    },
+    (job) => {
+      job.steps.find((step) => step.run === 'pnpm guide:generate')[
+        'continue-on-error'
+      ] = true;
+    },
+    (job) => {
+      job.if = 'false';
+    },
+  ];
+  for (const mutate of mutations) {
+    const candidate = structuredClone(workflow);
+    mutate(candidate.jobs.generate);
+    assert.throws(() => assertGuideRuntime(candidate));
+  }
+});
+
 test('CI reviews every guide run and publishes only validated main artifacts', async () => {
   const workflow = parseYaml(await readFile(workflowPath, 'utf8'));
   assert.deepEqual(Object.keys(workflow.on).sort(), [
@@ -44,7 +125,7 @@ test('CI reviews every guide run and publishes only validated main artifacts', a
   const failureArtifact = steps.find(
     (step) =>
       step.uses?.startsWith('actions/upload-artifact@') &&
-      step.if === 'failure()',
+      step.if === '${{ failure() || cancelled() }}',
   );
   // Nx paths are relative to the Playwright config, not the repository root.
   // Derive the uploaded directory from the installed preset that config uses.

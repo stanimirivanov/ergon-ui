@@ -17,8 +17,15 @@ concurrency:
 jobs:
   generate:
     name: Generate simulated user guide
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
+    # Reuse the reviewed renderer: avoid mutable runner images and apt downloads
+    # consuming the recording budget. workflow.test.mjs guards version alignment.
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+      options: --init --shm-size=256m
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     permissions:
       contents: read
     steps:
@@ -42,10 +49,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Chromium and system dependencies
-        run: pnpm exec playwright install --with-deps chromium
-
       - name: Generate and validate the simulated guide
+        # Fail this step before the job deadline so partial recordings and traces
+        # can still be uploaded. This does not change browser test timeouts.
+        timeout-minutes: 15
         run: pnpm guide:generate
 
       - name: Upload review artifact
@@ -65,7 +72,7 @@ jobs:
           path: dist/user-guide
 
       - name: Upload failure evidence
-        if: failure()
+        if: ${{ failure() || cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: user-guide-failure-${{ github.run_id }}-${{ github.run_attempt }}
