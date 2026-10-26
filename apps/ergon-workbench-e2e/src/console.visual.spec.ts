@@ -71,12 +71,13 @@ test('question composer retains its separate desktop and narrow presentation', a
     name: 'Record requester question',
     exact: true,
   });
-  // A fresh scene keeps composer scrolling independent of answer-history inspection.
-  await form.getByRole('textbox').focus();
-  await expect(form.getByRole('textbox')).toBeFocused();
+  // The desktop baseline is unfocused; capture keyboard focus separately at narrow width.
+  await form.scrollIntoViewIfNeeded();
+  await expect(form.getByRole('textbox')).not.toBeFocused();
   await expect(form).toHaveScreenshot('question-composer.png');
   await page.setViewportSize({ width: 320, height: 812 });
   await form.getByRole('textbox').focus();
+  await expect(form.getByRole('textbox')).toBeFocused();
   await expect(dialog).toHaveScreenshot('question-composer-narrow.png');
 });
 
