@@ -67,7 +67,13 @@ it.each([200, 201])(
     const fetch = vi
       .fn<typeof globalThis.fetch>()
       .mockResolvedValueOnce(Response.json(csrf))
-      .mockResolvedValueOnce(Response.json(receipt, { status }))
+      // History-only fields must neither change the acknowledgement contract nor enter the receipt.
+      .mockResolvedValueOnce(
+        Response.json(
+          { ...receipt, response: { answer: 'not a receipt field' } },
+          { status },
+        ),
+      )
       .mockResolvedValueOnce(Response.json(receipt));
     const client = createHumanFollowUpBffAdapter({ fetch });
     expect(await client.recordQuestion(command, signal())).toEqual({

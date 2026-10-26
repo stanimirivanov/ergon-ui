@@ -7,7 +7,9 @@ claims, and resolver-visible case context.
 
 ## Owns
 
-- Inert historical requester questions and bounded history, never delivery or proof.
+- Inert historical requester questions and narrow recorded answers in bounded history,
+  never delivery or proof. History distinguishes omitted answer coverage from null;
+  immutable question-command receipts do not carry a response.
   Exact Unicode question validation is shared by the wire schema and RHF composer.
 
 - Closed priority values, independent current revisions and inert historical

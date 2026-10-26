@@ -14,9 +14,22 @@ export interface FollowUpQuestion {
   readonly recordedAt: string;
 }
 
-/** Newest recorded time/UUID first, at most 100 items; truncation omits older history. */
+/** Exact untrusted answer text; command time and database recording time are not delivery or proof. */
+export interface RecordedRequesterAnswer {
+  readonly responseId: string;
+  readonly answer: string;
+  readonly respondedAt: string;
+  readonly recordedAt: string;
+}
+
+/** History only: omission means an older server; null means no answer in this checked snapshot. */
+export interface FollowUpQuestionHistoryItem extends FollowUpQuestion {
+  readonly response?: RecordedRequesterAnswer | null;
+}
+
+/** Newest question recorded time/UUID first, at most 100 items; answers never reorder the page. */
 export interface FollowUpQuestions {
-  readonly items: readonly FollowUpQuestion[];
+  readonly items: readonly FollowUpQuestionHistoryItem[];
   readonly truncated: boolean;
 }
 

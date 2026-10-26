@@ -123,6 +123,12 @@ acknowledgement triggers independently fresh history. See
 [ADR 0050](decisions/0050-record-requester-questions-with-exact-recovery.md).
 See [ADR 0049](decisions/0049-inspect-private-requester-question-history.md).
 
+M05-PR22a extends that history with narrow recorded answers in the same owners:
+model values, history-only wire decoding, RTK resources and inert feature
+presentation. Omission is unsupported coverage, null is a checked unanswered
+snapshot. No project edge, command receipt, shell/modal or freshness contract
+changes; see [ADR 0051](decisions/0051-inspect-recorded-requester-answers.md).
+
 Internal follow-up notes consume the owner-scoped browser contract introduced
 by Ergon PR #186. The follow-up model owns inert values and exact-text semantics;
 data access owns bounded decoding, shared session CSRF, safe append outcomes and

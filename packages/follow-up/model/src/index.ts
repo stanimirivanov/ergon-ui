@@ -26,5 +26,10 @@ export {
   type FollowUpPriorityState,
   type FollowUpPriorityAssignment,
 } from './follow-up-priority';
-export type { FollowUpQuestion, FollowUpQuestions } from './follow-up-question';
+export type {
+  FollowUpQuestion,
+  FollowUpQuestionHistoryItem,
+  FollowUpQuestions,
+  RecordedRequesterAnswer,
+} from './follow-up-question';
 export { isFollowUpQuestionText } from './follow-up-question';

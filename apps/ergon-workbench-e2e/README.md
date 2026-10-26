@@ -21,6 +21,14 @@ can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
 
+The requester-question chapter now has nine assertion-backed checkpoints,
+including exact inert answers, server/database timestamps, unsupported coverage
+versus checked unanswered snapshots, and answer withdrawal on close/failed access.
+Pinned Linux pixels cover answered history at desktop and 320 pixels. Deploy
+Ergon PR #216 first; this is synthetic inspection, not actual requester submission,
+delivery, consent or accepted proof. Requester history and submission/recovery
+remain PR22b/c; generated media is not committed.
+
 The independent-priority chapter has ten assertion-backed checkpoints covering
 current revision review, acknowledgement, cancel/focus, narrow keyboard/reflow,
 disabled/conflicting outcomes, pending withdrawal, lost acknowledgement, exact

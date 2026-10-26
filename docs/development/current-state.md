@@ -2,11 +2,18 @@
 
 ## TL;DR
 
+M05-PR22a adds exact recorded answers to the owner-scoped question inspector.
+Older-server omission and explicit unanswered snapshots have distinct messages;
+answers remain inert and retire with existing private observations. Question POST
+receipts, ordering and bounds are unchanged. Requester history and submission/recovery
+follow in [PR22b/c](plans/m05-requester-responses.md); see
+[ADR 0051](../decisions/0051-inspect-recorded-requester-answers.md).
+
 M05-PR20a adds lazy, current-owner requester-question history in the Console,
 with bounded decoding, distinct private observations and an asserted guide.
 M05-PR20b adds an acknowledged exact-text composer and original-intent recovery.
 Pending commands withhold history; acknowledgement is historical and fresh
-history is acquired separately. No delivery, requester response or proof action.
+history is acquired separately. No delivery confirmation, requester write or proof action.
 
 M05-PR18 completes the bounded light requester canvas: goal/status, four
 explanatory cards and responsive request-details rail over the same five-field

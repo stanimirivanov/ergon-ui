@@ -26,7 +26,8 @@ test.beforeEach(async ({ page, browserName }) => {
 test('requester questions remain attributed inert history at desktop and narrow widths', async ({
   page,
 }) => {
-  await installSimulatedFollowUpQuestionsBff(page);
+  const questions = await installSimulatedFollowUpQuestionsBff(page);
+  questions.setMode('answered');
   await page.goto(supervisorTenantPath);
   await page.getByRole('button', { name: 'Open resolver console' }).click();
   await page
@@ -36,16 +37,15 @@ test('requester questions remain attributed inert history at desktop and narrow 
     name: 'Requester question history',
   });
   await expect(dialog.getByText(historicalQuestion.question)).toBeVisible();
+  await expect(
+    dialog.getByRole('region', { name: 'Recorded requester answer' }),
+  ).toBeVisible();
   await expect(page).toHaveScreenshot('owned-questions.png');
-  const form = dialog.getByRole('region', {
-    name: 'Record requester question',
-    exact: true,
-  });
-  await expect(form).toHaveScreenshot('question-composer.png');
   await page.setViewportSize({ width: 320, height: 812 });
   await dialog
     .getByRole('heading', { name: 'Requester question history', exact: true })
     .focus();
+  await page.keyboard.press('Control+Home');
   expect(
     await dialog.evaluate(
       (element) => element.scrollWidth <= element.clientWidth,
@@ -53,7 +53,31 @@ test('requester questions remain attributed inert history at desktop and narrow 
   ).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await expect(dialog).toHaveScreenshot('owned-questions-narrow.png');
+});
+
+test('question composer retains its separate desktop and narrow presentation', async ({
+  page,
+}) => {
+  await installSimulatedFollowUpQuestionsBff(page);
+  await page.goto(supervisorTenantPath);
+  await page.getByRole('button', { name: 'Open resolver console' }).click();
+  await page
+    .getByRole('button', { name: 'Requester questions', exact: true })
+    .click();
+  const dialog = page.getByRole('dialog', {
+    name: 'Requester question history',
+  });
+  const form = dialog.getByRole('region', {
+    name: 'Record requester question',
+    exact: true,
+  });
+  // The desktop baseline is unfocused; capture keyboard focus separately at narrow width.
+  await form.scrollIntoViewIfNeeded();
+  await expect(form.getByRole('textbox')).not.toBeFocused();
+  await expect(form).toHaveScreenshot('question-composer.png');
+  await page.setViewportSize({ width: 320, height: 812 });
   await form.getByRole('textbox').focus();
+  await expect(form.getByRole('textbox')).toBeFocused();
   await expect(dialog).toHaveScreenshot('question-composer-narrow.png');
 });
 

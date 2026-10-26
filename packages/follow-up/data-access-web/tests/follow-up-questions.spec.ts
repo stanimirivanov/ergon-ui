@@ -23,8 +23,83 @@ const item = {
   recordedAt: '2026-10-25T10:00:01.123456Z',
 };
 const signal = (): AbortSignal => new AbortController().signal;
+const answer = {
+  responseId: id,
+  answer: ' Exact answer 😀 <script>inert</script>\n',
+  respondedAt: '2026-10-24T10:00:00.123456789Z',
+  recordedAt: '2026-10-25T10:00:02.000000001Z',
+};
 
 describe('protected requester-question protocol', () => {
+  it.each([null, answer])(
+    'preserves a checked optional answer without private fields: %j',
+    async (response) => {
+      const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(
+        Response.json({
+          items: [
+            {
+              ...item,
+              response: response && {
+                ...response,
+                requesterActorId: 'private',
+              },
+            },
+          ],
+          truncated: false,
+        }),
+      );
+      expect(
+        await createFollowUpQuestionsReader({ fetch })(query, signal()),
+      ).toEqual({
+        ok: true,
+        questions: { items: [{ ...item, response }], truncated: false },
+      });
+    },
+  );
+  it.each([
+    {},
+    false,
+    'answer',
+    { ...answer, responseId: 'wrong' },
+    ...['', ' \u00a0', '\u0000', '\ud800', '😀'.repeat(4001)].map((text) => ({
+      ...answer,
+      answer: text,
+    })),
+    { ...answer, respondedAt: '2026-02-30T10:00:00Z' },
+    { ...answer, recordedAt: '2026-10-25T24:00:00Z' },
+    { ...answer, recordedAt: null },
+  ])(
+    'rejects supplied malformed answers without turning them into absence: %j',
+    async (response) => {
+      const fetch = vi
+        .fn<typeof globalThis.fetch>()
+        .mockResolvedValue(
+          Response.json({ items: [{ ...item, response }], truncated: false }),
+        );
+      expect(
+        await createFollowUpQuestionsReader({ fetch })(query, signal()),
+      ).toEqual({ ok: false, error: { kind: 'invalid-response' } });
+      expect(fetch).toHaveBeenCalledOnce();
+    },
+  );
+  it('rejects duplicate response identities across otherwise correctly ordered questions', async () => {
+    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(
+      Response.json({
+        items: [
+          {
+            ...item,
+            requestId: '22222222-2222-4222-8222-222222222222',
+            response: answer,
+          },
+          { ...item, response: answer },
+        ],
+        truncated: false,
+      }),
+    );
+    expect(
+      await createFollowUpQuestionsReader({ fetch })(query, signal()),
+    ).toEqual({ ok: false, error: { kind: 'invalid-response' } });
+  });
   it('reads exact inert text through an encoded same-origin GET without claim fields on the wire', async () => {
     const fetch = vi
       .fn<typeof globalThis.fetch>()
