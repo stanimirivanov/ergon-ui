@@ -13,6 +13,11 @@ out of the deployable app and domain-agnostic UI primitives.
 
 ## Owns
 
+- Lazy requester-question inspection under existing owned-work/case gates.
+  Questions stay separate from notes and proof; attributed latest-100 history
+  supports explicit recheck, empty/failure recovery and access-loss withdrawal.
+  UI primitives retain modal/focus ownership; PR20b adds the composer later.
+
 - Priority metadata labels and an RHF selection/acknowledgement under current
   owned disclosure. The concrete administration controller also handles handover
   and completion, but priority replay first requires fresh original active

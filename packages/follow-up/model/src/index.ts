@@ -26,3 +26,4 @@ export {
   type FollowUpPriorityState,
   type FollowUpPriorityAssignment,
 } from './follow-up-priority';
+export type { FollowUpQuestion, FollowUpQuestions } from './follow-up-question';

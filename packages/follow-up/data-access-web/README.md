@@ -6,6 +6,11 @@ Own confidential-browser BFF execution and follow-up remote-cache integration.
 
 ## Owns
 
+- Owner-scoped question history: strict bounded/case/ordering checks, the
+  `createFollowUpQuestionsReader` binding and `useFreshFollowUpQuestions`.
+  Mount/recheck observations are exclusive, zero-grace and cancelled on retirement.
+  No question command or CSRF acquisition is implemented in this slice.
+
 - Required current priority pairs and exact independent-revision assignment
   receipts, sharing session CSRF without POST retries. Every outcome invalidates
   work/context, not notes; historical receipts never patch current metadata.
@@ -81,7 +86,7 @@ StrictMode setups and obsolete query lifetimes cannot publish a new disclosure.
 The public failure normalizers accept unknown cache/framework errors and return
 the operation's closed failure contract. Extra name, message, stack, body, and
 cause fields are discarded. Direct client calls can still reject unexpected
-defects; all ten RTK Query operations contain those defects as `unexpected-defect`.
+defects; RTK Query operations contain those defects as `unexpected-defect`.
 The cache adds no retry and never infers cancellation from an aborted signal.
 Normalizers recognize only RTK's plain, two-field `AbortError`/`Aborted`
 cancellation fingerprint; exceptions and surplus fields are defects. Catches

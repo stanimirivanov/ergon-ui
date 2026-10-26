@@ -7,6 +7,8 @@ claims, and resolver-visible case context.
 
 ## Owns
 
+- Inert historical requester questions and bounded history, never delivery or proof.
+
 - Closed priority values, independent current revisions and inert historical
   assignment receipts; never queue ordering, risk, SLA or authority.
 

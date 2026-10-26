@@ -2,6 +2,10 @@
 
 ## TL;DR
 
+M05-PR20a adds lazy, current-owner requester-question history in the Console,
+with bounded decoding, distinct private observations and an asserted guide.
+It is read-only: composition and exact uncertain replay follow in PR20b.
+
 M05-PR18 completes the bounded light requester canvas: goal/status, four
 explanatory cards and responsive request-details rail over the same five-field
 read. No concept-art stages, checks, uploads or confirmation are invented.

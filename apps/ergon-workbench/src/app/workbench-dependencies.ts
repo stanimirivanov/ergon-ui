@@ -1,4 +1,5 @@
 import type {
+  FollowUpQuestionsCacheDependencies,
   HumanFollowUpCacheDependencies,
   FollowUpNotesCacheDependencies,
   FollowUpHandoverCacheDependencies,
@@ -18,6 +19,7 @@ import type { RunSupervisionDependencies } from '@ergon/run-supervision-data-acc
 export interface WorkbenchDependencies
   extends
     CurrentActorCacheDependencies,
+    FollowUpQuestionsCacheDependencies,
     HumanFollowUpCacheDependencies,
     FollowUpNotesCacheDependencies,
     FollowUpHandoverCacheDependencies,

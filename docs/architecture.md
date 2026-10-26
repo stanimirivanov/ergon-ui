@@ -112,6 +112,14 @@ because this slice has no separate platform-neutral client policy.
 
 ## State ownership
 
+Requester-question history uses existing follow-up owners: model values, a
+bounded Effect reader/private RTK observation, and feature-owned lazy inspection.
+Each mount/recheck has an exclusive ephemeral observation identity; it never
+reuses a retiring request or copies resource state. The parent owned-work/case
+barriers, app shell and ui-web modality remain authoritative. No project edge
+changes. M05-PR20a delivers this read slice; PR20b adds the composer/recovery.
+See [ADR 0049](decisions/0049-inspect-private-requester-question-history.md).
+
 Internal follow-up notes consume the owner-scoped browser contract introduced
 by Ergon PR #186. The follow-up model owns inert values and exact-text semantics;
 data access owns bounded decoding, shared session CSRF, safe append outcomes and

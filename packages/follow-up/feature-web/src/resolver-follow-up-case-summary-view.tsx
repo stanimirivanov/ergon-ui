@@ -15,12 +15,12 @@ export function ResolverFollowUpCaseSummaryView({
   summary,
   regionId,
   isFetching,
-  notes,
+  inspectionActions,
 }: {
   readonly summary: ResolverFollowUpCaseSummary;
   readonly regionId: string;
   readonly isFetching: boolean;
-  readonly notes?: ReactNode;
+  readonly inspectionActions?: ReactNode;
 }): ReactElement {
   const evidenceHeading = useRef<HTMLHeadingElement>(null);
   const runHeading = useRef<HTMLHeadingElement>(null);
@@ -38,7 +38,7 @@ export function ResolverFollowUpCaseSummaryView({
         onEvidence={() => evidenceHeading.current?.focus()}
         onAttempts={() => runHeading.current?.focus()}
         onOutcome={() => proofHeading.current?.focus()}
-        notes={notes}
+        inspectionActions={inspectionActions}
       />
       <ThreePaneLayout
         leadingLabel="Case evidence"
