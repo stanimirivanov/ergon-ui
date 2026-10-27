@@ -3,7 +3,8 @@
 ## TL;DR
 
 Independently deploy the external requester app, never the resolver workbench
-artifact. Open a supplied `/tenants/{tenantId}/cases/{caseId}` link. Session
+artifact. Start intake at `/tenants/{tenantId}/new`, or open a supplied
+`/tenants/{tenantId}/cases/{caseId}` link. Session
 verification precedes a fresh owner-scoped read. The bounded canvas presents
 the existing progress and narrow question/answer history projections; it does not
 invent execution stages. Both fresh reads must succeed before private disclosure.
@@ -18,12 +19,17 @@ presentation/recheck intent, RHF input and mounted command lifetime; requester-p
 data access owns Effect/HTTP, typed failures, fresh resources and answer protocols.
 No application/model package is needed for this server-authoritative interaction.
 
+Requester-intake feature/data access independently own creation before a current
+case resource exists. RHF owns draft/review; mounted intent owns exact recovery;
+Effect/RTK own the bounded CSRF/POST. An acknowledgement supplies only a link to
+independently checked progress, not a cached goal/status or automatic run.
+
 The root and invalid addresses explain supplied links without making requests.
-The tenant route verifies the session and asks the user to reopen their supplied
-case link. The backend login allowlist returns only to that tenant path, not a
+The tenant route verifies the session and offers explicit intake or reopening a
+supplied case link. The backend login allowlist returns only to that tenant path, not a
 case path. No case ID is saved to restore navigation. A route change creates a
-new store lifetime; progress teardown retires its subscription. No case discovery,
-intake, resolver controls or sign-out is provided here.
+new store lifetime; teardown retires subscriptions, draft validation and owned
+mutation handles. No case discovery, resolver controls or sign-out is provided here.
 
 ## Development and deployment
 
@@ -46,11 +52,12 @@ Give the requester origin its own restrictive CSP and no-referrer response polic
 the HTML also requests no-referrer. Do not cache BFF responses or private HTML
 server-side. This static app does not configure your reverse proxy or IdP.
 
-Requires backend PR #202, its ownership migration, PR #216's answer/history
+Requires backend PR #202, its ownership migration, PR #220's intake and PR #216's answer/history
 contracts, and a separate
 requester-audience backend/client/origin/cookie as documented by Ergon.
-Until M05-PR23 trusted operators bootstrap reviewed requester bindings; approval
-attestations do not grant ownership. Roll back this artifact by disabling the
+Trusted operators bootstrap only reviewed legacy requester bindings; new intake
+binds its verified creator. Approval attestations do not grant ownership.
+Roll back intake controls without deleting cases, or disable the
 requester origin, retaining durable ownership data. Never fall back to resolver
 hosting or put provider credentials into Vite variables.
 
@@ -63,7 +70,10 @@ M05-PR18 adds the bounded canvas; PR22b adds question/answer history. PR22c adds
 RHF final-answer submission to supported unanswered OPEN snapshots, requester
 session CSRF, exact mounted uncertain recovery and independent reads after
 acknowledgement. There are no automatic writes/retries or persistent recovery.
-Later slices supply intake, notifications and safe logout.
+M05-PR24 adds explicit reviewed intake and memory-only uncertain recovery. The
+same original UUID/raw input is replayed, never automatically or as a replacement.
+Only initial known input rejection permits correction. Notifications and safe
+logout remain deferred. See [ADR 0054](../../docs/decisions/0054-create-requester-cases-with-exact-recovery.md).
 
 ## Canvas presentation
 

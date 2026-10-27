@@ -130,8 +130,8 @@ export const requesterProgressGuide: GuideChapter = {
     },
   ],
   limitations: [
-    'This bounded canvas adapts the requester concept without inventing its staged timeline, running checks, uploads, owner identity, source links or outcome confirmation. This chapter exercises reads only; the final-answer chapter covers explicit submission and exact recovery. Intake, discovery, notifications and sign-out remain deferred. No resolver navigation or command exists.',
-    'Ownership is provisioned through reviewed privileged database operations, not the browser. Transfer/revocation is not supplied; incorrect provisioning requires disabling requester access and reviewed forward repair.',
+    'This bounded canvas adapts the requester concept without inventing its staged timeline, running checks, uploads, owner identity, source links or outcome confirmation. This chapter exercises reads only; separate final-answer and intake chapters cover explicit submission and exact recovery. Discovery, notifications and sign-out remain deferred. No resolver navigation or command exists.',
+    'This chapter starts from a reviewed legacy ownership binding. New intake separately binds its verified creator atomically. Transfer/revocation is not supplied; incorrect provisioning requires disabling requester access and reviewed forward repair.',
     'This simulated Chromium guide does not certify live IdP, separate-origin deployment, PostgreSQL authorization or actual proof acceptance. Those need backend and operational verification.',
   ],
 };

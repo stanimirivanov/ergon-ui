@@ -25,6 +25,7 @@ const ALLOWED_SCOPES = new Set([
   'scope:workbench',
   'scope:requester',
   'scope:requester-progress',
+  'scope:requester-intake',
 ]);
 
 const TYPE_DEPENDENCIES = new Map([
@@ -61,6 +62,7 @@ const SCOPE_DEPENDENCIES = new Map([
       'scope:follow-up',
       'scope:run-supervision',
       'scope:requester-progress',
+      'scope:requester-intake',
       'scope:session',
       'scope:shared',
     ]),
@@ -70,10 +72,15 @@ const SCOPE_DEPENDENCIES = new Map([
     new Set(['scope:requester-progress', 'scope:shared']),
   ],
   [
+    'scope:requester-intake',
+    new Set(['scope:requester-intake', 'scope:shared']),
+  ],
+  [
     'scope:requester',
     new Set([
       'scope:requester',
       'scope:requester-progress',
+      'scope:requester-intake',
       'scope:session',
       'scope:shared',
     ]),

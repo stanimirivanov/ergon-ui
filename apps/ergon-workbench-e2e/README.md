@@ -13,13 +13,22 @@ claim-recovery, release-recovery, internal-notes, run-supervision, handover, app
 pinned-evidence, outcome-verification, proof-finalization, execution/recovery,
 failed-run retry, exhausted-run escalation, predecessor-inspection and admission-history scenarios
 are ordinary assertion-first
-Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all twenty-seven with
-annotations, screenshots, and video, then assembles a local twenty-seven-chapter Markdown
+Playwright tests in `pnpm e2e`. `pnpm guide:generate` reruns all tagged chapters with
+annotations, screenshots, and video, then assembles the complete local Markdown
 and static HTML guide. Their BFF responses and case data are simulated; the
 result is **not** a live backend or OIDC verification. A successful `main` run
 can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
+
+The requester-intake chapter adds nine checkpoints: verified tenant entry,
+pre-network validation, narrow input, committed withdrawal, an uncertain partial
+receipt, byte-identical replay with fresh CSRF, historical acknowledgement and
+independently fresh case progress/history. No command runs before explicit
+submission; current case reads start only after navigation. Deploy merged Ergon
+PR #220 first. The exact `/new` document is permitted
+by the simulated network boundary, not arbitrary pages or live BFF requests.
+CI records and validates this chapter; it does not certify live authorization.
 
 The requester-answer chapter adds ten assertion-backed checkpoints: selected
 RHF input, pre-network validation, 320-pixel reflow, withdrawal at the CSRF boundary,

@@ -40,6 +40,9 @@ dependency edge changes.
 
 ## Canonical sources
 
+- [Requester intake](../packages/requester-intake/feature-web/README.md) owns the
+  reviewed new-request form and mounted recovery; its data-access package owns the protocol.
+
 - [Requester-response delivery](development/plans/m05-requester-responses.md) refines
   M05-PR22 into resolver inspection, requester history and requester submission/recovery.
 

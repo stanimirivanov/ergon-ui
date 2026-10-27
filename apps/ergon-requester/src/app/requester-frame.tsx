@@ -3,8 +3,10 @@ import type { ReactElement, ReactNode } from 'react';
 /** Requester-only chrome/landmarks; feature children own content, never outer layout. */
 export function RequesterFrame({
   children,
+  label = 'Private case progress',
 }: {
   readonly children: ReactNode;
+  readonly label?: string;
 }): ReactElement {
   return (
     <div className="flex min-h-screen flex-col">
@@ -27,7 +29,7 @@ export function RequesterFrame({
             </span>
           </a>
           <span className="text-xs font-bold tracking-widest uppercase">
-            Private case progress
+            {label}
           </span>
         </div>
       </header>

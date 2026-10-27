@@ -107,6 +107,7 @@ export default [
                 'scope:follow-up',
                 'scope:run-supervision',
                 'scope:requester-progress',
+                'scope:requester-intake',
                 'scope:session',
                 'scope:shared',
               ],
@@ -116,6 +117,7 @@ export default [
               onlyDependOnLibsWithTags: [
                 'scope:requester',
                 'scope:requester-progress',
+                'scope:requester-intake',
                 'scope:session',
                 'scope:shared',
               ],
@@ -124,6 +126,13 @@ export default [
               sourceTag: 'scope:requester-progress',
               onlyDependOnLibsWithTags: [
                 'scope:requester-progress',
+                'scope:shared',
+              ],
+            },
+            {
+              sourceTag: 'scope:requester-intake',
+              onlyDependOnLibsWithTags: [
+                'scope:requester-intake',
                 'scope:shared',
               ],
             },

@@ -2,6 +2,13 @@
 
 ## TL;DR
 
+M05-PR24 adds session-gated intake at `/tenants/:tenantId/new`, with RHF review,
+bounded invocation-local CSRF/POST, exact uncertain recovery and independently
+checked progress after acknowledgement. New intake feature/data-access owners
+do not broaden progress dependencies. A nine-checkpoint synthetic guide covers
+the complete flow; heavy browser/visual/book gates run on CI. See
+[ADR 0054](../decisions/0054-create-requester-cases-with-exact-recovery.md).
+
 M05-PR22c adds reviewed final-answer submission with invocation-local requester
 CSRF and exact explicit recovery. Pending commands withdraw private content before
 I/O; acknowledgement reacquires independent progress/history rather than supplying
@@ -31,15 +38,16 @@ history is acquired separately. No delivery confirmation, requester write or pro
 M05-PR18 completes the bounded light requester canvas: goal/status, four
 explanatory cards and responsive request-details rail over the same five-field
 read. No concept-art stages, checks, uploads or confirmation are invented.
-The complete private canvas withdraws during rechecks; later response/intake
-slices remain deferred.
+The complete private canvas withdraws during rechecks. Response and intake
+capabilities are separately described above.
 
 M05-PR17 adds the first usable [requester app](../../apps/ergon-requester/README.md):
 an independent artifact with verified-session gating and supplied-link,
 owner-scoped goal/lifecycle/timestamps. Rechecks withhold previous facts before I/O.
-No discovery, intake or resolver control exists. Login returns to the tenant;
-reopen the original case link. Trusted provisioning remains necessary until
-authenticated intake. See [ADR 0048](../decisions/0048-compose-requester-owned-case-progress.md).
+No discovery or resolver control exists. Login returns to the tenant; reopen the
+case link or explicitly start intake. Legacy bindings need trusted provisioning;
+new intake binds the verified creator. See
+[ADR 0048](../decisions/0048-compose-requester-owned-case-progress.md).
 
 M05-PR14 consumes merged Ergon PRs #194/#196/#198: required independent priority
 metadata on all active work reads and confirmed owner-scoped assignments.

@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
+    "@ergon/requester-intake-data-access-web": "workspace:*",
     "@ergon/follow-up-data-access-web": "workspace:*",
     "@ergon/follow-up-model": "workspace:*",
     "@ergon/run-supervision-data-access-web": "workspace:*"
