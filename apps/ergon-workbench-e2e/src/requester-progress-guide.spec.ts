@@ -3,6 +3,10 @@ import { expect, test } from '@playwright/test';
 import { requesterProgressGuide } from './guide/requester-progress-guide';
 import { runGuideScenario } from './guide/user-guide-session';
 import { fulfillSimulatedBff } from './guide/simulated-bff-response';
+import {
+  installSimulatedRequesterHistoryBff,
+  requesterHistoryAnswer,
+} from './guide/simulated-requester-history-bff';
 
 const origin = 'http://localhost:4301';
 const tenant = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
@@ -16,6 +20,7 @@ test(
   async ({ browser }) =>
     runGuideScenario(browser, origin, requesterProgressGuide, async (guide) => {
       const page = guide.page;
+      const history = await installSimulatedRequesterHistoryBff(page);
       let authenticated = false;
       let reads = 0;
       let release: () => void = () => undefined;
@@ -25,10 +30,15 @@ test(
         const url = new URL(request.url());
         if (
           url.pathname.startsWith('/bff/') &&
-          !url.pathname.endsWith('/session') &&
-          !url.pathname.endsWith('/progress')
+          url.pathname !== `/bff/v1/tenants/${tenant}/session` &&
+          url.pathname !==
+            `/bff/v1/tenants/${tenant}/requester-cases/${caseId}/progress` &&
+          url.pathname !==
+            `/bff/v1/tenants/${tenant}/requester-cases/${caseId}/information-requests`
         )
           unexpected.push(url.pathname);
+        if (url.pathname.startsWith('/bff/'))
+          expect(request.method()).toBe('GET');
       });
       await page.route('**/bff/v1/tenants/*/session', (route) =>
         fulfillSimulatedBff(
@@ -84,6 +94,7 @@ test(
         page.getByRole('link', { name: 'Sign in to Ergon' }),
       ).toHaveAttribute('href', `/bff/login?returnTo=%2Ftenants%2F${tenant}`);
       expect(reads).toBe(0);
+      expect(history.reads()).toBe(0);
       await guide.result('requester-sign-in', page.getByRole('main'));
       authenticated = true;
       await page.goto(path);
@@ -111,6 +122,26 @@ test(
         page.getByRole('button', { name: /claim|execute|approve|handover/i }),
       ).toHaveCount(0);
       await guide.result('requester-open', page.getByRole('main'));
+      const answer = page.getByRole('region', { name: 'Recorded answer' });
+      await expect(answer).toContainText(requesterHistoryAnswer.answer.trim());
+      await expect(answer.locator('time').first()).toHaveAttribute(
+        'datetime',
+        requesterHistoryAnswer.respondedAt,
+      );
+      expect(await answer.locator('script').count()).toBe(0);
+      await expect(
+        page.getByText('No answer recorded in this checked snapshot.'),
+      ).toBeVisible();
+      await expect(
+        page.getByText('Answer history is not supplied by this server.'),
+      ).toBeVisible();
+      await expect(
+        page.getByText(/PRIVATE-REQUESTER|PRIVATE-RESOLVER/),
+      ).toHaveCount(0);
+      await guide.result(
+        'requester-history',
+        page.getByRole('list', { name: 'Recorded questions and answers' }),
+      );
       await page.setViewportSize({ width: 320, height: 800 });
       expect(
         await page.evaluate(
@@ -139,6 +170,7 @@ test(
         page.getByRole('button', { name: 'Recheck progress' }),
       ).toBeFocused();
       await guide.result('requester-narrow', page.getByRole('main'));
+      await guide.result('requester-history-narrow', answer);
       await guide.result('requester-details', details);
       await page.setViewportSize({ width: 1440, height: 900 });
       // Start an independent desktop disclosure rather than reuse the narrow
@@ -152,6 +184,7 @@ test(
       ).toBeFocused();
       await expect(page.getByText(goal, { exact: true })).toHaveCount(0);
       await expect(details).toHaveCount(0);
+      await expect(answer).toHaveCount(0);
       await expect(page.locator('time')).toHaveCount(0);
       // Reset after withdrawal and focus, not before them. The complete pending
       // panel is the capture target, so annotation scrolling retains the shell.
@@ -170,8 +203,46 @@ test(
         page.getByText('Verified resolved', { exact: true }),
       ).toBeVisible();
       await guide.result('requester-resolved', page.getByRole('main'));
+      await expect(
+        page.getByText(
+          'This case is closed. Its recorded history remains readable.',
+        ),
+      ).toBeVisible();
+      await expect(answer).toBeVisible();
+      history.setMode('empty');
+      await page.getByRole('button', { name: 'Recheck progress' }).click();
+      const empty = page.getByText(
+        'No questions recorded in this checked snapshot.',
+      );
+      await expect(empty).toBeVisible();
+      await guide.result('requester-history-empty', empty);
+      history.setMode('truncated');
+      await page.getByRole('button', { name: 'Recheck progress' }).click();
+      const truncated = page.getByText(
+        'Latest 100 questions only. Older questions and their answers are omitted.',
+      );
+      await expect(truncated).toBeVisible();
+      await guide.result('requester-history-truncated', truncated);
+      history.setMode('held-denial');
+      await page.getByRole('button', { name: 'Recheck progress' }).click();
+      await expect.poll(() => history.reads()).toBe(6);
+      await expect(page.getByText(goal, { exact: true })).toHaveCount(0);
+      await expect(details).toHaveCount(0);
+      await expect(
+        page.getByRole('list', { name: 'Recorded questions and answers' }),
+      ).toHaveCount(0);
+      await expect(
+        page.getByRole('heading', { name: 'Case progress', exact: true }),
+      ).toBeFocused();
+      await guide.result('requester-history-pending', page.getByRole('main'));
+      history.release();
+      await expect(
+        page.getByRole('heading', { name: 'Case progress is unavailable.' }),
+      ).toBeVisible();
+      await expect(page.getByText(goal, { exact: true })).toHaveCount(0);
+      await guide.result('requester-history-denied', page.getByRole('main'));
       expect(unexpected).toEqual([]);
-      expect(reads).toBe(4);
+      expect(reads).toBe(7);
       expect(
         await page.evaluate(() => localStorage.length + sessionStorage.length),
       ).toBe(0);

@@ -2,11 +2,17 @@
 
 ## TL;DR
 
+M05-PR22b adds requester-owned question/answer history. Separate RTK progress and
+history reads must both succeed before the private canvas is shown. Empty,
+truncated, unsupported and unanswered states differ; closed history stays
+readable. PR22c supplies submission/recovery later. See
+[ADR 0052](../decisions/0052-gate-requester-history-with-case-progress.md).
+
 M05-PR22a adds exact recorded answers to the owner-scoped question inspector.
 Older-server omission and explicit unanswered snapshots have distinct messages;
 answers remain inert and retire with existing private observations. Question POST
 receipts, ordering and bounds are unchanged. Requester history and submission/recovery
-follow in [PR22b/c](plans/m05-requester-responses.md); see
+are sequenced in [PR22b/c](plans/m05-requester-responses.md); see
 [ADR 0051](../decisions/0051-inspect-recorded-requester-answers.md).
 
 M05-PR20a adds lazy, current-owner requester-question history in the Console,

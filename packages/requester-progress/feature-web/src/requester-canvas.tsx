@@ -1,5 +1,9 @@
 import type { ReactElement, ReactNode } from 'react';
-import type { RequesterProgress } from '@ergon/requester-progress-data-access-web';
+import type {
+  RequesterProgress,
+  RequesterQuestions,
+} from '@ergon/requester-progress-data-access-web';
+import { RequesterQuestionHistory } from './requester-question-history';
 
 /**
  * Presentation of an already authorized projection; no local copy, reads or
@@ -8,8 +12,10 @@ import type { RequesterProgress } from '@ergon/requester-progress-data-access-we
  */
 export function RequesterCanvas({
   progress,
+  questions,
 }: {
   readonly progress: RequesterProgress;
+  readonly questions: RequesterQuestions;
 }): ReactElement {
   const resolved = progress.status === 'VERIFIED_RESOLVED';
   return (
@@ -50,12 +56,13 @@ export function RequesterCanvas({
               : 'The case remains open. This does not identify an active run, an approval, a waiting person or an estimated completion time.'}
           </p>
         </section>
+        <RequesterQuestionHistory questions={questions} closed={resolved} />
         <div className="grid min-w-0 gap-4 md:grid-cols-2">
           <CanvasCard title="What we need from you" marker="01">
             <p>No response or upload can be submitted in this view.</p>
             <p className="text-ink-muted">
-              This progress snapshot does not disclose information requests. It
-              cannot establish whether someone is waiting for you.
+              Read recorded questions and answers above. Their presence does not
+              establish whether someone is currently waiting for you.
             </p>
           </CanvasCard>
           <CanvasCard title="What Ergon is checking" marker="02">

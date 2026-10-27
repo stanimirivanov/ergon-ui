@@ -13,14 +13,16 @@ canvas and failure wording, local recheck intent, persistent heading focus and
 plain-text content. A recheck commits an attempt before data-access acquisition,
 hiding the previous goal/timestamps before I/O. It never copies a remote resource.
 OPEN is not run progress; VERIFIED_RESOLVED is an observed accepted case state,
-not browser proof acceptance.
+not browser proof acceptance. A dedicated section renders exact question/answer
+text, separate timestamps and distinct unsupported/unanswered/empty/truncated
+states. Closed cases retain read-only history; no resolver attribution appears.
 
 ## Exclusions
 
 No intake, discovery, information forms, proof details, resolver commands, polling,
 local persistence or client-owned application core. The bounded canvas uses only
-the five-field projection: prominent goal/status, explanatory cards and details
-rail. OPEN supplies no active stage or check; unsupported responses, uploads and
+the progress and narrow history projections: goal/status, history, explanatory cards
+and details rail. OPEN supplies no active stage or check; answer submission, uploads and
 confirmation have explanation only, not controls. The whole canvas, including
 case ID/timestamps in its rail, is mounted beneath the fresh-disclosure gate.
 

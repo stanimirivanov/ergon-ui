@@ -72,6 +72,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0049](0049-inspect-private-requester-question-history.md)                  | Accepted   | Distinct private observations for owner-scoped question history  |
 | [0050](0050-record-requester-questions-with-exact-recovery.md)              | Accepted   | Confirmed exact question recording and uncertain recovery        |
 | [0051](0051-inspect-recorded-requester-answers.md)                          | Accepted   | Narrow answer inspection under existing private question gates   |
+| [0052](0052-gate-requester-history-with-case-progress.md)                   | Accepted   | Fresh requester progress and narrow question/answer history      |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

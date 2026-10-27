@@ -103,6 +103,14 @@ config-relative; accepting a matching suffix alone can silently upload no traces
 The CI artifact must retain the actual output/report directory alongside partial
 guide recordings, without relaxing the generation or publication gate.
 
+Guide CI runs inside the immutable Playwright image also recorded in
+`tools/visual/renderer.json`, with its preinstalled browsers and system libraries.
+The workflow regression checks image/package alignment and rejects mutable runner
+selection or per-run system-package installation. Keep the 20-minute job deadline;
+the 15-minute generation step leaves time for failure/cancellation evidence uploads.
+These configuration checks do not prove that all chapters recorded or the book
+assembled: successful `pnpm guide:generate` remains mandatory for publication.
+
 The workspace formatting gate uses `nx format:check --all`: all eligible source
 files are checked without Git base/head discovery. Shallow, detached pull-request
 checkouts need no local `main` ref or extra fetch credentials. The repository

@@ -31,6 +31,13 @@ withdrawal and focus. No pass-through application core is introduced. Login
 returns only to the tenant, requiring the original supplied case link to reopen.
 See [ADR 0048](decisions/0048-compose-requester-owned-case-progress.md).
 
+Requester history adds a separate RTK resource in the same data-access owner,
+without resolver imports or attribution. One fresh canvas lifetime acquires
+progress then history and withholds all private DOM on either failure. The
+feature owns inert history presentation; app composition is unchanged. These
+are independent snapshots, not an atomic read. See
+[ADR 0052](decisions/0052-gate-requester-history-with-case-progress.md).
+
 Projects are grouped by business capability and concrete frontend
 responsibility. A capability gains a hexagonal application core only when the
 client owns executable, platform-neutral workflow policy. Cache-centric slices

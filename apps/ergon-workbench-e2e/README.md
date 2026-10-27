@@ -21,6 +21,12 @@ can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
 
+The requester chapter now has thirteen assertion-backed checkpoints. It reads
+progress then narrow question/answer history, including empty, unsupported,
+unanswered, latest-100 and closed-case states. Either pending/failed check hides
+the whole private canvas. No requester POST exists in this slice; deploy backend
+PR #216 before the client. Generated media is simulated, not live authorization.
+
 The requester-question chapter now has nine assertion-backed checkpoints,
 including exact inert answers, server/database timestamps, unsupported coverage
 versus checked unanswered snapshots, and answer withdrawal on close/failed access.

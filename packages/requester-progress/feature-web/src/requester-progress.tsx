@@ -112,36 +112,47 @@ export function RequesterCaseProgress({
           Recheck progress
         </Button>
       </div>
-      <div aria-live="polite" aria-atomic="true">
-        {read.kind === 'pending' ? (
-          <p role="status">
-            Checking current case access… Previous details are hidden.
-          </p>
-        ) : read.kind === 'failure' ? (
-          <div className="rounded-xl border border-border bg-surface p-6">
-            <h2 className="text-xl font-bold">
-              {failures[read.failure.kind].title}
-            </h2>
-            <p className="mt-3 leading-7 text-ink-muted">
-              {failures[read.failure.kind].detail}
+      <div>
+        <div aria-live="polite" aria-atomic="true">
+          {read.kind === 'pending' ? (
+            <p role="status">
+              Checking current case access… Previous details are hidden.
             </p>
-            {read.failure.kind === 'authentication-required' ? (
-              <a
-                className="mt-4 inline-block font-bold underline"
-                href={signInHref}
-              >
-                Sign in to Ergon
-              </a>
-            ) : null}
-            {failures[read.failure.kind].retry ? (
-              <p className="mt-3 text-sm">
-                Use Recheck progress to request fresh access.
+          ) : read.kind === 'failure' ? (
+            <div className="rounded-xl border border-border bg-surface p-6">
+              <h2 className="text-xl font-bold">
+                {failures[read.failure.kind].title}
+              </h2>
+              <p className="mt-3 leading-7 text-ink-muted">
+                {failures[read.failure.kind].detail}
               </p>
-            ) : null}
-          </div>
-        ) : (
-          <RequesterCanvas progress={read.progress} />
-        )}
+              {read.failure.kind === 'authentication-required' ? (
+                <a
+                  className="mt-4 inline-block font-bold underline"
+                  href={signInHref}
+                >
+                  Sign in to Ergon
+                </a>
+              ) : null}
+              {failures[read.failure.kind].retry ? (
+                <p className="mt-3 text-sm">
+                  Use Recheck progress to request fresh access.
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <p className="sr-only">
+              Current progress and question history checked.
+            </p>
+          )}
+        </div>
+        {/* Announce completion, not up to 100 private questions and answers as one atomic live update. */}
+        {read.kind === 'ready' ? (
+          <RequesterCanvas
+            progress={read.progress}
+            questions={read.questions}
+          />
+        ) : null}
       </div>
     </section>
   );
