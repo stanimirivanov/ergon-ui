@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "@ergon/requester-intake-data-access-web": "workspace:*",
+    "@ergon/requester-intake-feature-web": "workspace:*",
     "@ergon/requester-progress-data-access-web": "workspace:*",
     "@ergon/requester-progress-feature-web": "workspace:*",
     "@ergon/session-data-access-web": "workspace:*",

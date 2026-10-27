@@ -8,6 +8,36 @@ const ACCEPTED_APPLICATION_DECISION =
   'docs/decisions/0042-own-follow-up-workflow.md';
 
 describe('project boundary policy', () => {
+  it('allows requester intake composition without coupling intake to session, progress or resolver data', () => {
+    const intake = project(
+      'packages/requester-intake/data-access-web',
+      '@ergon/requester-intake-data-access-web',
+      ['type:data-access', 'scope:requester-intake', 'platform:web'],
+    );
+    const app = project(
+      'apps/ergon-requester',
+      '@ergon/requester',
+      ['type:app', 'scope:requester', 'platform:web'],
+      { '@ergon/requester-intake-data-access-web': 'workspace:*' },
+    );
+    assert.deepEqual(validateProjectBoundaries([intake, app]), []);
+    for (const scope of ['session', 'requester-progress', 'follow-up']) {
+      const other = project(
+        'packages/' + scope + '/data-access-web',
+        '@ergon/' + scope + '-data-access-web',
+        ['type:data-access', 'scope:' + scope, 'platform:web'],
+      );
+      const coupled = structuredClone(intake);
+      coupled.manifest.dependencies = { [other.manifest.name]: 'workspace:*' };
+      assert(
+        validateProjectBoundaries([coupled, other]).some((error) =>
+          error.includes(
+            'scope:requester-intake cannot depend on scope:' + scope,
+          ),
+        ),
+      );
+    }
+  });
   it('permits multi-app browser verification without granting a production escape scope', () => {
     const requester = project('apps/ergon-requester', '@ergon/requester', [
       'type:app',

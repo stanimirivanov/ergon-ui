@@ -9,12 +9,12 @@ native UI, application state, and authentication adapters platform-specific.
 
 ## Application topology
 
-| Deployable        | Audience and responsibility                                        | Status                                                    |
-| :---------------- | :----------------------------------------------------------------- | :-------------------------------------------------------- |
-| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Follow-up handling and assigned-run snapshot supervision  |
-| `ergon-requester` | External requester case progress                                   | Supplied-link progress/history and reviewed final answers |
-| widget SDK        | Embeddable headless client and web components                      | Deferred                                                  |
-| native clients    | Selected requester or resolver workflows                           | Deferred until required                                   |
+| Deployable        | Audience and responsibility                                        | Status                                                                          |
+| :---------------- | :----------------------------------------------------------------- | :------------------------------------------------------------------------------ |
+| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Follow-up handling and assigned-run snapshot supervision                        |
+| `ergon-requester` | External requester cases                                           | Authenticated intake, supplied-link progress/history and reviewed final answers |
+| widget SDK        | Embeddable headless client and web components                      | Deferred                                                                        |
+| native clients    | Selected requester or resolver workflows                           | Deferred until required                                                         |
 
 The workbench and requester experience use distinct deployment artifacts,
 identity clients, CSPs, URLs, performance budgets, and release decisions. Studio
@@ -28,8 +28,18 @@ requester-progress feature/data access into its own artifact and per-link store.
 It cannot depend on follow-up/run-supervision or workbench. Progress data access
 owns exact-case decoding and fresh RTK acquisition; feature owns recheck intent,
 withdrawal and focus. No pass-through application core is introduced. Login
-returns only to the tenant, requiring the original supplied case link to reopen.
+returns only to the tenant, where the user starts intake or reopens a supplied case link.
 See [ADR 0048](decisions/0048-compose-requester-owned-case-progress.md).
+
+Requester intake has separate `requester-intake/data-access-web` and `feature-web`
+owners because creation precedes a current case resource. The app supplies verified
+session gating, trusted links and a fresh route/store lifetime at `/tenants/:tenantId/new`.
+Data access owns bounded CSRF/POST and exact normalized acknowledgement; feature
+owns RHF draft/review, committed withdrawal and mounted immutable UUID/raw input.
+Acknowledgement links to an independent progress lifetime rather than populating
+its cache. Intake cannot import session/progress/resolver capabilities. No generic
+command framework or application core. See
+[ADR 0054](decisions/0054-create-requester-cases-with-exact-recovery.md).
 
 Requester history adds a separate RTK resource in the same data-access owner,
 without resolver imports or attribution. One fresh canvas lifetime acquires

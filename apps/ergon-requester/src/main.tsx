@@ -6,6 +6,7 @@ import { RequesterRoute } from './app/requester-route';
 const router = createBrowserRouter([
   { path: '/', element: <RequesterRoute /> },
   { path: '/tenants/:tenantId', element: <RequesterRoute /> },
+  { path: '/tenants/:tenantId/new', element: <RequesterRoute mode="intake" /> },
   { path: '/tenants/:tenantId/cases/:caseId', element: <RequesterRoute /> },
   { path: '*', element: <RequesterRoute /> },
 ]);

@@ -3,6 +3,8 @@
   "compileOnSave": false,
   "files": [],
   "references": [
+    { "path": "./packages/requester-intake/data-access-web" },
+    { "path": "./packages/requester-intake/feature-web" },
     { "path": "./apps/ergon-requester" },
     { "path": "./packages/requester-progress/data-access-web" },
     { "path": "./packages/requester-progress/feature-web" },
