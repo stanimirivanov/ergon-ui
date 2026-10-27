@@ -21,7 +21,15 @@ can publish the same labelled book to GitHub Pages after repository setup.
 
 ## Console section navigation
 
-The requester chapter now has thirteen assertion-backed checkpoints. It reads
+The requester-answer chapter adds ten assertion-backed checkpoints: selected
+RHF input, pre-network validation, 320-pixel reflow, withdrawal at the CSRF boundary,
+uncertain malformed acknowledgement, independent history while retaining exact
+intent, exact replay with fresh CSRF, held history after acknowledgement, recorded
+answer inspection, closure-racing denial and closed owned history. Its fixture
+requires byte-identical intent and no unexpected BFF route. This is synthetic
+browser evidence, not PostgreSQL or live identity certification.
+
+The requester-progress chapter has thirteen assertion-backed checkpoints. It reads
 progress then narrow question/answer history, including empty, unsupported,
 unanswered, latest-100 and closed-case states. Either pending/failed check hides
 the whole private canvas. No requester POST exists in this slice; deploy backend

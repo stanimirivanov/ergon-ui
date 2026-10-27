@@ -6,10 +6,27 @@ import type {
   RequesterProgress,
 } from './progress-client';
 import type { RequesterQuestions } from './question-history';
+import type {
+  RequesterAnswerClient,
+  RequesterAnswerCommand,
+  RequesterAnswerFailure,
+} from './answer-client';
 
 /** Executable dependency, supplied outside serializable Redux state by the requester app. */
 export interface ProgressDependencies {
-  readonly progressClient: ProgressClient;
+  readonly progressClient: ProgressClient & RequesterAnswerClient;
+}
+/** Contains framework/client defects and strips diagnostics without losing command uncertainty. */
+export function normalizeAnswerFailure(value: unknown): RequesterAnswerFailure {
+  if (typeof value === 'object' && value !== null && 'kind' in value) {
+    for (const kind of [
+      'answer-conflict',
+      'invalid-answer',
+      'csrf-rejected',
+    ] as const)
+      if (value.kind === kind) return { kind };
+  }
+  return normalizeProgressFailure(value);
 }
 const kinds: readonly ProgressFailure['kind'][] = [
   'authentication-required',
@@ -33,9 +50,41 @@ export function normalizeProgressFailure(value: unknown): ProgressFailure {
 /** Exact tenant/case cache; zero-grace retirement cancels only after its last subscriber leaves. */
 export const progressApi = createApi({
   reducerPath: 'requesterProgressApi',
-  baseQuery: fakeBaseQuery<ProgressFailure>(),
+  baseQuery: fakeBaseQuery<RequesterAnswerFailure>(),
   keepUnusedDataFor: 0,
   endpoints: (build) => ({
+    recordAnswer: build.mutation<
+      { readonly responseId: string },
+      RequesterAnswerCommand
+    >({
+      async queryFn(
+        command,
+        api,
+      ): Promise<
+        { data: { responseId: string } } | { error: RequesterAnswerFailure }
+      > {
+        try {
+          const extra = api.extra;
+          if (
+            typeof extra !== 'object' ||
+            extra === null ||
+            !('progressClient' in extra)
+          )
+            return { error: { kind: 'unexpected-defect' } };
+          const client = extra.progressClient;
+          if (!isAnswerClient(client))
+            return { error: { kind: 'unexpected-defect' } };
+          const result = await client.recordAnswer(command, api.signal);
+          return result.ok
+            ? result.responseId === command.responseId
+              ? { data: { responseId: result.responseId } }
+              : { error: { kind: 'unexpected-defect' } }
+            : { error: normalizeAnswerFailure(result.error) };
+        } catch {
+          return { error: { kind: 'unexpected-defect' } };
+        }
+      },
+    }),
     questions: build.query<RequesterQuestions, ProgressQuery>({
       async queryFn(
         query,
@@ -98,5 +147,13 @@ function isProgressClient(value: unknown): value is ProgressClient {
     typeof value.read === 'function' &&
     'readQuestions' in value &&
     typeof value.readQuestions === 'function'
+  );
+}
+function isAnswerClient(value: unknown): value is RequesterAnswerClient {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'recordAnswer' in value &&
+    typeof value.recordAnswer === 'function'
   );
 }

@@ -19,12 +19,27 @@ states. Closed cases retain read-only history; no resolver attribution appears.
 
 ## Exclusions
 
-No intake, discovery, information forms, proof details, resolver commands, polling,
+No intake, discovery, proof details, resolver commands, polling,
 local persistence or client-owned application core. The bounded canvas uses only
 the progress and narrow history projections: goal/status, history, explanatory cards
-and details rail. OPEN supplies no active stage or check; answer submission, uploads and
+and details rail. OPEN supplies no active stage or check; uploads and
 confirmation have explanation only, not controls. The whole canvas, including
 case ID/timestamps in its rail, is mounted beneath the fresh-disclosure gate.
+
+## Answer lifetime
+
+Supported unanswered OPEN snapshots offer a dedicated RHF form. Selection is an
+identity derived from current RTK history, never a copied question. Recheck retires
+draft validation. Submission commits canvas withdrawal and stable heading focus
+before command I/O. The controller retains exact immutable replay intent after
+uncertainty, never automatically retries or changes its UUID/text, and resets RTK
+mutation records. Explicit recheck may reacquire history without replacing intent.
+Only an initial input rejection allows correction. A rejected retained replay
+never unseals intent. Identity denial, conflict and absence offer no
+replay. Acknowledgement starts independently fresh progress/history; failed reads
+cannot resurrect private details. Unmount retires owned handles and callbacks,
+not an already committed answer. No edit or persistence exists. See
+[ADR 0053](../../../docs/decisions/0053-record-requester-answers-with-exact-recovery.md).
 
 ## Verification
 

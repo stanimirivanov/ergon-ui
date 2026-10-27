@@ -13,9 +13,13 @@ import { RequesterQuestionHistory } from './requester-question-history';
 export function RequesterCanvas({
   progress,
   questions,
+  onAnswer,
+  answerPanel,
 }: {
   readonly progress: RequesterProgress;
   readonly questions: RequesterQuestions;
+  readonly onAnswer?: ((requestId: string) => void) | undefined;
+  readonly answerPanel?: ReactNode;
 }): ReactElement {
   const resolved = progress.status === 'VERIFIED_RESOLVED';
   return (
@@ -56,10 +60,18 @@ export function RequesterCanvas({
               : 'The case remains open. This does not identify an active run, an approval, a waiting person or an estimated completion time.'}
           </p>
         </section>
-        <RequesterQuestionHistory questions={questions} closed={resolved} />
+        <RequesterQuestionHistory
+          questions={questions}
+          closed={resolved}
+          onAnswer={onAnswer}
+        />
+        {answerPanel}
         <div className="grid min-w-0 gap-4 md:grid-cols-2">
           <CanvasCard title="What we need from you" marker="01">
-            <p>No response or upload can be submitted in this view.</p>
+            <p>
+              Answer supported unanswered questions above while the case is
+              open. Uploads are not available.
+            </p>
             <p className="text-ink-muted">
               Read recorded questions and answers above. Their presence does not
               establish whether someone is currently waiting for you.

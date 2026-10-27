@@ -9,12 +9,12 @@ native UI, application state, and authentication adapters platform-specific.
 
 ## Application topology
 
-| Deployable        | Audience and responsibility                                        | Status                                                   |
-| :---------------- | :----------------------------------------------------------------- | :------------------------------------------------------- |
-| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Follow-up handling and assigned-run snapshot supervision |
-| `ergon-requester` | External requester case progress                                   | Authenticated supplied-link read and bounded canvas      |
-| widget SDK        | Embeddable headless client and web components                      | Deferred                                                 |
-| native clients    | Selected requester or resolver workflows                           | Deferred until required                                  |
+| Deployable        | Audience and responsibility                                        | Status                                                    |
+| :---------------- | :----------------------------------------------------------------- | :-------------------------------------------------------- |
+| `ergon-workbench` | Authenticated resolver console; later studio and simulation routes | Follow-up handling and assigned-run snapshot supervision  |
+| `ergon-requester` | External requester case progress                                   | Supplied-link progress/history and reviewed final answers |
+| widget SDK        | Embeddable headless client and web components                      | Deferred                                                  |
+| native clients    | Selected requester or resolver workflows                           | Deferred until required                                   |
 
 The workbench and requester experience use distinct deployment artifacts,
 identity clients, CSPs, URLs, performance budgets, and release decisions. Studio
@@ -37,6 +37,15 @@ progress then history and withholds all private DOM on either failure. The
 feature owns inert history presentation; app composition is unchanged. These
 are independent snapshots, not an atomic read. See
 [ADR 0052](decisions/0052-gate-requester-history-with-case-progress.md).
+
+Requester answers reuse those owners: data access supplies invocation-local CSRF,
+one bounded exact POST and a contained RTK mutation; feature owns RHF input,
+selected identity and mounted immutable replay intent. Submission commits private
+withdrawal before I/O. Acknowledgement reacquires progress/history rather than
+inserting a receipt; uncertainty permits only explicit original-intent replay.
+There are no new workspace edges or application core. The feature links the
+already-pinned React Hook Form version. See
+[ADR 0053](decisions/0053-record-requester-answers-with-exact-recovery.md).
 
 Projects are grouped by business capability and concrete frontend
 responsibility. A capability gains a hexagonal application core only when the

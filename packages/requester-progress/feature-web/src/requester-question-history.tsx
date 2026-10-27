@@ -1,13 +1,16 @@
 import type { ReactElement } from 'react';
 import type { RequesterQuestions } from '@ergon/requester-progress-data-access-web';
+import { Button } from '@ergon/ui-web';
 
 /** Inert, bounded history beneath the page's fresh two-resource gate; no authority or editable draft is inferred. */
 export function RequesterQuestionHistory({
   questions,
   closed,
+  onAnswer,
 }: {
   readonly questions: RequesterQuestions;
   readonly closed: boolean;
+  readonly onAnswer?: ((requestId: string) => void) | undefined;
 }): ReactElement {
   return (
     <section
@@ -19,7 +22,7 @@ export function RequesterQuestionHistory({
       </h2>
       <p className="mt-3 text-sm text-ink-muted">
         Recorded text is not delivery confirmation, consent, accepted evidence
-        or outcome proof. This view cannot submit or edit answers.
+        or outcome proof. Recorded answers cannot be edited here.
       </p>
       {closed ? (
         <p className="mt-3 font-bold">
@@ -64,9 +67,17 @@ export function RequesterQuestionHistory({
                   Answer history is not supplied by this server.
                 </p>
               ) : item.response === null ? (
-                <p className="mt-3">
-                  No answer recorded in this checked snapshot.
-                </p>
+                <div className="mt-3">
+                  <p>No answer recorded in this checked snapshot.</p>
+                  {!closed && onAnswer ? (
+                    <Button
+                      onClick={() => onAnswer(item.requestId)}
+                      aria-label={`Answer question: ${item.question}`}
+                    >
+                      Answer question
+                    </Button>
+                  ) : null}
+                </div>
               ) : (
                 <section
                   aria-label="Recorded answer"

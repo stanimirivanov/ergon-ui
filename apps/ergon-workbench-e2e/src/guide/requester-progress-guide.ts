@@ -29,7 +29,7 @@ export const requesterProgressGuide: GuideChapter = {
     {
       id: 'requester-open',
       title: 'Read the checked lifecycle, not an execution promise',
-      body: 'After session verification, fresh progress then history reads check the exact case. Read the prominent goal and recorded status above Questions and answers and the four explanatory cards. OPEN says nothing about an active run, approval readiness, a waiting person or estimated completion. What we need from you explains that answer submission and uploads are unavailable; What Ergon is checking withholds individual checks. Outcome proof distinguishes lifecycle from private evidence, and Confirm the outcome explains that reading cannot change the case. No disabled pretend actions appear. Goals and history are untrusted text, not markup.',
+      body: 'After session verification, fresh progress then history reads check the exact case. Read the prominent goal and recorded status above Questions and answers and the four explanatory cards. OPEN says nothing about an active run, approval readiness, a waiting person or estimated completion. What we need from you points to supported unanswered questions; uploads remain unavailable. What Ergon is checking withholds individual checks. Outcome proof distinguishes lifecycle from private evidence, and Confirm the outcome explains that reading cannot change the case. No disabled pretend actions appear. Goals and history are untrusted text, not markup. The separate final-answer chapter demonstrates explicit submission and exact recovery; this chapter issues reads only.',
       expected:
         'The supplied goal, Open label, four explanatory cards and Request details sidebar appear without inferred stages or resolver controls.',
     },
@@ -37,9 +37,9 @@ export const requesterProgressGuide: GuideChapter = {
       id: 'requester-history',
       title:
         'Read recorded questions and answers without treating them as proof',
-      body: 'Read Questions and answers in newest question-recording-time order. A recorded answer appears beneath its question with exact Unicode and line breaks; script-like content stays visible text. Requested and Responded describe server command times, while Question recorded and Answer recorded describe database recording. They are not delivery/read confirmations and must not be sorted across clocks. No resolver, claim, provider or requester attribution is supplied. No answer recorded in this checked snapshot means explicit null, not permanent absence. Answer history is not supplied by this server means an older server omitted coverage; do not infer an unanswered question. Neither a question nor an answer supplies consent, accepted evidence, execution permission or outcome proof. Answer submission and exact recovery are a later slice; there is no edit or submit control here.',
+      body: 'Read Questions and answers in newest question-recording-time order. A recorded answer appears beneath its question with exact Unicode and line breaks; script-like content stays visible text. Requested and Responded describe server command times, while Question recorded and Answer recorded describe database recording. They are not delivery/read confirmations and must not be sorted across clocks. No resolver, claim, provider or requester attribution is supplied. No answer recorded in this checked snapshot means explicit null, not permanent absence. Answer history is not supplied by this server means an older server omitted coverage; do not infer an unanswered question. Neither a question nor an answer supplies consent, accepted evidence, execution permission or outcome proof. Supported unanswered questions in OPEN snapshots offer Answer question, but no write occurs until a final answer is explicitly reviewed and submitted. See the final-answer chapter for that workflow; recorded answers have no edit control.',
       expected:
-        'Inert exact answer text, original timestamps and distinct unsupported/unanswered messages appear without private attribution or mutation controls.',
+        'Inert exact answer text, original timestamps and distinct unsupported/unanswered messages appear without private attribution; unsupported and recorded answers have no new answer control.',
     },
     {
       id: 'requester-narrow',
@@ -130,7 +130,7 @@ export const requesterProgressGuide: GuideChapter = {
     },
   ],
   limitations: [
-    'This bounded canvas adapts the requester concept without inventing its staged timeline, running checks, uploads, owner identity, source links or outcome confirmation. Question/answer inspection is read-only; answer submission/recovery, intake, discovery, notifications and sign-out belong to later slices. No resolver navigation or command exists.',
+    'This bounded canvas adapts the requester concept without inventing its staged timeline, running checks, uploads, owner identity, source links or outcome confirmation. This chapter exercises reads only; the final-answer chapter covers explicit submission and exact recovery. Intake, discovery, notifications and sign-out remain deferred. No resolver navigation or command exists.',
     'Ownership is provisioned through reviewed privileged database operations, not the browser. Transfer/revocation is not supplied; incorrect provisioning requires disabling requester access and reviewed forward repair.',
     'This simulated Chromium guide does not certify live IdP, separate-origin deployment, PostgreSQL authorization or actual proof acceptance. Those need backend and operational verification.',
   ],

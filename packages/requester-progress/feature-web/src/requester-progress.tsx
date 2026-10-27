@@ -1,11 +1,11 @@
-import { useRef, useState, type ReactElement } from 'react';
+import { useCallback, useRef, useState, type ReactElement } from 'react';
 import {
   useFreshProgress,
   type ProgressFailure,
   type ProgressQuery,
 } from '@ergon/requester-progress-data-access-web';
 import { Button } from '@ergon/ui-web';
-import { RequesterCanvas } from './requester-canvas';
+import { RequesterAnswerWorkspace } from './requester-answer-workspace';
 
 const failures: Readonly<
   Record<
@@ -88,10 +88,13 @@ export function RequesterCaseProgress({
   const [attempt, setAttempt] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
   const read = useFreshProgress(query, attempt);
-  const recheck = (): void => {
+  const focusHeading = useCallback((): void => {
+    heading.current?.focus();
+  }, []);
+  const recheck = useCallback((): void => {
     heading.current?.focus();
     setAttempt((value) => value + 1);
-  };
+  }, []);
   return (
     <section aria-labelledby="progress-heading" className="grid min-w-0 gap-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -112,8 +115,12 @@ export function RequesterCaseProgress({
           Recheck progress
         </Button>
       </div>
-      <div>
-        <div aria-live="polite" aria-atomic="true">
+      <div className="grid min-w-0 gap-6">
+        <div
+          aria-live="polite"
+          aria-atomic="true"
+          className={read.kind === 'ready' ? 'sr-only' : undefined}
+        >
           {read.kind === 'pending' ? (
             <p role="status">
               Checking current case access… Previous details are hidden.
@@ -147,12 +154,15 @@ export function RequesterCaseProgress({
           )}
         </div>
         {/* Announce completion, not up to 100 private questions and answers as one atomic live update. */}
-        {read.kind === 'ready' ? (
-          <RequesterCanvas
-            progress={read.progress}
-            questions={read.questions}
-          />
-        ) : null}
+        <RequesterAnswerWorkspace
+          key={JSON.stringify(query)}
+          query={query}
+          read={read}
+          attempt={attempt}
+          recheck={recheck}
+          focusHeading={focusHeading}
+          signInHref={signInHref}
+        />
       </div>
     </section>
   );

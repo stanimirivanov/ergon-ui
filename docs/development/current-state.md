@@ -2,10 +2,17 @@
 
 ## TL;DR
 
+M05-PR22c adds reviewed final-answer submission with invocation-local requester
+CSRF and exact explicit recovery. Pending commands withdraw private content before
+I/O; acknowledgement reacquires independent progress/history rather than supplying
+current facts. RHF owns drafts, mounted intent owns replay, and neither persists.
+Closed/answered/unsupported snapshots have no new form. See
+[ADR 0053](../decisions/0053-record-requester-answers-with-exact-recovery.md).
+
 M05-PR22b adds requester-owned question/answer history. Separate RTK progress and
 history reads must both succeed before the private canvas is shown. Empty,
 truncated, unsupported and unanswered states differ; closed history stays
-readable. PR22c supplies submission/recovery later. See
+readable. PR22c adds submission/recovery above. See
 [ADR 0052](../decisions/0052-gate-requester-history-with-case-progress.md).
 
 M05-PR22a adds exact recorded answers to the owner-scoped question inspector.
