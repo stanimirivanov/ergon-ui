@@ -12,7 +12,7 @@ wait for review/merge between slices. GitHub owns live delivery status.
 | :------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------- | :-------------------------- |
 | PR22a, [issue #220](https://github.com/stanimirivanov/ergon-ui/issues/220) | Resolver Console inspection of recorded answers, strict decoding, guide and pixels                                         | Backend PR #216, UI PR #219 |
 | PR22b, [issue #222](https://github.com/stanimirivanov/ergon-ui/issues/222) | Requester-owned question and answer history within the existing private canvas, with guide and tests                       | PR22a                       |
-| PR22c                                                                      | Requester answer form, explicit submission, exact uncertain recovery and independently fresh history, with guide and tests | PR22b                       |
+| PR22c, [issue #224](https://github.com/stanimirivanov/ergon-ui/issues/224) | Requester answer form, explicit submission, exact uncertain recovery and independently fresh history, with guide and tests | PR22b                       |
 
 Each is an end-to-end capability, not a file/layer task. PR22b/c get dedicated
 issues before implementation; no unused mutation contracts or placeholder controls

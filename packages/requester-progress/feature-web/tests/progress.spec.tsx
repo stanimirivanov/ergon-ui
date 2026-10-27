@@ -122,12 +122,16 @@ describe('requester progress disclosure', () => {
     };
     type Result = Awaited<ReturnType<ProgressClient['readQuestions']>>;
     let finish: (value: Result) => void = () => undefined;
+    const boundaries: { text: string; sidebars: number }[] = [];
     const readQuestions = vi
       .fn<ProgressClient['readQuestions']>()
       .mockImplementation(() => {
-        expect(screen.queryByText(progress.goal)).toBeNull();
-        expect(screen.queryByRole('complementary')).toBeNull();
-        expect(screen.queryByText(question.response.answer)).toBeNull();
+        // Assertions thrown here would be contained as client defects by RTK.
+        boundaries.push({
+          text: document.body.textContent ?? '',
+          sidebars: document.querySelectorAll('aside, [role="complementary"]')
+            .length,
+        });
         return new Promise((resolve) => {
           finish = resolve;
         });
@@ -140,6 +144,9 @@ describe('requester progress disclosure', () => {
       readQuestions,
     );
     await waitFor(() => expect(readQuestions).toHaveBeenCalledTimes(1));
+    expect(boundaries[0]?.sidebars).toBe(0);
+    expect(boundaries[0]?.text).not.toContain(progress.goal);
+    expect(boundaries[0]?.text).not.toContain(question.response.answer.trim());
     expect(screen.queryByText(progress.goal)).toBeNull();
     await act(async () =>
       finish({ ok: true, questions: { items: [question], truncated: false } }),
@@ -154,6 +161,9 @@ describe('requester progress disclosure', () => {
     expect(screen.getByText(/This case is closed/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Recheck progress' }));
     await waitFor(() => expect(readQuestions).toHaveBeenCalledTimes(2));
+    expect(boundaries[1]?.sidebars).toBe(0);
+    expect(boundaries[1]?.text).not.toContain(progress.goal);
+    expect(boundaries[1]?.text).not.toContain(question.response.answer.trim());
     expect(document.activeElement).toBe(
       screen.getByRole('heading', { name: 'Case progress' }),
     );

@@ -33,12 +33,12 @@ export function isRequesterInstant(value: string): boolean {
     new Date(time).toISOString().slice(0, 19) === value.slice(0, 19)
   );
 }
-const instant = Schema.String.pipe(
+export const requesterInstantSchema = Schema.String.pipe(
   Schema.pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/),
   Schema.filter(isRequesterInstant),
 );
 // Matches the server's Kotlin whitespace/code-point rules; never trim accepted text.
-const text = Schema.String.pipe(
+export const requesterTextSchema = Schema.String.pipe(
   Schema.filter((value) => {
     const characters = Array.from(value);
     return (
@@ -57,16 +57,16 @@ const page = Schema.Struct({
   items: Schema.Array(
     Schema.Struct({
       requestId: Schema.UUID,
-      question: text,
-      requestedAt: instant,
-      recordedAt: instant,
+      question: requesterTextSchema,
+      requestedAt: requesterInstantSchema,
+      recordedAt: requesterInstantSchema,
       response: Schema.optionalWith(
         Schema.NullOr(
           Schema.Struct({
             responseId: Schema.UUID,
-            answer: text,
-            respondedAt: instant,
-            recordedAt: instant,
+            answer: requesterTextSchema,
+            respondedAt: requesterInstantSchema,
+            recordedAt: requesterInstantSchema,
           }),
         ),
         { exact: true },

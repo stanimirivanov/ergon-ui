@@ -1,4 +1,6 @@
 import { Effect, Either, Schema } from 'effect';
+import { createRequesterAnswerRecorder } from './answer-http';
+import type { RequesterAnswerClient } from './answer-client';
 import type {
   ProgressClient,
   ProgressFailure,
@@ -37,6 +39,8 @@ const HTTP_FAILURES: Readonly<Record<string, ProgressFailure['kind']>> = {
  * (default 5 seconds); one retry is limited to transport/timeout/5xx failures.
  * Caller interruption aborts fetch and resolves request-cancelled. No problem
  * text, arbitrary redirects, raw causes or unknown response fields escape.
+ * The answer capability uses the same timeout for one CSRF-plus-POST invocation,
+ * without automatic retries; its acknowledgement never updates read resources.
  * @throws RangeError for a non-positive or non-finite timeout.
  */
 export function createProgressBffClient({
@@ -45,7 +49,7 @@ export function createProgressBffClient({
 }: {
   readonly fetch: typeof globalThis.fetch;
   readonly requestTimeout?: number;
-}): ProgressClient {
+}): ProgressClient & RequesterAnswerClient {
   if (!Number.isFinite(requestTimeout) || requestTimeout <= 0)
     throw new RangeError('Invalid request timeout');
   async function run<A>(
@@ -78,6 +82,7 @@ export function createProgressBffClient({
     }
   }
   return {
+    recordAnswer: createRequesterAnswerRecorder(fetch, requestTimeout),
     async read(query, signal): Promise<ProgressResult> {
       return Either.match(
         await run(

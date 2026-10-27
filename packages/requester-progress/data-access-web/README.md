@@ -21,7 +21,18 @@ claiming an atomic snapshot. Zero-grace eviction owns last-reader cancellation.
 Only gate coordinates are local; resources stay in RTK. Injected `ProgressClient`
 implementations must now supply `readQuestions`.
 
-Effect owns per-attempt timeout and one transient retry. No mutation exists.
+Effect owns per-attempt read timeout and one transient read retry.
+The same factory additionally supplies `RequesterAnswerClient`. Its explicit
+answer invocation obtains fresh session CSRF then sends at most one POST within
+the configured timeout, without automatic setup/POST retries or token caching.
+Only an exact 200/201 receipt acknowledges intent; no receipt enters history.
+The RTK mutation contains defects and is reset by the mounted workflow after
+settlement. Reads remain compatible with read-only injected clients; a missing
+write binding fails safely. See [ADR 0053](../../../docs/decisions/0053-record-requester-answers-with-exact-recovery.md).
+
+BREAKING (source-only, pre-release): typed `ProgressDependencies` bindings require
+both read and answer ports. The existing app factory supplies both; the narrower
+`ProgressClient` read port and HTTP GET contracts remain unchanged.
 Known HTTP problems become closed, diagnostic-free failures. Cache integration
 contains thrown defects before RTK logging/serialization. No raw problem text,
 arbitrary redirect, provider/owner identity, internal timeline or persistent cache

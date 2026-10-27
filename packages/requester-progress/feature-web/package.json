@@ -15,7 +15,8 @@
   "dependencies": {
     "@ergon/requester-progress-data-access-web": "workspace:*",
     "@ergon/ui-web": "workspace:*",
-    "react": "19.3.0"
+    "react": "19.3.0",
+    "react-hook-form": "7.90.0"
   },
   "devDependencies": {
     "@reduxjs/toolkit": "2.12.0",

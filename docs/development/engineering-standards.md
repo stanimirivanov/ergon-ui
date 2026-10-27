@@ -261,6 +261,13 @@ prove protocol, security, persistence, and cache behavior; and feature tests
 prove user-visible states and transitions. A test should not acquire unrelated
 dependencies merely because one production project exposes them together.
 
+Do not throw test assertions inside injected clients whose failures the application
+deliberately contains. Capture cheap, immutable DOM/request observations at the I/O
+boundary, then assert them in the test after an explicit start latch. Otherwise a
+failed assertion can become an unexpected-defect result and obscure the real
+failure behind a later timeout. Deliberately injected client defects remain valid;
+assert their contained outcomes outside that boundary.
+
 Synchronize asynchronous tests with the state the assertion actually needs.
 A request starting, or a cached row appearing, does not mean revalidation has
 settled and committed. Hold relevant responses with controlled promises, assert
