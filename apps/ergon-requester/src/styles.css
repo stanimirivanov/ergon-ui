@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@ergon/ui-web/inspection.css';
 @source '../../../packages/ui-web/src';
 @source '../../../packages/session/feature-web/src';
 @source '../../../packages/requester-progress/feature-web/src';

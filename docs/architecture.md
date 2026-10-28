@@ -25,6 +25,13 @@ trust boundary; split them only for demonstrated isolation or ownership needs.
 
 ## Project roles and dependency direction
 
+Requester session exit sits above its private RouterProvider and providers. The
+session feature owns confirmation/status and mounted execution, data access owns
+retireable transport and bounded fresh-CSRF/logout, and the app owns cache teardown,
+outer layout and trusted navigation. No request after retirement reuses private
+scope. Workbench migration follows separately. See
+[ADR 0056](decisions/0056-retire-requester-private-state-on-local-sign-out.md).
+
 The [requester app](../apps/ergon-requester/README.md) composes session gating and
 requester-progress feature/data access into its own artifact and per-link store.
 It cannot depend on follow-up/run-supervision or workbench. Progress data access

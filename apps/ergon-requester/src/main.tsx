@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router';
+import { createBrowserRouter } from 'react-router';
+import { RequesterApplication } from './app/requester-application';
 import { RequesterRoute } from './app/requester-route';
 import { RequesterNotificationRoute } from './notifications/notification-route';
 
@@ -19,6 +20,9 @@ const root = document.getElementById('root');
 if (root === null) throw new Error('Missing application root');
 createRoot(root).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <RequesterApplication
+      router={router}
+      fetch={globalThis.fetch.bind(globalThis)}
+    />
   </StrictMode>,
 );

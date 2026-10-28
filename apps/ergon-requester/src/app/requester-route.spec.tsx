@@ -2,6 +2,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { RequesterRoute } from './requester-route';
+import { LocalSessionBoundary } from '@ergon/session-feature-web';
 
 const tenant = '9ad66e9b-e81a-4b61-8d8f-5708312772d8';
 const caseId = '20000000-0000-4000-8000-000000000001';
@@ -11,19 +12,25 @@ afterEach(() => {
 });
 function open(path: string): void {
   render(
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route
-          path="/tenants/:tenantId/new"
-          element={<RequesterRoute mode="intake" />}
-        />
-        <Route path="/tenants/:tenantId" element={<RequesterRoute />} />
-        <Route
-          path="/tenants/:tenantId/cases/:caseId"
-          element={<RequesterRoute />}
-        />
-      </Routes>
-    </MemoryRouter>,
+    <LocalSessionBoundary
+      fetch={(input, init) => globalThis.fetch(input, init)}
+      signInHrefForCurrentLocation={() => undefined}
+      renderRetired={() => null}
+    >
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route
+            path="/tenants/:tenantId/new"
+            element={<RequesterRoute mode="intake" />}
+          />
+          <Route path="/tenants/:tenantId" element={<RequesterRoute />} />
+          <Route
+            path="/tenants/:tenantId/cases/:caseId"
+            element={<RequesterRoute />}
+          />
+        </Routes>
+      </MemoryRouter>
+    </LocalSessionBoundary>,
   );
 }
 it('rejects invalid supplied coordinates without any network call', () => {

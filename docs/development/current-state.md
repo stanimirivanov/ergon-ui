@@ -2,6 +2,13 @@
 
 ## TL;DR
 
+M05-PR28a adds requester local sign-out after backend PR #228. Confirmation
+retires the private router, transport, caches and drafts before logout I/O;
+uncertainty stays closed until explicit retry or a new authorized visit. The
+guide distinguishes acknowledged retirement, expired session and provider/global
+logout. Workbench remains PR28b in [the delivery plan](plans/m05-local-sign-out.md).
+See [ADR 0056](../decisions/0056-retire-requester-private-state-on-local-sign-out.md).
+
 M05-PR26 adds historical notifications in both apps after backend PR #226. Recheck and target open verify session before independent protected reads. Failures hide retained content. Two synthetic guide chapters cover negative targets, recovery, reflow and accessibility. Heavy browser/visual/book checks run on CI. See [ADR 0055](../decisions/0055-check-historical-notification-targets-independently.md).
 
 M05-PR24 adds session-gated intake at `/tenants/:tenantId/new`, with RHF review,

@@ -1,22 +1,13 @@
-import { useState, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { Link, useParams } from 'react-router';
-import { configureStore } from '@reduxjs/toolkit';
-import { CurrentActorBoundary } from '@ergon/session-feature-web';
+import { createRequesterStore } from './requester-store';
 import {
-  createCurrentActorBffAdapter,
-  currentActorApi,
-} from '@ergon/session-data-access-web';
-import {
-  createProgressBffClient,
-  progressApi,
-} from '@ergon/requester-progress-data-access-web';
+  CurrentActorBoundary,
+  usePrivateSessionFetch,
+} from '@ergon/session-feature-web';
 import { RequesterCaseProgress } from '@ergon/requester-progress-feature-web';
 import { RequesterCaseIntake } from '@ergon/requester-intake-feature-web';
-import {
-  createIntakeBffClient,
-  intakeApi,
-} from '@ergon/requester-intake-data-access-web';
 import { RequesterFrame } from './requester-frame';
 import { RequesterTenantHome } from './requester-tenant-home';
 
@@ -65,38 +56,22 @@ function RequesterSession({
 }): ReactElement {
   const label =
     mode === 'intake' ? 'Private request intake' : 'Private case progress';
-  // A store belongs to one supplied-link lifetime; it never contains resolver APIs.
-  const [store] = useState(() =>
-    configureStore({
-      reducer: {
-        [currentActorApi.reducerPath]: currentActorApi.reducer,
-        [progressApi.reducerPath]: progressApi.reducer,
-        [intakeApi.reducerPath]: intakeApi.reducer,
-      },
-      middleware: (defaults) =>
-        defaults({
-          thunk: {
-            extraArgument: {
-              resolveCurrentActor: createCurrentActorBffAdapter({
-                fetch: globalThis.fetch.bind(globalThis),
-              }),
-              progressClient: createProgressBffClient({
-                fetch: globalThis.fetch.bind(globalThis),
-              }),
-              intakeClient: createIntakeBffClient({
-                fetch: globalThis.fetch.bind(globalThis),
-              }),
-            },
-          },
-        }).concat(
-          currentActorApi.middleware,
-          progressApi.middleware,
-          intakeApi.middleware,
-        ),
-    }),
-  );
+  const fetch = usePrivateSessionFetch();
+  const [scope] = useState(() => createRequesterStore(fetch));
+  const mounted = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+    // Unsubscribe first; deferred disposal survives StrictMode effect replay and
+    // runs before the root boundary's queued logout invocation.
+    return () => {
+      mounted.current = false;
+      queueMicrotask(() => {
+        if (!mounted.current) scope.dispose();
+      });
+    };
+  }, [scope]);
   return (
-    <Provider store={store}>
+    <Provider store={scope.store}>
       <CurrentActorBoundary
         tenantId={tenantId}
         signInHrefForTenant={(id) =>

@@ -2,6 +2,12 @@
 
 ## TL;DR
 
+Sign out opens a cancelable review. Confirmation closes the complete private
+workspace before local retirement I/O; failures keep it closed with explicit
+retry. Backend PR #228 is required. The document-local gate survives browser Back,
+but no cross-tab or provider/global logout is claimed. See
+[ADR 0056](../../docs/decisions/0056-retire-requester-private-state-on-local-sign-out.md).
+
 `/tenants/{tenantId}/notifications` adds historical information-request deliveries, not a complete case list. Each open enters an independently verified supplied-case route; recheck replaces session/feed scope. Deploy backend PR #226 first. See [ADR 0055](../../docs/decisions/0055-check-historical-notification-targets-independently.md).
 
 Independently deploy the external requester app, never the resolver workbench
@@ -31,7 +37,9 @@ The tenant route verifies the session and offers explicit intake or reopening a
 supplied case link. The backend login allowlist returns only to that tenant path, not a
 case path. No case ID is saved to restore navigation. A route change creates a
 new store lifetime; teardown retires subscriptions, draft validation and owned
-mutation handles. Only bounded historical notification pointers are discoverable; no complete case catalog, resolver controls or sign-out is provided here.
+mutation handles. Only bounded historical notification pointers are discoverable;
+no complete case catalog or resolver controls are provided here. Local sign-out
+is available in requester chrome; accepted work may still finish after retirement.
 
 ## Development and deployment
 

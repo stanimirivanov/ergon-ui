@@ -2,6 +2,14 @@
 
 ## Purpose
 
+`LocalSessionBoundary`, `LocalSignOutControl` and `LocalSignOutStatus` own a
+document-local exit lifecycle outside private Redux providers. Cancel retains
+the workspace; confirm withdraws it before bounded logout. Failure never restores
+private content; retry is explicit and only acknowledged/recognized absent-session
+results offer trusted app-supplied login. The app owns outer placement and cache
+teardown; every private client uses `usePrivateSessionFetch`. See
+[ADR 0056](../../../docs/decisions/0056-retire-requester-private-state-on-local-sign-out.md).
+
 Own both apps' fail-closed session verification states and verified-actor
 presentation without importing the deployable workbench or follow-up feature.
 
