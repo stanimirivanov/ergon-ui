@@ -31,6 +31,14 @@ clients. See [Playwright remote connections](https://playwright.dev/docs/docker)
 
 ## Review and updates
 
+M05-PR28b introduces a global workbench Sign out control in standard and focused
+headers. Full-page/header-inclusive baselines intentionally change; isolated
+inspector crops may remain identical. The busy-host workflow leaves capture to
+CI: the PR stays draft until the pinned comparison artifacts have been inspected
+and intentional baseline changes approved. Do not mask the control, relax pixel
+tolerances or treat existing baseline failures as accepted design. CI comparison
+does not update committed expectations automatically.
+
 Twenty-seven screenshots cover the paired shared/owned landing workspace at desktop
 and narrow widths, neutral empty views, assigned populated and withheld detail, projected execution,
 desktop/narrow authorization review, pinned inputs, matching/accepted outcome proof

@@ -2,6 +2,14 @@
 
 ## TL;DR
 
+Local Sign out is available in standard, focused and notification chrome. Confirm
+retires the private router, mounted store/dependency graph, pending observation,
+drafts/recovery and shared follow-up CSRF before logout I/O. Cancel preserves the
+view; uncertainty stays closed and permits explicit logout retry only. No lease
+release or business cancellation is implied. Heavy browser/visual/guide checks
+run on CI; the new global button needs pinned-baseline review. See
+[ADR 0057](../../docs/decisions/0057-retire-workbench-private-session-on-sign-out.md).
+
 Verified follow-up navigation links to historical Notifications. Refresh and target open replace scope and verify session again. Independent read-only current-owner context carries no claim or execution controls; private selection stays out of URL/history. Requires backend PR #226. See [ADR 0055](../../docs/decisions/0055-check-historical-notification-targets-independently.md).
 
 This application is Ergon's internal browser experience. It delivers the

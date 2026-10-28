@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Link, useLocation } from 'react-router';
+import { LocalSignOutControl } from '@ergon/session-feature-web';
 
 interface WorkbenchFrameProps extends PropsWithChildren {
   readonly statusLabel: string;
@@ -101,6 +102,7 @@ export function WorkbenchFrame({
             {statusLabel}
           </span>
           {mode === 'focused' ? navigation : null}
+          <LocalSignOutControl />
         </div>
         {mode === 'standard' ? navigation : null}
         <div

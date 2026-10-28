@@ -9,6 +9,9 @@ private content; retry is explicit and only acknowledged/recognized absent-sessi
 results offer trusted app-supplied login. The app owns outer placement and cache
 teardown; every private client uses `usePrivateSessionFetch`. See
 [ADR 0056](../../../docs/decisions/0056-retire-requester-private-state-on-local-sign-out.md).
+Workbench consumes the same root boundary with disposable app-owned stores and
+CSRF teardown; no workbench capability enters this session feature. See
+[ADR 0057](../../../docs/decisions/0057-retire-workbench-private-session-on-sign-out.md).
 
 Own both apps' fail-closed session verification states and verified-actor
 presentation without importing the deployable workbench or follow-up feature.
