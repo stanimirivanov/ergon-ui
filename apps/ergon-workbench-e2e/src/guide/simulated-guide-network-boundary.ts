@@ -1,6 +1,7 @@
 import type { BrowserContext, Request } from '@playwright/test';
 
-const tenantDocument = /^\/tenants\/[0-9a-f-]+(?:\/cases\/[0-9a-f-]+|\/new)?$/u;
+const tenantDocument =
+  /^\/tenants\/[0-9a-f-]+(?:\/cases\/[0-9a-f-]+|\/new|\/notifications)?$/u;
 const staticResources = new Set(['script', 'stylesheet', 'image', 'font']);
 export const SIMULATED_BFF_HEADER = 'x-ergon-guide-fixture';
 

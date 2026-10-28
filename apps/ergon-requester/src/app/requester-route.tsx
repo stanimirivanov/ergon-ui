@@ -112,7 +112,17 @@ function RequesterSession({
           </RequesterFrame>
         )}
         renderVerified={({ signInHref }) => (
-          <RequesterFrame label={label}>
+          <RequesterFrame
+            label={label}
+            navigation={
+              <Link
+                className="font-bold underline"
+                to={`/tenants/${tenantId}/notifications`}
+              >
+                Notifications
+              </Link>
+            }
+          >
             {mode === 'intake' ? (
               <RequesterCaseIntake
                 tenantId={tenantId}

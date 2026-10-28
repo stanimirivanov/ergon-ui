@@ -2,6 +2,8 @@
 
 ## TL;DR
 
+Verified follow-up navigation links to historical Notifications. Refresh and target open replace scope and verify session again. Independent read-only current-owner context carries no claim or execution controls; private selection stays out of URL/history. Requires backend PR #226. See [ADR 0055](../../docs/decisions/0055-check-historical-notification-targets-independently.md).
+
 This application is Ergon's internal browser experience. It delivers the
 accessible shell, a typed fail-closed current-actor session boundary, and the
 shared and resolver-owned follow-up views, including a locally selected

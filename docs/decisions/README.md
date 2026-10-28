@@ -75,6 +75,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0052](0052-gate-requester-history-with-case-progress.md)                   | Accepted   | Fresh requester progress and narrow question/answer history      |
 | [0053](0053-record-requester-answers-with-exact-recovery.md)                | Accepted   | Requester answer submission and mounted exact uncertain recovery |
 | [0054](0054-create-requester-cases-with-exact-recovery.md)                  | Accepted   | Requester intake and exact uncertain recovery                    |
+| [0055](0055-check-historical-notification-targets-independently.md)         | Accepted   | Historical notifications with fresh session and target access    |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

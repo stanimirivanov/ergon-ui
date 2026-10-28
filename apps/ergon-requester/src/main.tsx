@@ -2,10 +2,15 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { RequesterRoute } from './app/requester-route';
+import { RequesterNotificationRoute } from './notifications/notification-route';
 
 const router = createBrowserRouter([
   { path: '/', element: <RequesterRoute /> },
   { path: '/tenants/:tenantId', element: <RequesterRoute /> },
+  {
+    path: '/tenants/:tenantId/notifications',
+    element: <RequesterNotificationRoute />,
+  },
   { path: '/tenants/:tenantId/new', element: <RequesterRoute mode="intake" /> },
   { path: '/tenants/:tenantId/cases/:caseId', element: <RequesterRoute /> },
   { path: '*', element: <RequesterRoute /> },

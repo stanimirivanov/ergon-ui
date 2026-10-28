@@ -63,3 +63,5 @@ button:focus-visible,
   outline: 3px solid var(--accent);
   outline-offset: 4px;
 }
+
+@source '../../../packages/notifications/feature-web/src';

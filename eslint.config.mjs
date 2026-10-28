@@ -96,6 +96,10 @@ export default [
               ],
             },
             {
+              sourceTag: 'scope:notifications',
+              onlyDependOnLibsWithTags: ['scope:notifications', 'scope:shared'],
+            },
+            {
               sourceTag: 'scope:shared',
               onlyDependOnLibsWithTags: ['scope:shared'],
             },
@@ -105,6 +109,7 @@ export default [
                 'scope:workbench',
                 'scope:requester',
                 'scope:follow-up',
+                'scope:notifications',
                 'scope:run-supervision',
                 'scope:requester-progress',
                 'scope:requester-intake',
@@ -117,6 +122,7 @@ export default [
               onlyDependOnLibsWithTags: [
                 'scope:requester',
                 'scope:requester-progress',
+                'scope:notifications',
                 'scope:requester-intake',
                 'scope:session',
                 'scope:shared',
@@ -157,6 +163,7 @@ export default [
                 'scope:workbench',
                 'scope:follow-up',
                 'scope:session',
+                'scope:notifications',
                 'scope:run-supervision',
                 'scope:shared',
               ],

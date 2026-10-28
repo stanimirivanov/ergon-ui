@@ -2,6 +2,8 @@
 
 ## TL;DR
 
+Resolver and requester notification chapters exercise metadata-only feeds, fresh session before denied targets, explicit recovery, checked empty results, keyboard focus, 320-pixel reflow and accessibility. Exact marked GET fixtures reject unexpected routes/writes; they do not certify live authorization. The existing guide CI workflow records both chapters.
+
 This suite also verifies the separate requester preview at localhost:4301.
 Its test-only browser scope and implicit app dependencies cover both artifacts
 without allowing resolver production projects to import requester capabilities.

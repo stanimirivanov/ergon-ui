@@ -43,7 +43,10 @@ export function VerifiedWorkbench({
         Back to follow-ups
       </Button>
     ) : view.mode === 'standard' ? (
-      <WorkbenchViewNavigation runsSearch={runsSearch.toString()} />
+      <WorkbenchViewNavigation
+        tenantId={tenantId}
+        runsSearch={runsSearch.toString()}
+      />
     ) : undefined;
     return (
       <WorkbenchFrame
@@ -81,8 +84,10 @@ export function VerifiedWorkbench({
 
 function WorkbenchViewNavigation({
   runsSearch,
+  tenantId,
 }: {
   readonly runsSearch: string;
+  readonly tenantId: string;
 }): ReactElement {
   return (
     <nav
@@ -92,6 +97,12 @@ function WorkbenchViewNavigation({
       <span className="font-bold" aria-current="page">
         Human follow-ups
       </span>
+      <Link
+        to={`/tenants/${tenantId}/notifications`}
+        className="font-bold underline"
+      >
+        Notifications
+      </Link>
       <Link
         to={{ search: `?${runsSearch}` }}
         className="rounded-md border border-border bg-surface px-4 py-2 font-semibold text-accent-strong focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-strong"

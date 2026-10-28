@@ -2,6 +2,8 @@
 
 ## TL;DR
 
+Notifications have consumed data-access/feature owners with no session or target capability imports. Both apps compose fresh verified scopes at `/tenants/:tenantId/notifications`. Requester targets enter supplied-case routes; resolver selections stay in mounted state and use a separate current-owner summary. Historical metadata never seeds target caches. See [ADR 0055](decisions/0055-check-historical-notification-targets-independently.md).
+
 Use one Nx and pnpm repository for independently deployable user experiences.
 Begin with the internal workbench. Add the external requester application only
 with its first usable slice. Share contracts deliberately while keeping web UI,

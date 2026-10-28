@@ -58,6 +58,12 @@
     },
     {
       "path": "../../packages/follow-up/feature-web/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/notifications/data-access-web/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/notifications/feature-web/tsconfig.lib.json"
     }
   ]
 }

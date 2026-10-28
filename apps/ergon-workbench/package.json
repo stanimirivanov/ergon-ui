@@ -16,7 +16,9 @@
     "@ergon/session-feature-web": "workspace:*",
     "@ergon/ui-web": "workspace:*",
     "@reduxjs/toolkit": "2.12.0",
-    "react-redux": "9.3.0"
+    "react-redux": "9.3.0",
+    "@ergon/notifications-data-access-web": "workspace:*",
+    "@ergon/notifications-feature-web": "workspace:*"
   },
   "nx": {
     "tags": [
