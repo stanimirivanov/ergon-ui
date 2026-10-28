@@ -14,3 +14,14 @@ export {
   useCurrentActorQuery,
 } from './cache/current-actor-api';
 export { normalizeCurrentActorFailure } from './cache/current-actor-failure';
+export {
+  createLocalLogoutClient,
+  normalizeLocalLogoutResult,
+  type LocalLogoutClient,
+  type LocalLogoutFailure,
+  type LocalLogoutResult,
+} from './local-logout';
+export {
+  createPrivateSessionTransport,
+  type PrivateSessionTransport,
+} from './private-session-transport';

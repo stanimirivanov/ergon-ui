@@ -40,6 +40,9 @@ dependency edge changes.
 
 ## Canonical sources
 
+- [Local sign-out delivery](development/plans/m05-local-sign-out.md) refines
+  M05-PR28 into requester and workbench vertical slices under M03.
+
 - [Notifications](../packages/notifications/feature-web/README.md) owns historical metadata presentation; its data-access package owns protocol/cache. Apps own fresh session and independent target navigation.
 
 - [Requester intake](../packages/requester-intake/feature-web/README.md) owns the

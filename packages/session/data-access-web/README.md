@@ -6,6 +6,13 @@ Own confidential-browser session execution and remote-cache integration.
 
 ## Owns
 
+- `createLocalLogoutClient`: fresh invocation-local CSRF and one no-redirect
+  bounded logout POST; empty 204 and recognized authentication rejection differ.
+  No automatic retry, raw diagnostics, credential cache or provider revocation.
+- `createPrivateSessionTransport`: combines caller/session cancellation, rejects
+  late headers and permanently blocks retired work. Logout uses a separate base
+  transport. App composition must retire caches/providers as well.
+
 - Same-origin session request construction and response decoding.
 - Browser wire schemas and protocol-to-typed-failure translation.
 - The `CurrentActorClient`, typed result, and presentation-safe failure

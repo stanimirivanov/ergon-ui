@@ -2,7 +2,10 @@ import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { flushSync } from 'react-dom';
 import { Link, useNavigate, useParams } from 'react-router';
-import { CurrentActorBoundary } from '@ergon/session-feature-web';
+import {
+  CurrentActorBoundary,
+  usePrivateSessionFetch,
+} from '@ergon/session-feature-web';
 import { NotificationFeed } from '@ergon/notifications-feature-web';
 import { RequesterFrame } from '../app/requester-frame';
 import { createNotificationStore } from './notification-store';
@@ -27,10 +30,11 @@ function NotificationPage({
   readonly tenantId: string;
 }): ReactElement {
   const navigate = useNavigate();
+  const fetch = usePrivateSessionFetch();
   const heading = useRef<HTMLHeadingElement>(null);
   const [active, setActive] = useState(true);
   const [scope, setScope] = useState(() => ({
-    ...createNotificationStore(globalThis.fetch.bind(globalThis)),
+    ...createNotificationStore(fetch),
     revision: 0,
   }));
   const mounted = useRef(false);
@@ -80,9 +84,7 @@ function NotificationPage({
                 onRecheck={() => {
                   retire();
                   setScope({
-                    ...createNotificationStore(
-                      globalThis.fetch.bind(globalThis),
-                    ),
+                    ...createNotificationStore(fetch),
                     revision: scope.revision + 1,
                   });
                   setActive(true);

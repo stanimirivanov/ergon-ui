@@ -3,6 +3,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { RequesterNotificationRoute } from './notification-route';
 import { RequesterRoute } from '../app/requester-route';
+import { LocalSessionBoundary } from '@ergon/session-feature-web';
 
 afterEach(() => {
   cleanup();
@@ -43,18 +44,24 @@ it('reacquires requester identity before opening independently protected progres
     }),
   );
   render(
-    <MemoryRouter initialEntries={[`/tenants/${tenant}/notifications`]}>
-      <Routes>
-        <Route
-          path="/tenants/:tenantId/notifications"
-          element={<RequesterNotificationRoute />}
-        />
-        <Route
-          path="/tenants/:tenantId/cases/:caseId"
-          element={<RequesterRoute />}
-        />
-      </Routes>
-    </MemoryRouter>,
+    <LocalSessionBoundary
+      fetch={(input, init) => globalThis.fetch(input, init)}
+      signInHrefForCurrentLocation={() => undefined}
+      renderRetired={() => null}
+    >
+      <MemoryRouter initialEntries={[`/tenants/${tenant}/notifications`]}>
+        <Routes>
+          <Route
+            path="/tenants/:tenantId/notifications"
+            element={<RequesterNotificationRoute />}
+          />
+          <Route
+            path="/tenants/:tenantId/cases/:caseId"
+            element={<RequesterRoute />}
+          />
+        </Routes>
+      </MemoryRouter>
+    </LocalSessionBoundary>,
   );
   fireEvent.click(
     await screen.findByRole('button', { name: /Check current access to case/ }),

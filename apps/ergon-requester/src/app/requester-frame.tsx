@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import { LocalSignOutControl } from '@ergon/session-feature-web';
 
 /** Requester-only chrome/landmarks; feature children own content, never outer layout. */
 export function RequesterFrame({
@@ -33,6 +34,7 @@ export function RequesterFrame({
           <span className="text-xs font-bold tracking-widest uppercase">
             {label}
           </span>
+          <LocalSignOutControl />
         </div>
       </header>
       {navigation !== undefined && (

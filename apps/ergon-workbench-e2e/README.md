@@ -2,6 +2,12 @@
 
 ## TL;DR
 
+The requester local-sign-out chapter preserves a canceled draft, checks narrow
+modal accessibility, withdraws private DOM before I/O, explicitly recovers lost
+acknowledgement and verifies Back cannot restore the retired view. A separate
+expired-session regression sends no logout POST. Synthetic fixture claims remain
+distinct from real provider/cookie verification; CI records the chapter.
+
 Resolver and requester notification chapters exercise metadata-only feeds, fresh session before denied targets, explicit recovery, checked empty results, keyboard focus, 320-pixel reflow and accessibility. Exact marked GET fixtures reject unexpected routes/writes; they do not certify live authorization. The existing guide CI workflow records both chapters.
 
 This suite also verifies the separate requester preview at localhost:4301.
