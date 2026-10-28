@@ -23,6 +23,9 @@ test.beforeEach(async ({ page, browserName }) => {
   expect(await page.evaluate(() => navigator.platform)).toContain('Linux');
 });
 
+// Soft screenshot assertions still fail the test, but collect every pixel state
+// in a scenario for review. Layout, accessibility and authority checks stay hard.
+
 test('requester questions remain attributed inert history at desktop and narrow widths', async ({
   page,
 }) => {
@@ -40,7 +43,7 @@ test('requester questions remain attributed inert history at desktop and narrow 
   await expect(
     dialog.getByRole('region', { name: 'Recorded requester answer' }),
   ).toBeVisible();
-  await expect(page).toHaveScreenshot('owned-questions.png');
+  await expect.soft(page).toHaveScreenshot('owned-questions.png');
   await page.setViewportSize({ width: 320, height: 812 });
   await dialog
     .getByRole('heading', { name: 'Requester question history', exact: true })
@@ -52,7 +55,7 @@ test('requester questions remain attributed inert history at desktop and narrow 
     ),
   ).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await expect(dialog).toHaveScreenshot('owned-questions-narrow.png');
+  await expect.soft(dialog).toHaveScreenshot('owned-questions-narrow.png');
 });
 
 test('question composer retains its separate desktop and narrow presentation', async ({
@@ -74,11 +77,11 @@ test('question composer retains its separate desktop and narrow presentation', a
   // The desktop baseline is unfocused; capture keyboard focus separately at narrow width.
   await form.scrollIntoViewIfNeeded();
   await expect(form.getByRole('textbox')).not.toBeFocused();
-  await expect(form).toHaveScreenshot('question-composer.png');
+  await expect.soft(form).toHaveScreenshot('question-composer.png');
   await page.setViewportSize({ width: 320, height: 812 });
   await form.getByRole('textbox').focus();
   await expect(form.getByRole('textbox')).toBeFocused();
-  await expect(dialog).toHaveScreenshot('question-composer-narrow.png');
+  await expect.soft(dialog).toHaveScreenshot('question-composer-narrow.png');
 });
 
 test('priority review distinguishes independent metadata at desktop and narrow widths', async ({
@@ -94,7 +97,7 @@ test('priority review distinguishes independent metadata at desktop and narrow w
     name: 'Change owned follow-up priority',
   });
   await expect(dialog).toBeVisible();
-  await expect(page).toHaveScreenshot('follow-up-priority.png');
+  await expect.soft(page).toHaveScreenshot('follow-up-priority.png');
   await page.setViewportSize({ width: 320, height: 812 });
   expect(
     await dialog.evaluate(
@@ -102,7 +105,7 @@ test('priority review distinguishes independent metadata at desktop and narrow w
     ),
   ).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await expect(page).toHaveScreenshot('follow-up-priority-narrow.png');
+  await expect.soft(page).toHaveScreenshot('follow-up-priority-narrow.png');
 });
 
 test('direct follow-up handover confirmation explains private-access loss at desktop and narrow widths', async ({
@@ -118,7 +121,7 @@ test('direct follow-up handover confirmation explains private-access loss at des
     name: 'Hand over owned follow-up',
   });
   await expect(dialog).toBeVisible();
-  await expect(page).toHaveScreenshot('follow-up-handover.png');
+  await expect.soft(page).toHaveScreenshot('follow-up-handover.png');
   await page.setViewportSize({ width: 320, height: 812 });
   expect(
     await dialog.evaluate(
@@ -126,7 +129,7 @@ test('direct follow-up handover confirmation explains private-access loss at des
     ),
   ).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await expect(page).toHaveScreenshot('follow-up-handover-narrow.png');
+  await expect.soft(page).toHaveScreenshot('follow-up-handover-narrow.png');
 });
 
 test('administrative completion confirmation distinguishes terminal follow-up retirement from proof', async ({
@@ -140,7 +143,7 @@ test('administrative completion confirmation distinguishes terminal follow-up re
     .click();
   const dialog = page.getByRole('dialog', { name: 'Complete owned follow-up' });
   await expect(dialog).toBeVisible();
-  await expect(page).toHaveScreenshot('follow-up-completion.png');
+  await expect.soft(page).toHaveScreenshot('follow-up-completion.png');
   await page.setViewportSize({ width: 320, height: 812 });
   expect(
     await dialog.evaluate(
@@ -148,7 +151,7 @@ test('administrative completion confirmation distinguishes terminal follow-up re
     ),
   ).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await expect(page).toHaveScreenshot('follow-up-completion-narrow.png');
+  await expect.soft(page).toHaveScreenshot('follow-up-completion-narrow.png');
 });
 
 test('paired follow-up workspace keeps owned work first and reflows without overflow', async ({
@@ -177,7 +180,7 @@ test('paired follow-up workspace keeps owned work first and reflows without over
   );
   expect(desktopShared.y).toBe(desktopOwned.y);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await expect(page).toHaveScreenshot('follow-up-workspace.png', {
+  await expect.soft(page).toHaveScreenshot('follow-up-workspace.png', {
     fullPage: true,
   });
 
@@ -195,7 +198,7 @@ test('paired follow-up workspace keeps owned work first and reflows without over
     ),
   ).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await expect(page).toHaveScreenshot('follow-up-workspace-narrow.png', {
+  await expect.soft(page).toHaveScreenshot('follow-up-workspace-narrow.png', {
     fullPage: true,
   });
   expect(bff.summaryReads()).toBe(0);
@@ -223,7 +226,7 @@ test('empty follow-up views retain independent filters and page controls', async
     for (const button of await paging.getByRole('button').all())
       await expect(button).toBeDisabled();
   }
-  await expect(page).toHaveScreenshot('follow-up-workspace-empty.png', {
+  await expect.soft(page).toHaveScreenshot('follow-up-workspace-empty.png', {
     fullPage: true,
   });
 });
@@ -237,7 +240,7 @@ test('assigned chrome retains populated and withheld layout', async ({
     .getByRole('button', { name: 'Inspect run ' + assignedRunId })
     .click();
   await expect(page.getByText('305.123456 ms', { exact: true })).toBeVisible();
-  await expect(page).toHaveScreenshot('assigned-populated.png', {
+  await expect.soft(page).toHaveScreenshot('assigned-populated.png', {
     animations: 'disabled',
   });
   // Use settled protected absence, not a timed pending window, for stable pixels.
@@ -250,7 +253,7 @@ test('assigned chrome retains populated and withheld layout', async ({
   await expect(
     page.getByText('access-restoration', { exact: true }),
   ).toHaveCount(0);
-  await expect(page).toHaveScreenshot('assigned-withheld.png');
+  await expect.soft(page).toHaveScreenshot('assigned-withheld.png');
   expect(bff.consoleReads()).toBe(2);
   expect(bff.commands()).toBe(0);
 });
@@ -277,7 +280,7 @@ test('recorded workspace separates pinned context, receipt and append history', 
   await expect(
     records.getByRole('heading', { name: '1 · Capability success projected' }),
   ).toBeVisible();
-  await expect(records).toHaveScreenshot('execution-projected.png');
+  await expect.soft(records).toHaveScreenshot('execution-projected.png');
   expect(bff.consoleReads()).toBe(1);
   expect(bff.commands()).toBe(0);
 });
@@ -307,7 +310,7 @@ test('authorization shows reviewed risk, scope and admission boundary before any
       name: 'Irreversible admission · external effect',
     }),
   ).toBeVisible();
-  await expect(dialog).toHaveScreenshot('authorization-review.png');
+  await expect.soft(dialog).toHaveScreenshot('authorization-review.png');
   await page.setViewportSize({ width: 320, height: 812 });
   expect(
     await dialog.evaluate(
@@ -317,7 +320,7 @@ test('authorization shows reviewed risk, scope and admission boundary before any
   expect(
     (await new AxeBuilder({ page }).include('dialog').analyze()).violations,
   ).toEqual([]);
-  await expect(dialog).toHaveScreenshot('authorization-narrow.png');
+  await expect.soft(dialog).toHaveScreenshot('authorization-narrow.png');
   await page.keyboard.press('Escape');
   await expect(
     page.getByRole('button', {
@@ -347,7 +350,7 @@ test('pinned inputs show attributable history, not verified claims', async ({
   await expect(
     inputs.getByRole('note', { name: 'Pinned binding attribution' }),
   ).toHaveCount(2);
-  await expect(inputs).toHaveScreenshot('pinned-evidence.png');
+  await expect.soft(inputs).toHaveScreenshot('pinned-evidence.png');
   expect(bff.reads()).toBe(1);
   expect(bff.commands()).toBe(0);
 });
@@ -369,13 +372,13 @@ test('outcome separates mutable matching from durable acceptance and reflows nar
   await expect(
     outcome.getByText('Current assessment · not acceptance', { exact: true }),
   ).toBeVisible();
-  await expect(outcome).toHaveScreenshot('outcome-matching.png');
+  await expect.soft(outcome).toHaveScreenshot('outcome-matching.png');
   bff.setMode('accepted');
   await page.getByRole('button', { name: 'Recheck selected run' }).click();
   await expect(
     outcome.getByRole('region', { name: 'Durable acceptance record' }),
   ).toBeVisible();
-  await expect(outcome).toHaveScreenshot('outcome-accepted.png');
+  await expect.soft(outcome).toHaveScreenshot('outcome-accepted.png');
   await page.setViewportSize({ width: 320, height: 1800 });
   await page.getByRole('button', { name: 'Jump to outcome proof' }).click();
   expect(
@@ -384,7 +387,7 @@ test('outcome separates mutable matching from durable acceptance and reflows nar
     ),
   ).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await expect(outcome).toHaveScreenshot('outcome-accepted-narrow.png');
+  await expect.soft(outcome).toHaveScreenshot('outcome-accepted-narrow.png');
   expect(bff.reads()).toBe(2);
   expect(bff.commands()).toBe(0);
 });
@@ -405,7 +408,7 @@ test('owned chrome and inspection remain usable at narrow width and in forced co
   await expect(
     dialog.getByRole('heading', { name: 'Source comparison' }),
   ).toBeFocused();
-  await expect(page).toHaveScreenshot('owned-inspection.png');
+  await expect.soft(page).toHaveScreenshot('owned-inspection.png');
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
   await page.setViewportSize({ width: 320, height: 812 });
@@ -420,7 +423,7 @@ test('owned chrome and inspection remain usable at narrow width and in forced co
   }
   expect(presence.y).toBeGreaterThanOrEqual(back.y + back.height);
   expect(presence.width).toBeGreaterThan(280);
-  await expect(page).toHaveScreenshot('owned-narrow.png');
+  await expect.soft(page).toHaveScreenshot('owned-narrow.png');
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -435,7 +438,7 @@ test('owned chrome and inspection remain usable at narrow width and in forced co
       (element) => getComputedStyle(element).backdropFilter,
     ),
   ).toBe('none');
-  await expect(page).toHaveScreenshot('inspection-forced-colours.png');
+  await expect.soft(page).toHaveScreenshot('inspection-forced-colours.png');
 });
 import {
   installSimulatedFollowUpNotesBff,
@@ -453,9 +456,9 @@ test('owned notes separate attributed commentary from evidence and reflow narrow
     .click();
   const dialog = page.getByRole('dialog', { name: 'Internal follow-up notes' });
   await expect(dialog.getByText(historicalNote.text)).toBeVisible();
-  await expect(page).toHaveScreenshot('owned-notes.png');
+  await expect.soft(page).toHaveScreenshot('owned-notes.png');
   await page.setViewportSize({ width: 320, height: 812 });
-  await expect(dialog).toHaveScreenshot('owned-notes-narrow.png');
+  await expect.soft(dialog).toHaveScreenshot('owned-notes-narrow.png');
   expect(
     await dialog.evaluate(
       (element) => element.scrollWidth <= element.clientWidth,
