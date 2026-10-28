@@ -107,3 +107,5 @@ a {
     color: CanvasText;
   }
 }
+
+@source '../../../packages/notifications/feature-web/src';

@@ -8,6 +8,38 @@ const ACCEPTED_APPLICATION_DECISION =
   'docs/decisions/0042-own-follow-up-workflow.md';
 
 describe('project boundary policy', () => {
+  it('keeps notification presentation independent from session and target capabilities', () => {
+    const notifications = project(
+      'packages/notifications/data-access-web',
+      '@ergon/notifications-data-access-web',
+      ['type:data-access', 'scope:notifications', 'platform:web'],
+    );
+    for (const scope of ['requester', 'workbench']) {
+      const app = project(
+        'apps/ergon-' + scope,
+        '@ergon/' + scope,
+        ['type:app', 'scope:' + scope, 'platform:web'],
+        { '@ergon/notifications-data-access-web': 'workspace:*' },
+      );
+      assert.deepEqual(validateProjectBoundaries([notifications, app]), []);
+    }
+    for (const scope of ['session', 'follow-up', 'requester-progress']) {
+      const target = project(
+        'packages/' + scope + '/data-access-web',
+        '@ergon/' + scope + '-data-access-web',
+        ['type:data-access', 'scope:' + scope, 'platform:web'],
+      );
+      const coupled = structuredClone(notifications);
+      coupled.manifest.dependencies = { [target.manifest.name]: 'workspace:*' };
+      assert(
+        validateProjectBoundaries([coupled, target]).some((message) =>
+          message.includes(
+            'scope:notifications cannot depend on scope:' + scope,
+          ),
+        ),
+      );
+    }
+  });
   it('allows requester intake composition without coupling intake to session, progress or resolver data', () => {
     const intake = project(
       'packages/requester-intake/data-access-web',

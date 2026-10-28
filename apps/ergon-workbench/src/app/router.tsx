@@ -8,6 +8,10 @@ const CurrentActorRoute = lazy(async () => {
   const route = await import('../session/current-actor-route');
   return { default: route.CurrentActorRoute };
 });
+const NotificationRoute = lazy(async () => {
+  const route = await import('../notifications/notification-route');
+  return { default: route.NotificationRoute };
+});
 
 function CurrentActorRouteBoundary() {
   return (
@@ -27,6 +31,14 @@ function CurrentActorRouteBoundary() {
 }
 
 export const workbenchRoutes: RouteObject[] = [
+  {
+    path: '/tenants/:tenantId/notifications',
+    element: (
+      <Suspense fallback={<p role="status">Opening notifications…</p>}>
+        <NotificationRoute />
+      </Suspense>
+    ),
+  },
   {
     path: '/',
     Component: App,

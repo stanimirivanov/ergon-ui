@@ -11,8 +11,9 @@ export function RequesterTenantHome({
     <section className="grid max-w-3xl gap-5">
       <h1 className="text-3xl font-black">Your session is verified.</h1>
       <p>
-        Reopen your supplied case link to check an existing case. This
-        application does not list cases.
+        Reopen your supplied case link or check Notifications for recent
+        information requests. Notifications are historical deliveries, not a
+        complete case list; every target requires a fresh access check.
       </p>
       <p>
         For a new request, describe the outcome and what happened. Only explicit

@@ -17,6 +17,7 @@ const ALLOWED_PLATFORMS = new Set([
 ]);
 
 const ALLOWED_SCOPES = new Set([
+  'scope:notifications',
   'scope:browser-tests',
   'scope:follow-up',
   'scope:session',
@@ -60,6 +61,7 @@ const SCOPE_DEPENDENCIES = new Map([
       'scope:workbench',
       'scope:requester',
       'scope:follow-up',
+      'scope:notifications',
       'scope:run-supervision',
       'scope:requester-progress',
       'scope:requester-intake',
@@ -80,11 +82,13 @@ const SCOPE_DEPENDENCIES = new Map([
     new Set([
       'scope:requester',
       'scope:requester-progress',
+      'scope:notifications',
       'scope:requester-intake',
       'scope:session',
       'scope:shared',
     ]),
   ],
+  ['scope:notifications', new Set(['scope:notifications', 'scope:shared'])],
   ['scope:shared', new Set(['scope:shared'])],
   ['scope:follow-up', new Set(['scope:follow-up', 'scope:shared'])],
   ['scope:session', new Set(['scope:session', 'scope:shared'])],
@@ -95,6 +99,7 @@ const SCOPE_DEPENDENCIES = new Map([
       'scope:workbench',
       'scope:follow-up',
       'scope:session',
+      'scope:notifications',
       'scope:run-supervision',
       'scope:shared',
     ]),

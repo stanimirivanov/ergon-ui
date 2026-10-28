@@ -1,3 +1,10 @@
+export {
+  createFollowUpNotificationTargetClient,
+  followUpNotificationTargetApi,
+  normalizeNotificationTargetFailure,
+  type FollowUpNotificationTargetQuery,
+  type FollowUpNotificationTargetClient,
+} from './notification-target';
 export type {
   FollowUpPriorityClient,
   FollowUpPriorityCommand,

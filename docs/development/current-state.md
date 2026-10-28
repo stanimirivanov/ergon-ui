@@ -2,6 +2,8 @@
 
 ## TL;DR
 
+M05-PR26 adds historical notifications in both apps after backend PR #226. Recheck and target open verify session before independent protected reads. Failures hide retained content. Two synthetic guide chapters cover negative targets, recovery, reflow and accessibility. Heavy browser/visual/book checks run on CI. See [ADR 0055](../decisions/0055-check-historical-notification-targets-independently.md).
+
 M05-PR24 adds session-gated intake at `/tenants/:tenantId/new`, with RHF review,
 bounded invocation-local CSRF/POST, exact uncertain recovery and independently
 checked progress after acknowledgement. New intake feature/data-access owners

@@ -2,6 +2,8 @@
 
 ## TL;DR
 
+`FollowUpNotificationTarget` reuses read-only presentation after an independent current-owner check. It adds no claim or execution controls and hides retained context during pending/failure. Fresh session/store lifetime belongs to the host. See [ADR 0055](../../../docs/decisions/0055-check-historical-notification-targets-independently.md).
+
 Keep follow-up interaction and protected read-only panes capability-local.
 The app-supplied `WorkspaceRenderer` owns shell chrome and available space;
 RTK Query owns resources, and the feature workflow owns selection and replay.

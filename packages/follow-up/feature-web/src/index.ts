@@ -1,3 +1,4 @@
+export { FollowUpNotificationTarget } from './follow-up-notification-target';
 export {
   HumanFollowUpInbox,
   type HumanFollowUpInboxProps,

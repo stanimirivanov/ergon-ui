@@ -4,9 +4,11 @@ import type { ReactElement, ReactNode } from 'react';
 export function RequesterFrame({
   children,
   label = 'Private case progress',
+  navigation,
 }: {
   readonly children: ReactNode;
   readonly label?: string;
+  readonly navigation?: ReactNode;
 }): ReactElement {
   return (
     <div className="flex min-h-screen flex-col">
@@ -33,6 +35,14 @@ export function RequesterFrame({
           </span>
         </div>
       </header>
+      {navigation !== undefined && (
+        <nav
+          aria-label="Requester views"
+          className="mx-auto w-full max-w-[100rem] px-5 py-4 lg:px-8"
+        >
+          {navigation}
+        </nav>
+      )}
       <main
         id="main-content"
         tabIndex={-1}

@@ -40,6 +40,8 @@ dependency edge changes.
 
 ## Canonical sources
 
+- [Notifications](../packages/notifications/feature-web/README.md) owns historical metadata presentation; its data-access package owns protocol/cache. Apps own fresh session and independent target navigation.
+
 - [Requester intake](../packages/requester-intake/feature-web/README.md) owns the
   reviewed new-request form and mounted recovery; its data-access package owns the protocol.
 

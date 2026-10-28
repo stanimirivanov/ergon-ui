@@ -2,6 +2,8 @@
 
 ## Purpose
 
+Notification targets use a separate current-owner summary resource accepting a historical work pointer. Full model/work validation remains mandatory; existing queue readers still correlate case/run/work. The app owns fresh session and scope disposal. See [ADR 0055](../../../docs/decisions/0055-check-historical-notification-targets-independently.md).
+
 Own confidential-browser BFF execution and follow-up remote-cache integration.
 
 ## Owns

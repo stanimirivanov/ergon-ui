@@ -89,7 +89,8 @@ export function decodeResolverOwnedHumanFollowUpPage(
  */
 export function decodeResolverFollowUpCaseSummary(
   response: Response,
-  query: ResolverFollowUpCaseSummaryQuery,
+  query: Pick<ResolverFollowUpCaseSummaryQuery, 'workItemId'> &
+    Partial<Pick<ResolverFollowUpCaseSummaryQuery, 'caseId' | 'runId'>>,
 ): Effect.Effect<
   ResolverFollowUpCaseSummary,
   ResolverFollowUpCaseSummaryFailure,
@@ -100,8 +101,9 @@ export function decodeResolverFollowUpCaseSummary(
       Effect.flatMap(Schema.decodeUnknown(resolverFollowUpCaseSummarySchema)),
       Effect.flatMap((summary) =>
         summary.followUp.workItemId === query.workItemId &&
-        summary.case.caseId === query.caseId &&
-        summary.resolutionRun.runId === query.runId &&
+        (query.caseId === undefined || summary.case.caseId === query.caseId) &&
+        (query.runId === undefined ||
+          summary.resolutionRun.runId === query.runId) &&
         isResolverFollowUpCaseSummary(summary)
           ? Effect.succeed(summary)
           : Effect.fail(INVALID_RESPONSE),
