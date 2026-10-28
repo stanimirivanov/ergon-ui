@@ -10,6 +10,28 @@ import {
 } from './guide/simulated-notifications-bff';
 import { runGuideScenario } from './guide/user-guide-session';
 
+test('notification fixture denies the exact requester progress resource', async ({
+  page,
+}) => {
+  const bff = await installSimulatedNotificationsBff(page, 'requester');
+  await page.goto('http://localhost:4301/');
+  const result = await page.evaluate(async (path) => {
+    const response = await fetch(path);
+    const body: unknown = await response.json();
+    return {
+      status: response.status,
+      fixture: response.headers.get('x-ergon-guide-fixture'),
+      body,
+    };
+  }, `/bff/v1/tenants/${notificationTenant}/requester-cases/${notificationTarget}/progress`);
+  expect(result).toEqual({
+    status: 404,
+    fixture: 'simulated-bff',
+    body: { type: 'urn:ergon:problem:requester-case-not-found' },
+  });
+  expect(bff.targets()).toBe(1);
+});
+
 async function recordNotifications(
   browser: Browser,
   audience: 'requester' | 'resolver',

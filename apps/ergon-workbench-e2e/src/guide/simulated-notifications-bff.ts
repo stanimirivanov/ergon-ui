@@ -105,7 +105,7 @@ export async function installSimulatedNotificationsBff(
         404,
       );
     } else if (
-      path === root + '/requester-cases/' + notificationTarget &&
+      path === root + '/requester-cases/' + notificationTarget + '/progress' &&
       audience === 'requester'
     ) {
       targets++;
