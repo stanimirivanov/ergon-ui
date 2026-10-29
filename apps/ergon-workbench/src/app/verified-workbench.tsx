@@ -98,6 +98,12 @@ function WorkbenchViewNavigation({
         Human follow-ups
       </span>
       <Link
+        to={`/tenants/${tenantId}/evidence`}
+        className="font-bold underline"
+      >
+        Evidence review
+      </Link>
+      <Link
         to={`/tenants/${tenantId}/notifications`}
         className="font-bold underline"
       >

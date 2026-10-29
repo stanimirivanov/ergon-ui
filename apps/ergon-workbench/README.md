@@ -177,3 +177,14 @@ provide the same-origin paths.
 A live sign-in additionally requires the control plane's `ergon-workbench` OIDC
 client registration. Its secret remains server-side and must never enter Vite
 configuration.
+
+## Documentary evidence review
+
+The tenant Evidence review link opens pending claim/procedure discovery and exact
+source quotations with compiler/extraction attribution. Quotes and API links are
+inert text. Current session checks precede each replaced disclosure scope. Explicit
+terminal review requires rationale; uncertain replay retains the original command
+only while mounted. Refresh, navigation, tenant change and sign-out retire private
+requests/caches. No upload editor, contradiction adjudication, bundle or execution
+authority is supplied. Deploy backend PR #250 first. See
+[ADR 0058](../../docs/decisions/0058-review-exact-documentary-proposals.md).

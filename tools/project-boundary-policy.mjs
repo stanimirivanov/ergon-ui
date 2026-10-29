@@ -17,6 +17,7 @@ const ALLOWED_PLATFORMS = new Set([
 ]);
 
 const ALLOWED_SCOPES = new Set([
+  'scope:evidence',
   'scope:notifications',
   'scope:browser-tests',
   'scope:follow-up',
@@ -62,6 +63,7 @@ const SCOPE_DEPENDENCIES = new Map([
       'scope:requester',
       'scope:follow-up',
       'scope:notifications',
+      'scope:evidence',
       'scope:run-supervision',
       'scope:requester-progress',
       'scope:requester-intake',
@@ -88,6 +90,7 @@ const SCOPE_DEPENDENCIES = new Map([
       'scope:shared',
     ]),
   ],
+  ['scope:evidence', new Set(['scope:evidence', 'scope:shared'])],
   ['scope:notifications', new Set(['scope:notifications', 'scope:shared'])],
   ['scope:shared', new Set(['scope:shared'])],
   ['scope:follow-up', new Set(['scope:follow-up', 'scope:shared'])],
@@ -100,6 +103,7 @@ const SCOPE_DEPENDENCIES = new Map([
       'scope:follow-up',
       'scope:session',
       'scope:notifications',
+      'scope:evidence',
       'scope:run-supervision',
       'scope:shared',
     ]),
