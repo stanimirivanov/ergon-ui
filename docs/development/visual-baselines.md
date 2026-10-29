@@ -52,6 +52,15 @@ states formerly hidden by the first mismatch still require CI comparison and,
 if changed, a separate inspected baseline update. PR approval establishes the
 accepted design; downloading an artifact alone does not.
 
+The second review uses pinned Verify
+[run 40759860813](https://github.com/stanimirivanov/ergon-ui/actions/runs/40759860813)
+at `0e5a4f7`. All comparison states now ran; only the narrow follow-up workspace,
+assigned withheld view and accepted outcome pane still differed. Those three
+inspected actual PNGs complete the sign-out baseline changes. Narrow chrome fits
+without overflow, withheld detail remains absent and accepted-proof text/values
+are unchanged; the desktop pane is four pixels shorter. The next CI run must
+confirm the comparisons against these expectations before readiness.
+
 Twenty-seven screenshots cover the paired shared/owned landing workspace at desktop
 and narrow widths, neutral empty views, assigned populated and withheld detail, projected execution,
 desktop/narrow authorization review, pinned inputs, matching/accepted outcome proof
