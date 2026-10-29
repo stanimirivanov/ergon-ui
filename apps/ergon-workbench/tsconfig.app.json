@@ -39,19 +39,28 @@
   "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"],
   "references": [
     {
-      "path": "../../packages/run-supervision/data-access-web/tsconfig.lib.json"
+      "path": "../../packages/evidence/model/tsconfig.lib.json"
     },
     {
-      "path": "../../packages/run-supervision/feature-web/tsconfig.lib.json"
+      "path": "../../packages/evidence/data-access-web/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/evidence/feature-web/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/notifications/feature-web/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/notifications/data-access-web/tsconfig.lib.json"
     },
     {
       "path": "../../packages/ui-web/tsconfig.lib.json"
     },
     {
-      "path": "../../packages/session/data-access-web/tsconfig.lib.json"
+      "path": "../../packages/session/feature-web/tsconfig.lib.json"
     },
     {
-      "path": "../../packages/session/feature-web/tsconfig.lib.json"
+      "path": "../../packages/session/data-access-web/tsconfig.lib.json"
     },
     {
       "path": "../../packages/follow-up/data-access-web/tsconfig.lib.json"
@@ -60,10 +69,10 @@
       "path": "../../packages/follow-up/feature-web/tsconfig.lib.json"
     },
     {
-      "path": "../../packages/notifications/data-access-web/tsconfig.lib.json"
+      "path": "../../packages/run-supervision/data-access-web/tsconfig.lib.json"
     },
     {
-      "path": "../../packages/notifications/feature-web/tsconfig.lib.json"
+      "path": "../../packages/run-supervision/feature-web/tsconfig.lib.json"
     }
   ]
 }

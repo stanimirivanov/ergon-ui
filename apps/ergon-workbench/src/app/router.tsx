@@ -13,6 +13,11 @@ const NotificationRoute = lazy(async () => {
   return { default: route.NotificationRoute };
 });
 
+const EvidenceRoute = lazy(async () => {
+  const route = await import('../evidence/evidence-route');
+  return { default: route.EvidenceRoute };
+});
+
 function CurrentActorRouteBoundary() {
   return (
     <Suspense
@@ -31,6 +36,15 @@ function CurrentActorRouteBoundary() {
 }
 
 export const workbenchRoutes: RouteObject[] = [
+  {
+    path: '/tenants/:tenantId/evidence',
+    element: (
+      <Suspense fallback={<p role="status">Opening evidence…</p>}>
+        <EvidenceRoute />
+      </Suspense>
+    ),
+  },
+
   {
     path: '/tenants/:tenantId/notifications',
     element: (

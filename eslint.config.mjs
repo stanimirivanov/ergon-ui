@@ -96,6 +96,10 @@ export default [
               ],
             },
             {
+              sourceTag: 'scope:evidence',
+              onlyDependOnLibsWithTags: ['scope:evidence', 'scope:shared'],
+            },
+            {
               sourceTag: 'scope:notifications',
               onlyDependOnLibsWithTags: ['scope:notifications', 'scope:shared'],
             },
@@ -110,6 +114,7 @@ export default [
                 'scope:requester',
                 'scope:follow-up',
                 'scope:notifications',
+                'scope:evidence',
                 'scope:run-supervision',
                 'scope:requester-progress',
                 'scope:requester-intake',
@@ -164,6 +169,7 @@ export default [
                 'scope:follow-up',
                 'scope:session',
                 'scope:notifications',
+                'scope:evidence',
                 'scope:run-supervision',
                 'scope:shared',
               ],

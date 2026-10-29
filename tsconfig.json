@@ -56,6 +56,15 @@
     },
     {
       "path": "./packages/notifications/feature-web"
+    },
+    {
+      "path": "./packages/evidence/data-access-web"
+    },
+    {
+      "path": "./packages/evidence/feature-web"
+    },
+    {
+      "path": "./packages/evidence/model"
     }
   ],
   "compilerOptions": {}

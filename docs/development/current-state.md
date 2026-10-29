@@ -535,3 +535,13 @@ The twentieth simulated guide records sixteen checkpoints including terminal
 access outside discovery, changed target epoch, pending/denied retirement,
 keyboard/320-pixel reflow and zero commands. See
 [ADR 0041](../decisions/0041-recover-independently-visible-retry-successors.md).
+
+## M06 documentary review
+
+M06-PR9 adds pending documentary claim/procedure review in the workbench. The
+evidence capability uses neutral values, strict Effect transport/RTK ownership and
+React/RHF presentation. Exact inert quotations, explicit rationale, terminal review
+and mounted immutable uncertain recovery consume backend PR #250. Session-scoped
+stores retire on refresh, selection, departure and sign-out. Browser tests simulate
+the BFF; live identity/database/CSRF acceptance still belongs to backend integration.
+Source ingestion, contradictions and bundles remain later or separate work.
