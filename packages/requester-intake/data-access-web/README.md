@@ -24,7 +24,7 @@ trimming and 500/8000 UTF-16 units; a supplementary character counts as two.
 
 ## Verification
 
-```powershell
+```bash
 pnpm nx test @ergon/requester-intake-data-access-web
 pnpm nx typecheck @ergon/requester-intake-data-access-web
 pnpm nx lint @ergon/requester-intake-data-access-web

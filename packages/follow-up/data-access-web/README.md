@@ -116,7 +116,7 @@ timeouts, read retry policy, and typed client cancellation remain unchanged.
 
 ## Verification
 
-```powershell
+```bash
 pnpm nx lint @ergon/follow-up-data-access-web
 pnpm nx typecheck @ergon/follow-up-data-access-web
 pnpm nx test @ergon/follow-up-data-access-web

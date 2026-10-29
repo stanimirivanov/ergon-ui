@@ -191,7 +191,7 @@ They use synthetic fixtures and do not replace the behavior or guide gates.
 
 From the `ergon-ui` repository root:
 
-```powershell
+```bash
 pnpm e2e
 pnpm guide:check
 pnpm guide:generate

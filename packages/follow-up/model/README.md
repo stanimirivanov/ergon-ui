@@ -37,7 +37,7 @@ data-access projects, or feature projects.
 
 ## Verification
 
-```powershell
+```bash
 pnpm nx lint @ergon/follow-up-model
 pnpm nx typecheck @ergon/follow-up-model
 pnpm nx test @ergon/follow-up-model

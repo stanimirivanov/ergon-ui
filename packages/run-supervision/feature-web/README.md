@@ -367,7 +367,7 @@ or stop admitted work. See
 
 ## Verification
 
-```powershell
+```bash
 pnpm nx lint @ergon/run-supervision-feature-web
 pnpm nx typecheck @ergon/run-supervision-feature-web
 pnpm nx test @ergon/run-supervision-feature-web

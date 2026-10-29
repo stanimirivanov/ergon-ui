@@ -45,7 +45,7 @@ is available in requester chrome; accepted work may still finish after retiremen
 
 From the repository root:
 
-```powershell
+```bash
 pnpm nx dev @ergon/requester
 pnpm nx build @ergon/requester
 pnpm nx test @ergon/requester

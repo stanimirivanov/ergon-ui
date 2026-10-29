@@ -52,7 +52,7 @@ represent current claim ownership or a lease.
 
 ## Verification
 
-```powershell
+```bash
 pnpm nx lint @ergon/session-feature-web
 pnpm nx typecheck @ergon/session-feature-web
 pnpm nx test @ergon/session-feature-web

@@ -24,7 +24,7 @@ See [ADR 0054](../../../docs/decisions/0054-create-requester-cases-with-exact-re
 
 ## Verification
 
-```powershell
+```bash
 pnpm nx test @ergon/requester-intake-feature-web
 pnpm nx typecheck @ergon/requester-intake-feature-web
 pnpm nx lint @ergon/requester-intake-feature-web
