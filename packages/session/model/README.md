@@ -25,7 +25,7 @@ projects, or feature projects.
 
 ## Verification
 
-```powershell
+```bash
 pnpm nx lint @ergon/session-model
 pnpm nx typecheck @ergon/session-model
 pnpm nx build @ergon/session-model

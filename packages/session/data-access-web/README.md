@@ -46,7 +46,7 @@ failure fields and does not mislabel unknown errors as invalid responses.
 
 ## Verification
 
-```powershell
+```bash
 pnpm nx lint @ergon/session-data-access-web
 pnpm nx typecheck @ergon/session-data-access-web
 pnpm nx test @ergon/session-data-access-web

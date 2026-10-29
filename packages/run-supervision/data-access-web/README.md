@@ -290,7 +290,7 @@ or case closure. See [ADR 0038](../../../docs/decisions/0038-confirm-untouched-r
 
 ## Verification
 
-```powershell
+```bash
 pnpm nx lint @ergon/run-supervision-data-access-web
 pnpm nx typecheck @ergon/run-supervision-data-access-web
 pnpm nx test @ergon/run-supervision-data-access-web

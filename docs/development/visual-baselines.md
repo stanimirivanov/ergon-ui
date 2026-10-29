@@ -14,12 +14,13 @@ The installed Playwright client must match that version. The container supplies
 Chromium, fonts and Linux/amd64 rendering; tests and the preview server run on the host.
 No production dependency or real BFF is required.
 
-From the repository root in PowerShell, with Docker running:
+From the repository root in Bash, with Docker running:
 
-```powershell
-$renderer = Get-Content tools/visual/renderer.json -Raw | ConvertFrom-Json
-docker run --detach --rm --init --platform linux/amd64 --name ergon-visual --publish 127.0.0.1:3074:3000 --shm-size=256m --user pwuser --workdir /home/pwuser $renderer.image /bin/sh -c "npx --yes playwright@$($renderer.playwrightVersion) run-server --host 0.0.0.0 --port 3000"
-$env:ERGON_VISUAL_WS_ENDPOINT = 'ws://127.0.0.1:3074/'
+```bash
+image=$(node -p "require('./tools/visual/renderer.json').image")
+version=$(node -p "require('./tools/visual/renderer.json').playwrightVersion")
+docker run --detach --rm --init --platform linux/amd64 --name ergon-visual --publish 127.0.0.1:3074:3000 --shm-size=256m --user pwuser --workdir /home/pwuser "$image" /bin/sh -c "npx --yes playwright@$version run-server --host 0.0.0.0 --port 3000"
+export ERGON_VISUAL_WS_ENDPOINT='ws://127.0.0.1:3074/'
 pnpm visual:check
 docker rm --force ergon-visual
 ```
@@ -76,7 +77,7 @@ No private content is masked to obtain a passing comparison.
 
 For an intentional presentation change, use the same renderer:
 
-```powershell
+```bash
 pnpm visual:check --update-snapshots=all
 pnpm visual:check
 ```

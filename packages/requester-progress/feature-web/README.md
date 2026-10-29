@@ -43,7 +43,7 @@ not an already committed answer. No edit or persistence exists. See
 
 ## Verification
 
-```powershell
+```bash
 pnpm nx test @ergon/requester-progress-feature-web
 pnpm nx typecheck @ergon/requester-progress-feature-web
 pnpm nx lint @ergon/requester-progress-feature-web

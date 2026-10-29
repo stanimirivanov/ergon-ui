@@ -310,14 +310,14 @@ repository-policy contracts.
 
 Run the fast structural checks during editing:
 
-```powershell
+```bash
 pnpm repository:check
 pnpm architecture:check
 ```
 
 Before handoff, run the complete acceptance gate:
 
-```powershell
+```bash
 pnpm verify
 ```
 

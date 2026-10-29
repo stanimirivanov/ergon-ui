@@ -153,7 +153,7 @@ capability controls as an opaque toolbar; it never calls a shell-mode setter.
 
 ## Verification
 
-```powershell
+```bash
 pnpm nx lint @ergon/follow-up-feature-web
 pnpm nx typecheck @ergon/follow-up-feature-web
 pnpm nx test @ergon/follow-up-feature-web

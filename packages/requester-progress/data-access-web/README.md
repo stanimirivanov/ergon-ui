@@ -41,7 +41,7 @@ supplies the separate verified-session boundary.
 
 ## Verification
 
-```powershell
+```bash
 pnpm nx test @ergon/requester-progress-data-access-web
 pnpm nx typecheck @ergon/requester-progress-data-access-web
 pnpm nx lint @ergon/requester-progress-data-access-web

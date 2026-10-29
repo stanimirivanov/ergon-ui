@@ -8,22 +8,15 @@ const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url));
 const outputRoot = fileURLToPath(
   new URL('../../dist/user-guide/', import.meta.url),
 );
-const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+const pnpm = 'pnpm';
 
 function runStep(label, command, args, environment = process.env) {
   console.log(`\n${label}`);
-  const isWindowsCommandScript =
-    process.platform === 'win32' && command.endsWith('.cmd');
-  const result = spawnSync(
-    isWindowsCommandScript ? (process.env['ComSpec'] ?? 'cmd.exe') : command,
-    isWindowsCommandScript ? ['/d', '/s', '/c', command, ...args] : args,
-    {
-      cwd: repositoryRoot,
-      env: environment,
-      stdio: 'inherit',
-      windowsHide: true,
-    },
-  );
+  const result = spawnSync(command, args, {
+    cwd: repositoryRoot,
+    env: environment,
+    stdio: 'inherit',
+  });
   if (result.error || result.status !== 0) {
     throw new Error(
       `${label} failed: ${result.error?.message ?? `exit ${result.status}`}`,

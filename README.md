@@ -58,7 +58,7 @@ binding, and current resolver authority. See
 
 Install and verify:
 
-```powershell
+```bash
 corepack enable
 pnpm install --frozen-lockfile
 pnpm verify
@@ -66,7 +66,7 @@ pnpm verify
 
 Run the workbench locally:
 
-```powershell
+```bash
 pnpm dev
 ```
 

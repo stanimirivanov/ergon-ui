@@ -32,7 +32,7 @@ session-bound CSRF contract and recover active ownership after navigation.
 
 From the repository root:
 
-```powershell
+```bash
 pnpm nx dev @ergon/workbench
 pnpm nx test @ergon/workbench
 pnpm nx build @ergon/workbench
