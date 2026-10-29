@@ -62,6 +62,17 @@ without overflow, withheld detail remains absent and accepted-proof text/values
 are unchanged; the desktop pane is four pixels shorter. The next CI run must
 confirm the comparisons against these expectations before readiness.
 
+M06-PR9 adds the Evidence review navigation link. PR #237's inspected pinned Verify
+[run 40935067405](https://github.com/stanimirivanov/ergon-ui/actions/runs/40935067405)
+at source revision `5d17ae0` supplies three baseline candidates: populated desktop,
+populated narrow and empty desktop follow-up workspaces. Their diffs are confined
+to the new link and the repositioned Notifications/Assigned runs navigation.
+Content panels, authority indicators and page controls remain unchanged; the narrow
+navigation fits without overflow. Copy these actual PNGs byte-for-byte from the
+pinned artifact, without changing tolerances or masks. PR review establishes design
+approval, and the next pinned CI comparison must confirm these expectations before
+readiness. Local host screenshots are not substituted for this renderer.
+
 Twenty-seven screenshots cover the paired shared/owned landing workspace at desktop
 and narrow widths, neutral empty views, assigned populated and withheld detail, projected execution,
 desktop/narrow authorization review, pinned inputs, matching/accepted outcome proof
