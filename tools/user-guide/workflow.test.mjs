@@ -29,12 +29,12 @@ function assertGuideRuntime(workflow) {
   assert.equal(job.container?.image, renderer.image);
   assert.equal(job.container.options, '--init --shm-size=256m');
   assert.equal(job.env?.PLAYWRIGHT_BROWSERS_PATH, '/ms-playwright');
-  assert.equal(job['timeout-minutes'], 20);
+  assert.equal(job['timeout-minutes'], 25);
   const generation = job.steps.find(
     (step) => step.name === 'Generate and validate the simulated guide',
   );
   assert.equal(generation?.run, 'pnpm guide:generate');
-  assert.equal(generation['timeout-minutes'], 15);
+  assert.equal(generation['timeout-minutes'], 20);
   for (const owner of [job, generation]) {
     assert.equal(owner.if, undefined);
     assert.equal(owner['continue-on-error'], undefined);
@@ -73,7 +73,7 @@ test('rejects mutable browser setup, mismatched images and weakened guide gates'
     (job) => {
       job.steps.find((step) => step.run === 'pnpm guide:generate')[
         'timeout-minutes'
-      ] = 20;
+      ] = 25;
     },
     (job) => {
       job.steps.find((step) => step.run === 'pnpm guide:generate')[

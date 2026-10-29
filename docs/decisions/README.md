@@ -77,6 +77,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0054](0054-create-requester-cases-with-exact-recovery.md)                  | Accepted   | Requester intake and exact uncertain recovery                    |
 | [0055](0055-check-historical-notification-targets-independently.md)         | Accepted   | Historical notifications with fresh session and target access    |
 | [0056](0056-retire-requester-private-state-on-local-sign-out.md)            | Accepted   | Requester local sign-out and private lifecycle retirement        |
+| [0057](0057-retire-workbench-private-session-on-sign-out.md)                | Accepted   | Workbench local sign-out and private-session retirement          |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

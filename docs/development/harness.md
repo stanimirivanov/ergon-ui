@@ -106,8 +106,12 @@ guide recordings, without relaxing the generation or publication gate.
 Guide CI runs inside the immutable Playwright image also recorded in
 `tools/visual/renderer.json`, with its preinstalled browsers and system libraries.
 The workflow regression checks image/package alignment and rejects mutable runner
-selection or per-run system-package installation. Keep the 20-minute job deadline;
-the 15-minute generation step leaves time for failure/cancellation evidence uploads.
+selection or per-run system-package installation. The 25-minute job deadline and
+20-minute generation step leave five minutes for setup and failure/cancellation
+evidence uploads. The 36-chapter run exceeded the former 15-minute aggregate
+generation budget; individual browser test deadlines and all validation gates
+remain unchanged. See guide run
+[40759860719](https://github.com/stanimirivanov/ergon-ui/actions/runs/40759860719).
 These configuration checks do not prove that all chapters recorded or the book
 assembled: successful `pnpm guide:generate` remains mandatory for publication.
 

@@ -65,19 +65,40 @@ export function createFollowUpOwnershipAdapter({
   FollowUpPriorityClient &
   Pick<FollowUpNotesClient, 'appendNote'> & {
     readonly recordQuestion: RecordFollowUpQuestion;
+    readonly retire: () => void;
   } {
   // SynchronizedRef owns no external resources; construction is synchronous
   // and infallible, so the adapter does not need a Scope or async factory.
-  const csrfToken = Effect.runSync(
-    SynchronizedRef.make<BrowserCsrfToken | undefined>(undefined),
-  );
+  let csrfToken:
+    SynchronizedRef.SynchronizedRef<BrowserCsrfToken | undefined> | undefined =
+    Effect.runSync(
+      SynchronizedRef.make<BrowserCsrfToken | undefined>(undefined),
+    );
+  const lifetime = new AbortController();
+
+  function execute<A, E extends { readonly kind: string }>(
+    request: (token: BrowserCsrfToken) => Effect.Effect<A, E>,
+    signal: AbortSignal,
+  ): Promise<CommandExecution<A, E | HumanFollowUpCommandFailure>> {
+    // Read the reference once: retirement drops the adapter's token ownership,
+    // interrupts competing acquisitions and cannot be reversed by a late result.
+    const token = csrfToken;
+    if (token === undefined)
+      return Promise.resolve({ ok: false, error: REQUEST_CANCELLED });
+    return runCommand(
+      withCsrfToken(token, fetch, requestTimeout, request),
+      AbortSignal.any([signal, lifetime.signal]),
+    );
+  }
 
   return {
+    retire(): void {
+      csrfToken = undefined;
+      lifetime.abort();
+    },
     async recordQuestion(command, signal): ReturnType<RecordFollowUpQuestion> {
-      const result = await runCommand(
-        withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
-          requestFollowUpQuestion(fetch, command, token),
-        ),
+      const result = await execute(
+        (token) => requestFollowUpQuestion(fetch, command, token),
         signal,
       );
       return result.ok ? { ok: true, question: result.value } : result;
@@ -86,10 +107,8 @@ export function createFollowUpOwnershipAdapter({
       command,
       signal,
     ): ReturnType<FollowUpPriorityClient['assignPriority']> {
-      const result = await runCommand(
-        withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
-          requestFollowUpPriority(fetch, command, token),
-        ),
+      const result = await execute(
+        (token) => requestFollowUpPriority(fetch, command, token),
         signal,
       );
       return result.ok ? { ok: true, assignment: result.value } : result;
@@ -98,10 +117,8 @@ export function createFollowUpOwnershipAdapter({
       command,
       signal,
     ): ReturnType<FollowUpCompletionClient['complete']> {
-      const result = await runCommand(
-        withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
-          requestFollowUpCompletion(fetch, command, token),
-        ),
+      const result = await execute(
+        (token) => requestFollowUpCompletion(fetch, command, token),
         signal,
       );
       return result.ok ? { ok: true, completion: result.value } : result;
@@ -110,10 +127,8 @@ export function createFollowUpOwnershipAdapter({
       command,
       signal,
     ): ReturnType<FollowUpHandoverClient['handOver']> {
-      const result = await runCommand(
-        withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
-          requestFollowUpHandover(fetch, command, token),
-        ),
+      const result = await execute(
+        (token) => requestFollowUpHandover(fetch, command, token),
         signal,
       );
       return result.ok ? { ok: true, handover: result.value } : result;
@@ -122,19 +137,15 @@ export function createFollowUpOwnershipAdapter({
       command,
       signal,
     ): ReturnType<FollowUpNotesClient['appendNote']> {
-      const result = await runCommand(
-        withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
-          requestFollowUpNote(fetch, command, token),
-        ),
+      const result = await execute(
+        (token) => requestFollowUpNote(fetch, command, token),
         signal,
       );
       return result.ok ? { ok: true, note: result.value } : result;
     },
     async claim(command, signal): Promise<HumanFollowUpClaimResult> {
-      const result = await runCommand(
-        withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
-          requestClaim(fetch, command, token),
-        ),
+      const result = await execute(
+        (token) => requestClaim(fetch, command, token),
         signal,
       );
       return result.ok
@@ -142,10 +153,8 @@ export function createFollowUpOwnershipAdapter({
         : { ok: false, error: result.error };
     },
     async release(command, signal): Promise<HumanFollowUpReleaseResult> {
-      const result = await runCommand(
-        withCsrfToken(csrfToken, fetch, requestTimeout, (token) =>
-          requestRelease(fetch, command, token),
-        ),
+      const result = await execute(
+        (token) => requestRelease(fetch, command, token),
         signal,
       );
       return result.ok

@@ -18,7 +18,7 @@ jobs:
   generate:
     name: Generate simulated user guide
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 25
     # Reuse the reviewed renderer: avoid mutable runner images and apt downloads
     # consuming the recording budget. workflow.test.mjs guards version alignment.
     container:
@@ -52,7 +52,8 @@ jobs:
       - name: Generate and validate the simulated guide
         # Fail this step before the job deadline so partial recordings and traces
         # can still be uploaded. This does not change browser test timeouts.
-        timeout-minutes: 15
+        # The 36-chapter recording exceeded the former 15-minute aggregate limit.
+        timeout-minutes: 20
         run: pnpm guide:generate
 
       - name: Upload review artifact

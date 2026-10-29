@@ -29,8 +29,10 @@ Requester session exit sits above its private RouterProvider and providers. The
 session feature owns confirmation/status and mounted execution, data access owns
 retireable transport and bounded fresh-CSRF/logout, and the app owns cache teardown,
 outer layout and trusted navigation. No request after retirement reuses private
-scope. Workbench migration follows separately. See
-[ADR 0056](decisions/0056-retire-requester-private-state-on-local-sign-out.md).
+scope. Workbench consumes the same exit boundary with a mounted disposable graph,
+explicit follow-up CSRF retirement and separately disposed notification scopes.
+See [ADR 0056](decisions/0056-retire-requester-private-state-on-local-sign-out.md)
+and [ADR 0057](decisions/0057-retire-workbench-private-session-on-sign-out.md).
 
 The [requester app](../apps/ergon-requester/README.md) composes session gating and
 requester-progress feature/data access into its own artifact and per-link store.

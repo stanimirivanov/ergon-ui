@@ -2,6 +2,12 @@
 
 ## TL;DR
 
+Workbench local sign-out records an assigned Console with explicit browser control,
+cancel/focus preservation, narrow confirmation, lost-response recovery, fresh CSRF,
+Back suppression and the trusted tenant-only sign-in target. Counters prove logout
+never adds an implicit control release; a separate scenario covers absent-session
+CSRF rejection without a logout POST. Heavy capture and visual checks run on CI.
+
 The requester local-sign-out chapter preserves a canceled draft, checks narrow
 modal accessibility, withdraws private DOM before I/O, explicitly recovers lost
 acknowledgement and verifies Back cannot restore the retired view. A separate

@@ -1,5 +1,12 @@
 # Follow-up web data access
 
+## TL;DR
+
+Own bounded BFF protocol execution, safe decoding, RTK Query resources and
+session-scoped CSRF for follow-up reads and commands. Mutations never retry
+automatically. Retire the adapter and its supplied private transport at session
+exit, then reset caches after subscribers withdraw; accepted work may still finish.
+
 ## Purpose
 
 Notification targets use a separate current-owner summary resource accepting a historical work pointer. Full model/work validation remains mandatory; existing queue readers still correlate case/run/work. The app owns fresh session and scope disposal. See [ADR 0055](../../../docs/decisions/0055-check-historical-notification-targets-independently.md).
@@ -7,6 +14,11 @@ Notification targets use a separate current-owner summary resource accepting a h
 Own confidential-browser BFF execution and follow-up remote-cache integration.
 
 ## Owns
+
+- Explicit session retirement on the BFF adapter: drop cached CSRF, interrupt
+  active mutation setup/execution and return typed cancellation for later writes.
+  App composition retires private reads through its supplied transport and resets
+  caches only after subscribers withdraw. Retirement cannot undo an accepted POST.
 
 - Owner-scoped question history: strict bounded/case/ordering checks, the
   `createFollowUpQuestionsReader` binding and `useFreshFollowUpQuestions`.

@@ -31,6 +31,36 @@ clients. See [Playwright remote connections](https://playwright.dev/docs/docker)
 
 ## Review and updates
 
+M05-PR28b introduces a global workbench Sign out control in standard and focused
+headers. Full-page/header-inclusive baselines intentionally change; isolated
+inspector crops may remain identical. The busy-host workflow leaves capture to
+CI: the PR stays draft until the pinned comparison artifacts have been inspected
+and intentional baseline changes approved. Do not mask the control, relax pixel
+tolerances or treat existing baseline failures as accepted design. CI comparison
+does not update committed expectations automatically.
+
+The first PR #233 review adopts five inspected actual PNGs from pinned Verify
+[run 40754316583](https://github.com/stanimirivanov/ergon-ui/actions/runs/40754316583)
+at source revision `9484302`: populated/empty follow-up workspace, assigned
+populated Console, matching outcome and owned narrow chrome. Differences are the
+sign-out control, header reflow and its four-pixel effect on available pane height;
+the outcome content is unchanged. These files are copied byte-for-byte from the
+reviewed artifacts, not synthesized or rewritten by CI. Screenshot assertions
+collect subsequent states even after a mismatch, while still failing the test;
+all semantic/accessibility/authority assertions remain hard failures. Later
+states formerly hidden by the first mismatch still require CI comparison and,
+if changed, a separate inspected baseline update. PR approval establishes the
+accepted design; downloading an artifact alone does not.
+
+The second review uses pinned Verify
+[run 40759860813](https://github.com/stanimirivanov/ergon-ui/actions/runs/40759860813)
+at `0e5a4f7`. All comparison states now ran; only the narrow follow-up workspace,
+assigned withheld view and accepted outcome pane still differed. Those three
+inspected actual PNGs complete the sign-out baseline changes. Narrow chrome fits
+without overflow, withheld detail remains absent and accepted-proof text/values
+are unchanged; the desktop pane is four pixels shorter. The next CI run must
+confirm the comparisons against these expectations before readiness.
+
 Twenty-seven screenshots cover the paired shared/owned landing workspace at desktop
 and narrow widths, neutral empty views, assigned populated and withheld detail, projected execution,
 desktop/narrow authorization review, pinned inputs, matching/accepted outcome proof

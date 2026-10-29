@@ -2,13 +2,27 @@ import { StrictMode } from 'react';
 import {
   cleanup,
   fireEvent,
-  render,
+  render as renderView,
   screen,
   waitFor,
 } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { NotificationRoute } from './notification-route';
+import type { ReactNode } from 'react';
+import { LocalSessionBoundary } from '@ergon/session-feature-web';
+
+function render(children: ReactNode): ReturnType<typeof renderView> {
+  return renderView(
+    <LocalSessionBoundary
+      fetch={(input, init) => globalThis.fetch(input, init)}
+      signInHrefForCurrentLocation={() => undefined}
+      renderRetired={() => null}
+    >
+      {children}
+    </LocalSessionBoundary>,
+  );
+}
 
 afterEach(() => {
   cleanup();

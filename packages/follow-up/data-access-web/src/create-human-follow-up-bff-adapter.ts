@@ -34,7 +34,11 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
   FollowUpHandoverClient &
   FollowUpCompletionClient &
   FollowUpPriorityClient &
-  FollowUpNotesClient & { readonly recordQuestion: RecordFollowUpQuestion };
+  FollowUpNotesClient & {
+    readonly recordQuestion: RecordFollowUpQuestion;
+    /** Permanently reject further mutations, drop cached CSRF and interrupt active commands; cannot undo accepted work. */
+    readonly retire: () => void;
+  };
 
 /**
  * Adapts the confidential browser BFF to the follow-up data-access contracts.
@@ -50,7 +54,7 @@ type HumanFollowUpBffAdapter = ListOpenHumanFollowUps &
  * direct callers must not treat rejection as proof that a mutation did not occur.
  *
  * The adapter instance owns its in-memory CSRF state. Create it for one
- * browser-session composition lifetime and discard it when that session is
+ * browser-session composition lifetime and retire it when that session is
  * replaced; do not share it across authenticated browser sessions.
  *
  * @returns Follow-up operations backed by one session-lifetime adapter state.

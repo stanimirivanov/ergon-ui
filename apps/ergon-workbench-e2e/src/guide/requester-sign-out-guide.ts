@@ -83,6 +83,6 @@ export const requesterSignOutGuide: GuideChapter = {
     },
   ],
   limitations: [
-    'This synthetic guide proves requester interaction and disclosure behavior, not real OIDC exchange, cookie processing, provider revocation or PostgreSQL authorization. Workbench sign-out follows as M05-PR28b. There is no cross-tab synchronization, persistent browser retirement flag or cancellation of accepted work.',
+    'This synthetic guide proves requester interaction and disclosure behavior, not real OIDC exchange, cookie processing, provider revocation or PostgreSQL authorization. Workbench sign-out has its own M05-PR28b chapter and independent local session. There is no cross-tab synchronization, persistent browser retirement flag or cancellation of accepted work.',
   ],
 };

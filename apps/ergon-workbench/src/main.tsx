@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
-import { RouterProvider } from 'react-router';
+import { WorkbenchApplication } from './app/workbench-application';
 
 import { router } from './app/router';
 
@@ -10,6 +10,9 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <WorkbenchApplication
+      router={router}
+      fetch={globalThis.fetch.bind(globalThis)}
+    />
   </StrictMode>,
 );

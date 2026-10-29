@@ -2,6 +2,14 @@
 
 ## TL;DR
 
+M05-PR28b adds workbench local sign-out in standard/focused/notification chrome.
+The app retires its mounted store graph, shared follow-up CSRF and all private
+transport before logout; late observation cannot restore the retired router.
+The new synthetic guide demonstrates no implicit lease release. Local structural,
+compilation, lint, formatting and focused tests are the feedback tier; heavy CI
+checks and changed Console pixel/guide artifact review remain required. See
+[ADR 0057](../decisions/0057-retire-workbench-private-session-on-sign-out.md).
+
 M05-PR28a adds requester local sign-out after backend PR #228. Confirmation
 retires the private router, transport, caches and drafts before logout I/O;
 uncertainty stays closed until explicit retry or a new authorized visit. The

@@ -28,3 +28,32 @@ export function createWorkbenchStore(dependencies: WorkbenchDependencies) {
       ),
   });
 }
+
+/** Abort all resource handles and remove private caches after their subscribers unmount. Never sends a domain command or lease release. */
+export function retireWorkbenchStore(
+  store: ReturnType<typeof createWorkbenchStore>,
+): void {
+  for (const request of store.dispatch(
+    currentActorApi.util.getRunningQueriesThunk(),
+  ))
+    request.abort();
+  for (const request of store.dispatch(
+    humanFollowUpApi.util.getRunningQueriesThunk(),
+  ))
+    request.abort();
+  for (const request of store.dispatch(
+    humanFollowUpApi.util.getRunningMutationsThunk(),
+  ))
+    request.abort();
+  for (const request of store.dispatch(
+    runSupervisionApi.util.getRunningQueriesThunk(),
+  ))
+    request.abort();
+  for (const request of store.dispatch(
+    runSupervisionApi.util.getRunningMutationsThunk(),
+  ))
+    request.abort();
+  store.dispatch(currentActorApi.util.resetApiState());
+  store.dispatch(humanFollowUpApi.util.resetApiState());
+  store.dispatch(runSupervisionApi.util.resetApiState());
+}
