@@ -6,8 +6,15 @@ import {
   CurrentActorBoundary,
   usePrivateSessionFetch,
 } from '@ergon/session-feature-web';
-import { EvidenceWorkspace } from '@ergon/evidence-feature-web';
-import type { PendingEvidence, EvidenceCursor } from '@ergon/evidence-model';
+import {
+  EvidenceWorkspace,
+  EvidenceKnowledgeWorkspace,
+} from '@ergon/evidence-feature-web';
+import type {
+  PendingEvidence,
+  EvidenceCursor,
+  KnowledgeTarget,
+} from '@ergon/evidence-model';
 import { WorkbenchFrame } from '../app/workbench-frame';
 import { createEvidenceStore } from './evidence-store';
 
@@ -37,6 +44,8 @@ function EvidencePage({
   const [scope, setScope] = useState(() => ({
     ...createEvidenceStore(fetch),
     revision: 0,
+    view: 'queue' as 'queue' | 'contradictions' | 'bundles',
+    knowledge: null as KnowledgeTarget | null,
     target: null as PendingEvidence | null,
     cursor: null as EvidenceCursor | null,
   }));
@@ -55,6 +64,8 @@ function EvidencePage({
   function replace(
     target: PendingEvidence | null = null,
     cursor: EvidenceCursor | null = null,
+    view: 'queue' | 'contradictions' | 'bundles' = scope.view,
+    knowledge: KnowledgeTarget | null = null,
   ): void {
     heading.current?.focus();
     // Unsubscribe before reset: resetting a still-mounted API can restart its session query.
@@ -65,6 +76,8 @@ function EvidencePage({
       revision: scope.revision + 1,
       target,
       cursor,
+      view,
+      knowledge,
     });
     setActive(true);
   }
@@ -87,10 +100,41 @@ function EvidencePage({
         <button
           type="button"
           className="font-bold underline"
-          onClick={() => replace()}
+          onClick={() => replace(null, null, 'queue')}
         >
           Refresh evidence queue
         </button>
+        <div
+          className="flex flex-wrap gap-4"
+          role="group"
+          aria-label="Evidence views"
+        >
+          <button
+            type="button"
+            className="font-bold underline"
+            aria-pressed={scope.view === 'contradictions'}
+            onClick={() => replace(null, null, 'contradictions')}
+          >
+            Review contradictions
+          </button>
+          <button
+            type="button"
+            className="font-bold underline"
+            aria-pressed={scope.view === 'bundles'}
+            onClick={() => replace(null, null, 'bundles')}
+          >
+            Inspect or publish bundles
+          </button>
+        </div>
+        {scope.knowledge !== null && (
+          <button
+            type="button"
+            className="font-bold underline"
+            onClick={() => replace(null, null, scope.view, scope.knowledge)}
+          >
+            Recheck current documentary access
+          </button>
+        )}
         {scope.target !== null && (
           <div className="flex flex-wrap gap-4">
             <button
@@ -115,17 +159,37 @@ function EvidencePage({
               tenantId={tenantId}
               signInHrefForTenant={() => signIn}
               renderFrame={(_status, content) => <div>{content}</div>}
-              renderVerified={({ actor }) => (
-                <EvidenceWorkspace
-                  query={{ tenantId, actorId: actor.actorId }}
-                  selection={scope.target}
-                  cursor={scope.cursor}
-                  signInHref={signIn}
-                  onOpen={(proposal) => replace(proposal)}
-                  onPage={(cursor) => replace(null, cursor)}
-                  onRecheck={() => replace(scope.target, scope.cursor)}
-                />
-              )}
+              renderVerified={({ actor }) =>
+                scope.view !== 'queue' ? (
+                  <EvidenceKnowledgeWorkspace
+                    query={{ tenantId, actorId: actor.actorId }}
+                    view={scope.view}
+                    target={scope.knowledge}
+                    signInHref={signIn}
+                    onOpen={(target) =>
+                      replace(
+                        null,
+                        null,
+                        target.kind === 'bundle' ? 'bundles' : 'contradictions',
+                        target,
+                      )
+                    }
+                    onRecheck={() =>
+                      replace(null, null, scope.view, scope.knowledge)
+                    }
+                  />
+                ) : (
+                  <EvidenceWorkspace
+                    query={{ tenantId, actorId: actor.actorId }}
+                    selection={scope.target}
+                    cursor={scope.cursor}
+                    signInHref={signIn}
+                    onOpen={(proposal) => replace(proposal)}
+                    onPage={(cursor) => replace(null, cursor)}
+                    onRecheck={() => replace(scope.target, scope.cursor)}
+                  />
+                )
+              }
             />
           </Provider>
         ) : (

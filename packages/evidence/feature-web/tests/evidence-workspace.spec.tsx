@@ -25,6 +25,11 @@ import {
 afterEach(cleanup);
 function setup(overrides: Partial<EvidenceClient> = {}, selected = true) {
   const client: EvidenceClient = {
+    assess: vi.fn(),
+    adjudication: vi.fn(),
+    adjudicate: vi.fn(),
+    bundle: vi.fn(),
+    publish: vi.fn(),
     pending: vi.fn(async () => ({ ok: true as const, value: page })),
     inspect: vi.fn(async () => ({ ok: true as const, value: inspection })),
     review: vi.fn(async () => ({
@@ -135,7 +140,7 @@ it('withholds terminal controls and distinguishes stale or denied outcomes witho
     target: { value: 'Checked' },
   });
   fireEvent.click(screen.getByRole('button', { name: 'Confirm review' }));
-  await screen.findByText(/The review changed/);
+  await screen.findByText(/The evidence changed/);
   expect(
     screen.queryByRole('button', { name: 'Retry exact review' }),
   ).toBeNull();

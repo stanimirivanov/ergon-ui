@@ -1,5 +1,11 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 import type {
+  KnowledgeQuery,
+  ContradictionAssessment,
+  AdjudicationIntent,
+  DocumentaryAdjudication,
+  BundleIntent,
+  DocumentaryBundle,
   EvidenceCursor,
   EvidenceInspection,
   EvidencePage,
@@ -14,6 +20,11 @@ import {
   type EvidenceFailure,
   type EvidenceResult,
 } from './evidence-client';
+import {
+  parseAssessment,
+  parseAdjudication,
+  parseBundle,
+} from './knowledge-schema';
 import { parseInspection, parsePage, parseReceipt } from './evidence-schema';
 
 export interface EvidenceDependencies {
@@ -25,6 +36,46 @@ export const evidenceApi = createApi({
   baseQuery: fakeBaseQuery<EvidenceFailure>(),
   keepUnusedDataFor: 0,
   endpoints: (build) => ({
+    assessment: build.query<ContradictionAssessment, KnowledgeQuery>({
+      queryFn: (q, api) =>
+        safely(
+          api.extra,
+          (c) => c.assess(q, api.signal),
+          (v) => parseAssessment(v, q.id),
+        ),
+    }),
+    adjudication: build.query<DocumentaryAdjudication, KnowledgeQuery>({
+      queryFn: (q, api) =>
+        safely(
+          api.extra,
+          (c) => c.adjudication(q, api.signal),
+          (v) => parseAdjudication(v, q),
+        ),
+    }),
+    bundle: build.query<DocumentaryBundle, KnowledgeQuery>({
+      queryFn: (q, api) =>
+        safely(
+          api.extra,
+          (c) => c.bundle(q, api.signal),
+          (v) => parseBundle(v, q),
+        ),
+    }),
+    adjudicate: build.mutation<DocumentaryAdjudication, AdjudicationIntent>({
+      queryFn: (q, api) =>
+        safely(
+          api.extra,
+          (c) => c.adjudicate(q, api.signal),
+          (v) => parseAdjudication(v, q, q),
+        ),
+    }),
+    publish: build.mutation<DocumentaryBundle, BundleIntent>({
+      queryFn: (q, api) =>
+        safely(
+          api.extra,
+          (c) => c.publish(q, api.signal),
+          (v) => parseBundle(v, q, q),
+        ),
+    }),
     pending: build.query<
       EvidencePage,
       EvidenceQuery & { readonly cursor: EvidenceCursor | null }

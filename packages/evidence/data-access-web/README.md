@@ -7,7 +7,11 @@ documentary judgment, never operational truth or execution authority.
 
 ## Ownership
 
-Strict bounded Effect decoding/HTTP and RTK Query own remote state. Requests use
+Strict bounded Effect decoding/HTTP and RTK Query own remote state for proposals,
+complete contradictions, exact adjudications and immutable bundles. Decode complete
+pair sets, conservative comparisons, exact publication intent, manifest coverage
+and tenant/review/source relationships. Displayed digests are server-reported; no
+independent canonical-byte verification is claimed. Requests use
 same-origin credentials, no-store, a five-second budget and a two-MiB response cap.
 No automatic retries. Every write obtains a fresh CSRF token. Strip authority proof
 IDs and diagnostics before serialization. Host-owned isolated scopes abort queries

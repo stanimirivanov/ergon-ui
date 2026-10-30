@@ -416,7 +416,7 @@ function ProposalInspection({
     </div>
   );
 }
-function Failure({
+export function Failure({
   error,
   signInHref,
 }: {
@@ -427,7 +427,7 @@ function Failure({
     <div role="alert">
       <p>
         {error.kind === 'conflict'
-          ? 'The review changed or this command conflicts. Recheck before making a new decision.'
+          ? 'The evidence changed or this command conflicts. Recheck before making a new decision.'
           : error.kind === 'authentication-required'
             ? 'Sign in again to inspect evidence.'
             : error.kind === 'denied'

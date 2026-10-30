@@ -1,5 +1,6 @@
 import { Either, Schema } from 'effect';
 import type {
+  DocumentaryClaim,
   EvidenceCursor,
   EvidenceInspection,
   EvidencePage,
@@ -10,20 +11,20 @@ import type {
 } from '@ergon/evidence-model';
 import { validReviewRationale } from '@ergon/evidence-model';
 
-const uuid = Schema.UUID;
+export const uuid = Schema.UUID;
 const kind = Schema.Literal('CLAIM', 'PROCEDURE');
 const status = Schema.Literal('PROPOSED', 'ACCEPTED', 'REJECTED');
-const digest = Schema.String.pipe(Schema.pattern(/^[a-f0-9]{64}$/u));
-const compiler = Schema.String.pipe(
+export const digest = Schema.String.pipe(Schema.pattern(/^[a-f0-9]{64}$/u));
+export const compiler = Schema.String.pipe(
   Schema.pattern(/^[a-z0-9][a-z0-9._-]{0,99}$/u),
 );
 const bounded = (max: number) => Schema.String.pipe(Schema.maxLength(max));
-const integer = Schema.Number.pipe(
+export const integer = Schema.Number.pipe(
   Schema.int(),
   Schema.nonNegative(),
   Schema.lessThanOrEqualTo(Number.MAX_SAFE_INTEGER),
 );
-const time = Schema.String.pipe(
+export const time = Schema.String.pipe(
   Schema.pattern(
     /^(?!0000)[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?Z$/u,
   ),
@@ -63,7 +64,7 @@ const citation = Schema.Struct({
   endExclusive: integer,
   quote: bounded(65536),
 });
-const claim = Schema.Struct({
+export const claim = Schema.Struct({
   id: uuid,
   input: Schema.Struct({
     extractionId: uuid,
@@ -239,38 +240,8 @@ export function parseInspection(
       !validQuote(c)
     )
       return undefined;
-    const input = c.input;
-    const support =
-      input.property === 'documentation.access.restoration.supported';
-    if (
-      !input.subject.trim() ||
-      !input.scope.trim() ||
-      support !== (input.booleanValue != null) ||
-      support === (input.textValue != null) ||
-      (input.textValue != null && !input.textValue.trim())
-    )
-      return undefined;
-    if ((input.validFrom == null) !== (input.validUntil == null))
-      return undefined;
-    if (
-      input.validFrom != null &&
-      input.validUntil != null &&
-      micros(input.validFrom) >= micros(input.validUntil)
-    )
-      return undefined;
-    return {
-      ...result,
-      claim: {
-        ...c,
-        input: {
-          ...input,
-          booleanValue: input.booleanValue ?? null,
-          textValue: input.textValue ?? null,
-          validFrom: input.validFrom ?? null,
-          validUntil: input.validUntil ?? null,
-        },
-      },
-    };
+    const checked = parseClaim(c);
+    return checked === undefined ? undefined : { ...result, claim: checked };
   }
   if (
     p === null ||
@@ -336,7 +307,7 @@ export function parseReceipt(
     : undefined;
 }
 
-function micros(value: string): bigint {
+export function micros(value: string): bigint {
   return (
     BigInt(Date.parse(value.slice(0, 19) + 'Z')) * 1000n +
     BigInt((value.split('.')[1]?.slice(0, -1) ?? '').padEnd(6, '0'))
@@ -354,4 +325,40 @@ function compareCoordinate(
   const idA = left.id.toLowerCase(),
     idB = right.id.toLowerCase();
   return idA === idB ? 0 : idA < idB ? -1 : 1;
+}
+
+export function parseClaim(value: unknown): DocumentaryClaim | undefined {
+  const decoded = Schema.decodeUnknownEither(claim)(value);
+  if (Either.isLeft(decoded)) return undefined;
+  const c = decoded.right;
+  if (!validQuote(c)) return undefined;
+  const input = c.input;
+  const support =
+    input.property === 'documentation.access.restoration.supported';
+  if (
+    !input.subject.trim() ||
+    !input.scope.trim() ||
+    support !== (input.booleanValue != null) ||
+    support === (input.textValue != null) ||
+    (input.textValue != null && !input.textValue.trim())
+  )
+    return undefined;
+  if ((input.validFrom == null) !== (input.validUntil == null))
+    return undefined;
+  if (
+    input.validFrom != null &&
+    input.validUntil != null &&
+    micros(input.validFrom) >= micros(input.validUntil)
+  )
+    return undefined;
+  return {
+    ...c,
+    input: {
+      ...input,
+      booleanValue: input.booleanValue ?? null,
+      textValue: input.textValue ?? null,
+      validFrom: input.validFrom ?? null,
+      validUntil: input.validUntil ?? null,
+    },
+  };
 }

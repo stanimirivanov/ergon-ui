@@ -3,6 +3,7 @@ import type {
   RunEscalationCommand,
   RunEscalationCommandResult,
   RunEscalationReview,
+  RunEscalationReviewResult,
   RunSupervisionClient,
 } from '@ergon/run-supervision-data-access-web';
 import {
@@ -19,6 +20,7 @@ import {
   failedConsole,
   installRetryTestEnvironment,
   renderRetryWorkspace,
+  renderEscalationControl,
   successfulRetryClient,
 } from './run-retry-fixtures';
 
@@ -55,7 +57,10 @@ function client() {
         stateVersion: escalated ? 2 : 1,
       },
     }),
-    getEscalationReview: async () => ({ ok: true as const, review }),
+    getEscalationReview: async (): Promise<RunEscalationReviewResult> => ({
+      ok: true,
+      review,
+    }),
     escalateRun: async (
       command: RunEscalationCommand,
     ): Promise<RunEscalationCommandResult> => {
@@ -111,10 +116,15 @@ async function confirm(): Promise<void> {
 describe('confirmed exhausted recovery', () => {
   it('reads on demand, requires acknowledgement, and cancels without intent', async () => {
     const base = client();
-    const read = vi.spyOn(base, 'getEscalationReview');
+    const reopened = deferred<RunEscalationReviewResult>();
+    const read = vi
+      .spyOn(base, 'getEscalationReview')
+      .mockResolvedValueOnce({ ok: true, review })
+      .mockImplementationOnce(() => reopened.promise);
     const send = vi.spyOn(base, 'escalateRun');
-    renderRetryWorkspace(base);
-    await select();
+    const consoleRead = vi.spyOn(base, 'getConsole');
+    const list = vi.spyOn(base, 'listAssigned');
+    const { onConfirm, onAccessFailure } = renderEscalationControl(base);
     expect(read).not.toHaveBeenCalled();
     await open();
     fireEvent.click(
@@ -124,15 +134,33 @@ describe('confirmed exhausted recovery', () => {
       'Acknowledge the terminal escalation boundary before confirming.',
     );
     expect(send).not.toHaveBeenCalled();
+    expect(onConfirm).not.toHaveBeenCalled();
     fireEvent.click(
       screen.getByRole('button', { name: 'Cancel escalation review' }),
     );
+    const trigger = screen.getByRole('button', {
+      name: 'Review exhausted-run escalation',
+    });
+    expect(trigger).toBe(document.activeElement);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    fireEvent.click(trigger);
+    await waitFor(() => expect(read).toHaveBeenCalledTimes(2));
+    const dialog = within(screen.getByRole('dialog'));
+    expect(dialog.getByRole('status').textContent).toContain(
+      'Checking current supervision',
+    );
     expect(
-      screen.getByRole('button', { name: 'Review exhausted-run escalation' }),
-    ).toBe(document.activeElement);
-    await open();
-    expect(read).toHaveBeenCalledTimes(2);
+      dialog.queryByRole('button', { name: 'Open unassigned human follow-up' }),
+    ).toBeNull();
+    await act(async () => reopened.resolve({ ok: true, review }));
+    await dialog.findByRole('button', {
+      name: 'Open unassigned human follow-up',
+    });
     expect(send).not.toHaveBeenCalled();
+    expect(onConfirm).not.toHaveBeenCalled();
+    expect(onAccessFailure).not.toHaveBeenCalled();
+    expect(consoleRead).not.toHaveBeenCalled();
+    expect(list).not.toHaveBeenCalled();
   });
   it.each(['DISABLED', 'RETRY_BUDGET_AVAILABLE'] as const)(
     'never submits a %s observation',

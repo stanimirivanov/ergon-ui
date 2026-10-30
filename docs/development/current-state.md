@@ -544,4 +544,14 @@ React/RHF presentation. Exact inert quotations, explicit rationale, terminal rev
 and mounted immutable uncertain recovery consume backend PR #250. Session-scoped
 stores retire on refresh, selection, departure and sign-out. Browser tests simulate
 the BFF; live identity/database/CSRF acceptance still belongs to backend integration.
-Source ingestion, contradictions and bundles remain later or separate work.
+Source ingestion remains separate; contradiction and bundle review are described below.
+
+## Documentary contradiction and bundle workbench
+
+M06-PR11 adds exact-ID cited assessment/adjudication and immutable bundle
+inspection/publication under the existing evidence route. Complete alternatives,
+canonical findings, validity uncertainty and current/historical distinctions are
+visible. One-key composition with optional procedures and procedure-only bundles
+reuse fresh CSRF, exact uncertain replay and isolated session/cache retirement.
+No catalogs, multi-key editor, contract authoring or execution are supplied.
+See [ADR 0059](../decisions/0059-review-cited-contradictions-and-publish-bundles.md).

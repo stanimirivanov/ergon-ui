@@ -3,6 +3,9 @@ import { configureStore } from '@reduxjs/toolkit';
 import {
   runSupervisionApi,
   type AssignedRunConsole,
+  type RunEscalationClient,
+  type RunEscalationCommand,
+  type RunEscalationFailure,
   type RunRetryClient,
   type RunRetryCommand,
   type RunRetryCommandResult,
@@ -16,6 +19,7 @@ import { Provider } from 'react-redux';
 import { afterEach, beforeEach, vi, type Mock } from 'vitest';
 import { AssignedRunWorkspace } from '../src';
 import { RunRetryControl } from '../src/run-retry-control';
+import { RunEscalationControl } from '../src/run-escalation-control';
 import {
   assignedPage,
   assignedRunConsole,
@@ -202,6 +206,33 @@ export function renderRetryControl(
         <RunRetryControl
           tenantId={TENANT_ID}
           run={failedConsole}
+          onConfirm={onConfirm}
+          onAccessFailure={onAccessFailure}
+        />
+      </Provider>
+    </StrictMode>,
+  );
+  return { ...view, onConfirm, onAccessFailure };
+}
+/** Escalation form/cache/modal tests do not need unrelated assigned Console panes. */
+export function renderEscalationControl<
+  Client extends RunSupervisionClient & RunRetryClient & RunEscalationClient,
+>(
+  client: Client,
+): RenderResult & {
+  readonly onConfirm: Mock<(command: RunEscalationCommand) => void>;
+  readonly onAccessFailure: Mock<(failure: RunEscalationFailure) => void>;
+} {
+  const store = buildStore(client);
+  stores.push(store);
+  const onConfirm = vi.fn<(command: RunEscalationCommand) => void>();
+  const onAccessFailure = vi.fn<(failure: RunEscalationFailure) => void>();
+  const view = render(
+    <StrictMode>
+      <Provider store={store}>
+        <RunEscalationControl
+          tenantId={TENANT_ID}
+          run={{ ...failedConsole, attemptNumber: 2 }}
           onConfirm={onConfirm}
           onAccessFailure={onAccessFailure}
         />

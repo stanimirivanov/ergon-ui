@@ -130,3 +130,14 @@ export function validReviewRationale(value: string): boolean {
     )
   );
 }
+export { validEvidenceId, canonicalEvidenceIds } from './knowledge';
+export type {
+  ClaimComparison,
+  ContradictionAssessment,
+  KnowledgeTarget,
+  KnowledgeQuery,
+  AdjudicationIntent,
+  DocumentaryAdjudication,
+  BundleIntent,
+  DocumentaryBundle,
+} from './knowledge';
