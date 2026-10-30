@@ -82,3 +82,7 @@ recurring task has no clear route. Avoid listing transient implementation
 details. `pnpm repository:check` validates local navigation and mechanical
 document policy; semantic accuracy and external-link freshness still require
 review.
+
+## Evidence compiler acceptance
+
+- [M06 browser acceptance](evidence-compiler-acceptance.md) — executable cited review/bundle guide, server acceptance boundary and reproduction commands.
