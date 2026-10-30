@@ -1,3 +1,7 @@
+import {
+  installSimulatedGuideNetworkBoundary,
+  SIMULATED_BFF_HEADER,
+} from './guide/simulated-guide-network-boundary';
 import { expect, test } from '@playwright/test';
 import { runGuideScenario } from './guide/user-guide-session';
 import { runExecutionGuide } from './guide/run-execution-guide';
@@ -128,3 +132,35 @@ for (const width of [320, 1440]) {
     await expect(target).toBeVisible();
   });
 }
+
+test('simulated guide boundary admits the evidence document but still blocks an internal API', async ({
+  browser,
+  baseURL,
+}) => {
+  const context = await browser.newContext();
+  try {
+    const origin = new URL(baseURL ?? 'http://localhost:4300').origin;
+    const boundary = await installSimulatedGuideNetworkBoundary(
+      context,
+      origin,
+    );
+    await context.route('**/bff/**', (route) =>
+      route.fulfill({
+        status: 404,
+        headers: { [SIMULATED_BFF_HEADER]: 'simulated-bff' },
+        json: {},
+      }),
+    );
+    const page = await context.newPage();
+    await page.goto(
+      origin + '/tenants/11111111-1111-4111-8111-111111111111/evidence',
+    );
+    await boundary.assertNoUnexpectedRequests();
+    await expect(page.goto(origin + '/internal/v1/private')).rejects.toThrow();
+    await expect(boundary.assertNoUnexpectedRequests()).rejects.toThrow(
+      'outside its fixture boundary',
+    );
+  } finally {
+    await context.close();
+  }
+});

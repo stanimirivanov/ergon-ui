@@ -203,3 +203,11 @@ not provided. Unknown validity, undetermined comparisons and unresolved conflict
 block claim publication. Current preference is documentary judgment, never action
 authority. Historical manifest inspection preserves cutoff and original attribution;
 the digest is server-reported, not independently recomputed in this browser.
+
+## Evidence compiler guide
+
+M06-PR14 records the existing evidence review and historical bundle workflow as
+an asserted simulated guide, `evidence-review-and-bundles`. It adds no source
+upload, contract-authoring or documentary-readiness UI. See
+[browser acceptance](../../docs/evidence-compiler-acceptance.md) for coverage,
+backend coordination, local preview ownership and live-deployment limits.

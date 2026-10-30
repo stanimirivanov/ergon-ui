@@ -2,6 +2,12 @@
 
 ## TL;DR
 
+M06-PR14 adds the executable simulated chapter `evidence-review-and-bundles`
+using existing evidence interactions. The [browser acceptance record](../evidence-compiler-acceptance.md)
+separates cited review/publication and recovery from backend compilation,
+case-pinned contract consumption and unverified live two-app/OIDC deployment.
+There is no new product UI, internal browser API or execution authority.
+
 M05-PR28b adds workbench local sign-out in standard/focused/notification chrome.
 The app retires its mounted store graph, shared follow-up CSRF and all private
 transport before logout; late observation cannot restore the retired router.
