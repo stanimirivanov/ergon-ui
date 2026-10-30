@@ -188,3 +188,18 @@ only while mounted. Refresh, navigation, tenant change and sign-out retire priva
 requests/caches. No upload editor, contradiction adjudication, bundle or execution
 authority is supplied. Deploy backend PR #250 first. See
 [ADR 0058](../../docs/decisions/0058-review-exact-documentary-proposals.md).
+
+## Cited contradiction and bundle review
+
+M06-PR11 extends `/tenants/:tenantId/evidence` with supplied-ID assessment,
+adjudication and bundle views. Every target/recheck creates a fresh session/cache
+scope and restores focus to the persistent evidence heading. No IDs enter browser
+storage or URL history. Backend contradiction/bundle APIs and migrations from
+Ergon PRs #252/#254 must be deployed first; missing or denied APIs fail closed.
+
+A bundle composer selects from one complete assessed claim set with optional
+accepted procedures, or procedures alone. Multi-key composition and catalogs are
+not provided. Unknown validity, undetermined comparisons and unresolved conflicts
+block claim publication. Current preference is documentary judgment, never action
+authority. Historical manifest inspection preserves cutoff and original attribution;
+the digest is server-reported, not independently recomputed in this browser.

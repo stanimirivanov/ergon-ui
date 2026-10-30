@@ -79,6 +79,7 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0056](0056-retire-requester-private-state-on-local-sign-out.md)            | Accepted   | Requester local sign-out and private lifecycle retirement             |
 | [0057](0057-retire-workbench-private-session-on-sign-out.md)                | Accepted   | Workbench local sign-out and private-session retirement               |
 | [0058](0058-review-exact-documentary-proposals.md)                          | Accepted   | Exact cited documentary review and mounted immutable receipt recovery |
+| [0059](0059-review-cited-contradictions-and-publish-bundles.md)             | Accepted   | Review cited contradictions and publish bundles                       |
 
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple

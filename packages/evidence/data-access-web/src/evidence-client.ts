@@ -1,3 +1,18 @@
+import {
+  canonicalEvidenceIds,
+  validEvidenceId,
+  type KnowledgeQuery,
+  type ContradictionAssessment,
+  type AdjudicationIntent,
+  type DocumentaryAdjudication,
+  type BundleIntent,
+  type DocumentaryBundle,
+} from '@ergon/evidence-model';
+import {
+  parseAssessment,
+  parseAdjudication,
+  parseBundle,
+} from './knowledge-schema';
 import { Cause, Effect, Either, Exit, Schema } from 'effect';
 import {
   validReviewRationale,
@@ -35,6 +50,26 @@ export type EvidenceResult<T> =
   | { readonly ok: false; readonly error: EvidenceFailure };
 /** Invocation lifetime includes body decoding and CSRF. No automatic retries. Defects reject outside the safe RTK boundary. */
 export interface EvidenceClient {
+  assess(
+    query: KnowledgeQuery,
+    signal: AbortSignal,
+  ): Promise<EvidenceResult<ContradictionAssessment>>;
+  adjudication(
+    query: KnowledgeQuery,
+    signal: AbortSignal,
+  ): Promise<EvidenceResult<DocumentaryAdjudication>>;
+  adjudicate(
+    intent: AdjudicationIntent,
+    signal: AbortSignal,
+  ): Promise<EvidenceResult<DocumentaryAdjudication>>;
+  bundle(
+    query: KnowledgeQuery,
+    signal: AbortSignal,
+  ): Promise<EvidenceResult<DocumentaryBundle>>;
+  publish(
+    intent: BundleIntent,
+    signal: AbortSignal,
+  ): Promise<EvidenceResult<DocumentaryBundle>>;
   pending(
     query: EvidenceQuery & { readonly cursor: EvidenceCursor | null },
     signal: AbortSignal,
@@ -219,7 +254,149 @@ export function createEvidenceClient({
       ? Effect.fail({ kind: 'invalid-response' })
       : Effect.succeed(value);
   }
+  function knowledgeBase(q: EvidenceQuery): string {
+    return '/bff/v1/tenants/' + encodeURIComponent(q.tenantId);
+  }
+  function validKnowledge(q: KnowledgeQuery): boolean {
+    return validQuery(q) && validEvidenceId(q.id);
+  }
+  function readKnowledge<T>(
+    q: KnowledgeQuery,
+    signal: AbortSignal,
+    path: string,
+    parse: (value: unknown) => T | undefined,
+  ): Promise<EvidenceResult<T>> {
+    if (!validKnowledge(q))
+      return Promise.resolve({
+        ok: false,
+        error: { kind: 'unexpected-defect' },
+      });
+    return invoke(signal, (request) =>
+      Effect.gen(function* () {
+        return yield* decoded(parse(yield* request(knowledgeBase(q) + path)));
+      }),
+    );
+  }
+  function writeKnowledge<T>(
+    q: KnowledgeQuery,
+    signal: AbortSignal,
+    path: string,
+    body: unknown,
+    parse: (value: unknown) => T | undefined,
+  ): Promise<EvidenceResult<T>> {
+    return invoke(signal, (request) =>
+      Effect.gen(function* () {
+        const token = Schema.decodeUnknownEither(csrf)(
+          yield* request('/bff/v1/csrf'),
+        );
+        if (Either.isLeft(token))
+          return yield* Effect.fail<EvidenceFailure>({
+            kind: 'invalid-response',
+          });
+        return yield* decoded(
+          parse(
+            yield* request(knowledgeBase(q) + path, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                [token.right.headerName]: token.right.token,
+              },
+              body: JSON.stringify(body),
+            }),
+          ),
+        );
+      }),
+    );
+  }
   return {
+    assess(q, signal) {
+      return readKnowledge(
+        q,
+        signal,
+        '/documentary-contradictions/claims/' + q.id,
+        (v) => parseAssessment(v, q.id),
+      );
+    },
+    adjudication(q, signal) {
+      return readKnowledge(
+        q,
+        signal,
+        '/documentary-contradictions/adjudications/' + q.id,
+        (v) => parseAdjudication(v, q),
+      );
+    },
+    bundle(q, signal) {
+      return readKnowledge(q, signal, '/evidence-bundles/' + q.id, (v) =>
+        parseBundle(v, q),
+      );
+    },
+    async adjudicate(q, signal) {
+      if (
+        !validKnowledge(q) ||
+        !canonicalEvidenceIds(q.candidateIds) ||
+        q.candidateIds.length < 2 ||
+        q.candidateIds.length > 20 ||
+        !q.candidateIds.includes(q.anchorId) ||
+        !Number.isSafeInteger(q.expectedRevision) ||
+        q.expectedRevision < 1 ||
+        !validReviewRationale(q.rationale) ||
+        !['PREFER_CLAIM', 'DEFER'].includes(q.choice) ||
+        (q.choice === 'PREFER_CLAIM') !== (q.selectedClaimId !== null) ||
+        (q.selectedClaimId !== null &&
+          !q.candidateIds.includes(q.selectedClaimId))
+      )
+        return { ok: false, error: { kind: 'unexpected-defect' } };
+      const {
+        anchorId,
+        expectedRevision,
+        candidateIds,
+        choice,
+        selectedClaimId,
+        rationale,
+      } = q;
+      return writeKnowledge(
+        q,
+        signal,
+        '/documentary-contradictions/adjudications/' + q.id,
+        {
+          anchorId,
+          expectedRevision,
+          candidateIds,
+          choice,
+          selectedClaimId,
+          rationale,
+        },
+        (v) => parseAdjudication(v, q, q),
+      );
+    },
+    async publish(q, signal) {
+      if (
+        !validKnowledge(q) ||
+        !canonicalEvidenceIds(q.claims) ||
+        !canonicalEvidenceIds(q.procedures) ||
+        q.claims.length + q.procedures.length < 1 ||
+        q.claims.length + q.procedures.length > 20 ||
+        q.claimSets.length > q.claims.length ||
+        !canonicalEvidenceIds(q.claimSets.map((s) => s.anchorId)) ||
+        q.claimSets.some(
+          (s) =>
+            !Number.isSafeInteger(s.revision) ||
+            s.revision < 1 ||
+            !canonicalEvidenceIds(s.candidateIds) ||
+            s.candidateIds.length > 20 ||
+            !s.candidateIds.includes(s.anchorId) ||
+            (s.adjudicationId !== null && !validEvidenceId(s.adjudicationId)),
+        )
+      )
+        return { ok: false, error: { kind: 'unexpected-defect' } };
+      return writeKnowledge(
+        q,
+        signal,
+        '/evidence-bundles/' + q.id,
+        { claims: q.claims, procedures: q.procedures, claimSets: q.claimSets },
+        (v) => parseBundle(v, q, q),
+      );
+    },
     async pending(query, signal) {
       if (!validQuery(query) || !validCursor(query.cursor))
         return { ok: false, error: { kind: 'unexpected-defect' } };

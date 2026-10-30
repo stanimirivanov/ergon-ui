@@ -7,7 +7,8 @@ documentary judgment, never operational truth or execution authority.
 
 ## Ownership
 
-Platform-neutral proposal, citation and review values and rationale validation.
+Platform-neutral proposal, citation, review, complete assessment, adjudication,
+bundle manifest and immutable intent values, plus rationale/identity refinements.
 No React, Effect, DOM, transport, remote cache or permission policy.
 
 ## Verification
