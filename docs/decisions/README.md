@@ -81,6 +81,8 @@ decrease, even when the newest record is later superseded or deprecated.
 | [0058](0058-review-exact-documentary-proposals.md)                          | Accepted   | Exact cited documentary review and mounted immutable receipt recovery |
 | [0059](0059-review-cited-contradictions-and-publish-bundles.md)             | Accepted   | Review cited contradictions and publish bundles                       |
 
+| [0060](0060-inspect-historical-evaluations.md) | Accepted | Read-only Simulation Lab with private history/report scopes |
+
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple
 applications.

@@ -21,7 +21,10 @@
     "@ergon/notifications-feature-web": "workspace:*",
     "@ergon/evidence-feature-web": "workspace:*",
     "@ergon/evidence-data-access-web": "workspace:*",
-    "@ergon/evidence-model": "workspace:*"
+    "@ergon/evidence-model": "workspace:*",
+    "@ergon/evaluation-model": "workspace:*",
+    "@ergon/evaluation-data-access-web": "workspace:*",
+    "@ergon/evaluation-feature-web": "workspace:*"
   },
   "nx": {
     "tags": [

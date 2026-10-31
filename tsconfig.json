@@ -65,6 +65,15 @@
     },
     {
       "path": "./packages/evidence/model"
+    },
+    {
+      "path": "./packages/evaluation/model"
+    },
+    {
+      "path": "./packages/evaluation/data-access-web"
+    },
+    {
+      "path": "./packages/evaluation/feature-web"
     }
   ],
   "compilerOptions": {}

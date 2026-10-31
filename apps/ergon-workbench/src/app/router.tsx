@@ -18,6 +18,11 @@ const EvidenceRoute = lazy(async () => {
   return { default: route.EvidenceRoute };
 });
 
+const EvaluationRoute = lazy(async () => {
+  const route = await import('../simulation/evaluation-route');
+  return { default: route.EvaluationRoute };
+});
+
 function CurrentActorRouteBoundary() {
   return (
     <Suspense
@@ -36,6 +41,14 @@ function CurrentActorRouteBoundary() {
 }
 
 export const workbenchRoutes: RouteObject[] = [
+  {
+    path: '/tenants/:tenantId/simulation',
+    element: (
+      <Suspense fallback={<p role="status">Opening Simulation Lab…</p>}>
+        <EvaluationRoute />
+      </Suspense>
+    ),
+  },
   {
     path: '/tenants/:tenantId/evidence',
     element: (

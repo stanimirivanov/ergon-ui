@@ -73,6 +73,15 @@
     },
     {
       "path": "../../packages/run-supervision/feature-web/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/evaluation/model/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/evaluation/data-access-web/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/evaluation/feature-web/tsconfig.lib.json"
     }
   ]
 }
