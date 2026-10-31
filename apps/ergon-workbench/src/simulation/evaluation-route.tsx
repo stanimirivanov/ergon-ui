@@ -6,7 +6,10 @@ import {
   CurrentActorBoundary,
   usePrivateSessionFetch,
 } from '@ergon/session-feature-web';
-import { EvaluationWorkspace } from '@ergon/evaluation-feature-web';
+import {
+  EvaluationWorkspace,
+  PromotionWorkspace,
+} from '@ergon/evaluation-feature-web';
 import { WorkbenchFrame } from '../app/workbench-frame';
 import { createEvaluationStore } from './evaluation-store';
 
@@ -36,6 +39,7 @@ function EvaluationPage({
   const [scope, setScope] = useState(() => ({
     ...createEvaluationStore(fetch),
     revision: 0,
+    promotion: false,
     target: null as string | null,
     after: null as string | null,
   }));
@@ -54,6 +58,7 @@ function EvaluationPage({
   function replace(
     target: string | null = null,
     after: string | null = null,
+    promotion = false,
   ): void {
     heading.current?.focus();
     // Unsubscribe before reset: resetting a still-mounted API can restart its session query.
@@ -62,6 +67,7 @@ function EvaluationPage({
     setScope({
       ...createEvaluationStore(fetch),
       revision: scope.revision + 1,
+      promotion,
       target,
       after,
     });
@@ -88,6 +94,15 @@ function EvaluationPage({
           or execution authority.
         </p>
         <div className="flex flex-wrap gap-4">
+          {!scope.promotion && (
+            <button
+              type="button"
+              className="font-bold underline"
+              onClick={() => replace(null, null, true)}
+            >
+              Review contract promotion
+            </button>
+          )}
           <button
             type="button"
             className="font-bold underline"
@@ -111,16 +126,24 @@ function EvaluationPage({
               tenantId={tenantId}
               signInHrefForTenant={() => signIn}
               renderFrame={(_status, content) => <div>{content}</div>}
-              renderVerified={({ actor }) => (
-                <EvaluationWorkspace
-                  query={{ tenantId, actorId: actor.actorId }}
-                  reportId={scope.target}
-                  after={scope.after}
-                  signInHref={signIn}
-                  onSelect={(id) => replace(id)}
-                  onOlder={(after) => replace(null, after)}
-                />
-              )}
+              renderVerified={({ actor }) =>
+                scope.promotion ? (
+                  <PromotionWorkspace
+                    query={{ tenantId, actorId: actor.actorId }}
+                    signInHref={signIn}
+                    onCancel={() => replace()}
+                  />
+                ) : (
+                  <EvaluationWorkspace
+                    query={{ tenantId, actorId: actor.actorId }}
+                    reportId={scope.target}
+                    after={scope.after}
+                    signInHref={signIn}
+                    onSelect={(id) => replace(id)}
+                    onOlder={(after) => replace(null, after)}
+                  />
+                )
+              }
             />
           </Provider>
         ) : (
