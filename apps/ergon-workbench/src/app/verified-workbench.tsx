@@ -104,6 +104,12 @@ function WorkbenchViewNavigation({
         Evidence review
       </Link>
       <Link
+        to={`/tenants/${tenantId}/simulation`}
+        className="font-bold underline"
+      >
+        Simulation Lab
+      </Link>
+      <Link
         to={`/tenants/${tenantId}/notifications`}
         className="font-bold underline"
       >

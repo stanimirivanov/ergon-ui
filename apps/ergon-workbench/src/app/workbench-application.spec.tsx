@@ -1,3 +1,5 @@
+import { EvaluationRoute } from '../simulation/evaluation-route';
+import * as evaluations from '../simulation/evaluation-store';
 import { StrictMode } from 'react';
 import {
   act,
@@ -39,7 +41,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-it.each(['', '?view=runs', '/notifications'])(
+it.each(['', '?view=runs', '/notifications', '/simulation'])(
   'retires the real private %s route and caches before logout, keeps uncertainty closed, and prevents Back restoration',
   async (suffix) => {
     const workScopes: ReturnType<typeof graphs.createBrowserWorkbenchScope>[] =
@@ -47,6 +49,17 @@ it.each(['', '?view=runs', '/notifications'])(
     const notificationScopes: ReturnType<
       typeof notifications.createNotificationStore
     >[] = [];
+    const evaluationScopes: ReturnType<
+      typeof evaluations.createEvaluationStore
+    >[] = [];
+    const makeEvaluation = evaluations.createEvaluationStore;
+    vi.spyOn(evaluations, 'createEvaluationStore').mockImplementation(
+      (fetch) => {
+        const scope = makeEvaluation(fetch);
+        evaluationScopes.push(scope);
+        return scope;
+      },
+    );
     const makeGraph = graphs.createBrowserWorkbenchScope;
     const makeNotifications = notifications.createNotificationStore;
     vi.spyOn(graphs, 'createBrowserWorkbenchScope').mockImplementation(
@@ -75,7 +88,11 @@ it.each(['', '?view=runs', '/notifications'])(
         expect(
           screen.getByRole('heading', { name: 'Signing out locally…' }),
         ).toBe(document.activeElement);
-        for (const scope of [...workScopes, ...notificationScopes]) {
+        for (const scope of [
+          ...workScopes,
+          ...notificationScopes,
+          ...evaluationScopes,
+        ]) {
           const state = scope.store.getState();
           for (const cache of Object.values(state)) {
             expect(Object.keys(cache.queries)).toHaveLength(0);
@@ -107,6 +124,8 @@ it.each(['', '?view=runs', '/notifications'])(
         });
       if (path.endsWith('/assigned'))
         return Response.json({ entries: [], nextCursor: null });
+      if (path.endsWith('/simulation-lab/reports'))
+        return Response.json({ items: [], nextAfter: null });
       if (path.endsWith('/notifications'))
         return Response.json({ items: [], truncated: false });
       if (path.endsWith('/human-follow-ups') || path.endsWith('/owned'))
@@ -115,6 +134,7 @@ it.each(['', '?view=runs', '/notifications'])(
     };
     const router = createMemoryRouter(
       [
+        { path: '/tenants/:tenantId/simulation', element: <EvaluationRoute /> },
         { path: '/', element: <p>PUBLIC-HOME</p> },
         { path: '/tenants/:tenantId', element: <CurrentActorRoute /> },
         {

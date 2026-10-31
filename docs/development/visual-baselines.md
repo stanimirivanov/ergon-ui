@@ -105,3 +105,12 @@ They do not replace semantic, focus, privacy, responsiveness or accessibility
 assertions, user-guide review, or human assessment against the design references.
 Other browsers, real GPU/material differences and live backend authority are
 outside this gate.
+
+## M07 Simulation Lab navigation
+
+M07-PR13 adds the Simulation Lab link to the follow-up navigation. Header-inclusive
+follow-up screenshots may change. The implementation PR remains draft until the
+pinned renderer comparison is available and intentional navigation differences
+have been inspected. Local host images are not substituted for pinned baselines;
+no baseline or comparison tolerance changes accompany this slice. Simulation Lab
+browser scenarios additionally check 320-pixel reflow and axe accessibility.

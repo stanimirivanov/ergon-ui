@@ -211,3 +211,14 @@ an asserted simulated guide, `evidence-review-and-bundles`. It adds no source
 upload, contract-authoring or documentary-readiness UI. See
 [browser acceptance](../../docs/evidence-compiler-acceptance.md) for coverage,
 backend coordination, local preview ownership and live-deployment limits.
+
+## Simulation Lab (M07-PR13)
+
+Open **Simulation Lab** from the tenant workbench to inspect evaluation history,
+then an exact immutable report. The server requires EVALUATION_VIEWER independently
+of resolver registration. Recheck current access replaces private session/cache
+state. Older-page cursors and report selections are not persisted or placed in URLs.
+
+See [ADR 0060](../../docs/decisions/0060-inspect-historical-evaluations.md) for
+ownership, browser contracts, simulated budget units and numeric limits. This view
+cannot promote contracts, author fixtures or establish live-provider performance.

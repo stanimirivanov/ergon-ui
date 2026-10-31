@@ -394,6 +394,15 @@ importers:
 
   apps/ergon-workbench:
     dependencies:
+      '@ergon/evaluation-data-access-web':
+        specifier: workspace:*
+        version: link:../../packages/evaluation/data-access-web
+      '@ergon/evaluation-feature-web':
+        specifier: workspace:*
+        version: link:../../packages/evaluation/feature-web
+      '@ergon/evaluation-model':
+        specifier: workspace:*
+        version: link:../../packages/evaluation/model
       '@ergon/evidence-data-access-web':
         specifier: workspace:*
         version: link:../../packages/evidence/data-access-web
@@ -451,6 +460,48 @@ importers:
       '@ergon/run-supervision-data-access-web':
         specifier: workspace:*
         version: link:../../packages/run-supervision/data-access-web
+
+  packages/evaluation/data-access-web:
+    dependencies:
+      '@ergon/evaluation-model':
+        specifier: workspace:*
+        version: link:../model
+      '@reduxjs/toolkit':
+        specifier: 2.12.0
+        version: 2.12.0(react-redux@9.3.0(@types/react@19.3.0)(react@19.3.0)(redux@5.0.1))(react@19.3.0)
+      effect:
+        specifier: 3.22.2
+        version: 3.22.2
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+      react-redux:
+        specifier: 9.3.0
+        version: 9.3.0(@types/react@19.3.0)(react@19.3.0)(redux@5.0.1)
+
+  packages/evaluation/feature-web:
+    dependencies:
+      '@ergon/evaluation-data-access-web':
+        specifier: workspace:*
+        version: link:../data-access-web
+      '@ergon/evaluation-model':
+        specifier: workspace:*
+        version: link:../model
+      '@ergon/ui-web':
+        specifier: workspace:*
+        version: link:../../ui-web
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+    devDependencies:
+      '@reduxjs/toolkit':
+        specifier: 2.12.0
+        version: 2.12.0(react-redux@9.3.0(@types/react@19.3.0)(react@19.3.0)(redux@5.0.1))(react@19.3.0)
+      react-redux:
+        specifier: 9.3.0
+        version: 9.3.0(@types/react@19.3.0)(react@19.3.0)(redux@5.0.1)
+
+  packages/evaluation/model: {}
 
   packages/evidence/data-access-web:
     dependencies:
