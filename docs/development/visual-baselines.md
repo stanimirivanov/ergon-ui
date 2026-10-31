@@ -108,9 +108,18 @@ outside this gate.
 
 ## M07 Simulation Lab navigation
 
-M07-PR13 adds the Simulation Lab link to the follow-up navigation. Header-inclusive
-follow-up screenshots may change. The implementation PR remains draft until the
-pinned renderer comparison is available and intentional navigation differences
-have been inspected. Local host images are not substituted for pinned baselines;
-no baseline or comparison tolerance changes accompany this slice. Simulation Lab
-browser scenarios additionally check 320-pixel reflow and axe accessibility.
+M07-PR13 adds the Simulation Lab link to the follow-up navigation. PR #243's
+pinned Verify [run 41169615163](https://github.com/stanimirivanov/ergon-ui/actions/runs/41169615163)
+at source revision `fc9cebb` supplies three inspected actual PNGs: populated desktop,
+populated narrow and empty desktop follow-up workspaces. Desktop diffs are confined
+to the new link and repositioned navigation items. At 320 pixels, navigation wraps
+onto one additional row, adding 36 pixels to page height; work content remains
+unchanged and fits without horizontal overflow. The semantic and accessibility
+assertions passed in the pinned run.
+
+These actual PNGs are copied byte-for-byte from that pinned artifact. No comparison
+tolerance, mask, application code or test assertion changes accompany the update.
+PR review establishes baseline approval; the next pinned CI comparison must confirm
+the adopted expectations before readiness. Local Docker access remains unavailable,
+so this update does not claim a local visual rerun. Simulation Lab browser scenarios
+also check 320-pixel reflow and axe accessibility.
