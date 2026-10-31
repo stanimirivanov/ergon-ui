@@ -23,3 +23,12 @@ dependency is introduced.
 - `pnpm nx test @ergon/evaluation-feature-web`
 
 Run `pnpm verify` from the repository root for integration checks.
+
+## Confirmed promotion (M07-PR14)
+
+Promotion review, exact intent and acknowledgement now follow
+[ADR 0061](../../../docs/decisions/0061-confirm-reviewed-contract-promotion.md).
+Model owns neutral values, data access owns validated CSRF POSTs and ephemeral
+mutations, and feature owns labelled input, acknowledgement and mounted recovery.
+Cancel or navigation retires the private lifetime. No automatic promotion or
+permission administration is introduced.

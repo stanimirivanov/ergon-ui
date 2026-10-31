@@ -222,3 +222,9 @@ state. Older-page cursors and report selections are not persisted or placed in U
 See [ADR 0060](../../docs/decisions/0060-inspect-historical-evaluations.md) for
 ownership, browser contracts, simulated budget units and numeric limits. This view
 cannot promote contracts, author fixtures or establish live-provider performance.
+
+Review contract promotion from Simulation Lab using exact report coordinates and
+rationale. Confirm only after inspecting server-derived governance and acknowledging
+the exact revision. Uncertain outcomes offer explicit replay of the original mounted
+command. See [ADR 0061](../../docs/decisions/0061-confirm-reviewed-contract-promotion.md)
+for retirement, authority and reconciliation limits.

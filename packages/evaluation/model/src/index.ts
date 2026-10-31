@@ -77,3 +77,47 @@ export function coherentBudget(value: EvaluationBudgetDimension): boolean {
       : 'UNKNOWN')
   );
 }
+
+/** Exact immutable evidence selected for advisory review; never a pass claim. */
+export interface PromotionEvidence {
+  readonly fixture: EvaluationArtifact;
+  readonly reportId: string;
+  readonly reportDigest: string;
+}
+export interface PromotionInput extends EvaluationQuery {
+  readonly contractKey: string;
+  readonly reports: readonly PromotionEvidence[];
+  readonly rationale: string;
+}
+export interface PromotionIntent {
+  readonly expectedVersion: number;
+  readonly suite: EvaluationArtifact;
+  readonly contract: EvaluationArtifact;
+  readonly policy: EvaluationArtifact;
+  readonly reports: readonly PromotionEvidence[];
+  readonly rationale: string;
+}
+export interface PromotionReview {
+  readonly intent: PromotionIntent;
+  readonly eligibility: {
+    readonly eligible: boolean;
+    readonly reasons: readonly string[];
+    readonly scenarios: readonly {
+      readonly fixture: EvaluationArtifact;
+      readonly reasons: readonly string[];
+    }[];
+  };
+}
+/** One mounted acknowledged command; exact replay retains all coordinates and its UUID. */
+export interface PromotionCommand extends EvaluationQuery {
+  readonly commandId: string;
+  readonly intent: PromotionIntent;
+}
+export interface PromotionReceipt {
+  readonly commandId: string;
+  readonly created: boolean;
+  readonly contract: EvaluationArtifact;
+  readonly suite: EvaluationArtifact;
+  readonly bindingVersion: number;
+  readonly promotedAt: string;
+}

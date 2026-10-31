@@ -9,8 +9,12 @@ const digest = Schema.String.pipe(Schema.pattern(/^[a-f0-9]{64}$/u));
 const token = Schema.String.pipe(
   Schema.pattern(/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/u),
 );
-const artifact = Schema.Struct({ key: token, revision: token, sha256: digest });
-const instant = Schema.String.pipe(
+export const artifact = Schema.Struct({
+  key: token,
+  revision: token,
+  sha256: digest,
+});
+export const instant = Schema.String.pipe(
   Schema.pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/u),
   Schema.filter(
     (s) =>

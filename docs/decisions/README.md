@@ -83,6 +83,8 @@ decrease, even when the newest record is later superseded or deprecated.
 
 | [0060](0060-inspect-historical-evaluations.md) | Accepted | Read-only Simulation Lab with private history/report scopes |
 
+| [0061](0061-confirm-reviewed-contract-promotion.md) | Accepted | Explicit promotion review, acknowledgement and exact command recovery |
+
 Use [the template](0000-template.md) for decisions affecting compatibility,
 security, deployment, foundational technology, persisted meaning, or multiple
 applications.

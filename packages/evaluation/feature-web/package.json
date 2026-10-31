@@ -16,7 +16,9 @@
     "@ergon/evaluation-data-access-web": "workspace:*",
     "@ergon/ui-web": "workspace:*",
     "react": "19.3.0",
-    "@ergon/evaluation-model": "workspace:*"
+    "@ergon/evaluation-model": "workspace:*",
+    "react-hook-form": "7.90.0",
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@reduxjs/toolkit": "2.12.0",
