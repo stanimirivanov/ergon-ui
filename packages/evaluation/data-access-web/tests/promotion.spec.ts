@@ -146,3 +146,86 @@ it('denied CSRF never sends a command', async () => {
   ).toEqual({ ok: false, error: { kind: 'denied' } });
   expect(fetch).toHaveBeenCalledTimes(1);
 });
+
+it('rejects a chunked CSRF body over the byte limit and stops reading', async () => {
+  const encoder = new TextEncoder();
+  const cancel = vi.fn();
+  const chunks = [
+    encoder.encode('{"headerName":"X-CSRF-TOKEN","token":"fresh","extra":"'),
+    encoder.encode('é'.repeat(4096)),
+    encoder.encode('é'.repeat(4096)),
+    encoder.encode('"}'),
+  ];
+  const body = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      const chunk = chunks.shift();
+      if (chunk === undefined) controller.close();
+      else controller.enqueue(chunk);
+    },
+    cancel,
+  });
+  const fetch = vi
+    .fn<typeof globalThis.fetch>()
+    .mockResolvedValueOnce(new Response(body))
+    .mockResolvedValueOnce(Response.json(review));
+
+  await expect(
+    createPromotionClient({ fetch }).read(
+      command,
+      new AbortController().signal,
+    ),
+  ).resolves.toEqual({ ok: false, error: { kind: 'invalid-response' } });
+  expect(cancel).toHaveBeenCalledOnce();
+  expect(fetch).toHaveBeenCalledOnce();
+});
+
+it.each(['{', new Uint8Array([0xc3])])(
+  'rejects malformed CSRF bytes without a command',
+  async (body) => {
+    const fetch = vi
+      .fn<typeof globalThis.fetch>()
+      .mockResolvedValueOnce(new Response(body));
+
+    await expect(
+      createPromotionClient({ fetch }).read(
+        command,
+        new AbortController().signal,
+      ),
+    ).resolves.toEqual({ ok: false, error: { kind: 'invalid-response' } });
+    expect(fetch).toHaveBeenCalledOnce();
+  },
+);
+
+it('cancels a pending CSRF read when the caller aborts', async () => {
+  let markStarted: () => void = () => undefined;
+  const started = new Promise<void>((resolve) => {
+    markStarted = resolve;
+  });
+  const cancel = vi.fn();
+  const body = new ReadableStream<Uint8Array>(
+    {
+      pull() {
+        markStarted();
+      },
+      cancel,
+    },
+    { highWaterMark: 0 },
+  );
+  const fetch = vi
+    .fn<typeof globalThis.fetch>()
+    .mockResolvedValueOnce(new Response(body));
+  const controller = new AbortController();
+  const pending = createPromotionClient({ fetch }).read(
+    command,
+    controller.signal,
+  );
+
+  await started;
+  controller.abort();
+  await expect(pending).resolves.toEqual({
+    ok: false,
+    error: { kind: 'request-cancelled' },
+  });
+  expect(cancel).toHaveBeenCalledOnce();
+  expect(fetch).toHaveBeenCalledOnce();
+});
