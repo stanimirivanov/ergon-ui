@@ -1,0 +1,53 @@
+name: Live OIDC acceptance
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-acceptance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  live:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.16.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+      - name: Read backend revision
+        id: pair
+        run: node -p '"backend=" + require("./tools/live-acceptance/revisions.json").backendRevision' >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v5
+        with:
+          repository: stanimirivanov/ergon
+          ref: ${{ steps.pair.outputs.backend }}
+          path: .live-backend
+          persist-credentials: false
+      - name: Package backend
+        working-directory: .live-backend
+        run: ./mvnw -B -ntp -pl control-plane -am -Dmaven.test.skip=true package
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm live:check
+        env:
+          ERGON_LIVE_BACKEND: .live-backend

@@ -17,6 +17,7 @@
     "lint": "nx run-many -t lint",
     "typecheck": "nx run-many -t typecheck",
     "test": "nx run-many -t test",
+    "live:check": "node tools/live-acceptance/run.mjs",
     "e2e": "nx e2e @ergon/workbench-e2e",
     "visual:check": "playwright test --config=apps/ergon-workbench-e2e/playwright.visual.config.mts",
     "guide:check": "node --test tools/user-guide/book.test.mjs tools/user-guide/workflow.test.mjs tools/user-guide/source-metadata.test.mjs && node tools/user-guide/check-source-metadata.mjs",

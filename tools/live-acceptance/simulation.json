@@ -1,0 +1,85 @@
+{
+  "manifest": {
+    "schemaVersion": "ergon.simulation/v1",
+    "tenantId": "b1895c34-fbe1-44b8-9d3e-5e1415c40578",
+    "contract": {
+      "key": "restore-access",
+      "revision": "1",
+      "sha256": "5f07d8b8dfd08d2b883b4b8ad65b14bb38742c939b00d5b342f7dc7618192c90"
+    },
+    "policy": {
+      "key": "policy",
+      "revision": "1",
+      "sha256": "d1282af2374687b1a1bc3ce5217e1707f59c6a400498e2512f0abfbd9a0e3696"
+    },
+    "casePrefix": {
+      "caseId": "d422453b-fa6e-46e6-a5c6-1bc13b4c1fc0",
+      "streamVersion": 2,
+      "material": {
+        "key": "prefix",
+        "revision": "1",
+        "sha256": "4d6ad134e9cd3c2674b5148c89a287cb003462abd4bcfb8bec4b09647c438fd8"
+      }
+    },
+    "evaluator": {
+      "key": "evaluator",
+      "revision": "1",
+      "sha256": "38d32359ee49c3ef4a83ac180d77d9af79b6ceb7c98de2447001c24f24c6b545"
+    },
+    "evaluationAt": "2026-10-30T00:00:00Z",
+    "documentaryPins": [],
+    "scripts": [],
+    "modelConfiguration": null,
+    "assertions": {
+      "key": "assertions",
+      "revision": "1",
+      "sha256": "6c57cadc76b0fd799d26403b246f545f486c3bf18e9374a5514da8b95153b2ee"
+    },
+    "expectedOutcome": "NOT_READY",
+    "budget": null
+  },
+  "digest": "a97b5c12223239df25a80fb819c9c185fd8dc28d6004bcbf503d302c82007101",
+  "materials": [
+    {
+      "reference": {
+        "key": "restore-access",
+        "revision": "1",
+        "sha256": "5f07d8b8dfd08d2b883b4b8ad65b14bb38742c939b00d5b342f7dc7618192c90"
+      },
+      "content": "schema: ergon.dev/resolution-contract/v1alpha1\nkey: restore-access\nrevision: 1\napplicability: {fact: account.access.state, equals: LOCKED}\nrequiredEvidence: [account.access.state]\nsteps:\n  - {id: unlock, capability: identity.account.unlock, risk: LOW, approval: NONE}\noutcomeProof: {fact: account.access.state, equals: ACTIVE}"
+    },
+    {
+      "reference": {
+        "key": "policy",
+        "revision": "1",
+        "sha256": "d1282af2374687b1a1bc3ce5217e1707f59c6a400498e2512f0abfbd9a0e3696"
+      },
+      "content": "{\"schemaVersion\":\"ergon.simulation/policy/v1\",\"revision\":\"ergon/access/v1\",\"rules\":[{\"capability\":\"identity.account.unlock\",\"minimumRisk\":\"HIGH\",\"minimumApproval\":\"RESOLVER\"}]}"
+    },
+    {
+      "reference": {
+        "key": "prefix",
+        "revision": "1",
+        "sha256": "4d6ad134e9cd3c2674b5148c89a287cb003462abd4bcfb8bec4b09647c438fd8"
+      },
+      "content": "{\"schemaVersion\":\"ergon.simulation/case-prefix/v1\",\"tenantId\":\"b1895c34-fbe1-44b8-9d3e-5e1415c40578\",\"caseId\":\"d422453b-fa6e-46e6-a5c6-1bc13b4c1fc0\",\"events\":[{\"version\":1,\"type\":\"CaseOpened\",\"schemaVersion\":1,\"recordedAt\":\"2026-10-30T00:00:00Z\",\"payload\":{\"goal\":\"restore access\",\"observationId\":\"84275e29-1be4-439e-a106-09e3cac66aef\",\"observationOriginType\":\"REQUESTER\",\"observationProvider\":\"api\",\"observationReference\":null,\"observationContent\":\"locked\",\"occurredAt\":\"2026-10-30T00:00:00Z\"}},{\"version\":2,\"type\":\"ResolutionContractRevisionPinned\",\"schemaVersion\":1,\"recordedAt\":\"2026-10-30T00:00:00Z\",\"payload\":{\"contractKey\":\"restore-access\",\"contractRevision\":1,\"occurredAt\":\"2026-10-30T00:00:00Z\"}}]}"
+    },
+    {
+      "reference": {
+        "key": "evaluator",
+        "revision": "1",
+        "sha256": "38d32359ee49c3ef4a83ac180d77d9af79b6ceb7c98de2447001c24f24c6b545"
+      },
+      "content": "ergon.simulation/readiness-policy/v1"
+    },
+    {
+      "reference": {
+        "key": "assertions",
+        "revision": "1",
+        "sha256": "6c57cadc76b0fd799d26403b246f545f486c3bf18e9374a5514da8b95153b2ee"
+      },
+      "content": "{\"schemaVersion\":\"ergon.simulation/assertions/v1\",\"checks\":[{\"id\":\"not-ready\",\"required\":true,\"target\":\"scenario\",\"kind\":\"OUTCOME\",\"expected\":\"NOT_READY\"}]}"
+    }
+  ],
+  "provenance": { "kind": "SYNTHETIC", "description": "Readiness fixture" }
+}
