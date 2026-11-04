@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "ergon.simulation/gate-policy/v1",
+  "evaluators": [
+    {
+      "key": "evaluator",
+      "revision": "1",
+      "sha256": "38d32359ee49c3ef4a83ac180d77d9af79b6ceb7c98de2447001c24f24c6b545"
+    }
+  ],
+  "requireCostBudget": false,
+  "requireLatencyBudget": false
+}

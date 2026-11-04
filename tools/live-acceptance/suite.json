@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "ergon.simulation/suite/v1",
+  "contract": {
+    "key": "restore-access",
+    "revision": "1",
+    "sha256": "5f07d8b8dfd08d2b883b4b8ad65b14bb38742c939b00d5b342f7dc7618192c90"
+  },
+  "policy": {
+    "key": "required",
+    "revision": "1",
+    "sha256": "b6a4591588e23fe0786e197259973a2de7325efcc5fcdda0ec4daeb9cf6331bf"
+  },
+  "scenarios": [
+    {
+      "fixture": {
+        "key": "sample",
+        "revision": "1",
+        "sha256": "a97b5c12223239df25a80fb819c9c185fd8dc28d6004bcbf503d302c82007101"
+      },
+      "requiredAssertions": ["not-ready"]
+    }
+  ]
+}
