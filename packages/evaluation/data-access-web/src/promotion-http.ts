@@ -11,6 +11,11 @@ import {
   parsePromotionReview,
   parsePromotionReceipt,
 } from './promotion-schema';
+import { readBoundedJson } from './bounded-json';
+
+const CSRF_RESPONSE_LIMIT = 16_384;
+const PROMOTION_RESPONSE_LIMIT = 2_097_152;
+
 export type PromotionFailure = {
   readonly kind:
     | 'authentication-required'
@@ -84,7 +89,8 @@ export function createPromotionClient({
                   : 'unavailable',
           });
         const csrfValue = yield* Effect.tryPromise({
-          try: (): Promise<unknown> => csrfResponse.json(),
+          try: () =>
+            readBoundedJson(csrfResponse, CSRF_RESPONSE_LIMIT, owned.signal),
           catch: (): PromotionFailure => ({ kind: 'invalid-response' }),
         });
         const csrf = Schema.decodeUnknownEither(
@@ -146,30 +152,8 @@ export function createPromotionClient({
           catch: (): PromotionFailure => ({ kind: 'transport' }),
         });
         const json = Effect.tryPromise({
-          try: async (): Promise<unknown> => {
-            if (response.body === null) throw new Error('Missing body');
-            const reader = response.body.getReader();
-            const cancel = (): void => {
-              void reader.cancel().catch(() => undefined);
-            };
-            owned.signal.addEventListener('abort', cancel, { once: true });
-            const decoder = new TextDecoder('utf-8', { fatal: true });
-            let size = 0;
-            let text = '';
-            try {
-              while (true) {
-                const chunk = await reader.read();
-                if (chunk.done) break;
-                size += chunk.value.byteLength;
-                if (size > 2_097_152) throw new Error('Response limit');
-                text += decoder.decode(chunk.value, { stream: true });
-              }
-              return JSON.parse(text + decoder.decode()) as unknown;
-            } finally {
-              owned.signal.removeEventListener('abort', cancel);
-              cancel();
-            }
-          },
+          try: () =>
+            readBoundedJson(response, PROMOTION_RESPONSE_LIMIT, owned.signal),
           catch: (): PromotionFailure => ({ kind: 'invalid-response' }),
         });
         if (
