@@ -48,6 +48,8 @@ jobs:
         run: ./mvnw -B -ntp -pl control-plane -am -Dmaven.test.skip=true package
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
+      - name: Map the two test origins to loopback
+        run: echo '127.0.0.1 workbench.localhost requester.localhost' | sudo tee -a /etc/hosts
       - run: pnpm live:check
         env:
           ERGON_LIVE_BACKEND: .live-backend
